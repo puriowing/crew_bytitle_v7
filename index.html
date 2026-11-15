@@ -1,0 +1,1511 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#f7f5f1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="CREW作品">
+<title>CREW 作品分析</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Nunito:wght@500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f5f1; --card:#fff; --ink:#2b2f33; --ink2:#4a5057; --sub:#646d76; --sub-weak:#8a929a;
+  --rule:#e8e4dc; --rule2:#d9d4ca; --accent:#4e8780; --accent2:#3a6a64; --accent-soft:#e9f2f0; --accent-line:#c7dedb;
+  --goodln:#bfe0cd; --goodfill:#eef7f1; --goodtx:#1f7a4d;
+  --warnln:#e5d3a8; --warnfill:#fbf4e6; --warntx:#8a6414;
+  --badln:#eecac5;  --badfill:#fbeceb;  --badtx:#a3413a;
+  --neufill:#f1eee8; --shadow:0 1px 2px rgba(60,50,30,.05),0 6px 18px rgba(60,50,30,.05);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Noto Sans JP',sans-serif;font-size:14px;line-height:1.6;font-feature-settings:"palt"}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+.num{font-family:'Nunito','Noto Sans JP',sans-serif;font-weight:700;font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:'Zen Maru Gothic',sans-serif;margin:0}
+
+/* 上部バー */
+.top{position:sticky;top:0;z-index:30;background:rgba(251,250,247,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--rule)}
+.top-in{max-width:1280px;margin:0 auto;padding:10px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{font-family:'Zen Maru Gothic',sans-serif;font-weight:900;letter-spacing:.16em;color:var(--accent2);font-size:17px}
+.brand span{font-size:11px;letter-spacing:.04em;color:var(--sub);margin-left:8px;font-weight:700}
+.sel{border:1px solid var(--rule2);background:#fff;border-radius:999px;padding:7px 14px;font-weight:700;max-width:260px}
+.datebox{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--rule);border-radius:999px;padding:5px 12px}
+.datebox input[type=range]{width:170px;accent-color:var(--accent)}
+.chip{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;background:var(--accent-soft);color:var(--accent2);border:1px solid var(--accent-line);white-space:nowrap}
+.chip.neu{background:var(--neufill);color:var(--ink2);border-color:var(--rule)}
+.btn{border:1px solid var(--rule2);background:#fff;border-radius:999px;padding:6px 14px;font-size:12.5px;font-weight:700;color:var(--ink2)}
+.btn:hover{border-color:var(--accent-line);color:var(--accent2)}
+.btn kbd{font-family:'Nunito';font-size:11px;color:var(--sub-weak);margin-left:6px}
+.m-only{display:none}
+.tab .ts{display:none}
+#a2hs{position:fixed;left:12px;right:12px;bottom:calc(72px + env(safe-area-inset-bottom));z-index:36;background:#fff;border:1px solid var(--accent-line);border-radius:14px;box-shadow:0 8px 24px rgba(60,50,30,.18);padding:10px 12px;display:flex;align-items:center;gap:8px;font-size:12.5px}
+#a2hs[hidden]{display:none}
+#a2hs span{flex:1}
+.sp{flex:1}
+.internal{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--sub);border:1px dashed var(--rule2);border-radius:999px;padding:4px 6px 4px 12px}
+.seg{display:inline-flex;background:var(--neufill);border-radius:999px;padding:2px}
+.seg button{border:0;background:transparent;border-radius:999px;padding:4px 12px;font-size:12px;font-weight:700;color:var(--sub)}
+.seg button.on{background:#fff;color:var(--accent2);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+body.client .internal .seg,body.client .internal .int-l{display:none}
+body.client .internal{border-style:solid}
+
+/* ページのタブ */
+.tabs{max-width:1280px;margin:0 auto;padding:0 24px;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{border:0;background:transparent;padding:10px 16px 11px;font-family:'Zen Maru Gothic',sans-serif;font-weight:700;font-size:14px;color:var(--sub);border-bottom:3px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:7px}
+.tab:hover{color:var(--ink)}
+.tab.on{color:var(--accent2);border-bottom-color:var(--accent)}
+.sig{width:8px;height:8px;border-radius:50%;background:#c9ccd0}
+.sig.good{background:#5fae86}.sig.warn{background:#d9ad4f}.sig.bad{background:#d98476}
+
+/* 本文 */
+.wrap{max-width:1280px;margin:0 auto;padding:22px 24px 80px}
+.pg-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.pg-head h1{font-size:24px;font-weight:900}
+.pg-q{color:var(--sub);font-size:13.5px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+.c12{grid-column:span 12}.c8{grid-column:span 8}.c7{grid-column:span 7}.c6{grid-column:span 6}.c5{grid-column:span 5}.c4{grid-column:span 4}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:16px;box-shadow:var(--shadow);padding:18px 20px;min-width:0}
+.card.hit{outline:3px solid var(--accent-line);transition:outline .2s}
+.card-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.card-h h2{font-size:16px;font-weight:700}
+.card-h .d{font-size:12px;color:var(--sub)}
+.sub-h{font-family:'Zen Maru Gothic',sans-serif;font-weight:700;font-size:13px;color:var(--ink2);margin:14px 0 8px}
+.sub-h:first-child{margin-top:0}
+.note{font-size:11.5px;color:var(--sub);margin-top:8px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+
+/* 数字のカード */
+.nums{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+.ncard{border:1px solid var(--rule);border-radius:14px;padding:12px 14px;background:#fff;text-align:left;display:block;width:100%}
+.ncard:hover{border-color:var(--accent-line);background:#fcfdfc}
+.ncard .k{font-size:12px;color:var(--sub);font-weight:600}
+.ncard .v{font-size:24px;line-height:1.25}
+.ncard .v small{font-size:12px;color:var(--sub);margin-left:2px;font-weight:600}
+.ncard .m{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--sub);flex-wrap:wrap}
+.dp{font-family:'Nunito';font-weight:700;border-radius:999px;padding:0 7px;font-size:11.5px}
+.dp.up{background:var(--goodfill);color:var(--goodtx)}.dp.dn{background:var(--badfill);color:var(--badtx)}.dp.fl{background:var(--neufill);color:var(--sub)}
+.spark{display:block;width:100%;height:30px;margin-top:6px}
+
+/* 結論 */
+.verdict{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.score{width:118px;height:118px;border-radius:50%;display:grid;place-items:center;flex:none;background:conic-gradient(var(--accent) calc(var(--p)*1%),var(--neufill) 0)}
+.score>div{width:92px;height:92px;border-radius:50%;background:#fff;display:grid;place-items:center;text-align:center}
+.score b{font-size:34px;line-height:1}
+.score span{font-size:10.5px;color:var(--sub);display:block}
+.tone{display:inline-block;border-radius:999px;padding:2px 12px;font-weight:700;font-size:12.5px;border:1px solid}
+.tone.good{background:var(--goodfill);color:var(--goodtx);border-color:var(--goodln)}
+.tone.warn{background:var(--warnfill);color:var(--warntx);border-color:var(--warnln)}
+.tone.bad{background:var(--badfill);color:var(--badtx);border-color:var(--badln)}
+.verdict h3{font-size:19px;margin:6px 0 8px;font-weight:700}
+.fac{display:flex;gap:8px;flex-wrap:wrap}
+.fac span{border:1px solid var(--rule);border-radius:10px;padding:4px 10px;font-size:12px;background:#fff}
+.fac b{font-family:'Nunito';margin-left:6px}
+.todo{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.todo li{border-radius:12px;padding:9px 12px;border:1px solid var(--rule);background:#fff;font-size:13px}
+.todo li.warn{background:var(--warnfill);border-color:var(--warnln)}
+.todo li.good{background:var(--goodfill);border-color:var(--goodln)}
+.todo li.bad{background:var(--badfill);border-color:var(--badln)}
+.todo li b{display:block;font-family:'Zen Maru Gothic'}
+
+/* グラフ */
+.ch{display:flex;gap:8px}
+.ch-y{display:flex;flex-direction:column;justify-content:space-between;font-family:'Nunito';font-size:10.5px;color:var(--sub-weak);text-align:right;min-width:38px;padding:0 0 0 0}
+.ch-plot{position:relative;flex:1;min-width:0;border-bottom:1px solid var(--rule2)}
+.ch-plot svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.ch-x{position:relative;height:18px;margin-left:46px;font-family:'Nunito','Noto Sans JP';font-size:10.5px;color:var(--sub-weak)}
+.ch-x span{position:absolute;transform:translateX(-50%);white-space:nowrap;top:3px}
+.ch-x span.rel{color:var(--accent2);font-weight:700}
+.lg{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--sub);margin-top:6px}
+.lg i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:5px}
+.lg i.dot{width:10px;height:10px;border-radius:50%}
+.lg i.band{height:10px;opacity:.25}
+
+/* 年表 */
+.tl{position:relative}
+.tl-row{display:flex;gap:10px;align-items:stretch;border-top:1px solid var(--rule)}
+.tl-row:first-child{border-top:0}
+.tl-l{width:168px;flex:none;padding:8px 0}
+.tl-l .n{font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:6px}
+.tl-l .n i{width:9px;height:9px;border-radius:50%;flex:none}
+.tl-l .v{font-size:17px}
+.tl-l .v small{font-size:11px;color:var(--sub);margin-left:2px}
+.tl-l .s{font-size:10.5px;color:var(--sub-weak)}
+.tl-p{position:relative;flex:1;min-width:0;height:78px;margin:6px 0}
+.tl-p svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.tl-ev{height:40px}
+.evm{position:absolute;top:10px;width:18px;height:18px;margin-left:-9px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.12);padding:0}
+.evm.plan{background:#fff!important;border:2px dashed currentColor;box-shadow:none}
+.evm:hover{transform:scale(1.25);z-index:2}
+.evm.on{box-shadow:0 0 0 3px var(--accent-line)}
+.tl-cur{position:absolute;top:0;bottom:22px;width:1px;background:var(--ink2);opacity:.5;pointer-events:none;display:none}
+.tl-date{position:absolute;top:-4px;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:10.5px;border-radius:6px;padding:1px 7px;white-space:nowrap;pointer-events:none;display:none;font-family:'Nunito','Noto Sans JP'}
+.tl-x{position:relative;height:20px;margin-left:178px;font-family:'Nunito','Noto Sans JP';font-size:10.5px;color:var(--sub-weak)}
+.tl-x span{position:absolute;transform:translateX(-50%);white-space:nowrap;top:3px}
+.tl-x span.rel{color:var(--accent2);font-weight:700}
+.ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.lchip{border:1px solid var(--rule2);background:#fff;border-radius:999px;padding:3px 11px;font-size:12px;font-weight:600;color:var(--sub);display:inline-flex;align-items:center;gap:6px}
+.lchip i{width:8px;height:8px;border-radius:50%;opacity:.35}
+.lchip.on{color:var(--ink);border-color:var(--ink2)}
+.lchip.on i{opacity:1}
+
+/* 表・棒 */
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th{font-weight:600;color:var(--sub);text-align:left;padding:6px 8px;border-bottom:1px solid var(--rule2);font-size:11.5px;white-space:nowrap}
+td{padding:7px 8px;border-bottom:1px solid var(--rule);vertical-align:middle}
+td.r,th.r{text-align:right}
+td.r{font-family:'Nunito','Noto Sans JP';font-weight:700;font-variant-numeric:tabular-nums}
+tr.click{cursor:pointer}tr.click:hover td{background:#fbfaf7}
+.tw{overflow-x:auto}
+.cdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.bars{display:grid;gap:7px}
+.br{display:grid;grid-template-columns:minmax(84px,34%) 1fr 58px;gap:8px;align-items:center;font-size:12.5px}
+.br-l{color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.br-t{position:relative;height:12px;background:var(--neufill);border-radius:6px}
+.br-t i{position:absolute;left:0;top:0;bottom:0;border-radius:6px}
+.br-t b{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink)}
+.br-v{text-align:right;font-family:'Nunito';font-weight:700}
+.stack{display:flex;height:22px;border-radius:8px;overflow:hidden;font-size:11px;color:#fff;font-weight:700}
+.stack span{display:grid;place-items:center;overflow:hidden;white-space:nowrap}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
+.kpi{border:1px solid var(--rule);border-radius:12px;padding:10px 12px}
+.kpi .k{font-size:11.5px;color:var(--sub)}
+.kpi .v{font-size:21px}
+.kpi .v small{font-size:11.5px;color:var(--sub);margin-left:2px}
+.kpi .s{font-size:11px;color:var(--sub)}
+.words{display:flex;flex-wrap:wrap;gap:6px}
+.words span{border-radius:999px;padding:3px 11px;background:var(--neufill);font-size:12.5px}
+.words span b{font-family:'Nunito';color:var(--sub);margin-left:5px;font-size:11px}
+.voice{display:grid;gap:8px}
+.voice div{border-left:3px solid var(--rule2);padding:4px 10px;font-size:13px;background:#fcfbf9;border-radius:0 8px 8px 0}
+.voice div.p{border-color:#5fae86}.voice div.n{border-color:#d98476}
+.voice small{display:block;color:var(--sub-weak);font-size:10.5px}
+
+/* 位置の帯 */
+.pos{position:relative;height:26px;margin:4px 0}
+.pos-t{position:absolute;left:0;right:0;top:11px;height:4px;border-radius:2px;background:linear-gradient(90deg,#eecac5,#f1eee8 35%,#f1eee8 65%,#bfe0cd)}
+.pos-b{position:absolute;top:6px;height:14px;border-radius:7px;background:var(--accent);opacity:.25}
+.pos-m{position:absolute;top:3px;width:4px;height:20px;margin-left:-2px;border-radius:2px;background:var(--accent2)}
+.pos-p{position:absolute;top:10px;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:#b9bec4}
+.posrow{display:grid;grid-template-columns:150px 1fr 96px;gap:12px;align-items:center;font-size:12.5px}
+.pos-ax{display:flex;justify-content:space-between;font-size:10.5px;color:var(--sub-weak);margin-left:162px;margin-right:108px}
+.range{position:relative;height:44px;margin:10px 0 4px}
+.range .t{position:absolute;left:0;right:0;top:20px;height:4px;background:var(--neufill);border-radius:2px}
+.range .b{position:absolute;top:13px;height:18px;border-radius:9px;background:var(--accent);opacity:.3}
+.range .m{position:absolute;top:8px;width:4px;height:28px;margin-left:-2px;background:var(--accent2);border-radius:2px}
+.range .now{position:absolute;top:13px;width:2px;height:18px;background:var(--ink)}
+.range span{position:absolute;top:-8px;transform:translateX(-50%);font-size:10.5px;color:var(--sub);white-space:nowrap}
+.big{font-size:30px;line-height:1.2}
+.big small{font-size:13px;color:var(--sub);margin-left:4px}
+.tier{display:flex;gap:4px;margin:10px 0}
+.tier span{flex:1;text-align:center;border-radius:8px;padding:6px 2px;font-size:12px;background:var(--neufill);color:var(--sub-weak);font-weight:700}
+.tier span.on{background:var(--accent);color:#fff}
+.tier span.near{background:var(--accent-soft);color:var(--accent2)}
+.empty{color:var(--sub);font-size:13px;background:var(--neufill);border-radius:12px;padding:14px 16px}
+
+/* 右パネル */
+#scrim{position:fixed;inset:0;background:rgba(40,35,25,.28);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40}
+#panel{position:fixed;top:0;right:0;bottom:0;width:min(520px,100vw);background:#fdfcfa;border-left:1px solid var(--rule);box-shadow:-10px 0 30px rgba(60,50,30,.12);transform:translateX(102%);transition:transform .25s;z-index:41;overflow-y:auto;padding:20px 22px 40px}
+body.pn #scrim{opacity:1;pointer-events:auto}
+body.pn #panel{transform:none}
+.pn-x{position:sticky;top:0;float:right;border:1px solid var(--rule2);background:#fff;border-radius:999px;width:34px;height:34px;font-size:16px}
+#panel h2{font-size:19px;margin:6px 0 4px}
+.upl{display:grid;gap:8px;margin-top:8px}
+.upl div{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;border:1px solid var(--rule);border-radius:10px;padding:8px 12px;background:#fff;font-size:13px}
+.upl small{color:var(--sub);font-family:'Nunito','Noto Sans JP'}
+
+/* 指標の検索 */
+#cmdk{position:fixed;inset:0;z-index:60;display:none;background:rgba(40,35,25,.3);padding:10vh 16px 0}
+#cmdk.on{display:block}
+.ck{max-width:560px;margin:0 auto;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden}
+.ck input{width:100%;border:0;border-bottom:1px solid var(--rule);padding:15px 18px;font-size:15px;outline:none}
+.ck-l{max-height:52vh;overflow-y:auto}
+.ck-i{display:flex;justify-content:space-between;gap:10px;padding:10px 18px;border:0;background:#fff;width:100%;text-align:left;border-bottom:1px solid var(--rule)}
+.ck-i:hover{background:var(--accent-soft)}
+.ck-i small{color:var(--sub);white-space:nowrap}
+
+.jl-row{display:grid;grid-template-columns:78px minmax(0,1fr);gap:14px;align-items:stretch}
+.jl-row.now{border-top:2px solid var(--accent);margin-top:8px;padding-top:2px}
+.jl-row.gap .jl-c,.jl-row.now .jl-c{min-height:34px}
+.jl-chart{border:1px solid var(--rule);border-radius:14px;padding:14px 16px 10px;margin-bottom:14px;background:#fff}
+.jl-ct{display:flex;align-items:baseline;gap:10px 14px;flex-wrap:wrap;margin-bottom:22px;font-size:12.5px;font-weight:700}
+.jl-ct b{font-size:22px}.jl-ct b small{font-size:11px;color:var(--sub);margin-left:2px}
+.jl-cs{font-weight:400;color:var(--sub);font-size:11.5px}
+.hd{position:absolute;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;border:2px solid #fff;padding:0;display:grid;place-items:center;box-shadow:0 0 0 1px rgba(0,0,0,.15);z-index:1}
+.hd b{color:#fff;font:700 10px/1 'Nunito',sans-serif}
+.hd.plan{background:#fff!important;border:2px dashed currentColor;box-shadow:none}
+.hd.plan b{color:inherit}
+.hd:hover,.hd.on,.hd.hl{transform:scale(1.35);z-index:3;box-shadow:0 0 0 3px var(--accent-line)}
+.jl-card.hl{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-line)}
+.hband{position:absolute;height:7px;border-radius:4px;opacity:.6;border:0;padding:0;cursor:pointer;z-index:2}
+.hband:hover{opacity:1}
+.hband.plan{opacity:.25}
+.jl-src.p{background:var(--neufill);border-color:var(--rule)}
+.sq.cont{border-style:dotted;color:var(--sub);background:transparent}
+.hnow{position:absolute;top:0;bottom:0;border-left:2px solid var(--accent)}
+.hnow span{position:absolute;top:-17px;left:-12px;font-style:normal;font-size:10.5px;font-weight:700;color:var(--accent2);white-space:nowrap}
+.jl-no{font-style:normal;color:#fff;font:700 10.5px/18px 'Nunito',sans-serif;width:18px;height:18px;border-radius:50%;text-align:center;flex:none}
+.jl-d{display:flex;flex-direction:column;justify-content:center;text-align:right;font-size:11px;color:var(--sub);line-height:1.35}
+.jl-d b{font-size:13.5px;color:var(--ink)}
+.jl-row.ev .jl-d{justify-content:flex-start;padding-top:14px}
+.jl-d em{font-style:normal;font-weight:700;color:var(--accent2)}
+.jl-w{position:relative;display:flex;min-height:46px}
+.jl-l{position:relative;flex:1;min-width:0;border-left:1px solid var(--rule2)}
+.jl-row.head .jl-w{min-height:0}
+.jl-lh{flex:1;min-width:0;border-left:1px solid transparent;padding:0 4px 6px;font-size:10.5px;color:var(--sub);line-height:1.35;overflow:hidden}
+.jl-lh>span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jl-lh b{display:block;font-size:13px;color:var(--ink)}
+.jl-lh b small{font-size:10px;color:var(--sub);margin-left:1px}
+.jl-lh .cdot{width:7px;height:7px;margin-right:4px}
+.ls{display:none}
+.jl-row.ev .jl-w{min-height:62px}
+.jl-l svg{position:absolute;inset:0;width:100%;height:100%}
+.jl-l.open svg{height:62px;bottom:auto}
+.jl-f{position:absolute;left:0;top:62px;bottom:0;opacity:.13}
+.jl-fl{position:absolute;top:62px;bottom:0;width:1.8px;margin-left:-.9px}
+.jl-fl.c{background:#6f7780;width:1px;opacity:.55}
+.jl-ck{color:var(--sub)}
+.jl-ck .dash{display:inline-block;width:14px;border-top:2px dashed #6f7780;vertical-align:middle;margin-right:5px}
+.jl-lh{display:flex;gap:4px 18px;flex-wrap:wrap}
+.jl-m{font-weight:700}
+.jl-p{display:block;color:var(--sub);margin-top:2px}
+.jl-p::before{content:'';display:inline-block;width:12px;border-top:2px dashed #6f7780;vertical-align:middle;margin-right:6px}
+.jl-cmp{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--sub)}
+.jl-cmp .sel{padding:4px 10px;font-size:12.5px;font-weight:600;max-width:240px}
+.jl-row.plan.ev .jl-w{min-height:62px;border-left:0}
+.jl-row.plan .jl-l{border-left-style:dashed}
+.jl-row.plan .jl-dot{top:31px}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.pri:hover{background:var(--accent2);color:#fff}
+body.client .int-only{display:none}
+.jl-src{font-style:normal;font-weight:500;font-size:10.5px;color:var(--sub);border:1px solid var(--rule2);border-radius:999px;padding:0 8px;white-space:nowrap}
+.jl-src.m{color:var(--accent2);border-color:var(--accent-line);background:var(--accent-soft)}
+.cand{border:1px dashed var(--accent-line);background:#fbfdfc;border-radius:12px;padding:10px 14px;margin:0 0 12px;display:grid;gap:6px}
+.cand>b{font-family:'Zen Maru Gothic',sans-serif;font-size:13px;color:var(--accent2)}
+.cand>span{font-size:11.5px;color:var(--sub)}
+.cand-r{display:flex;justify-content:space-between;align-items:center;gap:8px 12px;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:6px;font-size:13px}
+.cand-r small{color:var(--sub-weak);margin-left:8px}
+.cand-r .btn{padding:4px 12px;margin-left:6px}
+.dup{background:var(--warnfill);border:1px solid var(--warnln);color:var(--warntx);border-radius:10px;padding:10px 12px;font-size:13px}
+.dup b{display:block;color:var(--ink);margin:4px 0}
+details.rm{border-top:1px solid var(--rule);padding-top:6px}
+details.rm summary{cursor:pointer;font-size:12px;color:var(--sub)}
+.fm{display:grid;gap:14px;margin-top:14px}
+.fm label{display:grid;gap:5px;font-size:12.5px;font-weight:600;color:var(--ink2)}
+.fm input,.fm select{border:1px solid var(--rule2);border-radius:10px;padding:9px 11px;font-size:14px;background:#fff;font-weight:400;width:100%}
+.fm input:focus,.fm select:focus{outline:2px solid var(--accent-line);border-color:var(--accent)}
+.fm small{font-weight:400;color:var(--sub);font-size:11.5px}
+.fm input::placeholder{color:#c3c7cc;opacity:1;font-weight:400}
+.fm .req{font-style:normal;font-weight:500;font-size:11px;color:var(--badtx);margin-left:8px}
+.fm input.bad{border-color:var(--badtx);background:var(--badfill)}
+.fm-e{color:var(--badtx);font-size:13px;min-height:1em}
+.fm-b{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.jl-card.ad{background:#fbfaf7;border-style:dashed}
+.jl-card.ad.on{border-style:solid}
+.jl-h.adh{grid-template-columns:minmax(0,1fr) auto;padding:6px 13px}
+.jl-h.adh .jl-n{font-weight:500;font-size:12.5px;flex-wrap:wrap;gap:4px 8px}
+.jl-adr{font-size:11.5px;color:var(--sub);white-space:nowrap}
+.jl-adp{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:2px 16px;font-size:11.5px;color:var(--sub);padding:4px 0 2px;border-top:1px dashed var(--rule);margin-top:5px}
+.jl-adp em{font-style:normal;color:var(--sub-weak)}
+.jl-adp b{color:var(--ink2);font-weight:600}
+.jl-adp small{color:var(--sub-weak);margin-left:5px;font-size:10.5px}
+.jl-src.b{color:var(--warntx);border-color:var(--warnln);background:var(--warnfill);font-weight:600}
+.note.boost{background:var(--warnfill);border:1px solid var(--warnln);color:var(--warntx);border-radius:10px;padding:8px 12px;font-size:12.5px;margin:0 0 6px}
+.fx-ad{display:inline-block;font-style:normal;margin-left:6px;color:var(--warntx);background:var(--warnfill);border:1px solid var(--warnln);border-radius:999px;padding:0 7px;font-size:10.5px}
+.seg.big button{padding:6px 16px;font-size:13px}
+table.fx td,table.fx th{vertical-align:top;padding:9px 10px}
+table.fx td small{color:var(--sub-weak);font-size:10.5px;margin-left:15px}
+table.fx th{font-size:12.5px;color:var(--ink);white-space:normal;min-width:150px}
+table.fx th:first-child{min-width:120px}
+.fx-t{display:block;font-size:11.5px;color:var(--sub)}
+.fx-p{font-size:12px;color:var(--sub-weak)}
+.fx-n{color:var(--sub-weak)}
+table.fx b.num{font-size:16px}
+table.fx b.best{outline:2px solid var(--goodln);outline-offset:3px;border-radius:6px}
+.sq{display:inline-flex;align-items:center;gap:4px;border:1px solid;border-radius:999px;padding:2px 10px;margin:2px 4px 2px 0;font-size:12px;background:#fff;white-space:nowrap}
+.sq.plan{border-style:dashed;color:var(--sub)}
+.sq small{color:var(--sub-weak);margin-left:4px}.sq b{margin-left:5px;font-size:11.5px}
+button.sq:hover{background:#fbfaf7}
+table.sqt tr.cur td{background:var(--accent-soft)}
+.jl-bar{position:absolute;left:0;height:3px;margin-top:-1.5px;border-radius:0 2px 2px 0;opacity:.42;min-width:1px}
+.jl-bar.e{opacity:.9;height:2px;margin-top:-1px}
+.jl-dot{position:absolute;top:31px;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.15)}
+.jl-c{display:grid;gap:6px;align-content:center;padding:5px 0;min-width:0}
+.jl-card{border:1px solid var(--rule);border-radius:12px;background:#fff}
+.jl-card.on{border-color:var(--accent-line);box-shadow:var(--shadow)}
+.jl-h{border:0;background:transparent;width:100%;text-align:left;padding:9px 13px;display:flex;justify-content:space-between;align-items:center;gap:6px 14px;flex-wrap:wrap;border-radius:12px}
+.jl-h:hover{background:#fbfaf7}
+.jl-n{font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:8px}
+.jl-tag{font-style:normal;color:#fff;font-size:10.5px;font-weight:700;border-radius:999px;padding:1px 9px;white-space:nowrap}
+.jl-u{display:flex;gap:4px 14px;flex-wrap:wrap;font-size:12px;color:var(--sub)}
+.jl-b{padding:0 13px 13px;border-top:1px solid var(--rule)}
+.jl-card.on{border:2px solid var(--accent);box-shadow:0 8px 24px rgba(60,80,75,.16);margin:10px 0 14px;overflow:hidden}
+.jl-card.on .jl-h{background:var(--accent-soft);border-radius:0}
+.jl-card.on .jl-h:hover{background:#dfeeeb}
+.jl-card.on .jl-b{background:#f8f7f3;border-top:2px solid var(--accent);padding:0 16px 16px}
+.jl-bh{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 -16px 4px;padding:8px 16px;background:var(--accent);color:#fff;font-family:'Zen Maru Gothic',sans-serif;font-weight:700;font-size:12.5px}
+.jl-bh .btn{padding:2px 12px;font-size:11.5px}
+.jl-card.on .jl-b .kpi,.jl-card.on .jl-b .upl div{background:#fff}
+.jl-card.on .jl-b .ch{background:#fff;border-radius:10px;padding:8px 8px 0 0}
+.jl-bf{border-top:1px solid var(--rule2);padding-top:12px;margin-top:16px}
+.jl-row:has(.jl-card.on)~.jl-row .jl-card:not(.on),.jl-row:has(.jl-card.on)~.jl-row .jl-g{opacity:.55}
+.jl-row:has(~.jl-row .jl-card.on) .jl-card:not(.on),.jl-row:has(~.jl-row .jl-card.on) .jl-g{opacity:.55}
+.jl-h{display:grid;grid-template-columns:minmax(0,1fr) repeat(var(--nc),108px);align-items:center;gap:0 4px}
+.jl-v{text-align:right;font-size:10.5px;color:var(--sub-weak);line-height:1.3;padding:3px 9px;border-radius:8px;white-space:nowrap}
+.jl-v b{display:block;font-size:15.5px;color:var(--ink);font-weight:700}
+.jl-v b small{font-size:10.5px;color:var(--sub);margin-left:1px;font-weight:600}
+.jl-v.hot{background:var(--goodfill)}
+.jl-v.hot b{color:var(--goodtx)}
+.jl-v.plan{border:1px dashed var(--rule2);background:transparent!important}
+.jl-v.plan b{color:var(--sub-weak);font-weight:500;font-size:13px}
+.jl-v.plan b small{color:var(--sub-weak);font-weight:400}
+.jl-v.wait{font-size:12px;color:var(--sub);white-space:normal}
+.jl-h.hdr{padding:0 13px 2px}
+.jl-h.hdr .jl-v{font-size:11.5px;color:var(--ink2);font-weight:600}
+.jl-h.hdr .cdot{width:7px;height:7px;margin-right:4px}
+.jl-hn{font-size:11px;color:var(--sub)}
+.jl-row.head .jl-c{padding-bottom:0}
+.jl-row.head{position:sticky;top:var(--toph,112px);z-index:4;background:#fff;border-bottom:1px solid var(--rule);padding:4px 0}
+.jl-g{font-size:12px;color:var(--sub-weak);border-left:2px dashed var(--rule2);padding:3px 0 3px 10px}
+.jl-row.plan .jl-w{min-height:40px}
+.jl-row.plan.gap .jl-w{min-height:30px}
+
+.jl-sec{font-family:'Zen Maru Gothic',sans-serif;font-weight:700;font-size:13.5px;color:var(--accent2);padding:8px 12px;margin:8px 0 6px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;width:100%;text-align:left;border:1px solid var(--accent-line);background:var(--accent-soft);border-radius:10px}
+.jl-sec:hover{background:#dfeeeb}
+.jl-sec i{font-style:normal;font-family:'Nunito';width:14px}
+.jl-sec span{font-family:'Noto Sans JP',sans-serif;font-weight:400;font-size:11.5px;color:var(--sub)}
+.jl-row.plan .jl-card{border-style:dashed}
+.jl-row.now .jl-w{min-height:30px}
+.jl-now{position:absolute;left:-5px;right:0;top:50%;border-top:2px solid var(--accent)}
+.jl-row.now .jl-w{border-left:1px solid var(--rule2)}
+.jl-nowt{font-size:12px;font-weight:700;color:var(--accent2)}
+.strip{display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap}
+.strip-s{font-size:30px;line-height:1;color:var(--accent2)}
+.strip-t{flex:1;min-width:200px;font-size:13px}
+#it-a_today{padding:12px 20px}#it-a_today .card-h{display:none}
+.srcs{display:flex;flex-wrap:wrap;align-items:center;gap:4px 5px;margin:-6px 0 12px;font-size:10.5px;line-height:1.6}
+.sc-l{color:var(--sub-weak);margin-right:2px}
+.sc{border:1px solid #c5cfe3;background:#eef2f9;color:#33487a;border-radius:6px;padding:0 7px;white-space:nowrap;font-weight:600}
+.sc.c{border-color:var(--rule2);background:var(--neufill);color:var(--ink2)}
+.sc.l{background:transparent;border-style:dashed;color:var(--sub-weak);font-weight:400}
+.sc.l i{font-style:normal;margin-left:5px;font-size:10px}
+#it-a_today .srcs{margin:6px 0 0}
+.sc.k2{background:#fdeedd;border-color:#eec39a;color:#8a4b12}
+.fut{font-style:normal;font-family:'Noto Sans JP',sans-serif;font-size:10.5px;font-weight:600;color:var(--warntx);background:var(--warnfill);border:1px solid var(--warnln);border-radius:999px;padding:0 8px;margin-left:8px;white-space:nowrap}
+details.castg{border:1px dashed #eec39a;background:#fffaf4;border-radius:14px;padding:10px 14px;margin:0 0 16px}
+details.castg>summary{cursor:pointer;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;font-size:12px;color:var(--sub)}
+details.castg>summary b{font-family:'Zen Maru Gothic',sans-serif;font-size:13.5px;color:#8a4b12}
+.cg-row{border-top:1px solid #f3dcc3;margin-top:8px;padding:8px 8px 4px;border-radius:10px}
+.cg-row.cur{background:#fdeedd;border-color:transparent}
+.cg-h{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12.5px;color:var(--ink2);margin-bottom:6px}
+.cg-h b{font-family:'Zen Maru Gothic',sans-serif;color:#8a4b12;margin-right:2px}
+.cg-h .btn{padding:2px 11px;font-size:11.5px}
+.cg-c{display:flex;flex-wrap:wrap;gap:5px}
+.cg-i{border:1px solid var(--rule2);background:#fff;border-radius:999px;padding:2px 11px;font-size:12px;color:var(--sub)}
+.cg-i.on{border-color:#eec39a;color:var(--ink);font-weight:600}
+.cg-i:hover{border-color:#8a4b12;color:var(--ink)}
+.cg-i small{margin-left:6px;color:var(--sub-weak);font-size:10.5px;font-weight:400}
+table.ans td{vertical-align:middle;padding:8px 10px}
+table.ans td small{color:var(--sub-weak);margin-left:6px;font-size:10.5px}
+table.ans th{white-space:nowrap}
+table.ans th small{font-weight:400;color:var(--sub-weak);margin-left:4px}
+table.ans .why{display:block;margin:2px 0 0;color:var(--sub-weak);font-size:10.5px;white-space:normal}
+table.ans .sq{margin:1px 4px 1px 0}
+.mp{font-style:normal;font-size:10.5px;border-radius:999px;padding:0 7px;margin-left:8px;white-space:nowrap}
+.mp.d{background:var(--goodfill);color:var(--goodtx);border:1px solid var(--goodln)}
+.mp.p{background:var(--warnfill);color:var(--warntx);border:1px solid var(--warnln)}
+.ab{display:grid;grid-template-columns:minmax(60px,1fr) 52px;gap:8px;align-items:center;min-width:130px}
+.ab i{display:block;height:11px;border-radius:6px;min-width:2px}
+.ab b{text-align:right;font-size:12.5px}
+.note.cast{background:#fffaf4;border:1px solid #eec39a;border-radius:10px;padding:9px 12px;font-size:12.5px;color:var(--ink2);margin:0 0 8px}
+.note.cast>b:first-child{display:inline-block;font-family:'Zen Maru Gothic',sans-serif;color:#8a4b12;margin-right:8px}
+.note.cast small{display:block;color:var(--sub-weak);font-size:11px;margin-top:2px}
+#it-a_answer{border-color:#eec39a}
+details.deep{margin-top:22px}
+details.deep>summary{list-style:none;cursor:pointer;font-family:'Zen Maru Gothic',sans-serif;font-weight:700;font-size:15px;color:var(--accent2);background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:14px;padding:12px 18px;display:flex;align-items:center;gap:10px}
+details.deep>summary::-webkit-details-marker{display:none}
+details.deep>summary::before{content:'＋';font-family:'Nunito'}
+details.deep[open]>summary::before{content:'－'}
+details.deep>summary span{font-size:12px;color:var(--sub);font-weight:500}
+details.deep>.grid{margin-top:16px}
+@media (max-width:900px){
+  .c8,.c7,.c6,.c5,.c4{grid-column:span 12}
+  .two,.three{grid-template-columns:1fr}
+  .top-in{padding:8px 14px;gap:8px}
+  .tabs{padding:0 8px}
+  .tab{padding:9px 11px 10px;font-size:13px}
+  .wrap{padding:16px 14px 70px}
+  .datebox input[type=range]{width:110px}
+  .brand span,.btn kbd{display:none}
+  .tl-row{flex-direction:column;gap:0}
+  .tl-l{width:auto;padding:6px 0 0;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+  .tl-x{margin-left:0}
+  .jl-row{grid-template-columns:46px minmax(0,1fr);gap:8px}
+  .jl-chart,.jl-no,.pc-only{display:none!important}
+  .datebox{flex-wrap:wrap;border-radius:16px}
+  .fut{margin-left:0}
+  .jl-h{grid-template-columns:1fr 1fr;gap:6px}
+  .jl-h .jl-n{grid-column:1/-1}
+  .jl-h.adh{grid-template-columns:1fr}
+  .jl-adr{white-space:normal}
+  .jl-v{text-align:left;background:var(--neufill);padding:5px 9px}
+  .jl-v::before{content:attr(data-l);display:block;font-size:10.5px;color:var(--sub)}
+  .jl-v.wait{grid-column:1/-1!important;background:transparent;padding:0}
+  .jl-v.wait::before{content:none}
+  .jl-h.hdr .jl-v{display:none}
+  .jl-h.hdr{padding:0;display:block}
+  .jl-row.head{position:static;border:0;display:block}
+  .jl-row.head .jl-d{display:none}
+  .lf{display:none}.ls{display:inline}
+  .jl-lh{padding:0 2px 4px}.jl-lh b{font-size:10.5px}.jl-lh b small{display:none}.jl-lh .cdot{margin-right:2px}
+  .jl-d{font-size:10px}
+  .jl-n{flex-wrap:wrap;gap:4px 8px;font-size:13px}
+  .jl-h{padding:8px 10px}
+  .jl-d b{font-size:12px}
+  .upl div{grid-template-columns:1fr auto}
+  .upl small{grid-column:1/-1;grid-row:2}
+  .tl-p{flex:none;width:100%}
+  /* ---- アプリとしての見た目（上部は1行、ページの切り替えは下） ---- */
+  body{padding-bottom:calc(62px + env(safe-area-inset-bottom))}
+  .top{position:sticky;top:0;backdrop-filter:none;background:#fbfaf7;padding-top:env(safe-area-inset-top)}
+  .top-in{flex-wrap:wrap;gap:6px 8px;padding:8px 12px}
+  .m-only{display:inline-flex}
+  #mDate{font-size:11.5px;padding:5px 10px}
+  #mMore{padding:4px 12px;font-size:15px;line-height:1.2}
+  .top .sp{display:none}
+  .brand{font-size:15px;letter-spacing:.12em}
+  .sel{flex:1;min-width:0;max-width:none;padding:6px 10px;font-size:13px}
+  .datebox,.top #btnSearch,.internal{display:none}
+  body.m-date .datebox{display:flex;width:100%;justify-content:space-between}
+  body.m-date .datebox input[type=range]{flex:1;width:auto}
+  body.m-more .top #btnSearch{display:inline-flex}
+  body.m-more .internal{display:flex;width:100%}
+  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:35;background:#fbfaf7;border-top:1px solid var(--rule);padding:0 4px env(safe-area-inset-bottom);gap:0;justify-content:space-around;overflow:visible}
+  .tab{flex:1;justify-content:center;padding:11px 2px 10px;font-size:12.5px;border-bottom:0;border-top:3px solid transparent;margin-top:-1px}
+  .tab.on{border-top-color:var(--accent);border-bottom-color:transparent}
+  .tab .tl{display:none}.tab .ts{display:inline}
+  .wrap{padding-top:12px}
+  .pg-head{margin-bottom:10px}
+  .pg-head h1{font-size:20px}
+  #panel{padding-top:calc(20px + env(safe-area-inset-top));padding-bottom:calc(40px + env(safe-area-inset-bottom))}
+  .internal{font-size:10.5px;flex-wrap:wrap;max-width:100%;border-radius:14px;padding:3px 5px}
+  .internal button{white-space:nowrap}
+  .internal .seg button{padding:3px 9px}
+  .int-l{display:none}
+  .posrow{grid-template-columns:1fr;gap:2px}
+  .pos-ax{margin:0}
+  .card{padding:15px 14px}
+  .sel{max-width:170px}
+}
+@media print{.top,#panel,#scrim,#cmdk{display:none}.card{break-inside:avoid;box-shadow:none}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="brand">CREW<span>作品分析</span></div>
+    <select id="selTitle" class="sel" aria-label="作品"></select>
+    <div class="datebox">
+      <span id="phaseChip" class="chip"></span>
+      <input id="day" type="range" aria-label="基準日">
+      <span id="dateLbl" class="num"></span>
+      <button id="btnToday" class="btn" style="padding:3px 10px">今日</button>
+    </div>
+    <button id="btnSearch" class="btn">指標を検索<kbd>⌘K</kbd></button>
+    <button id="mDate" class="chip m-only" aria-expanded="false"></button>
+    <button id="mMore" class="btn m-only" aria-label="その他の操作" aria-expanded="false">…</button>
+    <div class="sp"></div>
+    <div class="internal">
+      <span class="int-l">社内表示｜データの範囲</span>
+      <span class="seg" id="segPhase"><button data-p="1">Phase 1</button><button data-p="2">Phase 2</button><button data-p="3">Phase 3</button></span>
+      <button id="btnClient" class="btn" style="padding:3px 10px"></button>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs"></nav>
+</header>
+<main class="wrap" id="page"></main>
+<div id="a2hs" hidden><span id="a2hsT"></span><button class="btn pri" id="a2hsB" hidden>追加する</button><button class="btn" id="a2hsX" aria-label="閉じる">閉じる</button></div>
+<div id="scrim"></div>
+<aside id="panel" aria-label="くわしく"></aside>
+<div id="cmdk"><div class="ck"><input id="ckQ" placeholder="指標・項目の名前で探す"><div class="ck-l" id="ckL"></div></div></div>
+<script>
+/* ================= 基本 ================= */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const TODAY=new Date(2026,10,15), D0=-84, D1=41, GMAX=140;
+/* データソース：1 KARTE／2 CAST／3 SNS計測／4 レビュー／5 検索／6 宣伝データ */
+const PHASE_SET={1:[3,6],2:[3,4,5,6],3:[1,2,3,4,5,6]};
+const qs=new URLSearchParams(location.search);
+const S={castOpen:true,fk:'buzz',jv:'log',cmpSet:['a1','a2'],jw:'mag',cmp:'none',jlMode:'lanes',jlOpen:{fut:true,past:true},deepOpen:{},sim:null,phase:+qs.get('phase')||1,title:'t1',day:0,page:'acts',jl:{},openEv:null,tlRange:'all',layers:{},client:qs.get('view')==='client'};
+const has=n=>PHASE_SET[S.phase].includes(n);
+function rng(seed){let a=seed>>>0;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const mean=a=>a.length?a.reduce((s,v)=>s+v,0)/a.length:0;
+const sumA=a=>a.reduce((s,v)=>s+(v||0),0);
+const qt=(a,p)=>{const s=[...a].sort((x,y)=>x-y);if(!s.length)return 0;const i=(s.length-1)*p,l=Math.floor(i);return s[l]+(s[Math.min(l+1,s.length-1)]-s[l])*(i-l)};
+const med=a=>qt(a,.5);
+const pctOf=(v,arr)=>arr.length?Math.round(100*(arr.filter(x=>x<v).length+arr.filter(x=>x===v).length/2)/arr.length):50;
+const sig=x=>1/(1+Math.exp(-x));
+
+/* ================= 表示の書式 ================= */
+function fN(v){if(v==null||isNaN(v))return '—';const a=Math.abs(v);
+  if(a>=1e8)return (v/1e8).toFixed(a>=1e9?1:2)+'億';
+  if(a>=1e4)return (v/1e4).toFixed(a>=1e6?0:1)+'万';
+  return Math.round(v).toLocaleString();}
+const f1=v=>v==null||isNaN(v)?'—':(Math.round(v*10)/10).toFixed(1);
+const f2=v=>v==null||isNaN(v)?'—':(Math.round(v*100)/100).toFixed(2);
+function fmtBy(u){return u==='%'||u==='pt'?f1:u==='点'||u==='倍'?f2:fN}
+function dp(v,unit,label){if(v==null||isNaN(v))return '';const r=Math.round(v*10)/10;const c=r>0?'up':r<0?'dn':'fl';
+  return `<span class="dp ${c}">${r>0?'+':''}${r===0?'0':r.toFixed(Math.abs(r)>=100?0:1)}${unit}</span><span>${label}</span>`;}
+function dateOf(T,d){const x=new Date(T.open);x.setDate(x.getDate()+d);return x}
+const md=x=>`${x.getMonth()+1}/${x.getDate()}`;
+const relLbl=d=>d<0?`公開${-d}日前`:d===0?'公開日':`公開${d+1}日目`;
+
+/* ================= 施策とチャネル ================= */
+const CH={
+  OWNED:{n:'公式SNS',c:'#1b3a5b'}, PAID_DIGITAL:{n:'デジタル広告',c:'#b06a12'}, PAID_TV:{n:'TV',c:'#7c3aed'},
+  EVENT:{n:'イベント',c:'#1f7a4d'}, PR:{n:'パブ',c:'#0e7490'}
+};
+const isAd=e=>e.ch.startsWith('PAID');
+const adsOnX=(X,e)=>isAd(e)?[]:X.ev.filter(q=>isAd(q)&&(q.boost===e.id||(q.d<=e.d&&q.d+(q.len||1)-1>=e.d)));
+const GAIN={
+  OWNED:{buzz:.5,oeng:1.3,oimp:1.1,search:.3,clip:.4,aware:.3,intent:.4},
+  PAID_DIGITAL:{buzz:.25,oeng:.2,oimp:.2,search:.5,clip:.3,aware:.6,intent:.3},
+  PAID_TV:{buzz:.3,oeng:.1,oimp:.1,search:.75,clip:.2,aware:1.0,intent:.25},
+  EVENT:{buzz:.95,oeng:.6,oimp:.5,search:.4,clip:.6,aware:.2,intent:.55},
+  PR:{buzz:.7,oeng:.3,oimp:.3,search:.6,clip:.5,aware:.45,intent:.2}
+};
+const EV_TPL=[
+  [-80,'PR','製作発表・ティザービジュアル解禁',40],[-63,'OWNED','追加キャスト解禁の投稿',15],[-49,'PAID_DIGITAL','特報の動画広告',380],
+  [-42,'OWNED','本予告の解禁投稿',20],[-35,'PR','主題歌の発表',30],[-28,'PAID_DIGITAL','本予告の動画広告',620],
+  [-21,'EVENT','完成披露試写会',260],[-14,'PAID_TV','TVスポット開始',2400],[-10,'OWNED','場面写真・カウントダウン投稿',15],
+  [-7,'PAID_DIGITAL','公開直前の動画広告',540],[-1,'EVENT','前夜祭 舞台挨拶',180],[0,'PR','公開・初日舞台挨拶',60],
+  [3,'OWNED','感想投稿キャンペーン',25],[8,'EVENT','大ヒット御礼 舞台挨拶',150],[14,'PAID_DIGITAL','口コミ訴求の動画広告',300],[21,'OWNED','入場者特典 第2弾の告知',15]
+];
+const EV_TYPES=['製作発表','キャスト解禁','特報の広告','本予告の解禁','主題歌の発表','本予告の広告','完成披露','TVスポット','場面写真・カウントダウン','公開直前の広告','前夜祭','初日舞台挨拶','感想投稿キャンペーン','大ヒット御礼','口コミ訴求の広告','入場者特典の告知'];
+const MEDIA=[['YouTube',.36,560,.9,31],['X',.24,480,1.15,24],['Instagram',.22,620,.8,27],['TikTok',.18,410,.7,22]];
+
+/* ================= 架空データの生成 ================= */
+function build(t){
+  const r=rng(t.seed), q=t.q, pw=t.power, ix=d=>d-D0;
+  const open=new Date(TODAY); open.setDate(open.getDate()-t.today);
+  const dow=d=>{const x=new Date(open);x.setDate(x.getDate()+d);return x.getDay()};
+  const ev=EV_TPL.map((e,i)=>({id:i,d:clamp(e[0]+(e[0]===0?0:(t.shift||0)+(t.jit?Math.round((r()-.5)*t.jit):0)),D0,D1),ch:e[1],len:e[1]==='PAID_DIGITAL'?7:e[1]==='PAID_TV'?10:1,ty:EV_TYPES[i],src:e[1]==='PR'?'auto':'reg',art:e[1]==='PR'?(i*7+t.seed)%30+6:0,label:e[2],str:+(0.55+r()*0.95).toFixed(2),cost:Math.round(e[3]*(0.7+r()*0.6)*pw)})).filter(e=>!(t.skip||[]).includes(e.id));
+  ev.forEach(e=>{const m={5:3,14:12}[e.id];if(m!=null&&ev.some(q=>q.id===m))e.boost=m});
+  const flow=(B,gk,o)=>{const a=[];for(let d=D0;d<=D1;d++){
+    let base=d<0?(o.preZero?0:Math.exp(d/o.pre)):o.postMul*Math.exp(-d/o.postTau);
+    let v=B*pw*base;
+    if(gk)for(const e of ev)if(d>=e.d&&d-e.d<12&&!(o.preZero&&d<0))v+=GAIN[e.ch][gk]*e.str*B*pw*(o.evK||1.3)*Math.exp(-(d-e.d)/2.2);
+    const w=dow(d);if(o.wk&&(w===0||w===6))v*=1+o.wk;
+    a.push(Math.max(0,v*(0.88+r()*0.24)));}return a;};
+  const s={};
+  s.buzz=flow(2400,'buzz',{pre:24,postMul:1.9*(0.6+q),postTau:14+q*22,wk:.15});
+  s.oimp=flow(180000,'oimp',{pre:30,postMul:1.2,postTau:20,wk:.05});
+  s.oeng=flow(5200,'oeng',{pre:28,postMul:1.3*(0.7+q*.5),postTau:18,wk:.05});
+  s.search=flow(9000,'search',{pre:20,postMul:1.8,postTau:12+q*12,wk:.25});
+  s.clip=flow(160,'clip',{pre:22,postMul:3.2,postTau:9+q*9,wk:.2});
+  s.mark=flow(520,null,{preZero:true,postMul:1,postTau:8+q*42,wk:.6});
+  s.gross=[];const gr=rng(t.seed+7);
+  s.grossFull=[];for(let d=0;d<=GMAX;d++){const w=dow(d);s.grossFull.push(4200*pw*Math.exp(-d/(11+q*30))*((w===0||w===6)?2.3:w===5?1.3:1)*(0.9+gr()*0.2));}
+  for(let d=D0;d<=D1;d++)s.gross.push(d<0?0:s.grossFull[d]);
+  /* 広告：出稿期間に費用を配る */
+  s.aspD=Array(D1-D0+1).fill(0); s.aspT=Array(D1-D0+1).fill(0);
+  for(const e of ev){if(e.ch==='PAID_DIGITAL')for(let k=0;k<7;k++){if(e.d+k<=D1)s.aspD[ix(e.d+k)]+=e.cost*1e4/7}
+    if(e.ch==='PAID_TV')for(let k=0;k<10;k++){if(e.d+k<=D1)s.aspT[ix(e.d+k)]+=e.cost*1e4/10}}
+  const cpmD=520*(0.9+r()*0.25), cpmT=900*(0.9+r()*0.2), ctr0=0.7+q*0.45;
+  s.aimp=s.aspD.map((v,i)=>v/cpmD*1000+s.aspT[i]/cpmT*1000);
+  s.aclk=s.aspD.map((v,i)=>v/cpmD*1000*(ctr0-(i/(D1-D0))*0.2)*(0.92+r()*0.16)/100);
+  s.aview=s.aspD.map(v=>v/cpmD*1000*(0.22+q*0.12)*(0.92+r()*0.16));
+  /* 率の系列 */
+  s.aware=[];s.intent=[];s.sent=[];s.neg=[];s.score=[];s.sat=[];s.nps=[];
+  for(let d=D0;d<=D1;d++){
+    let a=6+44*Math.sqrt(pw)*sig((d+28)/16), it=3+20*sig((d+20)/14)*(0.7+q*0.6);
+    for(const e of ev)if(e.d<=d){a+=GAIN[e.ch].aware*e.str*1.6;it+=GAIN[e.ch].intent*e.str*1.05}
+    s.aware.push(clamp(a+(r()-.5)*1.2,2,94)); s.intent.push(clamp(it+(r()-.5)*1,1,62));
+    const sp=d<0?58+q*18:50+q*38; s.sent.push(clamp(sp+(r()-.5)*7,20,96));
+    s.neg.push(clamp((d<0?7:6+(1-q)*16)+(r()-.5)*3,1,40));
+    s.score.push(d<0?null:3.3+q*0.9-0.03*Math.log(1+d)+(r()-.5)*0.04);
+    s.sat.push(d<0?null:clamp(72+q*22-0.6*Math.log(1+d)+(r()-.5)*1.4,40,99));
+    s.nps.push(d<0?null:-8+q*58-1.2*Math.log(1+d)+(r()-.5)*3);
+  }
+  const T={...t,open,ev,s,dow,cpmD,cpmT};
+  T.final=sumA(s.grossFull)*1e4;
+  T.followers=Math.round(42000*pw);T.goal=Math.round(T.final*(0.9+r()*0.3)/1e8)*1e8;
+  return T;
+}
+const TITLE_DEFS=[
+  {k:'t1',name:'星降る夜のメロディ',genre:'恋愛・青春',kind:'実写邦画',screens:312,today:-12,seed:11,power:1.0,q:.8,skip:[2]},
+  {k:'t2',name:'ラストトレイン・ブルース',genre:'サスペンス',kind:'実写邦画',screens:285,today:9,seed:23,power:.85,q:.45},
+  {k:'t3',name:'ぼくらの小さな大冒険',genre:'ファミリー',kind:'アニメ',screens:340,today:23,seed:37,power:1.2,q:.7}
+];
+const TT={};TITLE_DEFS.forEach(t=>TT[t.k]=build(t));
+const PEERS=(()=>{const r=rng(999),a=[];for(let i=0;i<14;i++)a.push(build({k:'p'+i,name:'',today:37,seed:100+i*13,power:0.5+r()*1.1,q:0.15+r()*0.8}));return a})();
+PEERS.forEach(p=>p.full=true);
+const PAST=[build({k:'a1',name:'去年の春、君と',genre:'恋愛・青春',kind:'実写邦画',screens:298,today:37,seed:51,power:.95,q:.6,shift:3,jit:12,skip:[7,13]}),build({k:'a2',name:'あの夏のホームルーム',genre:'青春',kind:'実写邦画',screens:330,today:37,seed:67,power:1.15,q:.35,shift:-2,jit:14,skip:[2,4,12]})];PAST.forEach(p=>{p.full=true;p.past=true;TT[p.k]=p});
+const SIMILAR=['春を待つ手紙','あの日の約束','君と見た海','夜明けのランナー','ひだまりの食卓','最後の放課後','風の通り道','まちかどの奇跡','青のフォトグラフ','はじまりの歌','小さな灯台','雨上がりの二人','白い自転車','約束の丘'];
+const cur=()=>TT[S.title];
+
+/* ================= 系列の取り出し ================= */
+const at=(T,k,d)=>d<D0||d>D1?null:T.s[k][d-D0];
+const sumR=(T,k,a,b)=>{let x=0;for(let d=Math.max(a,D0);d<=Math.min(b,D1);d++)x+=T.s[k][d-D0]||0;return x};
+const avgR=(T,k,a,b)=>{const v=[];for(let d=Math.max(a,D0);d<=Math.min(b,D1);d++){const x=T.s[k][d-D0];if(x!=null)v.push(x)}return v.length?mean(v):null};
+const slice=(T,k,a,b,cut)=>{const v=[];for(let d=a;d<=b;d++)v.push(d>cut?null:at(T,k,d));return v};
+const RATE=new Set(['aware','intent','sent','neg','score','sat','nps']);
+
+/* 指標の定義。need＝必要なデータソース */
+const M={
+  buzz:{n:'話題の量',u:'件',need:3,c:'#5b6f9c',pg:'interest'},
+  sent:{n:'センチメント',sub:'好意的な声の割合',u:'%',need:3,c:'#4a8f6d',pg:'interest'},
+  oeng:{n:'公式SNSの反応',u:'件',need:6,c:'#3f7fa6',pg:'deliver'},
+  oimp:{n:'公式SNSの表示回数',u:'回',need:6,c:'#3f7fa6',pg:'deliver'},
+  aimp:{n:'広告の表示',u:'回',need:6,c:'#b08040',pg:'deliver'},
+  search:{n:'検索',sub:'作品名で調べられた回数',u:'回',need:5,c:'#8a5cc4',pg:'interest'},
+  clip:{n:'Clip!',sub:'観たい登録',u:'人',need:4,c:'#a06a86',pg:'interest'},
+  mark:{n:'Mark!',sub:'観た記録',u:'人',need:4,c:'#c2603f',post:true,pg:'interest'},
+  score:{n:'スコア',sub:'観た人の評価',u:'点',need:4,c:'#9c4f3e',post:true,pg:'interest'},
+  aware:{n:'認知率',u:'%',need:1,c:'#1b3a5b',pg:'interest'},
+  intent:{n:'観たい率',u:'%',need:1,c:'#6a9b8a',pg:'interest'},
+  sat:{n:'満足度',u:'%',need:2,c:'#2f6b52',post:true,pg:'interest'},
+  nps:{n:'すすめたい度（NPS）',u:'pt',need:2,c:'#55606b',post:true,pg:'interest'}
+};
+const mAvail=(k,d)=>has(M[k].need)&&!(M[k].post&&d<0);
+/* 類似作の同じ時点と比べた位置（0〜100） */
+const _pc={};
+function posOf(T,k,d,mode){const key=T.k+k+d+(mode||'');if(_pc[key]!=null)return _pc[key];
+  const f=X=>RATE.has(k)?(avgR(X,k,d-6,d)??0):mode==='cum'?sumR(X,k,D0,d):sumR(X,k,d-6,d);
+  return _pc[key]=pctOf(f(T),PEERS.map(f));}
+const adCtr=(T,d)=>{const i=sumR(T,'aspD',D0,d)/T.cpmD*1000;return i?sumR(T,'aclk',D0,d)/i*100:null};
+function adPos(T,d){const v=adCtr(T,d);if(v==null)return null;return pctOf(v,PEERS.map(p=>adCtr(p,d)).filter(x=>x!=null))}
+
+/* 反応スコア（Phase 1・2）／宣伝効果指数（Phase 3） */
+function scoreParts(T,d){const p=[];
+  if(has(3)){p.push({n:'話題の量',k:'buzz',v:posOf(T,'buzz',d)});p.push({n:'センチメント',k:'sent',v:posOf(T,'sent',d)})}
+  if(has(6)){p.push({n:'公式SNSの反応',k:'oeng',v:posOf(T,'oeng',d)});const a=adPos(T,d);if(a!=null)p.push({n:'広告の効率',k:'ad',v:a})}
+  if(has(5))p.push({n:'検索',k:'search',v:posOf(T,'search',d)});
+  if(has(4))p.push({n:'Clip!',k:'clip',v:posOf(T,'clip',d)});
+  if(has(1)){p.push({n:'認知率',k:'aware',v:posOf(T,'aware',d),w:2});p.push({n:'観たい率',k:'intent',v:posOf(T,'intent',d),w:3})}
+  return p;}
+function scoreOf(T,d){const p=scoreParts(T,d);const w=p.reduce((s,x)=>s+(x.w||1),0);return Math.round(p.reduce((s,x)=>s+x.v*(x.w||1),0)/w)}
+const scoreName=()=>has(1)?'宣伝効果指数':'反応スコア';
+const toneOf=v=>v>=62?['good','好調']:v>=40?['warn','ふつう']:['bad','弱い'];
+
+/* 施策の押し上げ：実施後3日 ÷ 実施前7日 */
+function uplift(T,e,k,dmax){if(e.d+2>dmax)return null;
+  if(RATE.has(k)){const a=avgR(T,k,e.d,e.d+2),b=avgR(T,k,e.d-3,e.d-1);return a==null||b==null?null:a-b}
+  const b=avgR(T,k,e.d-7,e.d-1),a=avgR(T,k,e.d,e.d+2);return b?(a/b-1)*100:null}
+const upKeys=()=>['buzz','oeng'].filter(k=>has(M[k].need)).concat(has(5)?['search']:[],has(4)?['clip']:[],has(1)?['intent']:[]);
+const _pe={};
+function peerUps(ch,k){const key=ch+k;if(_pe[key])return _pe[key];const a=[];
+  for(const p of PEERS)for(const e of p.ev)if(e.ch===ch){const u=uplift(p,e,k,D1);if(u!=null)a.push(u)}return _pe[key]=a}
+function evEff(T,e,dmax){const ks=upKeys(),v=[];for(const k of ks){const u=uplift(T,e,k,dmax);if(u!=null)v.push(pctOf(u,peerUps(e.ch,k)))}
+  return v.length?Math.round(mean(v)):null}
+const evNear=(T,e)=>T.ev.some(x=>x!==e&&Math.abs(x.d-e.d)<=3);
+
+/* ================= 部品 ================= */
+function pathOf(vals,mn,mx){let p='',pen=false;const n=vals.length-1||1;
+  vals.forEach((v,i)=>{if(v==null){pen=false;return}const x=i/n*100,y=100-(v-mn)/((mx-mn)||1)*100;p+=(pen?'L':'M')+x.toFixed(2)+' '+y.toFixed(2);pen=true});return p}
+function niceMax(v){if(v<=0)return 1;const e=Math.pow(10,Math.floor(Math.log10(v))),m=v/e;return (m<=1?1:m<=2?2:m<=2.5?2.5:m<=5?5:10)*e}
+function xTicks(T,a,b){const n=b-a,step=n<=21?7:n<=63?14:28,o=[];
+  for(let d=Math.ceil(a/step)*step;d<=b;d+=step)o.push(`<span class="${d===0?'rel':''}" style="left:${(d-a)/n*100}%">${d===0?'公開':md(dateOf(T,d))}</span>`);return o.join('')}
+/* 折れ線。series:[{n,vals,c,dash,band:[lo,hi]}] */
+function chart(T,series,o){const a=o.a,b=o.b,n=b-a,fmt=fmtBy(o.u);
+  const all=series.flatMap(s=>(s.vals||[]).concat(s.band?s.band[1]:[])).filter(v=>v!=null);
+  const mx=o.max||niceMax(Math.max(...all,1e-9)*1.02), mn=o.min??(o.zero===false?Math.floor(Math.min(...all)*0.98):0);
+  let g='';for(const y of [0,50,100])g+=`<line x1="0" x2="100" y1="${y}" y2="${y}" stroke="#eee9df" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
+  if(a<=0&&b>=0)g+=`<line x1="${-a/n*100}" x2="${-a/n*100}" y1="0" y2="100" stroke="#4e8780" stroke-width="1.2" stroke-dasharray="3 3" vector-effect="non-scaling-stroke"/>`;
+  for(const m of (o.marks||[]))if(m.d>=a&&m.d<=b)g+=`<line x1="${(m.d-a)/n*100}" x2="${(m.d-a)/n*100}" y1="0" y2="100" stroke="${m.c}" stroke-width="1" opacity=".35" vector-effect="non-scaling-stroke"/>`;
+  for(const s of series){
+    if(s.band){const lo=s.band[0],hi=s.band[1];let p='';hi.forEach((v,i)=>{if(v!=null)p+=(p?'L':'M')+(i/n*100).toFixed(2)+' '+(100-(v-mn)/(mx-mn)*100).toFixed(2)});
+      for(let i=lo.length-1;i>=0;i--)if(lo[i]!=null)p+='L'+(i/n*100).toFixed(2)+' '+(100-(lo[i]-mn)/(mx-mn)*100).toFixed(2);
+      g+=`<path d="${p}Z" fill="${s.c}" opacity=".16"/>`}
+    if(s.vals){if(s.fill){const f=s.vals.map(v=>v);const pp=pathOf(f,mn,mx);const last=f.reduce((m,v,i)=>v!=null?i:m,-1),first=f.findIndex(v=>v!=null);
+        if(last>first)g+=`<path d="${pp}L${(last/n*100).toFixed(2)} 100L${(first/n*100).toFixed(2)} 100Z" fill="${s.c}" opacity=".12"/>`}
+      g+=`<path d="${pathOf(s.vals,mn,mx)}" fill="none" stroke="${s.c}" stroke-width="${s.w||2}" ${s.dash?'stroke-dasharray="4 3"':''} stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`}}
+  const lg=series.length>1||o.legend?`<div class="lg">${series.map(s=>`<span><i class="${s.band&&!s.vals?'band':''}" style="background:${s.c}"></i>${s.n}</span>`).join('')}</div>`:'';
+  return `<div class="ch" style="height:${o.h||150}px"><div class="ch-y"><span>${fmt(mx)}</span><span>${fmt((mx+mn)/2)}</span><span>${fmt(mn)}</span></div><div class="ch-plot"><svg viewBox="0 0 100 100" preserveAspectRatio="none">${g}</svg>${o.over||''}</div></div><div class="ch-x">${xTicks(T,a,b)}</div>${lg}`}
+function spark(vals,c){const v=vals.filter(x=>x!=null);if(v.length<2)return '';const mx=Math.max(...v),mn=Math.min(...v);
+  return `<svg class="spark" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="${pathOf(vals,mn-(mx-mn)*.1,mx+(mx-mn)*.1||1)}" fill="none" stroke="${c}" stroke-width="1.8" vector-effect="non-scaling-stroke"/></svg>`}
+function bars(rows,o={}){const mx=o.max||Math.max(...rows.map(r=>Math.max(r.v,r.cmp||0)),1e-9);const fmt=o.fmt||fN;
+  return `<div class="bars">${rows.map(r=>`<div class="br"><span class="br-l" title="${r.l}">${r.l}</span><span class="br-t"><i style="width:${clamp(r.v/mx*100,0,100)}%;background:${r.c||o.c||'var(--accent)'}"></i>${r.cmp!=null?`<b style="left:${clamp(r.cmp/mx*100,0,100)}%"></b>`:''}</span><span class="br-v">${fmt(r.v)}${o.u||''}</span></div>`).join('')}</div>${o.cmp?`<div class="note">黒い線＝${o.cmp}</div>`:''}`}
+function stack(parts){const t=sumA(parts.map(p=>p.v))||1;return `<div class="stack">${parts.map(p=>`<span style="width:${p.v/t*100}%;background:${p.c}" title="${p.l} ${f1(p.v/t*100)}%">${p.v/t>.09?p.l+' '+Math.round(p.v/t*100)+'%':''}</span>`).join('')}</div>`}
+function kpi(k,v,u,s){return `<div class="kpi"><div class="k">${k}</div><div class="v num">${v}<small>${u||''}</small></div>${s?`<div class="s">${s}</div>`:''}</div>`}
+function posStrip(v,lo,hi,peers){return `<div class="pos"><div class="pos-t"></div>${(peers||[]).map(p=>`<i class="pos-p" style="left:${p}%"></i>`).join('')}${lo!=null?`<div class="pos-b" style="left:${lo}%;width:${Math.max(hi-lo,2)}%"></div>`:''}<div class="pos-m" style="left:${v}%"></div></div>`}
+const TIERS=['下位','やや下','中位','やや上','上位'];
+const tierOf=v=>v>=80?4:v>=60?3:v>=40?2:v>=20?1:0;
+
+/* 数字のカード */
+function ncard(T,k,d){const m=M[k],v=at(T,k,d),fmt=fmtBy(m.u);let delta='';
+  if(RATE.has(k)){const b=at(T,k,d-7);if(b!=null&&v!=null)delta=dp(v-b,m.u==='点'?'':'pt','前週比')}
+  else{const b=at(T,k,d-1);if(b)delta=dp((v/b-1)*100,'%','前日比')}
+  const pos=RATE.has(k)&&(k==='score'||k==='sat'||k==='nps')?null:posOf(T,k,d);
+  return `<button class="ncard" data-go="${m.pg}" data-hit="${k}"><div class="k">${m.n}${m.sub?`<span style="color:var(--sub-weak);font-weight:400">｜${m.sub}</span>`:''}</div>
+    <div class="v num">${fmt(v)}<small>${m.u}</small></div><div class="m">${delta}</div>
+    ${spark(slice(T,k,d-27,d,d),m.c)}<div class="m">${pos!=null?`類似作の同じ時期で ${TIERS[tierOf(pos)]}`:'直近4週'}</div></button>`}
+
+/* ================= 年表 ================= */
+const LAYER_KEYS=['buzz','sent','oeng','aimp','search','clip','mark','aware','intent','sat'];
+const LAYER_DEFAULT={1:['buzz','sent','oeng','aimp'],2:['buzz','clip','search','oeng'],3:['aware','intent','buzz','clip']};
+function tlLayers(d){const av=LAYER_KEYS.filter(k=>has(M[k].need));const on=(S.layers[S.phase]||LAYER_DEFAULT[S.phase]).filter(k=>av.includes(k));return {av,on}}
+function timeline(T,a,b,keys,id){const n=b-a,d=S.day;
+  const evs=T.ev.filter(e=>e.d>=a&&e.d<=b);
+  const marks=evs.map(e=>({d:e.d,c:CH[e.ch].c}));
+  const rows=keys.map(k=>{const m=M[k],vals=slice(T,k,a,b,d),v=vals.filter(x=>x!=null);
+    const mx=niceMax(Math.max(...v,1e-9)*1.02),mn=RATE.has(k)&&v.length?Math.floor(Math.min(...v)*0.95):0;
+    let g=`<line x1="0" x2="100" y1="100" y2="100" stroke="#e8e4dc" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
+    if(a<=0&&b>=0)g+=`<line x1="${-a/n*100}" x2="${-a/n*100}" y1="0" y2="100" stroke="#4e8780" stroke-width="1.2" stroke-dasharray="3 3" vector-effect="non-scaling-stroke"/>`;
+    for(const mk of marks)g+=`<line x1="${(mk.d-a)/n*100}" x2="${(mk.d-a)/n*100}" y1="0" y2="100" stroke="${mk.c}" stroke-width="1" opacity=".28" vector-effect="non-scaling-stroke"/>`;
+    const pp=pathOf(vals,mn,mx),last=vals.reduce((x,val,i)=>val!=null?i:x,-1),first=vals.findIndex(x=>x!=null);
+    if(last>first)g+=`<path d="${pp}L${(last/n*100).toFixed(2)} 100L${(first/n*100).toFixed(2)} 100Z" fill="${m.c}" opacity=".10"/>`;
+    g+=`<path d="${pp}" fill="none" stroke="${m.c}" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`;
+    return `<div class="tl-row"><div class="tl-l"><div class="n"><i style="background:${m.c}"></i>${m.n}</div><div class="v num" data-v="${k}">${fmtBy(m.u)(at(T,k,Math.min(d,b)))}<small>${m.u}</small></div><div class="s">${m.sub||''}</div></div>
+      <div class="tl-p"><svg viewBox="0 0 100 100" preserveAspectRatio="none">${g}</svg></div></div>`}).join('');
+  const dots=evs.map(e=>`<button class="evm ${e.d>d?'plan':''}" data-ev="${e.id}" style="left:${(e.d-a)/n*100}%;background:${CH[e.ch].c};color:${CH[e.ch].c}" title="${md(dateOf(T,e.d))} ${e.label}" aria-label="${e.label}"></button>`).join('');
+  return `<div class="tl" data-tl="${id}" data-a="${a}" data-b="${b}">
+    <div class="tl-row"><div class="tl-l"><div class="n">施策</div><div class="s">しるしを押すと内容と反応</div></div><div class="tl-p tl-ev">${dots}</div></div>
+    ${rows}<div class="tl-cur"></div><div class="tl-date"></div></div>
+    <div class="tl-x">${xTicks(T,a,b)}</div>
+    <div class="lg">${Object.values(CH).map(c=>`<span><i class="dot" style="background:${c.c}"></i>${c.n}</span>`).join('')}<span><i class="dot" style="border:2px dashed #888;background:#fff"></i>これから実施</span></div>`}
+function bindTimeline(root){$$('.tl',root).forEach(tl=>{const T=cur(),a=+tl.dataset.a,b=+tl.dataset.b,cur_=$('.tl-cur',tl),dt=$('.tl-date',tl);
+  tl.addEventListener('mousemove',ev=>{const p=$('.tl-p',tl).getBoundingClientRect(),r=tl.getBoundingClientRect();const x=(ev.clientX-p.left)/p.width;
+    if(x<0||x>1){cur_.style.display=dt.style.display='none';return}
+    const d=Math.min(Math.round(a+x*(b-a)),S.day);const px=p.left-r.left+(d-a)/(b-a)*p.width;
+    cur_.style.display=dt.style.display='block';cur_.style.left=dt.style.left=px+'px';dt.textContent=md(dateOf(T,d))+'｜'+relLbl(d);
+    $$('[data-v]',tl).forEach(el=>{const k=el.dataset.v;el.firstChild.textContent=fmtBy(M[k].u)(at(T,k,d))})});
+  tl.addEventListener('mouseleave',()=>{cur_.style.display=dt.style.display='none';$$('[data-v]',tl).forEach(el=>{const k=el.dataset.v;el.firstChild.textContent=fmtBy(M[k].u)(at(T,k,Math.min(S.day,b)))})})})}
+
+/* 施策カード（右パネル） */
+function evDetail(T,e,d){const c=CH[e.ch],done=e.d<=d,ks=LAYER_KEYS.filter(k=>has(M[k].need)&&k!=='aimp'&&k!=='sat'&&!(M[k].post&&e.d<0));
+  const L=e.len||1,o0=absUp(T,e,ks[0],d);
+  const rows=ks.map(k=>{const o=absUp(T,e,k,d),m=M[k],rt=RATE.has(k);if(!o)return `<div><span>${m.n}</span><small>計測中</small><span></span></div>`;
+    return `<div><span>${m.n}</span><small>${rt?'実施前 '+f1(o.b)+m.u:'ふだんの'+o.w+'日分 '+fN(o.base)+m.u}</small><b class="num">${absTx(o.tot,k)}</b></div>`}).join('');
+  const eff=evEff(T,e,d);
+  const same=S.cmpSet.map(k=>TT[k]).filter(X=>X&&X.k!==T.k).map(X=>({X,pe:X.ev.filter(q=>q.ty===e.ty).sort((p,q)=>p.d-q.d)[0]})).filter(o=>o.pe&&o.pe.d<=evMax(o.X));
+  const sameH=same.length?`<div class="sub-h">ほかの作品の、同じ種類の施策（${e.ty}）</div><div class="upl">${same.map(o=>{const fk=magKeys().includes(S.fk)?S.fk:magKeys()[0],q=absUp(o.X,o.pe,fk,evMax(o.X));return `<div><span>${o.X.name}</span><small>${relLbl(o.pe.d)}｜${M[fk].n}</small><b class="num" style="color:${q?absCol(q):'inherit'}">${q?absTx(q.tot,fk):''}</b></div>`}).join('')}</div>`:'';
+  const perH=L>1&&o0&&o0.per?`<div class="sub-h">実施期間 ${md(dateOf(T,e.d))}〜${md(dateOf(T,eEnd(e)))}（${L}日間）${o0.per.ongoing?`のうち、ここまでの${o0.per.w}日間`:''}の合計</div><div class="upl">${ks.filter(k=>!RATE.has(k)).map(k=>{const o=absUp(T,e,k,d);return o&&o.per?`<div><span>${M[k].n}</span><small>ふだんの${o.per.w}日分 ${fN(o.per.base)}${M[k].u}</small><b class="num">${absTx(o.per.tot,k)}</b></div>`:''}).join('')}</div>`:'';
+  const castH=has(2)&&d>=0&&e.d<=d?castLine(T,e,d):'';
+  const ao=adsOnX(T,e),adH=ao.length?`<div class="note boost">この施策は、広告「${ao.map(q=>esc(q.label)).join('」「')}」${ao.some(q=>q.boost===e.id)?'で後押ししています':'の期間と重なっています'}。下の数字には、広告による後押しが含まれます。</div>`:'';
+  if(isAd(e)){const tg=T.ev.find(q=>q.id===e.boost),ph=tg?'':adPerH(T,e,d);return `<div class="kpis" style="margin:12px 0">${kpi('費用',fN(e.cost*1e4),'円')}${kpi('期間',L,'日間',`${md(dateOf(T,e.d))}〜${md(dateOf(T,eEnd(e)))}`)}</div><div class="note" style="font-size:13px;color:var(--ink)">${tg?'後押しする施策：':'この広告の位置づけ：'}<b>${tg?esc(tg.label):'単独の広告（特定の施策の後押しではありません）'}</b></div>${castH}<div class="empty" style="margin-top:10px">広告は、出稿量やターゲティングで結果が変わります。そのため、ほかの施策と横に並べた比較や「効き具合」には入れていません。表示回数やクリック率は「届け方」のページにあります。</div><div class="fm-b"><button class="btn" data-page="deliver">「届け方」を開く</button></div>${ph}<div class="sub-h">広告の期間の前後の動き（参考）</div>${chart(T,[{n:M[ks[0]].n,vals:slice(T,ks[0],e.d-10,eEnd(e)+10,d),c:M[ks[0]].c,fill:true}],{a:e.d-10,b:eEnd(e)+10,u:M[ks[0]].u,h:130,marks:[{d:e.d,c:c.c},{d:eEnd(e),c:c.c}],legend:true})}`}
+  return `<div class="kpis" style="margin:12px 0">${kpi('費用',fN(e.cost*1e4),'円')}${kpi('効き具合',done&&eff!=null?eff:'—',done&&eff!=null?'／100':'',done?(eff!=null?`同じ種類の過去の施策の中で ${TIERS[tierOf(eff)]}`:'実施から3日後に出ます'):'これから実施')}</div>${adH}${castH}
+    ${done?`<div class="sub-h">${L>1?'開始からの3日間':'実施からの3日間'}</div><div class="upl">${rows}</div>
+    <div class="note">右の数字は、${L>1?'開始した日':'実施した日'}からの3日間の合計です。ほかの施策と同じ物差しで比べられます。「ふだん」は、実施前7日間の1日平均を同じ日数分にした目安。率の指標は3日間の平均です。${evNear(T,e)?'<b>前後3日以内に別の施策があり、効果が重なっています。</b>':''}</div>
+    ${perH}${sameH}<div class="sub-h">前後2週間の動き</div>${chart(T,[{n:M[ks[0]].n,vals:slice(T,ks[0],e.d-10,e.d+10,d),c:M[ks[0]].c,fill:true}],{a:e.d-10,b:e.d+10,u:M[ks[0]].u,h:130,marks:[{d:e.d,c:c.c}],legend:true})}`
+    :`<div class="empty">この施策はこれから実施します。実施の3日後から、反応の前後比較が出ます。</div>${sameH}`}`}
+function openEvent(id){const T=cur(),e=T.ev.find(x=>x.id===id),c=CH[e.ch];
+  $('#panel').innerHTML=`<button class="pn-x" aria-label="閉じる">×</button>
+    <span class="chip" style="background:#fff;border-color:${c.c};color:${c.c}">${c.n}</span> <span class="chip neu">${md(dateOf(T,e.d))}｜${relLbl(e.d)}</span>
+    <h2>${e.label}</h2>${evDetail(T,e,S.day)}`;
+  document.body.classList.add('pn');$('.pn-x').onclick=closePanel}
+function closePanel(){document.body.classList.remove('pn')}
+</script>
+<script>
+/* ================= ページと項目 ================= */
+const PAGES=[
+  {k:'acts',n:'施策と反応',q:'何をやって、どう動いたか'},{k:'home',n:'今日',q:'いま何が起きているか'},
+  {k:'deliver',n:'届け方',q:'効率よく届いているか'},{k:'interest',n:'関心と評判',q:'関心を持たれ、どう評価されているか'},
+  {k:'audience',n:'観客',q:'誰が観たいと思い、誰が観ているか'},{k:'outlook',n:'見通し',q:'どこまで伸びるか'}];
+const ITEMS=[];
+/* need＝すべて必要／any＝どれか1つ／when＝pre・post／hide＝出さない条件 */
+const I=(page,id,t,w,need,fn,o={})=>ITEMS.push({page,id,t,w,need,fn,...o});
+const avail=(it,d)=>it.need.every(has)&&(!it.any||it.any.some(has))&&(!it.when||(it.when==='pre')===(d<0))&&!(it.hide&&it.hide(d));
+const R=(T,salt)=>rng(T.seed*131+salt);
+const AGES=['10代','20代','30代','40代','50代','60代以上'];
+function dist(r,base,jit){const a=base.map(v=>Math.max(.5,v*(1+(r()-.5)*jit)));const s=sumA(a);return a.map(v=>v/s*100)}
+
+/* ---------- 今日 ---------- */
+I('home','h_verdict','今日の結論',7,[],(T,d)=>{const sc=scoreOf(T,d),pv=scoreOf(T,d-7),[tc,tl]=toneOf(sc),p=scoreParts(T,d).slice().sort((a,b)=>b.v-a.v);
+  const best=p[0],worst=p[p.length-1];
+  return {d:'類似作の同じ時期と比べた位置（0〜100）',h:`<div class="verdict"><div class="score" style="--p:${sc}"><div><div><b class="num">${sc}</b><span>${scoreName()}</span></div></div></div>
+   <div style="flex:1;min-width:220px"><span class="tone ${tc}">${tl}</span> <span class="m" style="font-size:12px;color:var(--sub)">${dp(sc-pv,'','前週比')}</span>
+   <h3>${worst.v<40?`${best.n}が強く、${worst.n}が弱い`:best.v>=60?`${best.n}が強い。大きく弱い点はありません`:'類似作とほぼ同じ水準です'}</h3>
+   <div class="fac">${p.map(x=>`<span>${x.n}<b>${x.v}</b></span>`).join('')}</div>
+   <div class="note">${scoreName()}は、上の数字をならしたものです。50が類似作の真ん中にあたります。</div></div></div>`}},{any:[3,6]});
+I('home','h_todo','今日の注意点とやること',5,[],(T,d)=>{const li=[];
+  const nx=T.ev.filter(e=>e.d>d).sort((a,b)=>a.d-b.d)[0];
+  if(nx&&nx.d-d<=7)li.push(['',`${nx.d-d}日後に「${nx.label}」`,`${CH[nx.ch].n}の施策です。実施の3日後から反応の前後比較が出ます。`]);
+  else if(d<0)li.push(['warn','この先7日間、施策の予定がありません',`公開まであと${-d}日です。話題が途切れないよう、投稿や露出の追加を検討してください。`]);
+  if(has(3)){const dv=at(T,'sent',d)-at(T,'sent',d-7);if(dv<-4)li.push(['bad','好意的な声の割合が下がっています',`前週より${f1(-dv)}pt低下。「関心と評判」で否定的な声の中身を確認してください。`])}
+  const done=T.ev.filter(e=>e.d+2<=d&&!isAd(e)),by={};done.forEach(e=>{const v=evEff(T,e,d);if(v!=null)(by[e.ch]=by[e.ch]||[]).push(v)});
+  const top=Object.entries(by).map(([c,v])=>[c,mean(v)]).sort((a,b)=>b[1]-a[1])[0];
+  if(top)li.push(['good',`${CH[top[0]].n}の施策がいちばん反応を取れています`,`効き具合の平均は${Math.round(top[1])}。同じ種類の施策を足す候補です。`]);
+  const w=scoreParts(T,d).sort((a,b)=>a.v-b.v)[0];if(w&&w.v<35)li.push(['warn',`${w.n}が類似作の同じ時期より弱い`,`位置は${w.v}（50が真ん中）。`]);
+  if(has(4)&&d>=7){const dv=at(T,'score',d)-at(T,'score',d-7);if(dv<-0.05)li.push(['bad','スコアが下がり始めています',`前週より${f2(-dv)}点低下。`])}
+  return {d:'数字の動きから自動で拾っています',h:`<ul class="todo">${li.slice(0,4).map(l=>`<li class="${l[0]}"><b>${l[1]}</b>${l[2]}</li>`).join('')}</ul>`}},{any:[3,6]});
+I('home','h_nums','毎日の数字',12,[],(T,d)=>({d:'押すとくわしいページへ',h:`<div class="nums">${Object.keys(M).filter(k=>k!=='oimp'&&mAvail(k,d)).map(k=>ncard(T,k,d)).join('')}</div>`}),{any:[3,6]});
+const POST_TXT=['本予告を公開しました','キャストからのメッセージ動画','場面写真を解禁','公開までのカウントダウン','メイキング映像を少しだけ','主題歌入りの特別映像','感想投稿キャンペーンのお知らせ','舞台挨拶のレポート'];
+function posts(T,d,n){const r=R(T,d+500),a=[];for(let i=0;i<8;i++){const dd=d-Math.floor(r()*7),imp=at(T,'oimp',dd)*(0.15+r()*0.5);
+  a.push({d:dd,t:POST_TXT[(i+T.seed+d+200)%POST_TXT.length],pf:['X','Instagram','TikTok','YouTube'][Math.floor(r()*4)],imp,eng:imp*(0.02+r()*0.05)})}
+  return a.sort((x,y)=>y.eng-x.eng).slice(0,n)}
+I('home','h_posts','反応が大きかった公式の投稿',6,[6],(T,d)=>({d:'直近7日間',h:`<div class="tw"><table><tr><th>投稿</th><th>媒体</th><th class="r">表示</th><th class="r">反応</th></tr>${posts(T,d,3).map(p=>`<tr><td>${p.t}<br><small style="color:var(--sub-weak)">${md(dateOf(T,p.d))}</small></td><td>${p.pf}</td><td class="r">${fN(p.imp)}</td><td class="r">${fN(p.eng)}</td></tr>`).join('')}</table></div>`}));
+const V_PRE=[['p','予告だけで泣きそう。公開日に観に行く'],['p','主題歌が流れた瞬間に鳥肌が立った'],['p','このキャストなら間違いない'],['n','予告で話を見せすぎている気がする'],['p','原作が好きなので楽しみにしている']];
+const V_POST=[['p','後半はずっと泣いていた。もう一度観たい'],['p','家族を誘ってまた行くつもり'],['p','映画館で観てよかったと思える音だった'],['n','中盤が少し長く感じた'],['n','予告の印象とは違う話だった'],['p','エンドロールで誰も席を立たなかった']];
+I('home','h_voice','生の声',6,[3],(T,d)=>{const v=(d<0?V_PRE:V_POST).map(x=>[...x,'SNSの投稿']);
+  if(has(4)&&d>=0)v.splice(1,0,['p','結末を知っていても涙が止まらない','レビュー'],['n','演出が好みと合わなかった','レビュー']);
+  if(has(2)&&d>=0)v.splice(0,0,['p','友人にすすめられて来た。来てよかった','鑑賞後のアンケート']);
+  return {d:'40字以内の抜き出し',h:`<div class="voice">${v.slice(0,5).map(x=>`<div class="${x[0]}">${x[1]}<small>${x[2]}</small></div>`).join('')}</div>`}});
+I('home','h_alert','評価の急変アラート',12,[4],(T,d)=>{const s=at(T,'score',d),b=at(T,'score',Math.max(0,d-7)),low=4+(1-T.q)*9,neg=at(T,'neg',d);const bad=s-b<-0.05;
+  return {d:'観た人の評価が悪い方向に動いていないか',h:`<div class="kpis">${kpi('スコアの平均',f2(s),'点',d>=7?`前週より ${s-b>=0?'+':''}${f2(s-b)}`:'公開1週目')}${kpi('低い点（2.4以下）の割合',f1(low),'%','類似作の中央値 4.1%')}${kpi('不満の言葉を含むレビュー',f1(neg*0.7),'%','類似作の中央値 8.5%')}
+  <div class="kpi" style="display:grid;place-items:center"><span class="tone ${bad?'bad':'good'}">${bad?'下がり始めています':'急な悪化はありません'}</span></div></div>`}},{when:'post'});
+I('home','h_tl','直近2週間の年表',12,[],(T,d)=>({d:'施策と、その日の反応',h:timeline(T,d-13,d+3,tlLayers(d).on.filter(k=>!(M[k].post&&d<0)),'home')}),{any:[3,6]});
+function funnel(T,d){const a=at(T,'aware',d),i=at(T,'intent',d),r=R(T,9);const cert=28+T.q*18+r()*4,th=58+T.q*20+r()*4;
+  return [['知っている',a,a,52],['観たい',i,i/a*100,38],['必ず観る',i*cert/100,cert,36],['劇場で観る',i*cert/100*th/100,th,70]]}
+I('home','h_funnel','どの段で落ちているか',12,[1],(T,d)=>{const f=funnel(T,d);let wi=1,wd=1e9;f.forEach((x,i)=>{if(i&&x[2]-x[3]<wd){wd=x[2]-x[3];wi=i}});
+  return {d:'知っている → 観たい → 必ず観る → 劇場で観る',h:`<div class="kpis">${f.map((x,i)=>kpi(x[0],f1(x[1]),'%',i?`前の段からの通過 ${f1(x[2])}%（平均 ${x[3]}%）${i===wi&&wd<0?' <b style="color:var(--badtx)">ここが弱い</b>':''}`:'全体に占める割合')).join('')}</div>`}});
+
+/* ---------- 施策と反応 ---------- */
+/* 施策の日誌：時間は上から下へ。波は「反応の大きさ」1本（または個別の指標1つ）。過去作・類似作を点線で重ねる */
+const JL_KEYS=['buzz','sent','oeng','search','clip','mark','aware','intent'],MAG_KEYS=['buzz','oeng','search','clip'];
+const jlMob=()=>matchMedia('(max-width:900px)').matches;
+const _mb={},magBase=k=>_mb[k]??(_mb[k]=med(PEERS.map(p=>avgR(p,k,D0,D1)))||1),magKeys=()=>MAG_KEYS.filter(k=>has(M[k].need));
+const hasDay=(X,x)=>x>=D0&&x<=D1&&(X.full||x<=(X.k===S.title?Math.max(X.today,S.day):X.today));
+/* 反応の大きさ：件数系の指標を「類似作のふだんの1日＝100」にそろえて平均した、1日ごとの指数 */
+const _mg={};function mag(X,x){if(!hasDay(X,x))return null;const key=X.k+'|'+S.phase+'|'+x;return _mg[key]??(_mg[key]=mean(magKeys().map(k=>at(X,k,x)/magBase(k)))*100)}
+const jwVal=(X,x)=>S.jw==='mag'?mag(X,x):hasDay(X,x)?at(X,S.jw,x):null;
+const cmpList=T=>[['none','比べない'],['peer','類似作の中央値'],...PAST.map(p=>[p.k,p.name+'（自社の過去作）']),...Object.values(TT).filter(X=>X.k!==T.k).map(X=>[X.k,X.name])];
+const cmpObj=()=>PAST.find(p=>p.k===S.cmp)||TT[S.cmp]||null;
+const upMag=(T,e,d)=>{if(e.d+2>d)return null;const m=(a,b)=>{const v=[];for(let x=a;x<=b;x++){const y=mag(T,x);if(y!=null)v.push(y)}return v.length?mean(v):null},b=m(e.d-7,e.d-1),a=m(e.d,e.d+2);return b?(a/b-1)*100:null};
+function journal(T,d){if(S.jw!=='mag'&&!mAvail(S.jw,d))S.jw='mag';S.cmp='none';
+  const a=Math.max(D0,{all:D0,w8:d-55,w4:d-27}[S.tlRange]),C=cmpObj(),isMag=S.jw==='mag',rate=!isMag&&RATE.has(S.jw),col=isMag?'#4e8780':M[S.jw].c,nm=isMag?'反応の大きさ':M[S.jw].n,un=isMag?'':M[S.jw].u,fm=isMag?v=>v==null?'—':Math.round(v):fmtBy(un);
+  const cv=x=>S.cmp==='none'?null:S.cmp==='peer'?med(PEERS.map(p=>jwVal(p,x)).filter(v=>v!=null)):jwVal(C,x),cmpName=S.cmp==='peer'?'類似作の中央値':C?C.name:'';
+  const fut={};T.ev.forEach(e=>{if(e.d>d)(fut[e.d]=fut[e.d]||[]).push(e)});const fmax=Math.min(D1,Math.max(d,...Object.keys(fut).map(Number),S.cmp==='none'?d:d+14)),frows=[];
+  for(let y=fmax;y>d;){if(fut[y]){frows.push({ev:fut[y],hi:y,lo:y,f:1});y--}else{let lo=y;while(lo-1>d&&!fut[lo-1])lo--;frows.push({hi:y,lo,f:1});y=lo-1}}
+  const all=[];for(let x=a;x<=fmax;x++){if(x<=d){const v=jwVal(T,x);if(v!=null)all.push(v)}const c=cv(x);if(c!=null)all.push(c)}
+  const mx=Math.max(...all,1e-9),mn=rate?Math.min(...all)*0.98:0,sc=v=>v==null?null:4+((v-mn)/((mx-mn)||1))*92;
+  const go=x=>x>d?null:sc(jwVal(T,Math.max(x,a))),gc=x=>x>fmax?null:sc(cv(Math.max(x,a)));
+  const pts=(r,g)=>{const n=r.hi-r.lo+1,mid=(p,q)=>p==null?q:q==null?p:(p+q)/2,o=[[mid(g(r.hi+1),g(r.hi)),0]];for(let i=0;i<n;i++)o.push([g(r.hi-i),(i+.5)/n*100]);o.push([mid(g(r.lo),g(r.lo-1)),100]);return o};
+  const seg=p=>{let s='',pen=false;p.forEach(q=>{if(q[0]==null){pen=false;return}s+=(pen?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1);pen=true});return s};
+  const lane=r=>{const po=pts(r,go),pc=S.cmp==='none'?[]:pts(r,gc),so=seg(po),ok=po.every(q=>q[0]!=null),bo=po[po.length-1][0],bc=pc.length?pc[pc.length-1][0]:null,e=r.ev;
+    return `<div class="jl-l ${e?'open':''}"><svg viewBox="0 0 100 100" preserveAspectRatio="none">${ok&&so?`<path d="${so}L0 100L0 0Z" fill="${col}" opacity=".13"/>`:''}${so?`<path d="${so}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`:''}${pc.length?`<path d="${seg(pc)}" fill="none" stroke="#6f7780" stroke-width="1.4" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"/>`:''}</svg>${e&&bo!=null?`<i class="jl-f" style="width:${bo}%;background:${col}"></i><i class="jl-fl" style="left:${bo}%;background:${col}"></i>`:''}${e&&bc!=null?`<i class="jl-fl c" style="left:${bc}%"></i>`:''}${e?(r.f?`<i class="jl-dot" style="left:0;background:#fff;border:2px dashed ${CH[e[0].ch].c};box-shadow:none"></i>`:`<i class="jl-bar e" style="top:31px;width:${go(r.hi)}%;background:${CH[e[0].ch].c}"></i><i class="jl-dot" style="left:${go(r.hi)}%;background:${CH[e[0].ch].c}"></i>`):''}</div>`};
+  const evBy={};T.ev.forEach(e=>{if(e.d>=a&&e.d<=d)(evBy[e.d]=evBy[e.d]||[]).push(e)});
+  const rows=[];let x=d;while(x>=a){if(evBy[x]){rows.push({ev:evBy[x],hi:x,lo:x});x--}else{let lo=x;while(lo-1>=a&&!evBy[lo-1])lo--;rows.push({hi:x,lo});x=lo-1}}
+  const ks=JL_KEYS.filter(k=>mAvail(k,d)),top3=arr=>arr.sort((p,q)=>q.w-p.w).slice(0,3).map(o=>o.h).join('');
+  const upTx=e=>{if(e.d+2>d)return '<span>反応は実施の3日後から出ます</span>';
+    return top3(ks.map(k=>{const o=absUp(T,e,k,d);if(!o)return null;const rt=RATE.has(k);return {w:rt?Math.abs(o.add)*10:Math.abs(o.b?o.a/o.b-1:0)*100,h:`<span>${M[k].n} <b class="num" style="color:var(--ink)">${absTx(o.tot,k)}</b></span>`}}).filter(Boolean))};
+  const expTx=e=>ks.filter(k=>!RATE.has(k)).slice(0,3).map(k=>`<span>${M[k].n} <b class="num">${absTx(peerAbs(e.ch,k),k)}</b> 前後</span>`).join('')||'<span>これから実施</span>';
+  const no={},ck=['buzz','oeng','search','clip','mark'].filter(k=>mAvail(k,d));
+  const rough=v=>{if(!v)return 0;const q=Math.pow(10,Math.floor(Math.log10(Math.abs(v)))-1);return Math.round(v/q)*q};
+  const cells=e=>{
+    if(e.d<=d&&e.d+2>d)return `<span class="jl-v wait" style="grid-column:span ${ck.length}">数字は、実施の3日後から出ます</span>`;
+    return ck.map(k=>{if(M[k].post&&e.d<0)return `<span class="jl-v" data-l="${M[k].n}"><b>—</b></span>`;
+      if(e.d>d)return `<span class="jl-v plan" data-l="${M[k].n}"><b class="num">約${fN(rough(peerAbs(e.ch,k)))}<small>${M[k].u}</small></b><small>目安（過去の同じ種類）</small></span>`;
+      const o=absUp(T,e,k,d);if(!o)return `<span class="jl-v" data-l="${M[k].n}"><b>—</b></span>`;
+      return `<span class="jl-v ${o.base&&o.tot/o.base>=1.5?'hot':''}" data-l="${M[k].n}"><b class="num">${fN(o.tot)}<small>${M[k].u}</small></b><small>ふだん ${fN(o.base)}</small></span>`}).join('')};
+  const adp=e=>{const ks=adKeys(d),o0=ks.length&&adPer(T,e,ks[0],d);if(!o0)return '';return `<span class="jl-adp"><em>期間中の反応（参考）${o0.ongoing?`・ここまで${o0.w}日間`:`・${o0.w}日間`}</em>${ks.map(k=>{const o=adPer(T,e,k,d);return `<span>${M[k].n} <b class="num">${fN(o.tot)}${M[k].u}</b><small>ふだん ${fN(o.base)}</small></span>`}).join('')}</span>`};
+  const card=e=>{const c=CH[e.ch],op=S.openEv===e.id,ad=isAd(e),per=(e.len||1)>1?`<i class="jl-src p">${md(dateOf(T,e.d))}〜${md(dateOf(T,eEnd(e)))}（${e.len}日間）${e.d<=d&&eEnd(e)>d?`・実施中 ${d-e.d+1}日目`:''}</i>`:'';
+    const body=op?`<div class="jl-b"><div class="jl-bh"><span>${ad?'この広告のくわしい内容':'この施策のくわしい内容'}</span><button class="btn" data-jev="${e.id}">閉じる ×</button></div>${evDetail(T,e,d)}<div class="fm-b jl-bf"><button class="btn" data-jev="${e.id}">閉じる</button><button class="btn" data-evedit="${e.id}">${ad?'この広告を編集':'この施策を編集'}</button><button class="btn" data-evrm="${e.id}">一覧から外す</button>${e.src==='both'?`<button class="btn" data-evsplit="${e.id}">自動取得の分を別の施策に分ける</button>`:''}</div></div>`:'';
+    if(ad){const tg=T.ev.find(q=>q.id===e.boost);return `<div class="jl-card ad ${op?'on':''}" id="jl-${e.id}"><button class="jl-h adh" data-jev="${e.id}" aria-expanded="${op}"><span class="jl-n"><i class="jl-tag" style="background:${c.c}">${c.n}</i>${e.label}${per}${e.cost?`<i class="jl-src p">費用 ${fN(e.cost*1e4)}円</i>`:''}</span><span class="jl-adr">${tg?`「${tg.label}」を後押し`:'単独の広告'}</span>${tg?'':adp(e)}</button>${body}</div>`}
+    const ao=adsOnX(T,e),ex=ao.some(q=>q.boost===e.id);
+    return `<div class="jl-card ${op?'on':''}" id="jl-${e.id}"><button class="jl-h" data-jev="${e.id}" aria-expanded="${op}"><span class="jl-n">${no[e.id]?`<i class="jl-no" style="background:${c.c}">${no[e.id]}</i>`:''}<i class="jl-tag" style="background:${c.c}">${c.n}</i>${e.label}${srcTag(e)}${per}${ao.length?`<i class="jl-src b" title="${esc(ao.map(q=>q.label).join('、'))}">${ex?'広告で後押し':'広告の期間中'}</i>`:''}</span>${cells(e)}</button>${body}</div>`};
+  const past=r=>{if(!C)return '';const ev=C.ev.filter(e=>e.d>=r.lo&&e.d<=r.hi&&hasDay(C,e.d));return ev.length?`<span class="jl-p">${C.name}はこの時期に「${ev.slice(0,2).map(e=>e.label).join('」「')}」${ev.length>2?'ほか':''}</span>`:''};
+  const actv=(r,lim)=>T.ev.filter(e=>(e.len||1)>1&&e.d<r.lo&&Math.min(eEnd(e),lim)>=r.lo);
+  const gapHead=(r,lim,none)=>{const n=r.hi-r.lo+1,ac=actv(r,lim);if(!ac.length)return `${none}${n}日間`;const full=ac.some(e=>Math.min(eEnd(e),lim)>=r.hi),nn=ac.map(e=>'「'+e.label+'」').join('');return full?`${nn}を実施中の${n}日間`:`${n}日間（はじめは${nn}を実施中）`};
+  const gapTx=r=>{const n=r.hi-r.lo+1;let t=gapHead(r,d,'施策のない');if(n>=6){const m=(p,q)=>{const v=[];for(let y=p;y<=q;y++){const z=jwVal(T,y);if(z!=null)v.push(z)}return mean(v)};t+=`　${nm} ${fm(m(r.lo,r.lo+2))} → ${fm(m(r.hi-2,r.hi))}${un}${isMag?'':'（1日あたり）'}`}return t+past(r)};
+  const fgap=r=>{const n=r.hi-r.lo+1;return `${gapHead(r,D1,'予定のない')}${n>=7&&r.lo<0&&!actv(r,D1).length?'　<b style="color:var(--warntx)">公開前に話題が途切れるおそれ</b>':''}${past(r)}`};
+  const nF=sumA(frows.map(r=>r.ev?r.ev.length:0)),nP=sumA(rows.map(r=>r.ev?r.ev.length:0)),nx=T.ev.filter(e=>e.d>d).sort((p,q)=>p.d-q.d)[0],oF=S.jlOpen.fut,oP=S.jlOpen.past;
+  const sec=(k,t,open,sub)=>`<button class="jl-sec" data-jsec="${k}" aria-expanded="${open}"><i>${open?'－':'＋'}</i>${t}<span>${sub}</span></button>`;
+  const b=Math.max(fmax,d,a+7),vals=[];for(let y=a;y<=b;y++)vals.push(y>d?null:jwVal(T,y));
+  const vv=vals.filter(v=>v!=null),vmx=niceMax(Math.max(...vv,1e-9)*1.02),vmn=rate?Math.floor(Math.min(...vv)*0.98):0;
+  const evs=T.ev.filter(e=>e.d>=a&&e.d<=b&&!isAd(e)).sort((p,q)=>p.d-q.d||p.id-q.id);evs.forEach((e,n)=>no[e.id]=n+1);
+  const bands=T.ev.filter(e=>(e.len||1)>1&&e.d<=b&&eEnd(e)>=a).map(e=>{const x0=Math.max(0,(e.d-a)/(b-a)*100),x1=(Math.min(eEnd(e),b)-a)/(b-a)*100;return `<button data-jev="${e.id}" class="hband ${e.d>d?'plan':''}" style="left:${x0}%;width:${Math.max(x1-x0,.5)}%;bottom:${e.ch==='PAID_TV'?9:1}px;background:${CH[e.ch].c}" title="${esc(e.label)}（${e.len}日間）"></button>`}).join('');
+  const over=bands+`<i class="hnow" style="left:${(d-a)/(b-a)*100}%"><span>${d===T.today?'今日':'基準日'}</span></i>`+evs.map(e=>{const v=e.d>d?null:jwVal(T,e.d),y=v==null?100:clamp(100-(v-vmn)/((vmx-vmn)||1)*100,0,100);
+    return `<button class="hd ${e.d>d?'plan':''} ${S.openEv===e.id?'on':''}" data-jev="${e.id}" style="left:${(e.d-a)/(b-a)*100}%;top:${y}%;background:${CH[e.ch].c};color:${CH[e.ch].c}" title="${md(dateOf(T,e.d))} ${esc(e.label)}" aria-label="${esc(e.label)}"><b>${no[e.id]}</b></button>`}).join('');
+  const hchart=`<div class="jl-chart"><div class="jl-ct"><span><i class="cdot" style="background:${col}"></i>${nm}</span><b class="num">${fm(jwVal(T,d))}<small>${un}</small></b><span class="jl-cs">番号は下の施策と同じです。押すと、その施策が開きます。点線の丸は、これから実施する施策。下の色の帯は広告の期間です（押すと内容が開きます）</span></div>${chart(T,[{n:nm,vals,c:col,fill:true}],{a,b,u:isMag?'':un,h:200,max:vmx,min:vmn,over})}
+    <div class="lg">${Object.values(CH).map(c=>`<span><i class="dot" style="background:${c.c}"></i>${c.n}</span>`).join('')}</div></div>`;
+  const row=(cls,dt,body)=>`<div class="jl-row ${cls}"><div class="jl-d">${dt}</div><div class="jl-c">${body}</div></div>`;
+  return `${hchart}<div class="jl" style="--nc:${ck.length}">
+   <div class="jl-row head"><div class="jl-d"></div><div class="jl-c"><div class="jl-h hdr"><span class="jl-hn">数字は、施策を実施した日からの3日間の合計。小さい数字は、ふだんの3日分。色つきは、ふだんの1.5倍以上。広告は、出稿量やターゲティングで結果が変わるため、数字の列には並べません</span>${ck.map(k=>`<span class="jl-v"><i class="cdot" style="background:${M[k].c}"></i>${M[k].n}</span>`).join('')}</div></div></div>
+   ${frows.length?sec('fut','これから',oF,oF?'予定している施策。数字は、同じ種類の過去の施策での3日間の目安':`予定 ${nF}件｜次は ${nx.d-d}日後「${nx.label}」`):''}${(oF?frows:[]).map(r=>r.ev?row('plan ev',`<b class="num">${md(dateOf(T,r.hi))}</b><span>${r.hi-d}日後${r.hi===0?'｜<em>公開日</em>':''}</span>`,r.ev.map(card).join('')):row('plan gap',`<span>${md(dateOf(T,r.lo))}〜</span>`,`<span class="jl-g">${fgap(r)}</span>`)).join('')}
+   ${row('now',`<b>${d===T.today?'今日':'基準日'}</b><span>${md(dateOf(T,d))}</span>`,`<span class="jl-nowt">${relLbl(d)}</span>`)}
+   ${sec('past','これまで',oP,oP?'実施した施策と、その反応':`実施 ${nP}件`)}
+   ${(oP?rows:[]).map(r=>r.ev?row('ev',`<b class="num">${md(dateOf(T,r.hi))}</b><span>${r.hi===0?'<em>公開日</em>':relLbl(r.hi)}</span>`,r.ev.map(card).join('')):row('gap',`<span>${md(dateOf(T,r.lo))}〜</span>`,`<span class="jl-g">${gapTx(r)}</span>`)).join('')}</div>`}
+I('acts','a_today','いまの状況',12,[],(T,d)=>{const sc=scoreOf(T,d),[tc,tl]=toneOf(sc),nx=T.ev.filter(e=>e.d>d).sort((p,q)=>p.d-q.d)[0];
+  return {d:'',h:`<div class="strip"><span class="strip-s num">${sc}</span><span><span class="tone ${tc}">${tl}</span> <span style="color:var(--sub);font-size:12px">${scoreName()}｜${dp(sc-scoreOf(T,d-7),'','前週比')}</span></span><span class="strip-t">${nx?`次の施策は ${nx.d-d}日後「${nx.label}」`:'この先の施策の予定はありません'}</span><button class="btn" data-page="home">今日のくわしい状況</button></div>`}},{any:[3,6]});
+const evMax=X=>X.k===S.title?S.day:X.full?D1:X.today;
+/* 施策の登録：記事などから自動で取得したものは、そのまま登録する。宣伝担当は自分でも入力でき、どれも一覧から外せる */
+const ALL_TYPES=EV_TYPES.concat(['メディア露出','タイアップ','その他']),TYPE_CH={};EV_TYPES.forEach((t,i)=>TYPE_CH[t]=EV_TPL[i][1]);Object.assign(TYPE_CH,{'メディア露出':'PR','タイアップ':'PR','その他':'OWNED'});
+const LSK='crew_v7_ev_4',esc=t=>String(t).replace(/[<>&"]/g,'');
+const nextId=T=>Math.max(99,...T.ev.map(x=>x.id),...T.removed.map(x=>x.id))+1;
+/* 同じ施策とみなす条件：種類が同じ（パブどうしは前後1日なら種類が違っても可）で、実施日が前後3日以内 */
+const sameEv=(e,it)=>Math.abs(e.d-it.d)<=3&&(e.ty===it.ty||(e.ch==='PR'&&it.ch==='PR'&&Math.abs(e.d-it.d)<=1));
+function autoIngest(T,it){if(T.removed.some(r=>r.src!=='manual'&&r.label===it.label&&r.d===it.d))return 'skip';
+  if(T.ev.some(e=>e.src!=='manual'&&(e.label===it.label&&e.d===it.d||e.mg&&e.mg.label===it.label&&e.mg.d===it.d)))return 'skip';
+  const m=T.ev.find(e=>e.src==='manual'&&sameEv(e,it));
+  if(m){Object.assign(m,{src:'both',art:it.art,mg:{...it},isNew:true});return 'merge'}
+  T.ev.push({id:nextId(T),d:it.d,ch:it.ch,ty:it.ty,label:it.label,str:1,cost:0,src:'auto',art:it.art,isNew:true});return 'add'}
+const autoInit=X=>X.past?[]:[{d:X.today-2,ch:'PR',ty:'メディア露出',label:'朝の情報番組で特集',art:14},{d:X.today-9,ch:'PR',ty:'メディア露出',label:'主演のインタビュー記事',art:9}].filter(c=>c.d>=D0+8);
+const snap=X=>({ev:X.ev.map(e=>({...e,mg:e.mg&&{...e.mg}})),removed:X.removed.map(e=>({...e}))});
+function evSave(){try{const o={};Object.values(TT).forEach(X=>o[X.k]=snap(X));localStorage.setItem(LSK,JSON.stringify(o))}catch(e){}}
+function evLoad(){Object.values(TT).forEach(X=>{X.removed=[];autoInit(X).forEach(it=>autoIngest(X,it));X.init=snap(X)});
+  try{const o=JSON.parse(localStorage.getItem(LSK)||'null');if(o)Object.values(TT).forEach(X=>{if(o[X.k]&&Array.isArray(o[X.k].ev)){X.ev=o[X.k].ev;X.removed=o[X.k].removed||[]}})}catch(e){}}
+function evReset(){Object.values(TT).forEach(X=>{const z=JSON.parse(JSON.stringify(X.init));X.ev=z.ev;X.removed=z.removed});try{localStorage.removeItem(LSK)}catch(e){}S.openEv=null;closePanel();render()}
+const srcTag=e=>e.src==='auto'?`<i class="jl-src">自動取得${e.art?`・記事${e.art}件`:''}</i>`:e.src==='manual'?'<i class="jl-src m">手入力</i>':e.src==='both'?`<i class="jl-src m">手入力・記事${e.art}件を確認</i>`:'';
+/* 日誌の上のお知らせ：新しく入った施策／1件にまとめた施策／外した施策 */
+function evNotice(T){if(!T.removed)return '';const nw=T.ev.filter(e=>e.isNew&&e.src==='auto'),mg=T.ev.filter(e=>e.isNew&&e.src==='both'),rm=T.removed;if(!nw.length&&!mg.length&&!rm.length)return '';
+  const row=(l,r)=>`<div class="cand-r"><span>${l}</span><span>${r}</span></div>`;
+  return `<div class="cand">${nw.length||mg.length?`<b>自動で取得した施策のお知らせ</b>`:''}
+   ${nw.map(e=>row(`${md(dateOf(T,e.d))}　${e.label}<small>記事${e.art}件｜施策として登録しました</small>`,`<button class="btn" data-evrm="${e.id}">一覧から外す</button>`)).join('')}
+   ${mg.map(e=>row(`${md(dateOf(T,e.d))}　${e.label}<small>自分で入力した施策と同じものとして、1件にまとめました（見つけた記事「${e.mg.label}」${e.mg.art}件）</small>`,`<button class="btn" data-evsplit="${e.id}">別の施策として分ける</button>`)).join('')}
+   ${nw.length||mg.length?`<div><button class="btn" data-evseen>確認した</button></div>`:''}
+   ${rm.length?`<details class="rm"><summary>一覧から外した施策 ${rm.length}件</summary>${rm.map(e=>row(`${md(dateOf(T,e.d))}　${e.label}`,`<button class="btn" data-evback="${e.id}">元に戻す</button>`)).join('')}</details>`:''}</div>`}
+const isoOf=(T,x)=>{const z=dateOf(T,x);return `${z.getFullYear()}-${String(z.getMonth()+1).padStart(2,'0')}-${String(z.getDate()).padStart(2,'0')}`};
+function evForm(id){const T=cur(),e=id!=null?T.ev.find(x=>x.id===id):null;
+  $('#panel').innerHTML=`<button class="pn-x" aria-label="閉じる">×</button><h2>${e?'施策を編集':'施策を追加'}</h2>
+   <p class="note">登録すると、日誌と比較の画面に入ります。反応の数字は、実施日の前後から自動で出ます。</p>
+   <div class="fm"><label>実施日<input type="date" id="fmD" value="${isoOf(T,e?e.d:S.day)}" min="${isoOf(T,D0)}" max="${isoOf(T,D1)}"></label>
+   <label>終了日<small>広告やTVスポットなど、何日も続く施策だけ入れてください。1日だけの施策は空欄のままにします。</small><input type="date" id="fmD2" value="${e&&(e.len||1)>1?isoOf(T,Math.min(eEnd(e),D1)):''}" min="${isoOf(T,D0)}" max="${isoOf(T,D1)}"></label>
+   <label>種類<select id="fmT">${ALL_TYPES.map(t=>`<option ${e&&e.ty===t?'selected':''}>${t}</option>`).join('')}</select><small>ほかの作品と比べるときは、この種類どうしを並べます。</small></label>
+   <label>施策の名前<em class="req">必ず入れてください</em><input id="fmN" value="${e?esc(e.label):''}" placeholder="例）主題歌MVの公開" maxlength="40"></label>
+   <label>費用（万円・入れなくてもよい）<input id="fmC" type="number" min="0" step="1" value="${e&&e.cost?e.cost:''}"></label>
+   <label id="fmBw">後押しする施策（ある場合だけ）<small>特定の施策を後押しする広告なら、その施策を選びます。単独の広告なら「なし」のままにします。</small><select id="fmBo"><option value="">なし（単独の広告）</option>${T.ev.filter(q=>!isAd(q)&&(!e||q.id!==e.id)).sort((x,y)=>x.d-y.d).map(q=>`<option value="${q.id}" ${e&&e.boost===q.id?'selected':''}>${md(dateOf(T,q.d))}　${esc(q.label)}</option>`).join('')}</select></label>
+   <div class="fm-e" id="fmE" role="alert"></div>
+   <div class="fm-b" id="fmB"><button class="btn pri" data-evsave="${id??''}">保存する</button>${e?`<button class="btn" data-evrm="${id}">一覧から外す</button>`:''}</div></div>`;
+  const bw=()=>{$('#fmBw').style.display=TYPE_CH[$('#fmT').value].startsWith('PAID')?'':'none'};$('#fmT').onchange=bw;bw();
+  document.body.classList.add('pn');$('.pn-x').onclick=closePanel}
+function evSubmit(idStr,mode){const T=cur(),v=$('#fmD').value,nm=esc($('#fmN').value.trim()),ty=$('#fmT').value,cost=Math.max(0,Math.round(+$('#fmC').value||0)),err=$('#fmE');
+  if(!v){err.textContent='実施日を入れてください。';return}const [y,m,dd]=v.split('-').map(Number),d=Math.round((new Date(y,m-1,dd)-T.open)/864e5);
+  if(d<D0||d>D1){err.textContent=`実施日は ${md(dateOf(T,D0))}〜${md(dateOf(T,D1))} の間で入れてください。`;return}
+  let len=1;const v2=$('#fmD2').value;if(v2){const [y2,m2,d2]=v2.split('-').map(Number),de=Math.round((new Date(y2,m2-1,d2)-T.open)/864e5);if(de<d){err.textContent='終了日は、実施日と同じか、それより後の日にしてください。';return}if(de>D1){err.textContent=`終了日は ${md(dateOf(T,D1))} までで入れてください。`;return}len=de-d+1}
+  if(!nm){err.textContent='施策の名前を入れてください。';$('#fmN').classList.add('bad');$('#fmN').focus();return}
+  let e=idStr!==''?T.ev.find(x=>x.id===+idStr):null;const it={d,ty,ch:TYPE_CH[ty]};
+  if(!e&&!mode){const near=T.ev.find(x=>x.src==='auto'&&sameEv(x,it));
+    if(near){err.innerHTML=`<div class="dup">近い日に、自動で取得した同じ種類の施策があります。<b>${md(dateOf(T,near.d))}　${near.label}</b>同じ施策なら、1件にまとめられます。</div>`;
+      $('#fmB').innerHTML=`<button class="btn pri" data-evsave="" data-mode="m${near.id}">この施策にまとめる</button><button class="btn" data-evsave="" data-mode="new">別の施策として追加</button>`;return}}
+  if(e)Object.assign(e,{d,len,ty,ch:TYPE_CH[ty],label:nm,cost});
+  else if(mode&&mode[0]==='m'){e=T.ev.find(x=>x.id===+mode.slice(1));Object.assign(e,{mg:{d:e.d,ch:e.ch,ty:e.ty,label:e.label,art:e.art},d,len,ty,ch:TYPE_CH[ty],label:nm,cost,src:'both',isNew:false})}
+  else{e={id:nextId(T),d,len,ch:TYPE_CH[ty],ty,label:nm,str:1,cost,src:'manual',art:0};T.ev.push(e)}
+  if(isAd(e)){const bv=$('#fmBo').value;e.boost=bv?+bv:null}else delete e.boost;
+  evSave();closePanel();S.jv='log';S.page='acts';S.openEv=e.id;if(e.d>S.day)S.jlOpen.fut=true;else S.jlOpen.past=true;render();const el=$('#jl-'+e.id);if(el)el.scrollIntoView({block:'center'})}
+/* 試作用：次の自動取得が来た場合を再現する。直近の手入力があればそれと同じ施策の記事を、なければ新しい記事を見つけたことにする */
+function evSim(){const T=cur(),m=T.ev.filter(e=>e.src==='manual').sort((p,q)=>q.id-p.id)[0];
+  const it=m?{d:Math.min(m.d+1,D1),ch:TYPE_CH[m.ty],ty:m.ty,label:m.label+'（ニュース記事）',art:11}:{d:Math.max(S.day-1-T.ev.filter(e=>e.id>=100).length,D0),ch:'PR',ty:'メディア露出',label:'映画情報サイトで特集記事',art:7};
+  autoIngest(T,it);evSave();S.jv='log';render()}
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-evadd],[data-evedit],[data-evsave],[data-evrm],[data-evback],[data-evsplit],[data-evseen],[data-evsim],[data-evreset]');if(!t)return;const T=cur(),D=t.dataset;
+  if(D.evadd!=null)evForm(null);else if(D.evedit!=null)evForm(+D.evedit);else if(D.evsave!=null)evSubmit(D.evsave,D.mode);
+  else if(D.evrm!=null){const e=T.ev.find(x=>x.id===+D.evrm);if(e){T.ev=T.ev.filter(x=>x!==e);e.isNew=false;T.removed.push(e);if(S.openEv===e.id)S.openEv=null;evSave();closePanel();render()}}
+  else if(D.evback!=null){const e=T.removed.find(x=>x.id===+D.evback);if(e){T.removed=T.removed.filter(x=>x!==e);T.ev.push(e);S.openEv=e.id;evSave();render()}}
+  else if(D.evsplit!=null){const e=T.ev.find(x=>x.id===+D.evsplit);if(e&&e.mg){const g=e.mg;T.ev.push({id:nextId(T),d:g.d,ch:g.ch,ty:g.ty,label:g.label,str:1,cost:0,src:'auto',art:g.art,isNew:false});Object.assign(e,{src:'manual',art:0,isNew:false});delete e.mg;evSave();render()}}
+  else if(D.evseen!=null){T.ev.forEach(e=>e.isNew=false);evSave();render()}
+  else if(D.evsim!=null)evSim();
+  else if(D.evreset!=null)evReset()});
+/* 増えた分（絶対値）：実施後3日間に、実施前7日間の1日平均より何件多かったか（3日間の合計）。率の指標は前後の差 */
+const eEnd=e=>e.d+(e.len||1)-1;
+const absUp=(X,e,k,dm)=>{if(!hasDay(X,e.d)||e.d+2>dm)return null;const L=e.len||1,rt=RATE.has(k),b=avgR(X,k,e.d-7,e.d-1),a=avgR(X,k,e.d,e.d+2);if(a==null||b==null)return null;const o={add:rt?a-b:(a-b)*3,tot:rt?a:a*3,base:rt?b:b*3,a,b,w:3};if(L>1){const hi=Math.min(eEnd(e),dm),pw=hi-e.d+1,pa=avgR(X,k,e.d,hi);o.per={w:pw,tot:rt?pa:pa*pw,base:rt?b:b*pw,ongoing:eEnd(e)>dm}}return o};
+/* 広告の期間中の合計（実施中は、ここまで）。ほかの施策の3日間の数字とは別物として、参考で出す */
+const adPer=(X,e,k,dm)=>{if(!hasDay(X,e.d)||e.d>dm)return null;const hi=Math.min(eEnd(e),dm),w=hi-e.d+1,a=avgR(X,k,e.d,hi),b=avgR(X,k,e.d-7,e.d-1);return a==null||b==null?null:{w,tot:a*w,base:b*w,ongoing:eEnd(e)>dm}};
+const adKeys=d=>['buzz','oeng','search','clip'].filter(k=>mAvail(k,d));
+function adPerH(T,e,d){const ks=adKeys(d),o0=ks.length&&adPer(T,e,ks[0],d);if(!o0)return '';
+  return `<div class="sub-h">期間中の反応（参考）${o0.ongoing?`｜実施中。ここまでの${o0.w}日間`:`｜${o0.w}日間の合計`}</div><div class="upl">${ks.map(k=>{const o=adPer(T,e,k,d);return `<div><span>${M[k].n}</span><small>ふだんの${o.w}日分 ${fN(o.base)}${M[k].u}</small><b class="num">${fN(o.tot)}${M[k].u}</b></div>`}).join('')}</div><div class="note">広告を出していた期間の合計です。ほかの施策の「3日間の数字」とは日数が違うので、比べられません。期間中に別の施策があれば、その分も含まれます。</div>`}
+const absTx=(v,k)=>`${RATE.has(k)?f1(v):fN(v)}${M[k].u}`;
+const absCol=o=>'var(--ink)';
+const _pa={};function peerAbs(ch,k){const key=ch+k;if(_pa[key]!=null)return _pa[key];const v=[];for(const p of PEERS)for(const e of p.ev)if(e.ch===ch){const o=absUp(p,e,k,D1);if(o)v.push(o.tot)}return _pa[key]=med(v)}
+const fxKeys=()=>magKeys();
+/* 施策ごとに比べる：同じ種類の施策どうしを、時期に関係なく横に並べる */
+function fxTable(T,d,sel){const cols=[T,...sel],k=S.fk,u=M[k].u;
+  const rows=ALL_TYPES.map(ty=>({ty,ch:TYPE_CH[ty],c:cols.map(X=>{const es=X.ev.filter(q=>q.ty===ty).sort((p,q)=>p.d-q.d),e=es[0];if(!e)return null;const dm=evMax(X),plan=e.d>dm;return {e,plan,n:es.length,ad:adsOnX(X,e).length>0,o:plan?null:absUp(X,e,k,dm)}})})).filter(r=>!TYPE_CH[r.ty].startsWith('PAID')&&r.c.some(Boolean));
+  const cell=(c,best)=>!c?'<td class="fx-n">—</td>':`<td>${c.plan?'<span class="fx-p">予定</span>':!c.o?'<span class="fx-p">計測中</span>':`<b class="num ${best?'best':''}" style="color:${absCol(c.o)}">${absTx(c.o.tot,k)}</b>`}<span class="fx-t">${relLbl(c.e.d)}${(c.e.len||1)>1?`から${c.e.len}日間`:''}${c.o?`｜ふだんの${c.o.w}日分 ${fN(c.o.base)}${u}`:''}${c.n>1?`｜同じ種類がほか${c.n-1}件`:''}${c.ad?'<em class="fx-ad">広告で後押し</em>':''}</span></td>`;
+  const only=rows.filter(r=>r.c[0]&&r.c.slice(1).every(x=>!x)),miss=rows.filter(r=>!r.c[0]&&r.c.slice(1).some(Boolean));
+  return `<div class="tw"><table class="fx"><tr><th>施策の種類</th>${cols.map((X,i)=>`<th>${X.name}${i?'':'<span class="chip" style="margin-left:6px">この作品</span>'}</th>`).join('')}</tr>
+   ${rows.map(r=>{const us=r.c.filter(x=>x&&x.o).map(x=>x.o.tot),mx=us.length>1?Math.max(...us):null;return `<tr><td><i class="cdot" style="background:${CH[r.ch].c}"></i>${r.ty}<br><small>${CH[r.ch].n}</small></td>${r.c.map(c=>cell(c,c&&c.o&&c.o.tot===mx)).join('')}</tr>`}).join('')}</table></div>
+   <div class="note">大きい数字は、施策を実施した日からの3日間の${M[k].n}（合計）です。広告（デジタル・TV）は、出稿量やターゲティングで結果が変わるため、この比較の行には入れていません。「広告で後押し」とある施策は、数字に広告の分が含まれます。下の「ふだん」は、その施策の前7日間の1日平均を同じ日数分にしたもので、比べる目安になります。緑の枠は、その種類でいちばん多かった作品。「—」は、その種類の施策がなかったことを表します。作品の規模が大きいほど、数字も大きく出ます。</div>
+   ${sel.length?`<div class="two" style="margin-top:14px"><div><div class="sub-h">この作品だけがやっている施策</div>${only.length?`<div class="words">${only.map(r=>`<span>${r.ty}</span>`).join('')}</div>`:'<div class="note">ありません。</div>'}</div><div><div class="sub-h">ほかの作品にあって、この作品にない施策</div>${miss.length?`<div class="words">${miss.map(r=>`<span>${r.ty}</span>`).join('')}</div>`:'<div class="note">ありません。</div>'}</div></div>`:'<div class="empty" style="margin-top:12px">比べる作品を選ぶと、横に並びます。</div>'}`}
+/* 進め方を比べる：公開までの週をそろえて、施策の組み立てを並べる */
+function seqTable(T,d,sel){const cols=[T,...sel],k=S.fk,wk=x=>Math.floor(x/7),all=cols.flatMap(X=>X.ev.map(e=>wk(e.d))),w0=Math.min(...all),w1=Math.max(...all),lab=w=>w<0?`公開${-w}週前`:w===0?'公開週':`公開${w+1}週目`,now=wk(d);
+  const chip=(X,e)=>{const dm=evMax(X),plan=e.d>dm,o=plan||isAd(e)?null:absUp(X,e,k,dm),own=X.k===T.k;return `<${own?'button data-ev="'+e.id+'"':'span'} class="sq ${plan?'plan':''}" style="border-color:${CH[e.ch].c}"><i class="cdot" style="background:${CH[e.ch].c}"></i>${e.ty}${(e.len||1)>1?`<small>${e.len}日間</small>`:''}${plan?'<small>予定</small>':!o?'':`<b class="num" style="color:${absCol(o)}">${absTx(o.tot,k)}</b>`}</${own?'button':'span'}>`};
+  let h='';for(let w=w0;w<=w1;w++)h+=`<tr class="${w===now&&!T.past?'cur':''}"><td style="white-space:nowrap">${lab(w)}${w===now&&!T.past?'<span class="chip" style="margin-left:6px">いま</span>':''}</td>${cols.map(X=>{const ev=X.ev.filter(e=>wk(e.d)===w).sort((p,q)=>p.d-q.d),ct=X.ev.filter(e=>(e.len||1)>1&&wk(e.d)<w&&wk(eEnd(e))>=w);return `<td>${ev.length||ct.length?ev.map(e=>chip(X,e)).join('')+ct.map(e=>`<span class="sq cont" style="border-color:${CH[e.ch].c}">${e.ty}（続き）</span>`).join(''):'<span class="fx-n">（なし）</span>'}</td>`}).join('')}</tr>`;
+  return `<div class="tw"><table class="fx sqt"><tr><th></th>${cols.map((X,i)=>`<th>${X.name}${i?'':'<span class="chip" style="margin-left:6px">この作品</span>'}</th>`).join('')}</tr>${h}</table></div>
+   <div class="note">上から下へ、公開に向かって進みます。数字は、施策を実施した日からの3日間の${M[k].n}（合計）です。期間のある施策は開始からの3日間で、続いている週には「（続き）」と出ます。広告は、作品どうしでは比べないので、実施した時期だけを出します。点線の枠は、これから実施する施策。この作品の施策は、押すとくわしく開きます。</div>${sel.length?'':'<div class="empty" style="margin-top:12px">比べる作品を選ぶと、横に並びます。</div>'}`}
+I('acts','a_log','施策の日誌',12,[],(T,d)=>{const ks=JL_KEYS.filter(k=>mAvail(k,d)),mk=magKeys();
+  const tabs=`<div class="ctl"><span class="seg big">${[['log','この作品の日誌'],['fx','施策ごとに比べる'],['seq','進め方を比べる']].map(x=>`<button data-jv="${x[0]}" class="${S.jv===x[0]?'on':''}">${x[1]}</button>`).join('')}</span></div>`;
+  if(S.jv!=='log'){const cand=Object.values(TT).filter(X=>X.k!==T.k),sel=cand.filter(X=>S.cmpSet.includes(X.k));if(!fxKeys().includes(S.fk))S.fk=fxKeys()[0];
+    return {d:S.jv==='fx'?'同じ種類の施策どうしを、時期に関係なく並べます':'公開までの週をそろえて、施策の組み立てを並べます',h:`${tabs}<div class="ctl"><span style="font-size:11.5px;color:var(--sub)">比べる作品</span>${cand.map(X=>`<button class="lchip ${S.cmpSet.includes(X.k)?'on':''}" data-cs="${X.k}"><i style="background:var(--accent)"></i>${X.name}${X.past?'（過去作）':''}</button>`).join('')}</div><div class="ctl"><span style="font-size:11.5px;color:var(--sub)">比べる数字</span>${fxKeys().map(k=>`<button class="lchip ${S.fk===k?'on':''}" data-fk="${k}"><i style="background:${M[k].c}"></i>${M[k].n}</button>`).join('')}</div>${S.jv==='fx'?fxTable(T,d,sel):seqTable(T,d,sel)}`}}
+  return {d:'上が新しい日。施策を押すとくわしく開きます',h:`${tabs}<div class="ctl"><span class="seg">${[['all','全期間'],['w8','直近8週'],['w4','直近4週']].map(x=>`<button data-rg="${x[0]}" class="${S.tlRange===x[0]?'on':''}">${x[1]}</button>`).join('')}</span><span class="sp"></span><button class="btn pri" data-evadd>＋ 施策を追加</button><button class="btn int-only" data-evsim>自動取得を試す</button><button class="btn int-only" data-evreset>入力を初期状態に戻す</button></div>
+    ${evNotice(T)}
+    <div class="ctl pc-only"><span style="font-size:11.5px;color:var(--sub)">グラフに出すもの</span><button class="lchip ${S.jw==='mag'?'on':''}" data-jw="mag"><i style="background:#4e8780"></i>反応の大きさ（総合）</button>${ks.map(k=>`<button class="lchip ${S.jw===k?'on':''}" data-jw="${k}"><i style="background:${M[k].c}"></i>${M[k].n}</button>`).join('')}</div>
+    <div class="note pc-only" style="margin:0 0 10px">反応の大きさは、${mk.map(k=>M[k].n).join('・')}を「類似作のふだんの1日＝100」にそろえて平均した指数です。内訳の数字は、下の施策カードに出ます。</div>${journal(T,d)}`}},{any:[3,6]});
+I('acts','a_tl','横向きの年表',12,[],(T,d)=>{const L=tlLayers(d),rg={all:[D0,Math.min(D1,Math.max(d+7,0))],w8:[d-55,d+3],w4:[d-27,d+3]}[S.tlRange];
+  return {d:'グラフの上にマウスを置くと、その日の数字が出ます',h:`<div class="ctl"><span class="seg">${[['all','全期間'],['w8','直近8週'],['w4','直近4週']].map(x=>`<button data-rg="${x[0]}" class="${S.tlRange===x[0]?'on':''}">${x[1]}</button>`).join('')}</span>
+    ${L.av.filter(k=>!(M[k].post&&d<0)).map(k=>`<button class="lchip ${L.on.includes(k)?'on':''}" data-layer="${k}"><i style="background:${M[k].c}"></i>${M[k].n}</button>`).join('')}</div>
+    ${timeline(T,Math.max(rg[0],D0),Math.min(rg[1],D1),L.on.filter(k=>!(M[k].post&&d<0)),'main')}`}},{any:[3,6],deep:true});
+I('acts','a_rank','効いた施策の順位',8,[],(T,d)=>{const ks=upKeys(),rows=T.ev.filter(e=>e.d<=d&&!isAd(e)).map(e=>({e,eff:evEff(T,e,d)})).sort((a,b)=>(b.eff??-1)-(a.eff??-1));
+  return {d:'行を押すと内容と前後の動き',h:`<div class="tw"><table><tr><th>施策</th><th>種類</th>${ks.map(k=>`<th class="r">${M[k].n}</th>`).join('')}<th class="r">効き具合</th></tr>
+   ${rows.map(({e,eff})=>`<tr class="click" data-ev="${e.id}"><td>${e.label}<br><small style="color:var(--sub-weak)">${md(dateOf(T,e.d))}${evNear(T,e)?'｜別の施策と重なり':''}${adsOnX(T,e).length?'｜広告で後押し':''}</small></td><td><i class="cdot" style="background:${CH[e.ch].c}"></i>${CH[e.ch].n}</td>
+   ${ks.map(k=>{const o=absUp(T,e,k,d);return `<td class="r">${o?absTx(o.tot,k):'計測中'}</td>`}).join('')}<td class="r">${eff??'—'}</td></tr>`).join('')}</table></div>
+   <div class="note">各指標の数字は、施策を実施した日からの3日間の合計です。効き具合は、同じ種類の過去の施策の中での位置（0〜100）。因果を示すものではありません。広告は、出稿量やターゲティングで結果が変わるため、順位には入れていません。「広告で後押し」とある施策は、数字に広告の分が含まれます。</div>`}},{any:[3,6]});
+I('acts','a_ch','種類別の平均',4,[],(T,d)=>{const by={};T.ev.filter(e=>e.d+2<=d&&!isAd(e)).forEach(e=>{const v=evEff(T,e,d);if(v!=null)(by[e.ch]=by[e.ch]||[]).push(v)});
+  const rows=Object.entries(by).map(([c,v])=>({l:`${CH[c].n}（${v.length}件）`,v:mean(v),c:CH[c].c})).sort((a,b)=>b.v-a.v);
+  return {d:'効き具合の平均',h:rows.length?bars(rows,{max:100,fmt:v=>Math.round(v),cmp:null}):'<div class="empty">実施から3日たった施策が出ると表示されます。</div>'}},{any:[3,6]});
+I('acts','a_plan','これからの施策',6,[6],(T,d)=>{const up=T.ev.filter(e=>e.d>d);
+  return {d:'予定と、同じ種類の施策のふだんの効き具合',h:up.length?`<div class="tw"><table><tr><th>予定日</th><th>施策</th><th>種類</th><th class="r">予定の費用</th></tr>${up.map(e=>`<tr class="click" data-ev="${e.id}"><td>${md(dateOf(T,e.d))}<br><small style="color:var(--sub-weak)">${relLbl(e.d)}</small></td><td>${e.label}</td><td><i class="cdot" style="background:${CH[e.ch].c}"></i>${CH[e.ch].n}</td><td class="r">${fN(e.cost*1e4)}円</td></tr>`).join('')}</table></div>`:'<div class="empty">登録されている予定はありません。</div>'}},{deep:true});
+I('acts','a_week','週ごとの振り返り',6,[],(T,d)=>{const ks=['buzz','oeng','aimp','search','clip','mark','aware','intent'].filter(k=>mAvail(k,d));
+  const wk=i=>[d-7*i-6,d-7*i],val=(k,i)=>RATE.has(k)?avgR(T,k,...wk(i)):sumR(T,k,...wk(i));
+  return {d:'直近4週。右端が今週',h:`<div class="tw"><table><tr><th>指標</th>${[3,2,1,0].map(i=>`<th class="r">${md(dateOf(T,wk(i)[0]))}〜</th>`).join('')}<th class="r">前週比</th></tr>
+   ${ks.map(k=>{const a=val(k,0),b=val(k,1);return `<tr><td>${M[k].n}</td>${[3,2,1,0].map(i=>`<td class="r">${fmtBy(M[k].u)(val(k,i))}</td>`).join('')}<td class="r">${RATE.has(k)?(a-b>=0?'+':'')+f1(a-b)+'pt':b?((a/b-1)>=0?'+':'')+f1((a/b-1)*100)+'%':'—'}</td></tr>`}).join('')}</table></div>`}},{any:[3,6]});
+
+/* ---------- 届け方 ---------- */
+function adAgg(T,d){const spD=sumR(T,'aspD',D0,d),spT=sumR(T,'aspT',D0,d),imp=sumR(T,'aimp',D0,d),clk=sumR(T,'aclk',D0,d),vw=sumR(T,'aview',D0,d),impD=spD/T.cpmD*1000;
+  return {sp:spD+spT,spD,spT,imp,impD,clk,vw,cpm:imp?(spD+spT)/imp*1000:null,ctr:impD?clk/impD*100:null,vtr:impD?vw/impD*100:null,cpv:vw?spD/vw:null}}
+I('deliver','d_sum','広告のまとめ',12,[6],(T,d)=>{const a=adAgg(T,d);if(!a.sp)return {d:'',h:'<div class="empty">この日までに広告の出稿はありません。</div>'};
+  return {d:'基準日までの累計',h:`<div class="kpis">${kpi('広告費',fN(a.sp),'円')}${kpi('表示回数',fN(a.imp),'回')}${kpi('1000回表示あたりの費用',fN(a.cpm),'円')}${kpi('クリック率',f2(a.ctr),'%','デジタル広告')}${kpi('動画が最後まで見られた率',f1(a.vtr),'%','デジタル広告')}${kpi('動画1回あたりの費用',f1(a.cpv),'円')}${kpi('届いた人数（推計）',fN(a.imp/3.2),'人')}${has(3)?kpi('話題1件あたりの広告費',fN(a.sp/sumR(T,'buzz',D0,d)),'円'):''}</div>`}});
+function mediaRows(T,d){const a=adAgg(T,d),r=R(T,3);const rows=MEDIA.map(m=>{const sp=a.spD*m[1],cpm=m[2]*(0.9+r()*0.2),imp=sp/cpm*1000;return {n:m[0],sp,imp,cpm,ctr:m[3]*(0.85+r()*0.3)*(0.8+T.q*0.4),vtr:m[4]*(0.9+r()*0.2)}});
+  if(a.spT)rows.push({n:'TV',sp:a.spT,imp:a.spT/T.cpmT*1000,cpm:T.cpmT,ctr:null,vtr:null});return rows}
+const MCOL=['#5b6f9c','#a06a86','#b08040','#4a8f6d','#8a5cc4'];
+I('deliver','d_media','媒体別の効率',7,[6],(T,d)=>{const rows=mediaRows(T,d);if(!sumA(rows.map(r=>r.sp)))return {d:'',h:'<div class="empty">この日までに広告の出稿はありません。</div>'};
+  return {d:'基準日までの累計',h:`${stack(rows.map((r,i)=>({l:r.n,v:r.sp,c:MCOL[i]})))}<div class="note" style="margin-bottom:10px">広告費の配分</div>
+  <div class="tw"><table><tr><th>媒体</th><th class="r">広告費</th><th class="r">表示回数</th><th class="r">1000回あたり</th><th class="r">クリック率</th><th class="r">最後まで見られた率</th></tr>
+  ${rows.map((r,i)=>`<tr><td><i class="cdot" style="background:${MCOL[i]}"></i>${r.n}</td><td class="r">${fN(r.sp)}円</td><td class="r">${fN(r.imp)}</td><td class="r">${fN(r.cpm)}円</td><td class="r">${r.ctr==null?'—':f2(r.ctr)+'%'}</td><td class="r">${r.vtr==null?'—':f1(r.vtr)+'%'}</td></tr>`).join('')}</table></div>`}});
+I('deliver','d_trend','広告の表示回数の推移',5,[6],(T,d)=>({d:'1日ごと',h:chart(T,[{n:'広告の表示',vals:slice(T,'aimp',D0,Math.max(d,0),d),c:M.aimp.c,fill:true}],{a:D0,b:Math.max(d,0),u:'回',h:170,marks:T.ev.filter(e=>e.ch.startsWith('PAID')).map(e=>({d:e.d,c:CH[e.ch].c}))})}));
+I('deliver','d_demo','届いた人と反応',6,[6],(T,d)=>{const r=R(T,5),seg=['女性10〜20代','女性30〜40代','女性50代以上','男性10〜20代','男性30〜40代','男性50代以上'];const sh=dist(r,[26,20,9,19,17,9],.5),ct=seg.map(()=>0.5+r()*0.9);
+  return {d:'デジタル広告。性別・年代別',h:`<div class="two"><div><div class="sub-h">届いた人の内訳</div>${bars(seg.map((s,i)=>({l:s,v:sh[i]})),{fmt:f1,u:'%',c:'#5b6f9c'})}</div><div><div class="sub-h">クリック率</div>${bars(seg.map((s,i)=>({l:s,v:ct[i]})),{fmt:f2,u:'%',c:'#b08040'})}</div></div><div class="note">狙った層（女性10〜40代）に届いた割合は ${f1(sh[0]+sh[1])}%。</div>`}});
+I('deliver','d_owned','公式SNSの伸び',6,[6],(T,d)=>{const i7=sumR(T,'oimp',d-6,d),e7=sumR(T,'oeng',d-6,d),fo=T.followers*(0.55+0.45*sig((d+20)/20));
+  return {d:'表示回数の推移',h:`<div class="kpis" style="margin-bottom:12px">${kpi('フォロワー',fN(fo),'人')}${kpi('直近7日の表示',fN(i7),'回')}${kpi('直近7日の反応',fN(e7),'件')}${kpi('反応率',f2(e7/i7*100),'%')}</div>
+   ${chart(T,[{n:'表示回数',vals:slice(T,'oimp',D0,Math.max(d,0),d),c:M.oimp.c,fill:true}],{a:D0,b:Math.max(d,0),u:'回',h:140,marks:T.ev.filter(e=>e.ch==='OWNED').map(e=>({d:e.d,c:CH.OWNED.c}))})}`}});
+I('deliver','d_plat','公式SNSの媒体別',6,[6],(T,d)=>{const r=R(T,6),i=sumR(T,'oimp',D0,d),sh=dist(r,[40,28,20,12],.4);
+  return {d:'基準日までの累計',h:`<div class="tw"><table><tr><th>媒体</th><th class="r">投稿</th><th class="r">表示回数</th><th class="r">反応</th><th class="r">反応率</th></tr>${['X','Instagram','TikTok','YouTube'].map((p,k)=>{const im=i*sh[k]/100,er=2+r()*4;return `<tr><td>${p}</td><td class="r">${Math.round((d-D0)/(2+k))}</td><td class="r">${fN(im)}</td><td class="r">${fN(im*er/100)}</td><td class="r">${f2(er)}%</td></tr>`}).join('')}</table></div>`}});
+I('deliver','d_posts','投稿別の反応',6,[6],(T,d)=>({d:'直近7日間・反応の大きい順',h:`<div class="tw"><table><tr><th>投稿</th><th>媒体</th><th class="r">表示</th><th class="r">反応</th><th class="r">反応率</th></tr>${posts(T,d,6).map(p=>`<tr><td>${p.t}</td><td>${p.pf}</td><td class="r">${fN(p.imp)}</td><td class="r">${fN(p.eng)}</td><td class="r">${f2(p.eng/p.imp*100)}%</td></tr>`).join('')}</table></div>`}));
+I('deliver','d_lift','広告のあとに検索が増えたか',6,[5,6],(T,d)=>{const rows=T.ev.filter(e=>e.ch.startsWith('PAID')&&e.d+2<=d).map(e=>({l:e.label,v:Math.max(0,uplift(T,e,'search',d)),c:CH[e.ch].c}));
+  return {d:'出稿開始の前後で、検索がどれだけ増えたか',h:rows.length?bars(rows,{fmt:v=>'+'+f1(v),u:'%'}):'<div class="empty">出稿から3日たつと表示されます。</div>'}});
+I('deliver','d_exposed','広告を見た人と見ていない人の差',6,[1,6],(T,d)=>{const i=at(T,'intent',d),r=R(T,8),lift=3+r()*6;
+  return {d:'観たい率の比較',h:`${bars([{l:'広告を見た人',v:i+lift*0.7,c:'#6a9b8a'},{l:'見ていない人',v:Math.max(1,i-lift*0.3),c:'#b9bec4'}],{fmt:f1,u:'%'})}<div class="note">差は <b>+${f1(lift)}pt</b>。広告が観たい気持ちを押し上げている目安です。</div>`}});
+
+/* ---------- 関心と評判 ---------- */
+function peerBand(k,a,b,cum){const lo=[],hi=[];for(let d=a;d<=b;d++){const v=PEERS.map(p=>cum?sumR(p,k,D0,d):at(p,k,d));lo.push(qt(v,.25));hi.push(qt(v,.75))}return [lo,hi]}
+const evMarks=T=>T.ev.map(e=>({d:e.d,c:CH[e.ch].c}));
+I('interest','i_buzz','話題の量',7,[3],(T,d)=>{const b=Math.max(d,0);return {d:'1日ごとの投稿数と、施策のタイミング',h:chart(T,[{n:'類似作の幅（真ん中の半分）',band:peerBand('buzz',D0,b),c:'#8a929a'},{n:'この作品',vals:slice(T,'buzz',D0,b,d),c:M.buzz.c}],{a:D0,b,u:'件',h:190,marks:evMarks(T)})}},{hit:'buzz'});
+I('interest','i_sent','センチメントの推移',5,[3],(T,d)=>{const b=Math.max(d,0);return {d:'好意的な声と否定的な声の割合',h:chart(T,[{n:'好意的',vals:slice(T,'sent',D0,b,d),c:'#1f7a4d'},{n:'否定的',vals:slice(T,'neg',D0,b,d),c:'#a3413a'}],{a:D0,b,u:'%',h:190,max:100})}},{hit:'sent'});
+const W_PRE=[['予告',18],['主題歌',14],['キャスト',13],['公開日',11],['原作',9],['泣ける',8],['楽しみ',8],['前売り',5],['舞台挨拶',5],['映像がきれい',4]];
+const W_POST=[['泣いた',22],['もう一回',12],['ラスト',11],['主題歌',10],['家族',9],['映画館で',8],['演技',8],['おすすめ',7],['長い',4],['思ってたのと違う',3]];
+I('interest','i_words','語られている言葉と声',12,[3],(T,d)=>({d:d<0?'公開前の期待':'公開後の感想',h:`<div class="two"><div><div class="sub-h">よく使われている言葉</div><div class="words">${(d<0?W_PRE:W_POST).map(w=>`<span>${w[0]}<b>${w[1]}%</b></span>`).join('')}</div></div><div><div class="sub-h">${d<0?'期待の声':'感想の声'}</div><div class="voice">${(d<0?V_PRE:V_POST).slice(0,4).map(x=>`<div class="${x[0]}">${x[1]}</div>`).join('')}</div></div></div>`}));
+I('interest','i_search','検索',6,[5],(T,d)=>{const b=Math.max(d,0);return {d:'作品名で調べられた回数',h:chart(T,[{n:'類似作の幅（真ん中の半分）',band:peerBand('search',D0,b),c:'#8a929a'},{n:'この作品',vals:slice(T,'search',D0,b,d),c:M.search.c}],{a:D0,b,u:'回',h:170,marks:evMarks(T)})}},{hit:'search'});
+I('interest','i_clip','Clip!（観たい登録）の積み上がり',6,[4],(T,d)=>{const b=Math.max(d,0),cum=[];let s=0;for(let x=D0;x<=b;x++){s+=at(T,'clip',x);cum.push(x>d?null:s)}const pos=posOf(T,'clip',d,'cum');
+  return {d:`類似作の同じ時点と比べて ${TIERS[tierOf(pos)]}`,h:chart(T,[{n:'類似作の幅（真ん中の半分）',band:peerBand('clip',D0,b,true),c:'#8a929a'},{n:'この作品（累計）',vals:cum,c:M.clip.c}],{a:D0,b,u:'人',h:170,marks:evMarks(T)})}},{hit:'clip'});
+const clipPre=X=>sumR(X,'clip',D0,-1);
+function conv(X,d){const mk=sumR(X,'mark',0,d)||1,r=R(X,12);return {pre:clipPre(X)/mk,post:sumR(X,'clip',0,d)/mk,done:16+ (1-X.q)*14+r()*10}}
+I('interest','i_conv','待っていた人が観たか',6,[4],(T,d)=>{const c=conv(T,d),p=PEERS.map(x=>conv(x,d));
+  return {d:'公開前にClip!していた人と、Mark!した人の関係',h:`<div class="kpis">${kpi('公開前のClip! ÷ Mark!',f2(c.pre),'倍',`類似作の中央値 ${f2(med(p.map(x=>x.pre)))}倍`)}${kpi('Mark!した人のうち公開前にClip!済み',f1(c.done),'%',`類似作の中央値 ${f1(med(p.map(x=>x.done)))}%`)}${kpi('公開後のClip! ÷ Mark!',f2(c.post),'倍',`類似作の中央値 ${f2(med(p.map(x=>x.post)))}倍`)}</div>
+  <div class="note">公開前のClip!が少なくMark!が多い作品は、公開後に知って観た人が多い型です。</div>`}},{when:'post'});
+function womOf(X,d){const w1=sumR(X,'mark',0,6);if(d>=20)return {v:sumR(X,'mark',7,20)/w1,l:'2〜3週目 ÷ 1週目'};if(d>=13)return {v:sumR(X,'mark',7,13)/w1,l:'2週目 ÷ 1週目'};return null}
+I('interest','i_mark','Mark!（観た記録）の伸び方',6,[4],(T,d)=>{const base=sumR(T,'mark',0,6)/7||1,nrm=(X,x)=>at(X,'mark',x)/(sumR(X,'mark',0,6)/7);const b=Math.max(d,7),lo=[],hi=[];
+  for(let x=0;x<=b;x++){const v=PEERS.map(p=>nrm(p,x));lo.push(qt(v,.25));hi.push(qt(v,.75))}
+  const w=womOf(T,d),pw=w?PEERS.map(p=>womOf(p,d).v):[];
+  return {d:'1週目の1日平均を1とした値',h:`${w?`<div class="kpis" style="margin-bottom:12px">${kpi('口コミの伸び倍率',f2(w.v),'倍',w.l)}${kpi('類似作の中での位置',TIERS[tierOf(pctOf(w.v,pw))],'',`中央値 ${f2(med(pw))}倍`)}</div>`:'<div class="note" style="margin:0 0 10px">口コミの伸び倍率は、公開2週目が終わると出ます。</div>'}
+   ${chart(T,[{n:'類似作の幅（真ん中の半分）',band:[lo,hi],c:'#8a929a'},{n:'この作品',vals:slice(T,'mark',0,b,d).map(v=>v==null?null:v/base),c:M.mark.c}],{a:0,b,u:'倍',h:150})}`}},{when:'post',hit:'mark'});
+const SB=['1.0〜1.4','1.5〜1.9','2.0〜2.4','2.5〜2.9','3.0〜3.4','3.5〜3.9','4.0〜4.4','4.5〜5.0'];
+function scoreDist(T,d){const m=at(T,'score',d),w=SB.map((_,i)=>Math.exp(-Math.pow((1.2+i*0.5)-m,2)/0.55));const s=sumA(w);return w.map(v=>v/s*100)}
+I('interest','i_score','スコアの分布',6,[4],(T,d)=>{const ds=scoreDist(T,d),m=at(T,'score',d);return {d:'観た人が付けた点',h:`<div class="kpis" style="margin-bottom:12px">${kpi('平均',f2(m),'点',`類似作の中央値 ${f2(med(PEERS.map(p=>at(p,'score',d))))}点`)}${kpi('4.5以上の割合',f1(ds[7]),'%')}${kpi('2.4以下の割合',f1(ds[0]+ds[1]+ds[2]),'%')}</div>${bars(SB.map((l,i)=>({l,v:ds[i]})).reverse(),{fmt:f1,u:'%',c:'#9c4f3e'})}`}},{when:'post',hit:'score'});
+const TOPICS=['泣ける','家族','演技・役者','物語','音楽・主題歌','映像','劇場の空気','人にすすめる','繰り返し観る','監督・演出','不満'];
+function topics(T){const r=R(T,20);return TOPICS.map((n,i)=>{const sim=[38,22,24,20,7,12,13,4,4,12,10][i];return {n,v:sim*(0.6+r()*0.9),sim,ef:(i===10?-0.4:i===9?-0.25:i===7?0.35:i===8?0.2:i===0?0.2:(r()-.5)*0.25)}})}
+I('interest','i_topics','レビューで語られていること',6,[4],(T,d)=>{const t=topics(T).sort((a,b)=>(b.v-b.sim)-(a.v-a.sim));return {d:'話題ごとに、触れているレビューの割合',h:bars(t.map(x=>({l:x.n,v:x.v,cmp:x.sim})),{fmt:f1,u:'%',c:'#a06a86',cmp:'類似作の平均'})}},{when:'post'});
+I('interest','i_updown','点を上げる話題・下げる話題',6,[4],(T,d)=>{const t=topics(T).sort((a,b)=>b.ef-a.ef);const row=x=>`<tr><td>${x.n}</td><td class="r" style="color:${x.ef>=0?'var(--goodtx)':'var(--badtx)'}">${x.ef>=0?'+':''}${f2(x.ef)}点</td></tr>`;
+  return {d:'その話題に触れた人と触れていない人の、平均スコアの差',h:`<div class="two"><div><div class="sub-h">点を上げる</div><table>${t.slice(0,4).map(row).join('')}</table></div><div><div class="sub-h">点を下げる</div><table>${t.slice(-4).reverse().map(row).join('')}</table></div></div><div class="note">点を上げる話題は、宣伝で押し出す候補です。</div>`}},{when:'post'});
+I('interest','i_rwords','特徴的な言葉と観客の言葉',12,[4],(T,d)=>({d:'レビューの本文から',h:`<div class="three"><div><div class="sub-h">類似作より多い言葉</div><div class="words">${['大切','日記','約束','主題歌','ラスト10分','手紙'].map(w=>`<span>${w}</span>`).join('')}</div></div><div><div class="sub-h">高い点の人に多い言葉</div><div class="words">${['号泣','当たり前','誰かと','もう一度','ありがとう'].map(w=>`<span>${w}</span>`).join('')}</div></div><div><div class="sub-h">低い点の人に多い言葉</div><div class="words">${['長い','演出','予告と違う','ご都合'].map(w=>`<span>${w}</span>`).join('')}</div></div></div>
+  <div class="sub-h">観客の言葉</div><div class="voice">${[['p','結末を知っていても涙が止まらない'],['p','観終わってすぐ母に電話した'],['n','演出が好みと合わなかった']].map(x=>`<div class="${x[0]}">${x[1]}</div>`).join('')}</div><div class="note">引用は40字以内。投稿者は表示しません。</div>`}),{when:'post'});
+I('interest','i_aware','認知率と観たい率',6,[1],(T,d)=>{const b=Math.max(d,0);return {d:'週ごとの調査から',h:chart(T,[{n:'認知率',vals:slice(T,'aware',D0,b,d),c:M.aware.c},{n:'観たい率',vals:slice(T,'intent',D0,b,d),c:M.intent.c}],{a:D0,b,u:'%',h:170,max:100,marks:evMarks(T)})}},{hit:'aware'});
+I('interest','i_pillars','なぜ観たいか',6,[1],(T,d)=>{const r=R(T,30);return {d:'観たいと答えた人の理由（複数回答）',h:bars([['物語・テーマにひかれた',46],['出演者が好き',41],['予告を見て',38],['原作・シリーズが好き',27],['話題になっている',22],['主題歌・音楽',14]].map(x=>({l:x[0],v:x[1]*(0.8+r()*0.4)})).sort((a,b)=>b.v-a.v),{fmt:f1,u:'%',c:'#6a9b8a'})}});
+I('interest','i_sat','満足度とすすめたい度',12,[2],(T,d)=>{const s=at(T,'sat',d),n=at(T,'nps',d),pro=clamp(30+n*0.6,5,85),det=clamp(pro-n,2,60),r=R(T,31);
+  return {d:'鑑賞後のアンケートから',h:`<div class="two"><div><div class="kpis" style="margin-bottom:12px">${kpi('満足度',f1(s),'%',dp(s-(at(T,'sat',Math.max(0,d-7))),'pt','前週比'))}${kpi('すすめたい度（NPS）',f1(n),'pt')}${kpi('また観たい',f1(18+T.q*22),'%')}</div>${stack([{l:'すすめたい',v:pro,c:'#2f6b52'},{l:'どちらでもない',v:100-pro-det,c:'#b9bec4'},{l:'すすめない',v:det,c:'#9c4f3e'}])}</div>
+  <div><div class="sub-h">期待との差</div>${has(1)?bars([['物語・テーマ',6],['出演者',3],['映像・音',4],['予告の印象',-5]].map(x=>({l:x[0],v:50+x[1]*(0.5+r())*(T.q+.3),cmp:50})),{max:100,fmt:v=>(v-50>=0?'+':'')+f1(v-50),u:'pt',c:'#2f6b52',cmp:'期待どおり'}):''}</div></div>`}},{when:'post',hit:'sat'});
+
+/* ---------- 観客 ---------- */
+I('audience','u_age','年代と性別',6,[4],(T,d)=>{const r=R(T,40),o=dist(r,[7,52,20,10,7,4],.5),s=dist(R(T,41),[8,48,22,11,7,4],.15),f=48+r()*18;
+  return {d:d<0?'Clip!（観たい登録）した人':'Mark!（観た記録）した人',h:`${bars(AGES.map((a,i)=>({l:a,v:o[i],cmp:s[i]})),{fmt:f1,u:'%',c:'#5b6f9c',cmp:'類似作の中央値'})}<div class="note">女性の割合は ${f1(f)}%（類似作 55.0%）。構成は映画を記録する人に寄るため、類似作との差で読みます。</div>`}});
+const FQ=['年10本未満','10〜49本','50〜149本','150本以上'],FQC=['#c2603f','#b08040','#5b6f9c','#1b3a5b'];
+I('audience','u_freq','ふだん映画を観る頻度',6,[4],(T,d)=>{const o=dist(R(T,42),[22,46,23,9],.5);return {d:'直近1年のMark!の本数',h:`<div class="sub-h">この作品</div>${stack(FQ.map((l,i)=>({l,v:o[i],c:FQC[i]})))}<div class="sub-h">類似作の中央値</div>${stack(FQ.map((l,i)=>({l,v:[16,40,30,14][i],c:FQC[i]})))}
+  <div class="note">${o[0]>20?'ふだんあまり観ない人まで届いています。':'映画をよく観る人が中心です。'}</div>`}},{when:'post'});
+I('audience','u_target','狙った層に届いているか',6,[4],(T,d)=>{const c=dist(R(T,43),[8,50,21,10,7,4],.4),m=dist(R(T,40),[7,52,20,10,7,4],.5);
+  return {d:'Clip!した人と、Mark!した人の年代の差',h:`<div class="tw"><table><tr><th>年代</th><th class="r">観たい人</th><th class="r">観た人</th><th class="r">差</th></tr>${AGES.map((a,i)=>`<tr><td>${a}</td><td class="r">${f1(c[i])}%</td><td class="r">${f1(m[i])}%</td><td class="r" style="color:${m[i]-c[i]>=0?'var(--goodtx)':'var(--badtx)'}">${m[i]-c[i]>=0?'+':''}${f1(m[i]-c[i])}pt</td></tr>`).join('')}</table></div>`}},{when:'post'});
+I('audience','u_seg','客層別のスコア',6,[4],(T,d)=>{const m=at(T,'score',d),r=R(T,44);return {d:'どの層に刺さったか',h:bars(['10〜20代の女性','10〜20代の男性','30〜40代の女性','30〜40代の男性','50代以上','年10本未満の人','年150本以上の人'].map(l=>({l,v:clamp(m+(r()-.5)*0.6,1,5)})),{max:5,fmt:f2,u:'点',c:'#9c4f3e'})}},{when:'post'});
+I('audience','u_overlap','ほかに何を観ているか',6,[4],(T,d)=>{const r=R(T,45);const li=a=>`<table>${a.map(n=>`<tr><td>${n}</td><td class="r">${f1(4+r()*16)}%</td></tr>`).join('')}</table>`;
+  return {d:'この作品の観客が、ほかに記録している作品',h:`<div class="two"><div><div class="sub-h">全体と比べて特によく観ている</div>${li(SIMILAR.slice(0,4))}</div><div><div class="sub-h">同じ時期に観ている</div>${li(SIMILAR.slice(8,12))}</div></div>`}});
+I('audience','u_next','この客層が次に観たい作品',6,[4],(T,d)=>{const r=R(T,46);return {d:'公開予定作へのClip!。予告を付ける相手の候補',h:bars(['きみと渡る橋（12月公開）','冬のソナチネ（12月公開）','はるかな星の子（1月公開）','ミッドナイト・ランナーズ（1月公開）','ふたりの台所（2月公開）'].map(l=>({l,v:6+r()*22})).sort((a,b)=>b.v-a.v),{fmt:f1,u:'%',c:'#a06a86'})}});
+I('audience','u_pre','公開前の観たい人',12,[1],(T,d)=>{const r=R(T,47),i=at(T,'intent',Math.min(d,-1));
+  return {d:'週ごとの調査から',h:`<div class="three"><div><div class="sub-h">年代別の観たい率</div>${bars(AGES.map(a=>({l:a,v:clamp(i*(0.5+r()),1,70)})),{fmt:f1,u:'%',c:'#6a9b8a'})}</div>
+  <div><div class="sub-h">どれくらい確実に観るか</div>${stack([{l:'必ず',v:28+T.q*18,c:'#2f6b52'},{l:'たぶん',v:40,c:'#6a9b8a'},{l:'迷い中',v:32-T.q*18,c:'#b9bec4'}])}<div class="sub-h">劇場か配信か</div>${stack([{l:'映画館',v:55+T.q*18,c:'#1b3a5b'},{l:'どちらでも',v:22,c:'#8a929a'},{l:'配信を待つ',v:23-T.q*18,c:'#c9ccd0'}])}</div>
+  <div><div class="sub-h">どこで知ったか</div>${bars([['SNS',34],['テレビCM',28],['映画館の予告',24],['動画サイト',21],['家族・友人',12]].map(x=>({l:x[0],v:x[1]*(0.7+r()*0.6)})).sort((a,b)=>b.v-a.v),{fmt:f1,u:'%',c:'#1b3a5b'})}</div></div>`}});
+I('audience','u_post','実際の観客',12,[2],(T,d)=>{const r=R(T,48);
+  return {d:'鑑賞後のアンケートから',h:`<div class="three"><div><div class="sub-h">年代</div>${bars(AGES.map((a,i)=>({l:a,v:dist(R(T,49),[9,30,22,18,13,8],.4)[i]})),{fmt:f1,u:'%',c:'#5b6f9c'})}</div>
+  <div><div class="sub-h">誰と観たか</div>${bars([['ひとり',34],['友人',27],['恋人・夫婦',22],['家族',17]].map(x=>({l:x[0],v:x[1]*(0.7+r()*0.6)})),{fmt:f1,u:'%',c:'#a06a86'})}<div class="sub-h">2回目以上の人</div><div class="big num">${f1(6+T.q*14)}<small>%</small></div></div>
+  <div><div class="sub-h">観ると決めた理由</div>${bars([['口コミ・評判',31],['出演者',29],['予告',26],['原作',18],['割引・特典',9]].map(x=>({l:x[0],v:x[1]*(0.7+r()*0.6)})).sort((a,b)=>b.v-a.v),{fmt:f1,u:'%',c:'#2f6b52'})}</div></div>`}},{when:'post'});
+
+/* ---------- 見通し ---------- */
+function posParts(T,d){const p=[];if(has(3))p.push(['話題の量','buzz']);if(has(6))p.push(['公式SNSの反応','oeng']);if(has(5))p.push(['検索','search']);if(has(4))p.push(['Clip!','clip']);
+  return p.map(([n,k])=>({n,k,v:posOf(T,k,d,'cum'),peers:PEERS.map(x=>posOf(x,k,d,'cum'))}))}
+I('outlook','o_pos','類似作の中での位置',12,[],(T,d)=>{const p=posParts(T,d),v=mean(p.map(x=>x.v)),sd=Math.sqrt(mean(p.map(x=>(x.v-v)**2))),w=clamp(10+sd*.8+(d<-28?8:0),10,32),lo=clamp(v-w,0,100),hi=clamp(v+w,0,100),t=tierOf(v),tl=tierOf(lo),th=tierOf(hi);
+  return {d:`公開${-d}日前の時点。類似作の同じ時点と比べています`,h:`<div class="tier">${TIERS.map((n,i)=>`<span class="${i===t?'on':i>=tl&&i<=th?'near':''}">${n}</span>`).join('')}</div>
+   <div class="note" style="margin-bottom:14px">濃い色がいまの位置、薄い色が幅です。物差しどうしの位置が離れているほど、幅を広く取っています。公開前は金額の予測を出していません。</div>
+   <div class="posrow" style="font-weight:700"><span>全体</span>${posStrip(v,lo,hi)}<span>${TIERS[tl]}〜${TIERS[th]}</span></div>
+   ${p.map(x=>`<div class="posrow"><span>${x.n}</span>${posStrip(x.v,null,null,x.peers)}<span>${TIERS[tierOf(x.v)]}</span></div>`).join('')}
+   <div class="pos-ax"><span>下位</span><span>真ん中</span><span>上位</span></div><div class="note">灰色の点は類似作（作品名は表示しません）。</div>`}},{when:'pre',any:[3,6],hide:()=>has(1)});
+function preFc(T,d){const proj=k=>{const v=at(T,k,d),s=(v-at(T,k,d-14))/14;return clamp(v+Math.max(s,0)*(-d)*0.6,0,k==='aware'?94:62)};
+  const a=proj('aware'),i=proj('intent'),viewers=1.05e8*a/100*i/100*0.11,mid=viewers*1450,band=d<-14?.30:.22;return {a,i,viewers,mid,lo:mid*(1-band),hi:mid*(1+band*1.3)}}
+function rangeBar(lo,mid,hi,now){const mx=hi*1.15,p=v=>clamp(v/mx*100,0,100);return `<div class="range"><div class="t"></div><div class="b" style="left:${p(lo)}%;width:${p(hi)-p(lo)}%"></div><div class="m" style="left:${p(mid)}%"></div>${now!=null?`<div class="now" style="left:${p(now)}%"></div><span style="left:${p(now)}%;top:36px">いまの累計</span>`:''}<span style="left:${p(lo)}%;transform:translateX(-100%);padding-right:4px">${fN(lo)}円</span><span style="left:${p(hi)}%;transform:none;padding-left:4px">${fN(hi)}円</span></div>`}
+I('outlook','o_money','最終興収の見通し',12,[1],(T,d)=>{const f=preFc(T,d);return {d:`公開${-d}日前の時点。公開日の認知率・観たい率の見込みから積み上げ`,h:`<div class="two"><div><div class="big num">${fN(f.mid)}<small>円前後</small></div>${rangeBar(f.lo,f.mid,f.hi)}<div class="note">幅は ${fN(f.lo)}円〜${fN(f.hi)}円。上に外れるほうが大きい前提で、上側を広く取っています。</div></div>
+  <div><div class="kpis">${kpi('公開日の認知率（見込み）',f1(f.a),'%')}${kpi('公開日の観たい率（見込み）',f1(f.i),'%')}${kpi('劇場で観る人（見込み）',fN(f.viewers),'人')}${kpi('初週の興収（見込み）',fN(f.mid*.22),'円')}${kpi('初週に集中する割合',22,'%')}${kpi('前の週の見通しとの差',(f.mid-preFc(T,d-7).mid>=0?'+':'')+fN(f.mid-preFc(T,d-7).mid),'円')}</div></div></div>`}},{when:'pre'});
+const grossDrop=(X,d)=>sumR(X,'gross',7,Math.min(d,13))/sumR(X,'gross',0,Math.min(d-7,6));
+function finalFc(T,d){const cum=sumR(T,'gross',0,d)*1e4;let ps=PEERS,basis='類似作すべて';
+  if(d>=13){const key=has(4)?X=>womOf(X,d).v:X=>grossDrop(X,d),me=key(T);ps=[...PEERS].sort((a,b)=>Math.abs(key(a)-me)-Math.abs(key(b)-me)).slice(0,has(2)?5:has(4)?7:10);
+    basis=has(2)?'口コミの伸び方と満足度が近い類似作':has(4)?'口コミの伸び方が近い類似作':'週ごとの落ち方が近い類似作'}
+  else if(has(2)){const me=at(T,'sat',d);ps=[...PEERS].sort((a,b)=>Math.abs(at(a,'sat',d)-me)-Math.abs(at(b,'sat',d)-me)).slice(0,7);basis='満足度が近い類似作'}
+  const mu=ps.map(p=>p.final/(sumR(p,'gross',0,d)*1e4)),mid=cum*med(mu),fl=has(2)?.06:has(4)?.09:.12;return {cum,lo:Math.max(cum,Math.min(cum*qt(mu,.25),mid*(1-fl))),mid,hi:Math.max(cum*qt(mu,.75),mid*(1+fl*1.3)),n:ps.length,basis}}
+I('outlook','o_final','最終興収の見通し',8,[],(T,d)=>{if(d<2)return {d:'',h:'<div class="empty">金額の見通しは、初週末（公開3日目）の後から出します。</div>'};const f=finalFc(T,d);
+  return {d:`${relLbl(d)}の時点`,h:`<div class="big num">${fN(f.mid)}<small>円前後</small></div>${rangeBar(f.lo,f.mid,f.hi,f.cum)}
+  <div class="note" style="margin-top:22px">幅は ${fN(f.lo)}円〜${fN(f.hi)}円（外れやすさを見込んで最低限の幅を取っています）。${f.basis}（${f.n}本）が、同じ時点からどれだけ伸びたかを当てはめています。${d>=9?`前の週の見通しとの差は ${finalFc(T,d).mid-finalFc(T,d-7).mid>=0?'+':''}${fN(finalFc(T,d).mid-finalFc(T,d-7).mid)}円。`:''}</div>
+  <div class="sub-h">累計興収の動き</div>${(()=>{const c=[];let s=0;for(let x=0;x<=d;x++){s+=at(T,'gross',x)*1e4;c.push(s)}return chart(T,[{n:'累計',vals:c,c:'#4e8780',fill:true}],{a:0,b:Math.max(d,7),u:'円',h:130})})()}`}},{when:'post',any:[3,6]});
+I('outlook','o_legs','週末ごとの動き',4,[],(T,d)=>{const w=[];for(let i=0;i*7+2<=d;i++)w.push(sumR(T,'gross',i*7,i*7+2)*1e4);
+  return {d:'金・土・日の3日間',h:w.length?`<table><tr><th>週末</th><th class="r">興収</th><th class="r">前週比</th></tr>${w.map((v,i)=>`<tr><td>${i+1}週目</td><td class="r">${fN(v)}円</td><td class="r">${i?Math.round(v/w[i-1]*100)+'%':'—'}</td></tr>`).join('')}</table>`:'<div class="empty">初週末の後から出ます。</div>'}},{when:'post',any:[3,6]});
+I('outlook','o_type','ヒットの型',6,[4],(T,d)=>{const w=womOf(T,d);if(!w)return {d:'',h:'<div class="empty">公開2週目が終わると判定が出ます。</div>'};const m=med(PEERS.map(p=>womOf(p,d).v)),ty=w.v>m*1.15?'口コミ型':w.v<m*0.85?'初動型':'標準型';
+  return {d:'この先の落ち方の見当',h:`<div class="tier">${['初動型','標準型','口コミ型'].map(n=>`<span class="${n===ty?'on':''}">${n}</span>`).join('')}</div><div class="kpis">${kpi('口コミの伸び倍率',f2(w.v),'倍',`類似作の中央値 ${f2(m)}倍`)}${kpi('公開前のClip! ÷ Mark!',f2(conv(T,d).pre),'倍')}</div>
+  <div class="note">${ty==='口コミ型'?'週を追っても落ちにくい型です。上映回数の維持と、感想を広げる施策が効きます。':ty==='初動型'?'公開直後に集中する型です。2週目以降の落ち込みを見込んでください。':'類似作と同じくらいの落ち方です。'}</div>`}},{when:'post'});
+I('outlook','o_similar','類似作の実績',6,[],(T,d)=>({d:'同じ系統・同じ規模の作品。この作品の予測ではありません',h:`<div class="tw"><table><tr><th>作品</th><th class="r">初週末</th><th class="r">最終</th><th class="r">最終÷初週末</th></tr>${PEERS.slice(0,8).map((p,i)=>{const o=sumR(p,'gross',0,2)*1e4;return `<tr><td>${SIMILAR[i]}</td><td class="r">${fN(o)}円</td><td class="r">${fN(p.final)}円</td><td class="r">${f1(p.final/o)}倍</td></tr>`}).join('')}</table></div><div class="note">中央値は 初週末 ${fN(med(PEERS.map(p=>sumR(p,'gross',0,2)*1e4)))}円・最終 ${fN(med(PEERS.map(p=>p.final)))}円。${d>=2||has(1)?`この作品の見通しは、最終の中央値の ${f2((d>=2?finalFc(T,d).mid:preFc(T,d).mid)/med(PEERS.map(p=>p.final)))}倍。`:''}</div>`}),{any:[3,6]});
+I('outlook','o_supply','公開の規模と席',6,[],(T,d)=>{const cap=T.screens*4.2*150*7,adm=d>=6?sumR(T,'gross',0,6)*1e4/1450:null;
+  return {d:'初週7日間',h:`<div class="kpis">${kpi('スクリーン数',T.screens,'')}${kpi('1日の上映回数',fN(T.screens*4.2),'回')}${kpi('用意される席',fN(cap),'席')}${kpi('席の埋まり具合',adm?f1(adm/cap*100):'—',adm?'%':'',adm?'':'初週が終わると出ます')}</div>`}},{any:[3,6]});
+I('outlook','o_comp','公開週の競合',6,[],(T,d)=>{const r=R(T,60),c=[['この作品',T.screens,'#4e8780'],['銀河の果ての約束',Math.round(280+r()*140),'#5b6f9c'],['探偵たちの休日',Math.round(200+r()*120),'#a06a86'],['ワイルド・ハイウェイ',Math.round(180+r()*120),'#b08040'],['そのほか',Math.round(900+r()*300),'#c9ccd0']];
+  return {d:'同じ週に上映される作品のスクリーン数',h:`${stack(c.map(x=>({l:x[0],v:x[1],c:x[2]})))}<div style="height:10px"></div>${bars(c.slice(0,4).map(x=>({l:x[0],v:x[1],c:x[2]})),{fmt:fN})}`}},{any:[3,6]});
+I('outlook','o_ovl','同時期の作品との客層の重なり',6,[4],(T,d)=>{const r=R(T,61);return {d:'この作品にClip!・Mark!した人が、同じ時期の作品にも付けている割合',h:bars(['銀河の果ての約束','探偵たちの休日','ワイルド・ハイウェイ'].map(l=>({l,v:5+r()*26})).sort((a,b)=>b.v-a.v),{fmt:f1,u:'%',c:'#a06a86'})+'<div class="note">重なりが大きい作品とは、同じ客を取り合います。</div>'}});
+I('outlook','o_check','見通しの答え合わせ',6,[],(T,d)=>({d:'過去に出した見通しと、実績の差',h:'<div class="empty">集計中です。上映が終わった作品が出そろうと、時点別（公開4週前・直前・初週末の後）の外れ幅を表示します。</div>'}),{any:[3,6]});
+
+/* ================= くわしく見る（現行項目の引っ越し分） ================= */
+const DP={deep:true};
+const CMPC=['#5b6f9c','#a06a86','#b08040'];
+function xy(pts,o){const xs=pts.map(p=>p.x),x0=Math.min(...xs),x1=Math.max(...xs),mx=niceMax(Math.max(...pts.map(p=>p.y))*1.02),f=fmtBy(o.u);
+  const P=pts.map((p,i)=>(i?'L':'M')+((p.x-x0)/(x1-x0)*100).toFixed(2)+' '+(100-p.y/mx*100).toFixed(2)).join('');
+  const mk=o.mark!=null?`<line x1="${(o.mark-x0)/(x1-x0)*100}" x2="${(o.mark-x0)/(x1-x0)*100}" y1="0" y2="100" stroke="#4e8780" stroke-width="1.2" stroke-dasharray="3 3" vector-effect="non-scaling-stroke"/>`:'';
+  return `<div class="ch" style="height:${o.h||150}px"><div class="ch-y"><span>${f(mx)}</span><span>${f(mx/2)}</span><span>0</span></div><div class="ch-plot"><svg viewBox="0 0 100 100" preserveAspectRatio="none"><line x1="0" x2="100" y1="50" y2="50" stroke="#eee9df" vector-effect="non-scaling-stroke"/>${mk}<path d="${P}" fill="none" stroke="${o.c||'#4e8780'}" stroke-width="2" vector-effect="non-scaling-stroke"/></svg></div></div><div class="ch-x">${[0,.25,.5,.75,1].map(t=>`<span style="left:${t*100}%">${Math.round(x0+(x1-x0)*t)}${o.xu||''}</span>`).join('')}</div>`}
+function heat(rows,cols,val){let mx=0;rows.forEach((_,i)=>cols.forEach((_,j)=>mx=Math.max(mx,val(i,j))));
+  return `<div class="tw"><table><tr><th></th>${cols.map(c=>`<th class="r">${c}</th>`).join('')}</tr>${rows.map((r,i)=>`<tr><td>${r}</td>${cols.map((_,j)=>{const v=val(i,j);return `<td class="r" style="background:rgba(78,135,128,${(v/mx*.75).toFixed(2)});color:${v/mx>.6?'#fff':'inherit'}">${f1(v)}%</td>`}).join('')}</tr>`).join('')}</table></div>`}
+const wkChange=(T,k,d)=>{if(RATE.has(k)){const a=at(T,k,d),b=at(T,k,d-7);return a==null||b==null?null:a-b}const b=sumR(T,k,d-13,d-7);return b?(sumR(T,k,d-6,d)/b-1)*100:null};
+const cumGross=(T,d)=>sumR(T,'gross',0,d)*1e4;
+const scoreSeries=(T,a,b,cut)=>{const v=[];for(let x=a;x<=b;x++)v.push(x>cut?null:scoreOf(T,x));return v};
+function comps(T){const r=R(T,60),n=['銀河の果ての約束','探偵たちの休日','ワイルド・ハイウェイ'],sc=[Math.round(280+r()*140),Math.round(200+r()*120),Math.round(180+r()*120)],r2=R(T,62);
+  return n.map((x,i)=>({n:x,sc:sc[i],dm:0.35+r2()*0.5,c:CMPC[i]}))}
+const fcBase=(T,d)=>preFc(T,Math.min(d,-1));
+const moneyOK=d=>d>=2||has(1);
+
+/* ---------- 今日 ---------- */
+I('home','h_views','ページごとの状況',12,[],(T,d)=>{const c=[];const tn=v=>toneOf(v)[0];
+  const done=T.ev.filter(e=>e.d+2<=d&&!isAd(e)).map(e=>({e,v:evEff(T,e,d)})).filter(x=>x.v!=null).sort((a,b)=>b.v-a.v)[0];
+  c.push(['acts','施策と反応',done?`いちばん効いたのは「${done.e.label}」`:'反応の出た施策はまだありません',done?tn(done.v):'warn']);
+  if(has(6)){const a=adPos(T,d);c.push(['deliver','届け方',a==null?'広告の出稿はまだありません':`広告のクリック率は類似作の中で${TIERS[tierOf(a)]}`,a==null?'warn':tn(a)])}
+  const b=has(3)?posOf(T,'buzz',d):50;c.push(['interest','関心と評判',has(1)?`認知率 ${f1(at(T,'aware',d))}%・観たい率 ${f1(at(T,'intent',d))}%`:`話題の量は類似作の中で${TIERS[tierOf(b)]}`,tn(has(1)?posOf(T,'intent',d):b)]);
+  if(visiblePages(d).some(p=>p.k==='audience'))c.push(['audience','観客',d>=0&&has(4)?`観た人のスコアは ${f2(at(T,'score',d))}点`:'観たい人の年代と好みを確認できます',d>=0&&has(4)?tn((at(T,'score',d)-3.2)*90):'good']);
+  c.push(['outlook','見通し',d>=2?`最終興収は ${fN(finalFc(T,d).mid)}円前後`:has(1)&&d<0?`最終興収は ${fN(preFc(T,d).mid)}円前後`:'類似作の中での位置を確認できます','good']);
+  return {d:'押すとそのページへ',h:`<div class="nums">${c.map(x=>`<button class="ncard" data-page="${x[0]}"><div class="k"><i class="cdot" style="background:${{good:'#5fae86',warn:'#d9ad4f',bad:'#d98476'}[x[3]]}"></i>${x[1]}</div><div style="font-size:13px;margin-top:4px">${x[2]}</div></button>`).join('')}</div>`}},{any:[3,6],...DP});
+I('home','h_moves','伸びた指標・落ちた指標',6,[],(T,d)=>{const ks=Object.keys(M).filter(k=>mAvail(k,d-7)&&mAvail(k,d)).map(k=>({k,v:wkChange(T,k,d)})).filter(x=>x.v!=null).sort((a,b)=>b.v-a.v);
+  const row=x=>`<tr><td>${M[x.k].n}</td><td class="r" style="color:${x.v>=0?'var(--goodtx)':'var(--badtx)'}">${x.v>=0?'+':''}${f1(x.v)}${RATE.has(x.k)?(M[x.k].u==='点'?'点':'pt'):'%'}</td></tr>`;
+  return {d:'前の週と比べた動き',h:`<div class="two"><div><div class="sub-h">伸びた</div><table>${ks.filter(x=>x.v>0).slice(0,4).map(row).join('')||'<tr><td>なし</td></tr>'}</table></div><div><div class="sub-h">落ちた・止まった</div><table>${ks.filter(x=>x.v<=0).slice(-4).reverse().map(row).join('')||'<tr><td>なし</td></tr>'}</table></div></div>`}},{any:[3,6],...DP});
+I('home','h_goal','目標への進み具合',6,[],(T,d)=>{const post=d>=0,now=post?cumGross(T,d):preFc(T,d).mid,adm=now/1450;
+  const pts=[];if(post){let s=0;for(let x=0;x<=d;x++){s+=at(T,'gross',x)*1e4;pts.push(s)}}else for(let x=d-27;x<=d;x++)pts.push(preFc(T,x).mid);
+  return {d:post?'ここまでの累計と目標':'いまの見込みと目標',h:`<div class="kpis" style="margin-bottom:12px">${kpi(post?'累計の興収':'興収の見込み',fN(now),'円')}${kpi('目標',fN(T.goal),'円')}${kpi('目標への進み具合',f1(now/T.goal*100),'%')}${kpi(post?'累計の動員':'見込みの動員',fN(adm),'人')}</div>
+  <div class="sub-h">積み上げの推移</div>${chart(T,[{n:post?'累計':'見込み',vals:pts,c:'#4e8780',fill:true}],{a:post?0:d-27,b:post?Math.max(d,7):d,u:'円',h:120})}`}},{any:[3,6],hide:d=>d<0&&!has(1),...DP});
+I('home','h_cast','本日の観客',6,[2],(T,d)=>{const r=R(T,70+d);return {d:'鑑賞後のアンケートの速報',h:`<div class="kpis">${kpi('本日の回答',Math.round(180+r()*240),'件')}${kpi('満足度',f1(at(T,'sat',d)),'%')}${kpi('すすめたい度（NPS）',f1(at(T,'nps',d)),'pt')}${kpi('最多の鑑賞動機',['口コミ・評判','出演者','予告'][Math.floor(r()*3)],'')}</div>`}},{when:'post',...DP});
+I('home','h_all','全指標の一覧',12,[],(T,d)=>{const ks=Object.keys(M).filter(k=>mAvail(k,d));
+  return {d:'いま出せる指標をまとめて',h:`<div class="tw"><table><tr><th>指標</th><th class="r">いまの値</th><th class="r">前の週との差</th><th>類似作の同じ時期での位置</th></tr>${ks.map(k=>{const m=M[k],w=mAvail(k,d-7)?wkChange(T,k,d):null,p=['score','sat','nps'].includes(k)?null:posOf(T,k,d);
+   return `<tr class="click" data-go="${m.pg}" data-hit="${k}"><td>${m.n}</td><td class="r">${fmtBy(m.u)(at(T,k,d))}${m.u}</td><td class="r">${w==null?'—':(w>=0?'+':'')+f1(w)+(RATE.has(k)?'pt':'%')}</td><td>${p==null?'—':TIERS[tierOf(p)]}</td></tr>`}).join('')}</table></div>`}},{any:[3,6],...DP});
+
+/* ---------- 施策と反応 ---------- */
+I('acts','a_score','指数の推移と施策',12,[],(T,d)=>{const a=Math.max(D0+7,d-83),b=Math.max(d,a+14);return {d:`${scoreName()}の動きと、施策のタイミング`,h:chart(T,[{n:scoreName(),vals:scoreSeries(T,a,b,d),c:'#4e8780',fill:true}],{a,b,u:'',h:170,max:100,marks:evMarks(T),legend:true})}},{any:[3,6]});
+I('acts','a_decomp','何が指数を動かしたか',6,[],(T,d)=>{const n=scoreParts(T,d),o=scoreParts(T,d-7),rows=n.map(x=>({n:x.n,v:x.v-(o.find(y=>y.k===x.k)||x).v})).sort((a,b)=>b.v-a.v);
+  return {d:'前の週からの変化を、要素ごとに',h:`<table>${rows.map(x=>`<tr><td>${x.n}</td><td class="r" style="color:${x.v>=0?'var(--goodtx)':'var(--badtx)'}">${x.v>=0?'+':''}${x.v}</td></tr>`).join('')}</table><div class="note">数字は、類似作の中での位置（0〜100）が何ポイント動いたかです。</div>`}},{any:[3,6],...DP});
+I('acts','a_axes','5つの力',6,[],(T,d)=>({d:'類似作の同じ時期と比べた位置',h:bars(scoreParts(T,d).map(x=>({l:x.n,v:x.v,cmp:50})),{max:100,fmt:v=>Math.round(v),cmp:'類似作の真ん中'})}),{any:[3,6],...DP});
+I('acts','a_flow','宣伝の流れ',12,[1],(T,d)=>{const st=[['投下','広告の表示（7日間）',sumR(T,'aimp',d-6,d),'回',wkChange(T,'aimp',d),'%'],['反応','話題の量（7日間）',sumR(T,'buzz',d-6,d),'件',wkChange(T,'buzz',d),'%'],['意向','観たい率',at(T,'intent',d),'%',wkChange(T,'intent',d),'pt'],
+  d>=0?['動員','直近7日の動員',sumR(T,'gross',d-6,d)*1e4/1450,'人',wkChange(T,'gross',d),'%']:['動員','見込みの動員',preFc(T,d).viewers,'人',(preFc(T,d).viewers/preFc(T,d-7).viewers-1)*100,'%']];
+  return {d:'投下 → 反応 → 意向 → 動員',h:`<div class="kpis">${st.map(s=>kpi(`${s[0]}｜${s[1]}`,fmtBy(s[3])(s[2]),s[3],s[4]!=null&&isFinite(s[4])?dp(s[4],s[5],'前週比'):'')).join('')}</div>`}},DP);
+I('acts','a_organic','広告がない日も話題が続いているか',6,[3,6],(T,d)=>{const on=[],off=[];for(let x=d-27;x<=d;x++)(at(T,'aimp',x)>0?on:off).push(at(T,'buzz',x));
+  return {d:'直近4週の、1日あたりの話題の量',h:bars([{l:`広告を出した日（${on.length}日）`,v:mean(on),c:'#b08040'},{l:`出していない日（${off.length}日）`,v:mean(off),c:'#5b6f9c'}],{u:'件'})+`<div class="note">${on.length&&off.length?`広告のない日でも、ある日の ${Math.round(mean(off)/mean(on)*100)}% の話題が出ています。`:'比べられる日がそろうと割合が出ます。'}</div>`}},DP);
+I('acts','a_react','話題と検索の動き',6,[3,5],(T,d)=>{const a=d-55,nz=k=>{const v=slice(T,k,a,d,d),m=mean(v.filter(x=>x!=null))||1;return v.map(x=>x==null?null:x/m*100)};
+  return {d:'それぞれの期間平均を100とした値',h:chart(T,[{n:'話題の量',vals:nz('buzz'),c:M.buzz.c},{n:'検索',vals:nz('search'),c:M.search.c}],{a,b:d,u:'',h:160,marks:evMarks(T)})}},DP);
+
+/* ---------- 届け方 ---------- */
+I('deliver','d_camp','広告キャンペーン別の効率',12,[6],(T,d)=>{const ev=T.ev.filter(e=>e.ch.startsWith('PAID')&&e.d<=d),r=R(T,80);
+  return {d:'出稿ごと',h:ev.length?`<div class="tw"><table><tr><th>キャンペーン</th><th>種類</th><th class="r">費用</th><th class="r">表示回数</th><th class="r">クリック率</th><th class="r">1クリックあたり</th></tr>${ev.map(e=>{const tv=e.ch==='PAID_TV',imp=e.cost*1e4/(tv?T.cpmT:T.cpmD)*1000,ctr=0.6+r()*0.7,eff=evEff(T,e,d);
+   return `<tr class="click" data-ev="${e.id}"><td>${e.label}</td><td><i class="cdot" style="background:${CH[e.ch].c}"></i>${CH[e.ch].n}</td><td class="r">${fN(e.cost*1e4)}円</td><td class="r">${fN(imp)}</td><td class="r">${tv?'—':f2(ctr)+'%'}</td><td class="r">${tv?'—':fN(e.cost*1e4/(imp*ctr/100))+'円'}</td></tr>`}).join('')}</table></div>`:'<div class="empty">この日までに広告の出稿はありません。</div>'}},DP);
+I('deliver','d_mtrend','広告の効率の推移',6,[6],(T,d)=>{const wk=i=>[d-7*i-6,d-7*i],row=i=>{const sp=sumR(T,'aspD',...wk(i)),imp=sp/T.cpmD*1000;return {sp,imp,ctr:imp?sumR(T,'aclk',...wk(i))/imp*100:null,vtr:imp?sumR(T,'aview',...wk(i))/imp*100:null}};
+  return {d:'デジタル広告。週ごと',h:`<div class="tw"><table><tr><th>週</th><th class="r">広告費</th><th class="r">クリック率</th><th class="r">最後まで見られた率</th></tr>${[3,2,1,0].map(i=>{const x=row(i);return `<tr><td>${md(dateOf(T,wk(i)[0]))}〜</td><td class="r">${fN(x.sp)}円</td><td class="r">${x.ctr==null?'—':f2(x.ctr)+'%'}</td><td class="r">${x.vtr==null?'—':f1(x.vtr)+'%'}</td></tr>`}).join('')}</table></div>`}},DP);
+I('deliver','d_gloss','広告の指標の読み方',6,[6],()=>({d:'早見表',h:`<table>${[['1000回表示あたりの費用（CPM）','安いほど、同じ費用で多くの人に届く'],['クリック率（CTR）','高いほど、見た人が興味を持っている'],['最後まで見られた率（VTR）','高いほど、動画の中身が見られている'],['動画1回あたりの費用（CPV）','安いほど、効率よく動画を見せられている'],['反応率','公式SNSの表示のうち、いいね・返信・共有が付いた割合']].map(x=>`<tr><td style="white-space:nowrap">${x[0]}</td><td>${x[1]}</td></tr>`).join('')}</table>`}),DP);
+
+/* ---------- 観客：公開前（週ごとの調査） ---------- */
+I('audience','u_pre2','観たい気持ちの中身',12,[1],(T,d)=>{const r=R(T,90),i=at(T,'intent',Math.min(d,-1)),a=at(T,'aware',Math.min(d,-1));
+  return {d:'週ごとの調査から',h:`<div class="three"><div><div class="sub-h">観たい気持ちの分布</div>${stack([{l:'ぜひ観たい',v:i*.38,c:'#2f6b52'},{l:'観たい',v:i*.62,c:'#6a9b8a'},{l:'どちらとも',v:(100-i)*.4,c:'#b9bec4'},{l:'観ない',v:(100-i)*.6,c:'#d9d4ca'}])}
+   <div class="sub-h">どこまで知っているか</div>${stack([{l:'内容まで',v:a*.34,c:'#1b3a5b'},{l:'名前だけ',v:a*.66,c:'#5b6f9c'},{l:'知らない',v:100-a,c:'#d9d4ca'}])}<div class="note">内容まで理解している人は、知っている人の34%。</div></div>
+   <div><div class="sub-h">いつ観る予定か</div>${bars([['公開初日・初週',22+T.q*10],['公開2〜3週目',31],['1か月以内',24],['決めていない',23-T.q*10]].map(x=>({l:x[0],v:x[1]})),{fmt:f1,u:'%',c:'#6a9b8a'})}
+   <div class="sub-h">性別の観たい率</div>${bars([{l:'女性',v:i*(0.9+r()*.35)},{l:'男性',v:i*(0.75+r()*.35)}],{fmt:f1,u:'%',c:'#a06a86'})}</div>
+   <div><div class="sub-h">誰と観る予定か</div>${bars([['ひとり',30],['友人',26],['恋人・夫婦',25],['家族',19]].map(x=>({l:x[0],v:x[1]*(0.7+r()*.6)})),{fmt:f1,u:'%',c:'#a06a86'})}
+   <div class="sub-h">いちばん観たい層</div><div class="big num" style="font-size:20px">${['20代の女性','30代の女性','20代の男性'][Math.floor(r()*3)]}</div></div></div>`}},DP);
+I('audience','u_pre3','観たい形式と単価',6,[1],(T,d)=>{const r=R(T,91),up=120+r()*160;return {d:'週ごとの調査から',h:`${bars([['通常の上映',58],['IMAX・ドルビーなど',22],['4D',9],['こだわらない',11]].map(x=>({l:x[0],v:x[1]*(0.8+r()*.4)})),{fmt:f1,u:'%',c:'#1b3a5b'})}
+  <div class="kpis" style="margin-top:12px">${kpi('追加で払ってもよい額',fN(up),'円','特別な形式に対して')}${kpi('チケットの平均単価（見込み）',fN(1450+up*.22),'円')}${kpi('1上映あたりの席数',150,'席','公開規模からの想定')}</div>`}},DP);
+I('audience','u_creative','記憶に残った宣伝素材',6,[1],(T,d)=>{const r=R(T,92),i=at(T,'intent',Math.min(d,-1));
+  return {d:'見た覚えがある人の割合と、その人たちの観たい率',h:`<div class="tw"><table><tr><th>素材</th><th class="r">見た覚えがある</th><th class="r">見た人の観たい率</th><th class="r">全体との差</th></tr>${['本予告','特報','ポスター','TVスポット','主題歌の映像'].map(n=>{const l=2+r()*9;return `<tr><td>${n}</td><td class="r">${f1(12+r()*30)}%</td><td class="r">${f1(i+l)}%</td><td class="r" style="color:var(--goodtx)">+${f1(l)}pt</td></tr>`}).join('')}</table></div>`}},DP);
+I('audience','u_rival','一緒に検討されている作品',6,[1],(T,d)=>{const r=R(T,93);return {d:'この作品を観たい人が、同じ時期にほかに観たい作品',h:bars(comps(T).map(c=>({l:c.n,v:8+r()*28,c:c.c})).sort((a,b)=>b.v-a.v),{fmt:f1,u:'%'})+'<div class="note">割合が高い作品とは、同じ客を取り合います。</div>'}},DP);
+I('audience','u_items','調査で取得している項目',6,[1],()=>({d:'週ごとの調査',h:`<div class="words">${['認知','認知の深さ','観たい気持ち','観る確かさ','観る時期','同行者','劇場か配信か','観たい形式','追加で払える額','知ったきっかけ','観たい理由','見た覚えのある素材','一緒に検討している作品'].map(w=>`<span>${w}</span>`).join('')}</div>`}),DP);
+
+/* ---------- 観客：公開後（鑑賞後のアンケート） ---------- */
+const ROUTES=['SNS','テレビCM','映画館の予告','動画サイト','家族・友人','映画サイト'],MOTIV=['口コミ・評判','出演者','予告','原作','割引・特典'];
+I('audience','u_post2','どこで知り、なぜ観たか',12,[2],(T,d)=>{const r=R(T,94);
+  return {d:'鑑賞後のアンケートから',h:`<div class="three"><div><div class="sub-h">知ったきっかけ</div>${bars(ROUTES.map((l,i)=>({l,v:[33,26,24,20,14,9][i]*(0.7+r()*.6)})).sort((a,b)=>b.v-a.v),{fmt:f1,u:'%',c:'#1b3a5b'})}</div>
+  <div><div class="sub-h">きっかけ別のすすめたい度</div><table>${ROUTES.slice(0,5).map(l=>`<tr><td>${l}</td><td class="r">${f1(at(T,'nps',d)+(r()-.5)*24)}pt</td></tr>`).join('')}</table><div class="note">高いきっかけから来た人ほど、口コミを広げてくれます。</div></div>
+  <div><div class="sub-h">観ると決めた時期</div>${stack([{l:'当日',v:18+r()*8,c:'#c2603f'},{l:'1週間以内',v:34,c:'#b08040'},{l:'公開前から',v:48-r()*8,c:'#5b6f9c'}])}
+  <div class="sub-h">性別と知ったきっかけ</div><table><tr><th></th><th class="r">女性</th><th class="r">男性</th></tr>${ROUTES.slice(0,3).map(l=>`<tr><td>${l}</td><td class="r">${f1(18+r()*22)}%</td><td class="r">${f1(14+r()*22)}%</td></tr>`).join('')}</table></div></div>`}},{when:'post',...DP});
+I('audience','u_heat','年代 × 動機（ヒートマップ）',6,[2],(T,d)=>{const r=R(T,95),v=AGES.map(()=>MOTIV.map(()=>6+r()*34));return {d:'年代ごとに、観ると決めた理由',h:heat(AGES,MOTIV,(i,j)=>v[i][j])}},{when:'post',...DP});
+I('audience','u_repeat','リピート',6,[2],(T,d)=>{const again=18+T.q*22,done=6+T.q*14,s=at(T,'sat',d);
+  return {d:'2回目以上の人と、これからの伸びしろ',h:`<div class="kpis" style="margin-bottom:12px">${kpi('2回目以上の人',f1(done),'%')}${kpi('また観たい',f1(again),'%')}${kpi('まだ来ていない人',f1(Math.max(0,again-done)),'%','また観たい − 2回目以上')}</div>
+  <div class="sub-h">来場回数</div>${stack([{l:'1回目',v:100-done,c:'#5b6f9c'},{l:'2回目',v:done*.7,c:'#b08040'},{l:'3回以上',v:done*.3,c:'#c2603f'}])}
+  <div class="sub-h">満足度のちがい</div>${bars([{l:'2回目以上の人',v:Math.min(99,s+6),c:'#2f6b52'},{l:'はじめての人',v:s-1,c:'#6a9b8a'}],{max:100,fmt:f1,u:'%'})}`}},{when:'post',...DP});
+I('audience','u_nps','誰がすすめてくれるか',6,[2],(T,d)=>{const r=R(T,96),n=at(T,'nps',d),sh=dist(R(T,49),[9,30,22,18,13,8],.4);
+  return {d:'年代別のすすめたい度と、すすめたい人の内訳',h:`<div class="two"><div><div class="sub-h">年代別（NPS）</div><table>${AGES.map(a=>`<tr><td>${a}</td><td class="r">${f1(n+(r()-.5)*26)}pt</td></tr>`).join('')}</table></div><div><div class="sub-h">すすめたい人の内訳</div>${bars(AGES.map((a,i)=>({l:a,v:sh[i]*(0.8+r()*.4)})),{fmt:f1,u:'%',c:'#2f6b52'})}</div></div>`}},{when:'post',...DP});
+I('audience','u_format','上映の形式と、映画を観る頻度',6,[2],(T,d)=>{const r=R(T,97),h=10+r()*14;return {d:'鑑賞後のアンケートから',h:`<div class="sub-h">観た形式</div>${stack([{l:'通常',v:72-r()*10,c:'#5b6f9c'},{l:'IMAX・ドルビーなど',v:18+r()*8,c:'#1b3a5b'},{l:'4D',v:8,c:'#b08040'}])}
+  <div class="sub-h">ふだん映画館に行く頻度</div>${stack([{l:'年1〜2回',v:30,c:'#c2603f'},{l:'年3〜11回',v:70-30-h,c:'#b08040'},{l:'月1回以上',v:h,c:'#1b3a5b'}])}<div class="note">月1回以上行く人は ${f1(h)}%。</div>`}},{when:'post',...DP});
+I('audience','u_answer','公開前の見込みと、実際の観客',6,[1,2],(T,d)=>{const p=dist(R(T,98),[9,34,22,16,12,7],.3),a=dist(R(T,49),[9,30,22,18,13,8],.4);
+  return {d:'観たいと答えた人と、実際に来た人の年代',h:`<div class="tw"><table><tr><th>年代</th><th class="r">公開前に観たい人</th><th class="r">実際の観客</th><th class="r">差</th></tr>${AGES.map((g,i)=>`<tr><td>${g}</td><td class="r">${f1(p[i])}%</td><td class="r">${f1(a[i])}%</td><td class="r" style="color:${a[i]-p[i]>=0?'var(--goodtx)':'var(--badtx)'}">${a[i]-p[i]>=0?'+':''}${f1(a[i]-p[i])}pt</td></tr>`).join('')}</table></div>`}},{when:'post',...DP});
+
+/* ---------- 見通し ---------- */
+function openWeek(T,d){return d>=6?sumR(T,'gross',0,6)*1e4:fcBase(T,d).mid*.22}
+I('outlook','o_share','初週の興収シェア',6,[],(T,d)=>{const cs=comps(T),me=openWeek(T,d),co=cs.map(c=>c.sc*1.1e6*c.dm),tot=me+sumA(co),scT=T.screens+sumA(cs.map(c=>c.sc));
+  const rank=[me,...co].sort((a,b)=>b-a).indexOf(me)+1;
+  return {d:d>=6?'同じ週の主な作品の中で（実績）':'同じ週の主な作品の中で（見込み）',h:`<div class="sub-h">興収のシェア</div>${stack([{l:'この作品',v:me,c:'#4e8780'},...cs.map((c,i)=>({l:c.n,v:co[i],c:c.c}))])}
+  <div class="sub-h">スクリーン数のシェア</div>${stack([{l:'この作品',v:T.screens,c:'#4e8780'},...cs.map(c=>({l:c.n,v:c.sc,c:c.c}))])}
+  <div class="kpis" style="margin-top:12px">${kpi('興収のシェア',f1(me/tot*100),'%')}${kpi('スクリーンのシェア',f1(T.screens/scT*100),'%')}${kpi('順位',rank,`位／${cs.length+1}作品`)}</div><div class="note">他の作品の金額は表示しません。</div>`}},{any:[3,6],hide:d=>d<6&&!has(1),...DP});
+I('outlook','o_winlose','競合と比べた強みと弱み',6,[1],(T,d)=>{const r=R(T,100),it=[['認知率',posOf(T,'aware',d)],['観たい率',posOf(T,'intent',d)],['話題の量',posOf(T,'buzz',d)],['スクリーン数',T.screens/mean(comps(T).map(c=>c.sc))*50],['公式SNSの反応',posOf(T,'oeng',d)]];
+  const w=it.filter(x=>x[1]>=55),l=it.filter(x=>x[1]<45);
+  return {d:'同じ週の作品と比べて',h:`<div class="two"><div><div class="sub-h">強み</div><ul class="todo">${w.map(x=>`<li class="good"><b>${x[0]}</b>同じ週の作品より高い水準です。</li>`).join('')||'<li>目立った強みはまだありません。</li>'}</ul></div><div><div class="sub-h">弱み</div><ul class="todo">${l.map(x=>`<li class="warn"><b>${x[0]}</b>同じ週の作品より低い水準です。</li>`).join('')||'<li>目立った弱みはありません。</li>'}</ul></div></div>`}},DP);
+I('outlook','o_slate','前後3週間の公開作品',6,[],(T,d)=>{const r=R(T,101),cs=comps(T),li=[[-14,'春を待つ手紙',220],[-7,'夜明けのランナー',260],[0,cs[0].n,cs[0].sc],[0,T.name,T.screens],[0,cs[1].n,cs[1].sc],[7,cs[2].n,cs[2].sc],[14,'小さな灯台',190],[21,'雨上がりの二人',240]];
+  return {d:'公開日とスクリーン数',h:`<div class="tw"><table><tr><th>公開日</th><th>作品</th><th class="r">スクリーン数</th></tr>${li.map(x=>`<tr style="${x[1]===T.name?'background:var(--accent-soft);font-weight:700':''}"><td>${md(dateOf(T,x[0]))}</td><td>${x[1]}</td><td class="r">${x[2]}</td></tr>`).join('')}</table></div>`}},{any:[3,6],...DP});
+I('outlook','o_cmpts','自社のほかの作品との比較',12,[],(T,d)=>{const a=-56,b=Math.max(d,-28),ts=Object.values(TT).filter(X=>!X.past||X.k===T.k).slice(0,3);
+  return {d:`${scoreName()}を、公開日からの日数でそろえて比較`,h:chart(T,ts.map((X,i)=>({n:X.name,vals:scoreSeries(X,a,b,Math.min(d,X.today)),c:X.k===T.k?'#4e8780':CMPC[i],w:X.k===T.k?2.6:1.6})),{a,b,u:'',h:170,max:100})+'<div class="note">横軸の日付はこの作品のものです。ほかの作品は、公開日を重ねて表示しています。</div>'}},{any:[3,6],...DP});
+I('outlook','o_cmpaud','自社のほかの作品との観客の比較',6,[2],(T,d)=>{const r=R(T,102);return {d:'鑑賞後のアンケートから',h:`<div class="tw"><table><tr><th>作品</th><th class="r">満足度</th><th class="r">すすめたい度</th><th>主な客層</th><th class="r">観客の重なり</th></tr>${Object.values(TT).filter(X=>X.today>=0&&(!X.past||X.k===T.k)).map(X=>`<tr style="${X.k===T.k?'font-weight:700':''}"><td>${X.name}</td><td class="r">${f1(at(X,'sat',Math.min(d,X.today)))}%</td><td class="r">${f1(at(X,'nps',Math.min(d,X.today)))}pt</td><td>${X.genre==='ファミリー'?'30〜40代の親子':'20代の女性'}</td><td class="r">${X.k===T.k?'—':f1(6+r()*14)+'%'}</td></tr>`).join('')}</table></div>`}},{when:'post',...DP});
+I('outlook','o_mult','公開後の伸び',6,[],(T,d)=>{const pm=med(PEERS.map(p=>p.final/(sumR(p,'gross',0,2)*1e4)));const post=d>=2,o3=post?cumGross(T,2):null,m=post?finalFc(T,d).mid/o3:pm,adj=has(2)&&post?1+(at(T,'sat',d)-80)/120:null;
+  return {d:'最終興収は、初週末の何倍になるか',h:`<div class="kpis">${kpi('この作品の見込み',f1(m),'倍',post?'':'公開前は類似作の中央値')}${kpi('類似作の中央値',f1(pm),'倍')}${adj?kpi('満足度による補正',f2(adj),'倍','満足度が高いほど長く伸びる'):''}${post?kpi('初週末3日間',fN(o3),'円'):''}</div>
+  <div class="note">${post?(m>pm*1.1?'類似作より長く伸びる見込みです。':m<pm*0.9?'類似作より早く落ちる見込みです。':'類似作と同じくらいの伸び方です。'):'公開後、実績が出るたびに更新します。'}</div>`}},{any:[3,6],hide:d=>d<0&&!has(1),...DP});
+I('outlook','o_how','見通しの作り方',6,[],(T,d)=>{const li=has(1)?['公開前：認知率と観たい率から、劇場で観る人数を積み上げます','そこに平均単価を掛けて、興収にします','用意される席の数を超える分は、取りこぼしとして差し引きます','公開後：初週末の実績に、類似作の伸び方を当てはめます','満足度とすすめたい度で、当てはめる類似作を絞ります']
+  :has(4)?['公開前：話題の量・公式SNSの反応・Clip!などを、類似作の同じ時点と比べて位置を出します','公開前は金額を出しません','公開後：初週末の実績に、類似作の伸び方を当てはめます','Mark!の伸び方が近い類似作に絞って、幅を狭めます']
+  :['公開前：話題の量と公式SNSの反応を、類似作の同じ時点と比べて位置を出します','公開前は金額を出しません','公開後：初週末の実績に、類似作の伸び方を当てはめます','週ごとの落ち方が近い類似作に絞って、幅を狭めます'];
+  return {d:'何を使って、どう出しているか',h:`<ul class="todo">${li.map((x,i)=>`<li><b>${i+1}</b>${x}</li>`).join('')}</ul><div class="note">幅は、類似作での外れ方から決めています。確実な数字ではありません。</div>`}},{any:[3,6],...DP});
+function simFc(T,d,sc){const f=fcBase(T,d),dem=f.viewers*.22,cap=sc*4.2*150*7*.85,adm=Math.min(dem,cap);return {dem,cap,adm,open:adm*1450,final:adm*1450/.22,short:dem>cap}}
+I('outlook','o_demand','需要と席の過不足',6,[1],(T,d)=>{const s=simFc(T,d,T.screens);return {d:'初週7日間。観たい人の数と、用意される席',h:`${bars([{l:'観に来る見込みの人',v:s.dem,c:'#6a9b8a'},{l:'座れる席（上限85%）',v:s.cap,c:'#5b6f9c'}],{u:'人'})}
+  <div class="kpis" style="margin-top:12px">${kpi('席の埋まり具合（見込み）',f1(s.adm/(s.cap/.85)*100),'%')}${kpi(s.short?'席が足りない分':'席の余裕',fN(Math.abs(s.cap-s.dem)),s.short?'人':'席')}${kpi('初週の興収（見込み）',fN(s.open),'円')}</div>
+  <div class="note">${s.short?'観たい人が席を上回っています。スクリーン数を増やせれば取りこぼしを減らせます。':'席は足りています。伸ばすには、観たい人を増やす施策が効きます。'}</div>`}},DP);
+I('outlook','o_sim','公開規模を変えた場合',6,[1],(T,d)=>{const sc=S.sim||T.screens,s=simFc(T,d,sc),pts=[];for(let x=100;x<=600;x+=25)pts.push({x,y:simFc(T,d,x).final});
+  return {d:'スクリーン数を選ぶと、見通しが変わります',h:`<div class="ctl"><span class="seg">${[200,300,400,500].map(x=>`<button data-sim="${x}" class="${sc===x?'on':''}">${x}</button>`).join('')}<button data-sim="0" class="${sc===T.screens?'on':''}">いまの計画（${T.screens}）</button></span></div>
+  <div class="kpis" style="margin-bottom:12px">${kpi('初週の興収',fN(s.open),'円')}${kpi('最終興収',fN(s.final),'円')}${kpi('席',s.short?'足りない':'足りる','')}</div>${xy(pts,{u:'円',xu:'',mark:sc,h:130})}<div class="note">横軸はスクリーン数、縦軸は最終興収の見込み。線が平らになる所から先は、席を増やしても伸びません。</div>`}},DP);
+I('outlook','o_pressure','競合を織り込んだ初週',6,[1],(T,d)=>{const cs=comps(T),pr=clamp(sumA(cs.map(c=>c.dm*c.sc))/(T.screens*3)*0.25,0.03,0.3),o=fcBase(T,d).mid*.22;
+  return {d:'同じ週の作品との客の取り合いを見込む',h:`<div class="kpis">${kpi('競合による目減り',f1(pr*100),'%')}${kpi('織り込む前の初週',fN(o),'円')}${kpi('織り込んだ後の初週',fN(o*(1-pr)),'円')}${kpi('競合しだいの幅',`${fN(o*(1-pr*1.5))}〜${fN(o*(1-pr*.5))}`,'円')}</div>`}},{when:'pre',...DP});
+I('outlook','o_upside','これからの施策で見込む上積み',6,[1],(T,d)=>{const f=preFc(T,d),pend=T.ev.filter(e=>e.d>d&&e.d<=0),up=e=>f.mid*clamp(GAIN[e.ch].intent*e.str*1.05/f.i*.5,0,.08),tot=sumA(pend.map(up));
+  return {d:'予定している施策を、すべて実施した場合',h:`<div class="kpis" style="margin-bottom:12px">${kpi('いまの見通し',fN(f.mid),'円')}${kpi('施策で見込む上積み',fN(tot),'円')}${kpi('すべて実施した場合',fN(f.mid+tot),'円')}</div>${pend.length?`<table>${pend.map(e=>`<tr class="click" data-ev="${e.id}"><td>${md(dateOf(T,e.d))}　${e.label}</td><td class="r">+${fN(up(e))}円</td></tr>`).join('')}</table>`:''}<div class="note">同じ種類の過去の施策の、ふだんの押し上げから見込んだ目安です。</div>`}},{when:'pre',...DP});
+I('outlook','o_curve','動員の動き',6,[],(T,d)=>{const sc=d>=0?1:preFc(T,d).mid/T.final,act=[],fc=[];for(let x=0;x<=D1;x++){const v=T.s.grossFull[x]*1e4/1450;act.push(x<=d?v:null);fc.push(x>=Math.max(d,0)?v*sc*(d>=0?finalFc(T,Math.max(d,2)).mid/T.final:1):null)}
+  return {d:'1日ごとの動員。点線はこの先の見込み',h:chart(T,[{n:'実績',vals:act,c:'#4e8780'},{n:'見込み',vals:fc,c:'#8a929a',dash:true}],{a:0,b:D1,u:'人',h:150})}},{any:[3,6],hide:d=>d<2&&!has(1),...DP});
+I('outlook','o_demandix','需要の強さ',6,[1],(T,d)=>{const a=at(T,'aware',d),i=at(T,'intent',d),cs=comps(T),me=i,rk=[me,...cs.map(c=>c.dm*40)].sort((x,y)=>y-x).indexOf(me)+1;
+  return {d:'どれだけ選ばれそうか',h:`<div class="kpis">${kpi('知っていて観たい人',f1(a*i/100),'%','認知率 × 観たい率')}${kpi('満足してすすめたい人',d>=0&&has(2)?f1(at(T,'sat',d)*clamp(30+at(T,'nps',d)*.6,5,85)/100):'—',d>=0&&has(2)?'%':'','公開後に出ます')}${kpi('需要の強さ',posOf(T,'intent',d),'／100','類似作の中での位置')}${kpi('観たい人の多さの順位',rk,`位／${cs.length+1}作品`,'同じ週の作品の中で')}</div>`}},DP);
+
+const ALIAS={"今日の結論": "h_verdict", "宣伝効果指数の推移（なぜこの評価か）": "a_score", "いま何がスコアを動かしているか": "h_verdict", "目標への到達・目標進捗": "h_goal", "指標の健康診断（全指標一覧）": "h_all", "伸びた指標": "h_moves", "落ちた・停滞した指標": "h_moves", "今日効いたTOP3": "h_posts", "観客の生の声": "h_voice", "本日の観客（アンケート速報）": "h_cast", "本日の「観たい」（鑑賞意向の速報）": "h_nums", "見込み動員（現時点の積み上げ）": "h_goal", "目標進捗率": "h_goal", "積み上げの推移（グラフ）": "h_goal", "今日の変化（前日から動いた指標）": "h_nums", "鑑賞意向率（本日）": "h_nums", "劇場鑑賞率": "h_funnel", "興収見込み（本日時点）": "h_goal", "次の一手（自動提案のアクション）": "h_todo", "実動員（累計）": "h_goal", "最多の鑑賞動機": "h_cast", "推奨度NPS（本日の観客）": "h_cast", "満足度（本日の観客）": "h_cast", "5つの観点": "h_views", "今日の注意点": "h_todo", "やること（今日の打ち手）": "h_todo", "どの段で落ちているか": "h_funnel", "必ず観ると答えた人": "h_funnel", "劇場で観る人（配信を待たない層）": "h_funnel", "発信の伸び（表示・反応・フォロワー）": "d_owned", "メディア別 発信パフォーマンス": "d_plat", "公式投稿パフォーマンス（投稿別）": "d_posts", "公式発信の推移": "d_owned", "媒体別の伸び（表示回数）": "d_owned", "プラットフォーム別 発信ミックス": "d_plat", "公式アカウントの発信例": "d_posts", "広告出稿費と効果の推移": "d_trend", "話題獲得単価": "d_sum", "広告 → 指名検索リフト": "d_lift", "全媒体サマリー": "d_sum", "媒体別 効率の推移": "d_mtrend", "予算配分 × 効率": "d_media", "リーチした人（性年代 × 反応）": "d_demo", "指標の翻訳早見表": "d_gloss", "出稿費の媒体別シェア": "d_media", "ポテンシャル5軸（レーダー）": "a_axes", "キャンペーン別の獲得効率": "d_camp", "ターゲティング一致率": "d_demo", "性年代 × 反応（バタフライ）": "d_demo", "構成と反応の要点": "d_demo", "認知率": "i_aware", "累計の到達人数": "d_sum", "指名検索": "i_search", "公式SNSの表示回数（直近4週）": "d_owned", "認知率と指名検索の推移": "i_aware", "1000回表示あたりの費用（CPM）": "d_sum", "動画1回あたりの費用（CPV）": "d_sum", "クリック率（CTR）": "d_sum", "動画が最後まで見られた率（VTR）": "d_sum", "届け方の効率（前週比の動き）": "d_sum", "約束の達成度（観たい率 → 満足度・すすめたい度）": "i_sat", "すすめたい度（NPS）": "i_sat", "満足度": "i_sat", "期待は満たされたか（テーマ別）": "i_sat", "期待の声（公開前・SNS）": "i_words", "観た人の感想（公開後）": "i_rwords", "期待の3本柱（なぜ観たいか）": "i_pillars", "期待の声と感想の対比": "i_words", "期待との差（約束は守られたか）": "i_sat", "施策 × 話題の答え合わせ": "a_rank", "言及量の推移 × 施策マーカー": "i_buzz", "施策ランキング（話題への貢献）": "a_rank", "SNSライブウォール": "i_words", "トレンドの言葉・ハッシュタグ": "i_words", "観たい率": "i_aware", "話題の量": "i_buzz", "感想の空気（センチメント）": "i_sent", "口コミの後押し力": "i_sat", "観たい率と話題の量の推移": "i_aware", "感想の空気の推移": "i_sent", "施策別 効果レポート（実施済）": "a_rank", "チャネル別 平均効果": "a_ch", "これからの施策と興収予測への影響": "o_upside", "効果ランキング（効果スコア）": "a_rank", "凡例と注記（効果の測り方）": "a_rank", "宣伝の流れ（投下 → 反応 → 意向 → 動員）": "a_flow", "要因分解（何が指数を動かしたか）": "a_decomp", "投下 → オーガニック（自走したか）": "a_organic", "反応の中身（話題 × 指名検索）": "a_react", "態度変容（認知率・意向率）": "i_aware", "週次の振り返り（Weekly Recap）": "a_week", "表示期間の切替": "a_tl", "結実（積み上げと目標進捗）": "h_goal", "4指標 総覧": "a_week", "宣伝効果指数": "h_verdict", "実施した施策": "a_rank", "最も効いた施策": "a_rank", "最も効いている媒体": "a_ch", "直近4週で効いた施策": "a_rank", "媒体別の平均効果": "a_ch", "宣伝効果指数の推移 × 施策マーカー": "a_score", "これからの施策（予定一覧）": "a_plan", "観客の素顔": "u_post", "性年代構成（バタフライ）": "u_post", "同行者構成（誰と観たか）": "u_post", "認知経路（どこで知ったか）": "u_post2", "鑑賞動機（なぜ観ると決めたか）": "u_post", "上映フォーマット": "u_format", "年代別NPS（誰がすすめてくれるか）": "u_nps", "認知と意向の現在地": "i_aware", "認知率・意向率の推移": "i_aware", "年代別・性別の鑑賞意向率": "u_pre2", "いつ観る予定か": "u_pre2", "観たいフォーマット・追加課金意欲": "u_pre3", "実競合（作品の食い合い）": "u_rival", "記憶に残ったクリエイティブ": "u_creative", "広告接触 vs 非接触の意向差": "d_exposed", "鑑賞意向調査で取得している項目": "u_items", "内容まで理解している割合": "u_pre2", "鑑賞意向率（ぜひ＋観たい）": "u_pre2", "認知の深さ": "u_pre2", "鑑賞意向の分布": "u_pre2", "どこで知ったか（認知媒体・公開前）": "u_pre", "なぜ観たいか（意向理由）": "i_pillars", "年代別 鑑賞意向率": "u_pre", "性別 鑑賞意向率": "u_pre2", "意欲の質（動員に変わる確度）": "u_pre", "鑑賞の確度": "u_pre", "劇場 vs 配信": "u_pre", "単価と席数（収益の予測材料）": "u_pre3", "チケットの予測平均単価": "u_pre3", "誰と観る予定か（同行）": "u_pre2", "クリエイティブ想起と接触リフト": "u_creative", "ブランドリフト（広告による意向の押し上げ）": "d_exposed", "公開前の意向と公開後の実績の答え合わせ": "u_answer", "鑑賞頻度レイヤー": "u_format", "ヘビー層（コア層）の厚み": "u_format", "来場回数（リピート）": "u_repeat", "どこで知り、なぜ観たか": "u_post2", "決定時期と鑑賞フォーマット": "u_post2", "鑑賞を決めた時期": "u_post2", "どの入口の客が推奨者か": "u_post2", "誰に効くか（クロス集計）": "u_post2", "年代 × 動機（ヒートマップ）": "u_heat", "性別 × 認知経路": "u_post2", "リピーター vs 初見の違い": "u_repeat", "再鑑賞ありの割合": "u_repeat", "この客層が次に観たい作品": "u_next", "最も観たい層": "u_pre2", "最多の認知経路": "u_post2", "最多の観たい理由": "i_pillars", "主な客層": "u_post", "すすめたい度": "u_nps", "年代別の構成・観たい率": "u_answer", "狙った層に届いているか": "u_answer", "リピートの伸びしろ": "u_repeat", "口コミの起点になっている層": "u_nps", "観たい人の確からしさ": "u_pre", "劇場で観るか、配信を待つか": "u_pre", "どれくらい確実に観るか": "u_pre", "また観たい（再鑑賞の意向）": "u_repeat", "実際のリピーター": "u_repeat", "未回収（リピートの取りこぼし）": "u_repeat", "観客プロフィール比較": "o_cmpaud", "満足度・推奨・観客の重なり": "o_cmpaud", "公開スレート・タイムライン": "o_slate", "時系列比較（宣伝効果・需要・期待・言及量）": "o_cmpts", "初週興収シェア予測": "o_share", "スクリーンシェア vs 初週興収シェア": "o_share", "競合ポジショニング（勝ち筋とリスク）": "o_winlose", "初週・最終 興収ベンチマーク": "o_similar", "実績レンジ表（初週・最終・伸び方）": "o_mult", "シェア構成（初週）": "o_share", "シェア・ランキング": "o_share", "勝ち筋（自社が優位な点）": "o_winlose", "リスク（競合が優位な点）": "o_winlose", "初週興収（類似作の中央値比）": "o_similar", "最終興収（類似作の中央値比）": "o_similar", "伸び方（legs）の読み": "o_mult", "需要シェア（観たいの順位）": "o_demandix", "公開規模シミュレーター": "o_sim", "需要 × 供給 と 座席稼働率": "o_demand", "初週動員の積み上げ（需要ファネル）": "o_money", "公開規模（スクリーン数・上映回数・座席数）": "o_supply", "公開週の競合ラインナップ": "o_comp", "市場スクリーンシェアと競合圧力": "o_comp", "初週末 → 最終（伸び方）": "o_mult", "動員カーブ（予測）": "o_curve", "興収予測の結論": "o_money", "この予測の作り方（データと算法）": "o_how", "初週末興収（結論）": "o_money", "最終興収予測（結論）": "o_money", "算出フロー（何がこの数字を動かすか）": "o_how", "この予測の根拠（3つの要素）": "o_how", "需要指数（どれだけ選ばれるか）": "o_demandix", "需要の3要素（認知×意向・満足×推奨・支払意欲）": "o_demandix", "需要 × 配荷 ＝ 結果": "o_demand", "公開規模と最終興収の関係曲線": "o_sim", "スクリーン数プリセット": "o_sim", "初週の需要と供給": "o_demand", "座席供給量（初週7日）": "o_supply", "座席稼働率（初週）": "o_supply", "競合状況による揺れ": "o_pressure", "今週のスクリーン配分（自社 vs 競合）": "o_comp", "競合圧力（需要の食い合い）": "o_pressure", "初週需要への補正（競合の掛け率）": "o_pressure", "競合を織り込んだ初週興収": "o_pressure", "初週末から最終への伸びと施策の反映": "o_mult", "構造（初動集中度）": "o_money", "口コミ補正（legsの掛け率）": "o_mult", "legs（最終÷初週）": "o_mult", "未実施施策で見込む上積み": "o_upside", "全施策実施後の見込み上限": "o_upside", "最終興収の予測": "o_money", "初週興収の予測": "o_money", "公開後の伸び（初週の何倍）": "o_mult", "予測の動き（前週との差）": "o_money", "需要と席の過不足": "o_demand", "席の埋まり具合（稼働率）": "o_supply", "見込み動員の積み上げと目標": "h_goal", "用意した席がどれだけ埋まるか": "o_supply"};
+
+/* ================= 類似作の鑑賞後アンケートを、公開前の手がかりに使う =================
+   自社の過去作は名前を出せる。他社の作品は、名前を出さず類似作全体の集計としてだけ使う */
+const SIMN=()=>`類似作${PEERS.length}本の集計。他社の作品は名前を出しません`;
+const simNote=t=>`<div class="note">${t}　回答の少ない作品は集計から外します。</div>`;
+I('acts','a_simtime','類似作の観客は、いつ観ると決めたか',12,[2],(T,d)=>{const r=R(T,201),o=[['1か月より前',14,'公開1か月より前'],['2週間〜1か月前',19,'公開2〜5週前ごろ'],['4〜10日前',21,'公開1〜2週前ごろ'],['前日〜3日前',24,'公開の直前'],['観た当日',22,'公開した週']].map(x=>[x[0],x[1]*(0.8+r()*0.4),x[2]]),tot=sumA(o.map(x=>x[1])),sh=o.map(x=>x[1]/tot*100);
+  const now=d<-35?0:d<-10?1:d<-3?2:d<0?3:4,done=sumA(sh.slice(0,now)),left=100-done;
+  return {d:`${SIMN()}。公開初週に観た人の回答`,h:`<div class="kpis" style="margin-bottom:14px">${kpi('いまの時期にあたるのは',o[now][0],'','に決めた人たち')}${kpi('ここまでに決めた人',f1(done),'%','類似作を初週に観た人のうち')}${kpi('これから決める人',f1(left),'%','まだ取りに行ける人')}</div>
+   ${bars(o.map((x,i)=>({l:`観る${x[0]}に決めた${i===now?'（いま）':''}`,v:sh[i],c:i===now?'#4e8780':i<now?'#b9bec4':'#8fb9b3'})),{fmt:f1,u:'%'})}
+   ${simNote('アンケートでは「観に行くことを決めたのは、いつ頃ですか」と、観た日から数えて聞いています。公開初週に観た人に絞ると、おおよそ公開日から数えた時期（'+o.map(x=>x[2]).join('／')+'）に読み替えられます。施策をどの時期に厚くするかの手がかりになります。')}`}},{when:'pre'});
+I('interest','i_simroute','類似作の観客は、どこで知り、なぜ観ると決めたか',12,[2],(T,d)=>{const r=R(T,202),kn=ROUTES2.map(x=>({l:x.n,v:x.b*(0.75+r()*0.5)})).sort((a,b)=>b.v-a.v);
+  return {d:SIMN(),h:`<div class="three"><div><div class="sub-h">この作品を知ったきっかけ<small style="font-weight:400;color:var(--sub)">（あてはまるものすべて）</small></div>${bars(kn,{fmt:f1,u:'%',c:'#1b3a5b'})}</div>
+   <div><div class="sub-h">観ようと決めた、いちばんの理由</div>${bars([['ストーリー・内容',24],['出演者',21],['世の中の話題',15],['予告編・ポスター',12],['原作',10],['人にすすめられた・約束',9],['主題歌・音楽',5],['特別な上映（IMAXなど）',4]].map(x=>({l:x[0],v:x[1]*(0.75+r()*0.5)})).sort((a,b)=>b.v-a.v),{fmt:f1,u:'%',c:'#2f6b52'})}</div>
+   <div><div class="sub-h">いちばんのきっかけ別の、すすめたい度</div><table>${['作品の公式サイト・公式SNS','テレビ（CM・番組）','映画館の予告編・ポスター','家族・友人・知人から聞いた'].map(l=>`<tr><td>${l}</td><td class="r">${f1(22+(r()-.5)*30)}pt</td></tr>`).join('')}</table><div class="note">高いきっかけから来た人ほど、観たあとに人にすすめてくれます。</div></div></div>
+   ${simNote('類似作を観た人の回答です。どの届け方と、どの訴求に力を入れるかの手がかりになります。')}`}},{when:'pre'});
+I('audience','u_sim','類似作を観た人たち',12,[2],(T,d)=>{const r=R(T,203),ag=dist(r,[9,31,22,17,13,8],.35),fr=dist(R(T,204),[30,48,22],.3);
+  return {d:SIMN(),h:`<div class="three"><div><div class="sub-h">年代</div>${bars(AGES.map((a,i)=>({l:a,v:ag[i]})),{fmt:f1,u:'%',c:'#5b6f9c'})}<div class="note">女性の割合は ${f1(50+r()*14)}%。</div></div>
+   <div><div class="sub-h">誰と観たか</div>${bars([['ひとり',33],['友人',27],['恋人・夫婦',23],['家族',17]].map(x=>({l:x[0],v:x[1]*(0.75+r()*0.5)})),{fmt:f1,u:'%',c:'#a06a86'})}</div>
+   <div><div class="sub-h">ふだん映画館に行く頻度</div>${stack([{l:'年1〜2回',v:fr[0],c:'#c2603f'},{l:'年3〜11回',v:fr[1],c:'#b08040'},{l:'月1回以上',v:fr[2],c:'#1b3a5b'}])}
+   <div class="sub-h">2回以上観た人</div><div class="big num">${f1(8+r()*10)}<small>%</small></div></div></div>
+   ${simNote('この作品の観客はまだいないので、類似作を実際に観た人の姿を出しています。週ごとの調査で見える「観たい人」と見比べると、狙う層のずれに気づけます。')}`}},{when:'pre'});
+I('outlook','o_simsat','類似作の満足度と、公開後の伸び',6,[2],(T,d)=>{const pt=PEERS.map(p=>({s:at(p,'sat',20),m:p.final/(sumR(p,'gross',0,2)*1e4)})),md2=med(pt.map(x=>x.s)),hi=pt.filter(x=>x.s>=md2),lo=pt.filter(x=>x.s<md2);
+  return {d:SIMN(),h:`<div class="kpis">${kpi('満足度が高かった類似作',f1(med(hi.map(x=>x.m))),'倍',`最終興収÷初週末。${hi.length}本の中央値`)}${kpi('満足度が低かった類似作',f1(med(lo.map(x=>x.m))),'倍',`${lo.length}本の中央値`)}${kpi('類似作の満足度',f1(md2),'%','中央値')}</div>
+   ${simNote('満足度が高い作品ほど、初週末のあとも長く伸びています。この作品の満足度が出たら、どちらの型に近いかで見通しの幅を絞ります。')}`}},{when:'pre'});
+
+/* ================= 施策の答え合わせ：反応の先の「来場」を、鑑賞後アンケートでつなぐ =================
+   観に来た人が「何で知り、何が決め手だったか」を、施策の種類・費用と並べる */
+/* 経路は、設問C04（どこで知りましたか・あてはまるものすべて）の選択肢をまとめたもの（13_共通コード仕様 §2）。
+   map＝施策の種類との対応：'d' そのまま対応／'p' 一部だけ対応／null 対応しない */
+const ROUTES2=[
+  {k:'F1',n:'作品の公式サイト・公式SNS',ch:['OWNED'],map:'d',b:17,one:.9,dr:-.3},
+  {k:'B',n:'テレビ（CM・番組）',ch:['PAID_TV'],map:'p',why:'CMと、番組での紹介が、同じ選択肢です',b:27,one:.8,dr:-1.6},
+  {k:'E',n:'ニュース・映画情報サイト、新聞・雑誌',ch:['PR'],map:'p',why:'記事のもとになった施策（舞台挨拶など）までは分かりません',b:19,one:.7,dr:.2},
+  {k:'F2',n:'X・Instagram・YouTube・TikTok',ch:null,map:null,why:'公式の投稿・広告・ほかの人の投稿を、区別していません',b:34,one:1.0,dr:.4},
+  {k:'A',n:'映画館の予告編・ポスター',ch:null,map:null,why:'',b:26,one:.9,dr:-1.0},
+  {k:'D',n:'電車・駅・街なかの広告',ch:null,map:null,why:'',b:7,one:.4,dr:-.2},
+  {k:'H',n:'家族・友人・知人から聞いた',ch:null,map:null,why:'',wom:1,b:16,one:1.5,dr:3.2}];
+const MAP_TX={d:'そのまま対応',p:'一部だけ対応'};
+const _cr={};
+/* 週ごとの回答（w＝公開からの週）。know＝知ったきっかけ（複数回答なので足しても100%にならない）、one＝いちばんのきっかけ（合わせて100%） */
+function castWeek(T,w){const key=T.k+'|'+w;if(_cr[key])return _cr[key];const r=rng(T.seed*17+w*5+1),know=ROUTES2.map(x=>clamp((x.b+x.dr*w*(x.wom?0.5+T.q:1))*(0.85+r()*0.3),1,70)),raw=know.map((v,i)=>v*ROUTES2[i].one),t=sumA(raw);return _cr[key]={know,one:raw.map(v=>v/t*100)}}
+function castRoutes(T,d){const W=Math.max(0,Math.floor(d/7)),ws=Array.from({length:W+1},(_,w)=>castWeek(T,w)),cost={},tot=sumA(T.ev.filter(e=>e.d<=d).map(e=>{cost[e.ch]=(cost[e.ch]||0)+e.cost;return e.cost}))||1;
+  return {W,rows:ROUTES2.map((x,i)=>({...x,know:mean(ws.map(o=>o.know[i])),one:mean(ws.map(o=>o.one[i])),cost:x.ch?sumA(x.ch.map(c=>cost[c]||0))/tot*100:null,cnt:x.ch?T.ev.filter(e=>x.ch.includes(e.ch)&&e.d<=d).length:null})),
+    none:Object.keys(CH).filter(c=>!ROUTES2.some(x=>x.ch&&x.ch.includes(c))).map(c=>({c,cost:(cost[c]||0)/tot*100}))}}
+/* 設問A1（見た覚えのある宣伝素材）・A2（いちばん観たいと思わせた素材）。ty＝対応する施策の種類 */
+const MATS=[{n:'本予告',ty:['本予告の解禁','本予告の広告'],b:46},{n:'特報',ty:['特報の広告'],b:21},{n:'テレビCM',ty:['TVスポット'],b:33},{n:'キービジュアル（ポスター）',ty:[],b:38},{n:'主題歌のミュージックビデオ',ty:['主題歌の発表'],b:17},{n:'公式SNSの投稿',ty:['キャスト解禁','場面写真・カウントダウン','感想投稿キャンペーン'],b:24},{n:'劇場での予告',ty:[],b:29}];
+function castMats(T){const r=rng(T.seed*23+9),seen=MATS.map(m=>m.b*(0.8+r()*0.4)),raw=seen.map(v=>v*(0.6+r()*0.9)),t=sumA(raw)/0.86;return MATS.map((m,i)=>({...m,seen:seen[i],best:raw[i]/t*100}))}
+const castResp=(T,d)=>Math.round(900*T.power*(1-Math.exp(-(d+1)/9)));
+I('acts','a_answer','施策の答え合わせ',12,[2],(T,d)=>{const c=castRoutes(T,d),rw=c.rows,own=rw.find(x=>x.k==='F1'),tv=rw.find(x=>x.k==='B'),wom=rw.find(x=>x.wom),mx=Math.max(...rw.map(x=>Math.max(x.know,x.one,x.cost||0))),mats=castMats(T),mm=Math.max(...mats.map(x=>x.seen));
+  const bar=(v,col,m)=>v==null?'<td class="fx-n">—</td>':`<td><div class="ab"><i style="width:${v/(m||mx)*100}%;background:${col}"></i><b class="num">${f1(v)}%</b></div></td>`;
+  const wk=Array.from({length:c.W+1},(_,w)=>w),evOf=m=>T.ev.filter(e=>m.ty.includes(e.ty)&&e.d<=d).sort((p,q)=>p.d-q.d);
+  return {d:`観に来た人 ${fN(castResp(T,d))}人の回答から。${relLbl(d)}まで`,h:`<div class="note" style="margin:0 0 12px;font-size:12.5px">話題の量やClip!は「反応」です。ここでは、その先の「実際に観に来た人」が、どこで知り、何がいちばんのきっかけだったかを、施策の種類と費用に並べます。</div>
+   <ul class="todo" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin-bottom:14px">
+    <li class="${own.one>own.cost?'good':''}"><b>公式の発信</b>公式サイト・公式SNSをいちばんのきっかけに挙げた観客は${f1(own.one)}%。この種類の施策の費用は全体の${f1(own.cost)}%。</li>
+    <li class="${tv.one<tv.cost/2?'warn':''}"><b>テレビ</b>テレビをいちばんのきっかけに挙げた観客は${f1(tv.one)}%。TVスポットの費用は全体の${f1(tv.cost)}%。<small style="display:block;color:var(--sub)">番組での紹介を含む数字です。</small></li>
+    <li><b>施策の外から来た人</b>家族・友人から聞いて知った観客は${f1(wom.know)}%、いちばんのきっかけに挙げた人は${f1(wom.one)}%。</li></ul>
+   <div class="sub-h">どこで知り、何がいちばんのきっかけだったか</div>
+   <div class="tw"><table class="ans"><tr><th>観客が答えた経路</th><th>施策の種類との対応</th><th>知ったきっかけ<small>（あてはまるものすべて）</small></th><th>いちばんのきっかけ<small>（1つだけ）</small></th><th>費用の割合</th></tr>
+    ${rw.map(x=>`<tr><td>${x.n}</td><td>${x.ch?`${x.ch.map(k=>`<i class="cdot" style="background:${CH[k].c}"></i>${CH[k].n}`).join(' ')}<small>${x.cnt}件</small><em class="mp ${x.map}">${MAP_TX[x.map]}</em>`:`<span class="fx-n">${x.wom?'施策の外':'対応する施策の種類なし'}</span>`}${x.why?`<small class="why">${x.why}</small>`:''}</td>${bar(x.know,'#d9b48a')}${bar(x.one,'#8a4b12')}${bar(x.cost,'#b9bec4')}</tr>`).join('')}</table></div>
+   <div class="note">この表に出てこない施策の種類：${c.none.map(x=>`${CH[x.c].n}（費用の${f1(x.cost)}%）`).join('、')}。アンケートの選択肢に、対応する経路がありません。SNSや動画サイトで見た広告は「X・Instagram・YouTube・TikTok」に、舞台挨拶は記事やニュースの経路に入ります。</div>
+   <div class="sub-h">どの宣伝素材を覚えていて、どれで観たいと思ったか</div>
+   <div class="tw"><table class="ans"><tr><th>宣伝素材</th><th>対応する施策</th><th>見た覚えがある<small>（あてはまるものすべて）</small></th><th>いちばん観たいと思わせた<small>（1つだけ）</small></th></tr>
+    ${mats.map(m=>{const ev=evOf(m);return `<tr><td>${m.n}</td><td>${ev.length?ev.slice(0,2).map(e=>`<button class="sq" data-jev="${e.id}" style="border-color:${CH[e.ch].c}"><i class="cdot" style="background:${CH[e.ch].c}"></i>${e.ty}</button>`).join(''):'<span class="fx-n">—</span>'}</td>${bar(m.seen,'#d9b48a',mm)}${bar(m.best,'#8a4b12',mm)}</tr>`}).join('')}</table></div>
+   <div class="note">素材は、施策の種類とそのまま対応します。施策を押すと、日誌のその施策が開きます。</div>
+   ${c.W>=1?`<div class="sub-h">いちばんのきっかけの移り変わり</div>${heat(ROUTES2.map(x=>x.n),wk.map(w=>`公開${w+1}週目`),(i,j)=>castWeek(T,j).one[i])}<div class="note">週を追って、入口がどこへ移っているかを見ます。口コミが増えていれば、感想を広げる施策が効く時期です。</div>`:'<div class="note">2週目に入ると、週ごとの移り変わりが出ます。</div>'}
+   <div class="note">回答した人に偏りがあるため、数字は目安です。回答の少ない週は集計から外します。</div>`}},{when:'post'});
+function castLine(T,e,d){const c=castRoutes(T,d),x=c.rows.find(r=>r.ch&&r.ch.includes(e.ch)),m=castMats(T).find(q=>q.ty.includes(e.ty));
+  if(!x&&!m)return `<div class="note cast"><b>来場とのつながり</b>この種類の施策（${CH[e.ch].n}）は、鑑賞後アンケートの選択肢と対応していないため、来場とのつながりを出せません。</div>`;
+  return `<div class="note cast"><b>来場とのつながり</b>${x?`観に来た人のうち、「${x.n}」で知った人は <b class="num">${f1(x.know)}%</b>、いちばんのきっかけに挙げた人は <b class="num">${f1(x.one)}%</b> です。この種類の施策（${x.cnt}件）の費用は、全体の ${f1(x.cost)}%。${x.map==='p'?`<small>${x.why}。</small>`:''}`:''}${m?`${x?'<br>':''}素材「${m.n}」を見た覚えがある観客は <b class="num">${f1(m.seen)}%</b>、いちばん観たいと思わせた素材に挙げた人は <b class="num">${f1(m.best)}%</b> です。`:''}<small>施策ひとつずつではなく、種類ごと・素材ごとの数字です。</small></div>`}
+/* 主役のページでは、日誌のすぐ下に置く */
+(function(){const mv=(id,after)=>{const i=ITEMS.findIndex(x=>x.id===id);if(i<0)return;const it=ITEMS.splice(i,1)[0],j=ITEMS.findIndex(x=>x.id===after);ITEMS.splice(j+1,0,it)};mv('a_simtime','a_log');mv('a_answer','a_log')})();
+
+/* 社内表示：各項目が、どのデータソースから成り立っているか。
+   1 KARTE／2 CAST／3 SNS計測／4 レビュー／5 検索／6 宣伝データ／B 興収実績／S 上映スケジュール／N 公開記事（自動取得）
+   ここに無い項目は、need（必要なデータ）をそのまま使う。項目を足したら、複数のデータを使うものはここにも1行足す */
+const SRC_NAME={1:'KARTE',2:'CAST',3:'SNS計測',4:'レビュー',5:'検索',6:'宣伝データ',B:'興収実績',S:'上映スケジュール',N:'公開記事'};
+const SRC_USE={
+  h_verdict:[3,6,5,4,1],h_todo:[3,6,4,1,'N'],h_nums:[3,6,5,4,1,2],h_voice:[3,4,2],h_alert:[4,3],h_tl:[3,6,5,4,1,2],
+  a_today:[3,6,5,4,1],a_log:[3,6,'N',5,4,1],a_tl:[3,6,5,4,1,2],a_rank:[3,6,'N',5,4,1],a_ch:[3,6,'N',5,4,1],a_plan:[6,'N'],a_week:[3,6,5,4,1],
+  a_score:[3,6,5,4,1],a_decomp:[3,6,5,4,1],a_axes:[3,6,5,4,1],a_flow:[6,3,1,'B'],
+  d_sum:[6,3],d_gloss:[],
+  i_buzz:[3,6],i_search:[5,6],i_clip:[4,6],i_aware:[1,6],i_sat:[2,1],
+  h_views:[3,6,4,1,'B'],h_moves:[3,6,5,4,1,2],h_goal:['B',1],h_all:[3,6,5,4,1,2],
+  o_pos:[3,6,5,4],o_final:['B',4,2],o_legs:['B'],o_similar:['B',1],o_supply:['S','B'],o_comp:['S'],o_check:['B'],
+  o_share:['B','S',1],o_winlose:[1,3,6,'S'],o_slate:['S'],o_cmpts:[3,6,5,4,1],o_mult:['B',4,2],o_how:[],
+  o_simsat:[2,'B'],a_answer:[2,6],
+  o_demand:[1,'S'],o_sim:[1,'S'],o_pressure:[1,'S'],o_upside:[1,6],o_curve:['B',1],o_demandix:[1,2,'S']
+};
+const srcPhase=k=>typeof k!=='number'?0:[3,6].includes(k)?1:[4,5].includes(k)?2:3;
+function srcChips(it){const use=SRC_USE[it.id]||it.need;if(!use.length)return '<div class="srcs int-only"><span class="sc l">データは使っていません（説明のみ）</span></div>';
+  const on=use.filter(k=>srcPhase(k)<=S.phase),later=use.filter(k=>srcPhase(k)>S.phase);
+  return `<div class="srcs int-only"><span class="sc-l">使っているデータ</span>${on.map(k=>`<span class="sc ${typeof k==='number'?'':'c'} ${k===2?'k2':''}">${typeof k==='number'?k+' ':''}${SRC_NAME[k]}</span>`).join('')}${later.map(k=>`<span class="sc l" title="Phase ${srcPhase(k)}で加わります">${k} ${SRC_NAME[k]}<i>Phase ${srcPhase(k)}から</i></span>`).join('')}</div>`}
+
+/* 社内表示：CAST（鑑賞後アンケート）が、公開前と公開後でどう使われるかの案内 */
+const CAST_PRE=['a_simtime','i_simroute','u_sim','o_simsat'],CAST_MIX=['h_nums','h_voice','o_final','o_mult'];
+const usesCast=it=>(SRC_USE[it.id]||it.need).includes(2);
+function castGuide(T,d){const sp=S.phase;S.phase=3;const post=ITEMS.filter(it=>(it.need.includes(2)||CAST_MIX.includes(it.id))&&!CAST_PRE.includes(it.id)&&avail(it,20)),pre=ITEMS.filter(it=>CAST_PRE.includes(it.id));S.phase=sp;
+  const isPre=d<0,pg=k=>PAGES.find(x=>x.k===k).n,preDay=Math.min(T.today,-12)<0?Math.min(T.today,-1):-12;
+  const chips=(arr,day,on)=>arr.map(it=>`<button class="cg-i ${on?'on':''}" data-cg="${it.id}" data-cgd="${day}" title="${pg(it.page)}のページ">${it.t}<small>${pg(it.page)}</small></button>`).join('');
+  return `<details class="castg int-only" ${S.castOpen?'open':''}><summary><b>CAST（鑑賞後アンケート）の使い道</b><span>公開前は類似作の回答を、公開後はこの作品の回答を使います。${sp<3?'Phase 3で加わります。':isPre?'いまは公開前の表示です。':'いまは公開後の表示です。'}</span></summary>
+   <div class="cg-row ${sp===3&&isPre?'cur':''}"><div class="cg-h"><b>公開前</b>類似作を観た人の回答を、手がかりにする<button class="btn" data-day="${preDay}" data-cgp>公開前の表示にする</button></div><div class="cg-c">${chips(pre,preDay,sp===3&&isPre)}</div></div>
+   <div class="cg-row ${sp===3&&!isPre?'cur':''}"><div class="cg-h"><b>公開後</b>この作品を観た人の回答で、確かめる<button class="btn" data-day="2" data-cgp>公開3日目にする</button><button class="btn" data-day="20" data-cgp>公開3週目にする</button></div><div class="cg-c">${chips(post,20,sp===3&&!isPre)}</div></div>
+   <div class="note">項目を押すと、Phase 3・その時期の表示に切り替えて、その項目へ移動します。基準日は、上のスライダーでも公開後まで動かせます。</div></details>`}
+
+/* ================= 描画 ================= */
+function visiblePages(d){return PAGES.filter(p=>ITEMS.some(it=>it.page===p.k&&avail(it,d)))}
+function render(){const T=cur(),d=S.day;
+  if(!visiblePages(d).some(p=>p.k===S.page))S.page='acts';
+  $('#selTitle').value=S.title;$('#phaseChip').textContent=relLbl(d);$('#dateLbl').innerHTML=md(dateOf(T,d))+(d>T.today?'<em class="fut">この先は見本の数字</em>':'');
+  const dy=$('#day');dy.min=-70;dy.max=D1;dy.value=d;
+  $$('#segPhase button').forEach(b=>b.classList.toggle('on',+b.dataset.p===S.phase));
+  document.body.classList.toggle('client',S.client);$('#btnClient').textContent=S.client?'社内表示に戻す':'配給会社の表示にする';
+  $('#tabs').innerHTML=visiblePages(d).map(p=>`<button class="tab ${p.k===S.page?'on':''}" data-page="${p.k}"><span class="tl">${p.n}</span><span class="ts">${TAB_SHORT[p.k]}</span></button>`).join('');
+  $('#mDate').textContent=`${md(dateOf(T,d))}｜${relLbl(d)}`;appSave();
+  const pg=PAGES.find(p=>p.k===S.page),list=ITEMS.filter(it=>it.page===S.page&&avail(it,d)),dl=list.filter(it=>it.deep);
+  const card=it=>{const o=it.fn(T,d);return `<section class="card c${it.w}" id="it-${it.id}" data-need="${it.need.join(',')}"><div class="card-h"><h2>${it.t}</h2><span class="d">${o.d||''}</span></div>${srcChips(it)}${o.h}</section>`};
+  $('#page').innerHTML=`<div class="pg-head"><h1>${pg.n}</h1><span class="pg-q">${pg.q}</span><span class="chip neu">${T.name}｜${md(dateOf(T,d))}時点</span><span class="srcs int-only" style="margin:0"><span class="sc-l">社内表示：各項目に、使っているデータを出しています</span><span class="sc">番号つき＝6分類</span><span class="sc c">共通のデータ</span><span class="sc l">点線＝上のPhaseで加わる</span></span></div>${castGuide(T,d)}<div class="grid">${list.filter(it=>!it.deep).map(card).join('')}</div>${dl.length?`<details class="deep" ${S.deepOpen[S.page]?'open':''}><summary>くわしく見る<span>${dl.length}項目</span></summary><div class="grid">${dl.map(card).join('')}</div></details>`:''}`;
+  const dt=$('details.deep');if(dt)dt.addEventListener('toggle',()=>{S.deepOpen[S.page]=dt.open});
+  const cgd=$('details.castg');if(cgd)cgd.addEventListener('toggle',()=>{S.castOpen=cgd.open});
+  bindTimeline($('#page'));
+  document.documentElement.style.setProperty('--toph',$('.top').offsetHeight+'px');
+}
+function setPage(p,hit){closePanel();S.page=p;if(hit){const h=ITEMS.find(x=>x.id===hit||x.hit===hit&&x.page===p);if(h&&h.deep)S.deepOpen[p]=true}render();window.scrollTo({top:0});
+  if(hit){const it=ITEMS.find(x=>x.id===hit||x.hit===hit&&x.page===p),el=it&&$('#it-'+it.id);if(el){el.scrollIntoView({block:'center'});el.classList.add('hit');setTimeout(()=>el.classList.remove('hit'),1800)}}}
+function setTitle(k){S.openEv=null;S.title=k;S.day=TT[k].today;render()}
+
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-page],[data-go],[data-ev],[data-rg],[data-layer],[data-p],[data-ck],[data-sim],[data-jev],[data-jl],[data-jsec],[data-jm],[data-jw],[data-jv],[data-cs],[data-fk]');if(!t)return;
+  if(t.dataset.fk){S.fk=t.dataset.fk;render();return}
+  if(t.dataset.jv){S.jv=t.dataset.jv;render();return}
+  if(t.dataset.cs){const k=t.dataset.cs;S.cmpSet=S.cmpSet.includes(k)?S.cmpSet.filter(x=>x!==k):S.cmpSet.concat(k);render();return}
+  if(t.dataset.jw){S.jw=t.dataset.jw;render();return}
+  if(t.dataset.jm){S.jlMode=t.dataset.jm;render();return}
+  if(t.dataset.jsec){S.jlOpen[t.dataset.jsec]=!S.jlOpen[t.dataset.jsec];render();return}
+  if(t.dataset.jev!=null){const id=+t.dataset.jev;S.openEv=S.openEv===id?null:id;render();const el=$('#jl-'+id);if(el&&S.openEv===id)el.scrollIntoView({block:t.classList.contains('hd')?'center':'nearest'});return}
+  if(t.dataset.sim!=null){S.sim=+t.dataset.sim||null;render();return}
+  if(t.dataset.page)setPage(t.dataset.page);
+  else if(t.dataset.go)setPage(t.dataset.go,t.dataset.hit);
+  else if(t.dataset.ev!=null)openEvent(+t.dataset.ev);
+  else if(t.dataset.rg){S.tlRange=t.dataset.rg;render()}
+  else if(t.dataset.layer){const L=tlLayers(S.day),k=t.dataset.layer;let on=L.on.slice();on=on.includes(k)?on.filter(x=>x!==k):on.concat(k);if(on.length)S.layers[S.phase]=LAYER_KEYS.filter(x=>on.includes(x));render()}
+  else if(t.dataset.p){S.phase=+t.dataset.p;render()}
+  else if(t.dataset.ck){closeCk();const it=ITEMS.find(x=>x.id===t.dataset.ck);setPage(it.page,it.id)}
+  if(t.dataset.go&&t.tagName==='TR')return;});
+$('#scrim').onclick=closePanel;
+document.addEventListener('mouseover',ev=>{const t=ev.target.closest('.hd,.jl-card');$$('.hl').forEach(x=>x.classList.toggle('hl',false));if(!t)return;const isDot=t.classList.contains('hd'),id=isDot?t.dataset.jev:t.id.slice(3),c=$('#jl-'+id),h=$('.hd[data-jev="'+id+'"]');if(isDot&&c)c.classList.add('hl');if(!isDot&&h)h.classList.add('hl')});
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-cg],[data-cgp]');if(!t)return;ev.preventDefault();
+  if(t.dataset.cgp!=null){S.phase=3;S.day=clamp(+t.dataset.day,-70,D1);S.openEv=null;render();return}
+  const it=ITEMS.find(x=>x.id===t.dataset.cg);S.phase=3;S.day=clamp(+t.dataset.cgd,-70,D1);S.openEv=null;setPage(it.page,it.id)});
+document.addEventListener('change',ev=>{const t=ev.target.closest('[data-cmp]');if(t){S.cmp=t.value;render()}});
+$('#day').oninput=e=>{S.day=+e.target.value;render()};
+$('#btnToday').onclick=()=>{S.day=cur().today;render()};
+$('#btnClient').onclick=()=>{S.client=!S.client;render()};
+$('#selTitle').innerHTML=`<optgroup label="公開前・公開中">${TITLE_DEFS.map(t=>`<option value="${t.k}">${t.name}</option>`).join('')}</optgroup><optgroup label="過去作">${PAST.map(t=>`<option value="${t.k}">${t.name}</option>`).join('')}</optgroup>`;
+$('#selTitle').onchange=e=>setTitle(e.target.value);
+
+/* 指標の検索 */
+function openCk(){$('#cmdk').classList.add('on');$('#ckQ').value='';drawCk();$('#ckQ').focus()}
+function closeCk(){$('#cmdk').classList.remove('on')}
+function drawCk(){const q=$('#ckQ').value.trim(),d=S.day;const seen=new Set(),list=[];ITEMS.filter(it=>avail(it,d)).forEach(it=>{seen.add(it.t);if(!q||it.t.includes(q))list.push([it.t,it])});
+  Object.entries(ALIAS).forEach(([t,id])=>{const it=ITEMS.find(x=>x.id===id);if(it&&avail(it,d)&&!seen.has(t)&&(!q||t.includes(q))){seen.add(t);list.push([t,it])}});
+  $('#ckL').innerHTML=list.slice(0,80).map(([t,it])=>`<button class="ck-i" data-ck="${it.id}"><span>${t}</span><small>${PAGES.find(p=>p.k===it.page).n}${t!==it.t?'｜'+it.t:''}</small></button>`).join('')||'<div class="empty" style="margin:14px">見つかりません。</div>'}
+$('#btnSearch').onclick=openCk;$('#ckQ').oninput=drawCk;$('#cmdk').onclick=e=>{if(e.target.id==='cmdk')closeCk()};
+document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();$('#cmdk').classList.contains('on')?closeCk():openCk()}
+  if(e.key==='Escape'){if($('#cmdk').classList.contains('on'))closeCk();else closePanel()}});
+
+/* 総点検：Phase×作品×基準日×ページ */
+function aliasCheck(){const keep={...S},miss=[];S.phase=3;for(const [t,id] of Object.entries(ALIAS)){const it=ITEMS.find(x=>x.id===id);if(!it){miss.push([t,id,'項目なし']);continue}
+  const ok=[['t1',-12],['t3',23]].some(([k,d])=>{S.title=k;S.day=d;S.page=it.page;S.deepOpen[it.page]=true;if(!avail(it,d))return false;render();return !!$('#it-'+id)});if(!ok)miss.push([t,id,'表示されない'])}
+  Object.assign(S,keep);render();return {total:Object.keys(ALIAS).length,miss}}
+function selfCheck(){const keep={...S,deepOpen:{...S.deepOpen}},bad=[];let n=0;S.client=true;PAGES.forEach(p=>S.deepOpen[p.k]=true);
+  const NG={1:/Mark!|Clip!|検索|認知率|観たい率|満足度|NPS|レビュー|アンケート|宣伝効果指数/,2:/認知率|観たい率|満足度|NPS|アンケート|宣伝効果指数/,3:/反応スコア/};
+  for(const ph of [1,2,3])for(const t of TITLE_DEFS){const T=TT[t.k];for(const d of [-60,-30,-12,-1,0,1,2,5,13,20,27].filter(x=>x<=T.today)){S.phase=ph;S.title=t.k;S.day=d;
+    for(const p of visiblePages(d)){S.page=p.k;try{render()}catch(e){bad.push([ph,t.k,d,p.k,'ERR '+e.message]);continue}n++;const tx=$('#page').innerText;
+      if(/NaN|undefined|Infinity|null/.test(tx))bad.push([ph,t.k,d,p.k,(tx.match(/.{0,20}(NaN|undefined|Infinity|null).{0,10}/)||[''])[0]]);
+      const m=tx.match(NG[ph]);if(m)bad.push([ph,t.k,d,p.k,'範囲外の語：'+m[0]]);
+      $$('#page [data-need]').forEach(el=>{if(!el.dataset.need.split(',').filter(Boolean).every(x=>has(+x)))bad.push([ph,t.k,d,p.k,'範囲外の項目：'+el.id])})}
+    for(const e of T.ev){try{openEvent(e.id);const px=$('#panel').innerText;if(/NaN|undefined|Infinity/.test(px)||NG[ph].test(px))bad.push([ph,t.k,d,'panel',e.label])}catch(er){bad.push([ph,t.k,d,'panel','ERR '+er.message])}}closePanel()}}
+  Object.assign(S,keep);render();return {pages:n,bad:bad.slice(0,30),badCount:bad.length}}
+
+/* ================= スマホアプリとして使うための部分 ================= */
+const TAB_SHORT={acts:'施策',home:'今日',deliver:'届け方',interest:'関心',audience:'観客',outlook:'見通し'};
+const APPK='crew_v7_app_1';
+/* 前回の作品・ページ・表示を覚えておき、次に開いたときに戻す（基準日は毎回「今日」に戻す） */
+function appSave(){try{localStorage.setItem(APPK,JSON.stringify({title:S.title,page:S.page,phase:S.phase,client:S.client,jv:S.jv,jw:S.jw,fk:S.fk,tlRange:S.tlRange,cmpSet:S.cmpSet,castOpen:S.castOpen}))}catch(e){}}
+function appLoad(){try{const o=JSON.parse(localStorage.getItem(APPK)||'null');if(!o)return;if(TT[o.title])S.title=o.title;if(PAGES.some(p=>p.k===o.page))S.page=o.page;
+  if(!qs.get('phase')&&[1,2,3].includes(o.phase))S.phase=o.phase;if(!qs.get('view'))S.client=!!o.client;['jv','jw','fk','tlRange'].forEach(k=>{if(typeof o[k]==='string')S[k]=o[k]});
+  if(Array.isArray(o.cmpSet))S.cmpSet=o.cmpSet.filter(k=>TT[k]);if(typeof o.castOpen==='boolean')S.castOpen=o.castOpen}catch(e){}}
+$('#mDate').onclick=()=>{const on=document.body.classList.toggle('m-date');document.body.classList.remove('m-more');$('#mDate').setAttribute('aria-expanded',on);$('#mMore').setAttribute('aria-expanded',false)};
+$('#mMore').onclick=()=>{const on=document.body.classList.toggle('m-more');document.body.classList.remove('m-date');$('#mMore').setAttribute('aria-expanded',on);$('#mDate').setAttribute('aria-expanded',false)};
+document.addEventListener('click',ev=>{if(ev.target.closest('[data-page]'))document.body.classList.remove('m-date','m-more')});
+/* ホーム画面への追加の案内（スマホ幅で、まだアプリとして開いていないときだけ。閉じたら出さない） */
+(function(){const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone,box=$('#a2hs');let seen=false;try{seen=!!localStorage.getItem(APPK+'_a2hs')}catch(e){}
+  const hide=()=>{box.hidden=true;try{localStorage.setItem(APPK+'_a2hs','1')}catch(e){}};$('#a2hsX').onclick=hide;
+  if(standalone||seen||!matchMedia('(max-width:900px)').matches||!/^https?:/.test(location.protocol))return;
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  if(ios){$('#a2hsT').textContent='共有ボタンから「ホーム画面に追加」を選ぶと、アプリとして使えます。';box.hidden=false}
+  addEventListener('beforeinstallprompt',e=>{e.preventDefault();$('#a2hsT').textContent='ホーム画面に追加すると、アプリとして使えます。';$('#a2hsB').hidden=false;box.hidden=false;$('#a2hsB').onclick=()=>{e.prompt();hide()}})})();
+if('serviceWorker' in navigator&&/^https?:/.test(location.protocol)&&!/^(localhost|127\.0\.0\.1)$/.test(location.hostname)){
+  addEventListener('load',()=>navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{}));
+  let _swr=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(_swr)return;_swr=true;location.reload()});
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')navigator.serviceWorker.getRegistration().then(r=>r&&r.update()).catch(()=>{})})}
+if(matchMedia('(max-width:900px)').matches)S.castOpen=false;
+if(!/^(localhost|127\.0\.0\.1)$/.test(location.hostname)&&location.protocol!=='file:'&&!qs.get('view'))S.client=true;
+evLoad();appLoad();S.day=cur().today;render();
+</script>
+</body>
+</html>
