@@ -1491,7 +1491,6 @@ I('plan','p_gap','いま観たいと言っている人との差',6,[1,2],(T,d)=>
   return {d:'週ごとの調査で「観たい」と答えた人の内訳と、類似作の観客の内訳',h:`<ul class="tg-pts"><li>類似作では来ていたのに、まだ少ない層：${lo.length?lo.slice(0,3).map(s=>`${s.n}（${pt(df[s.i])}）`).join('、'):'目立つ層はありません'}</li><li>類似作より多く集まっている層：${hi.length?hi.slice(0,3).map(s=>`${s.n}（${pt(df[s.i])}）`).join('、'):'目立つ層はありません'}</li></ul>${bars(D.segs.map(s=>({l:s.n,v:D.now[s.i],cmp:s.sh,c:df[s.i]<=-1.5?'#c2603f':'#5b6f9c'})),{fmt:f1,u:'%',cmp:'類似作の観客に占める割合。赤い棒＝類似作より1.5pt以上少ない層'})}`}},{when:'pre'});
 I('plan','p_hit','よく伸びた類似作と、そうでない類似作の観客の違い',6,[2],(T,d)=>{const r=R(T,303),h=Math.ceil(PEERS.length/2),l=PEERS.length-h,rw=[['女性の割合',58,52],['30代以上の割合',61,49],['映画館に行くのが年1〜2回の人',36,27],['家族・友人から聞いて知った人',22,13],['2人以上で観た人',71,62],['満足度',88,79]].map(x=>[x[0],x[1]*(.95+r()*.1),x[2]*(.95+r()*.1)]);
   return {d:'最終興収÷初週末の倍率で、類似作を2つに分けた比較',h:`<div class="tw"><table><tr><th>観客の特徴</th><th class="r">よく伸びた${h}本</th><th class="r">そうでない${l}本</th><th class="r">差</th></tr>${rw.map(x=>`<tr><td>${x[0]}</td><td class="r num">${f1(x[1])}%</td><td class="r num">${f1(x[2])}%</td><td class="r num">${pt(x[1]-x[2])}</td></tr>`).join('')}</table></div>${simNote('本数が少ないため、傾向の参考です。差があっても、それが伸びた原因とは限りません。')}`}},{when:'pre'});
-ITEMS.push(ITEMS.splice(ITEMS.findIndex(x=>x.id==='a_simtime'),1)[0]);
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-tg],[data-tga]');if(!t)return;const T=cur(),D=tgData(T),sel=tgSel(T),y=window.scrollY;
   if(t.dataset.tga)S.tg[T.k]=t.dataset.tga==='none'?[]:D.tags[t.dataset.tga].slice();
   else{const i=+t.dataset.tg;S.tg[T.k]=sel.includes(i)?sel.filter(x=>x!==i):sel.concat(i).sort((p,q)=>p-q)}
@@ -1542,7 +1541,7 @@ function castLine(T,e,d){const c=castRoutes(T,d),x=c.rows.find(r=>r.ch&&r.ch.inc
   if(!x&&!m)return `<div class="note cast"><b>来場とのつながり</b>この種類の施策（${CH[e.ch].n}）は、鑑賞後アンケートの選択肢と対応していないため、来場とのつながりを出せません。</div>`;
   return `<div class="note cast"><b>来場とのつながり</b>${x?`観に来た人のうち、「${x.n}」で知った人は <b class="num">${f1(x.know)}%</b>、いちばんのきっかけに挙げた人は <b class="num">${f1(x.one)}%</b> です。この種類の施策（${x.cnt}件）の費用は、全体の ${f1(x.cost)}%。${x.map==='p'?`<small>${x.why}。</small>`:''}`:''}${m?`${x?'<br>':''}素材「${m.n}」を見た覚えがある観客は <b class="num">${f1(m.seen)}%</b>、いちばん観たいと思わせた素材に挙げた人は <b class="num">${f1(m.best)}%</b> です。`:''}<small>施策ひとつずつではなく、種類ごと・素材ごとの数字です。</small></div>`}
 /* 主役のページでは、日誌のすぐ下に置く */
-(function(){const mv=(id,after)=>{const i=ITEMS.findIndex(x=>x.id===id);if(i<0)return;const it=ITEMS.splice(i,1)[0],j=ITEMS.findIndex(x=>x.id===after);ITEMS.splice(j+1,0,it)};mv('a_simtime','a_log');mv('a_answer','a_log')})();
+(function(){const mv=(id,after)=>{const i=ITEMS.findIndex(x=>x.id===id);if(i<0)return;const it=ITEMS.splice(i,1)[0],j=ITEMS.findIndex(x=>x.id===after);ITEMS.splice(j+1,0,it)};mv('a_simtime','p_hit');mv('a_answer','a_log')})();
 
 /* 社内表示：各項目が、どのデータソースから成り立っているか。
    1 KARTE／2 CAST／3 SNS計測／4 レビュー／5 検索／6 宣伝データ／B 興収実績／S 上映スケジュール／N 公開記事（自動取得）
