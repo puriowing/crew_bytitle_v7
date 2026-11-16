@@ -979,7 +979,7 @@ const TODAY=new Date(2026,10,15), D0=-84, D1=41, GMAX=140;
 /* データソース：1 KARTE／2 CAST／3 SNS計測／4 レビュー／5 検索／6 宣伝データ */
 const PHASE_SET={1:[3,6],2:[3,4,5,6],3:[1,2,3,4,5,6]};
 const qs=new URLSearchParams(location.search);
-const S={castOpen:true,fk:'buzz',jv:'log',cmpSet:['a1','a2'],jw:'mag',cmp:'none',jlMode:'lanes',jlOpen:{fut:true,past:true},deepOpen:{},sim:null,phase:+qs.get('phase')||1,title:'t1',day:0,page:'acts',jl:{},openEv:null,tlRange:'all',layers:{},client:qs.get('view')==='client'};
+const S={castOpen:true,fk:'buzz',jv:'log',cmpSet:['a1','a2'],jw:'mag',cmp:'none',jlMode:'lanes',jlOpen:{fut:true,past:true},deepOpen:{},sim:null,phase:+qs.get('phase')||1,title:'t1',day:0,page:'home',jl:{},openEv:null,tlRange:'all',layers:{},client:qs.get('view')==='client'};
 const has=n=>PHASE_SET[S.phase].includes(n);
 function rng(seed){let a=seed>>>0;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -2493,13 +2493,13 @@ document.addEventListener('click',ev=>{const t=ev.target.closest('[data-psec],[d
   if(t.dataset.plandays){S.day=+t.dataset.plandays;render();return}
   const el=$('#it-'+t.dataset.psec);if(el){const y=el.getBoundingClientRect().top+scrollY-($('.top').offsetHeight+12);window.scrollTo(0,y)}},true);
 
-/* 並び：何をして今どうか → 何を出し、どう届けたか → どう受け止められ、誰が来たか → どこまで伸びるか */
-const PG_ORDER=['acts','home','creative','deliver','interest','audience','outlook','plan'],PG_GSEP=['creative','interest','outlook'];
+/* 並び：今どうか・何をしたか → 何を出し、どう届けたか → どう受け止められ、誰が来たか → どこまで伸びるか */
+const PG_ORDER=['home','acts','creative','deliver','interest','audience','outlook','plan'],PG_GSEP=['creative','interest','outlook'];
 PAGES.sort((a,b)=>PG_ORDER.indexOf(a.k)-PG_ORDER.indexOf(b.k));
 /* 宣伝設計｜効果測定 の切り替え（どちらにいるか常に見える） */
 function modeSw(PM,where){return `<div class="mode-sw ${where==='d'?'mode-d':''}" role="tablist" aria-label="画面の切り替え"><button role="tab" class="${PM?'on':''}" data-mode="plan" aria-selected="${PM}">${TAB_IC.plan}宣伝設計</button><button role="tab" class="${PM?'':'on'}" data-mode="run" aria-selected="${!PM}">${TAB_IC.acts}効果測定</button></div>`}
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-mode]');if(!t)return;ev.stopPropagation();const PM=S.page==='plan';
-  if(t.dataset.mode==='plan'&&!PM){S.prevPage=S.page;setPage('plan')}else if(t.dataset.mode==='run'&&PM){setPage(S.prevPage&&S.prevPage!=='plan'?S.prevPage:'acts')}},true);
+  if(t.dataset.mode==='plan'&&!PM){S.prevPage=S.page;setPage('plan')}else if(t.dataset.mode==='run'&&PM){setPage(S.prevPage&&S.prevPage!=='plan'?S.prevPage:'home')}},true);
 
 /* スマホ幅で表をカードにするため、各セルに列名を持たせる */
 function tblLabels(root){$$('table.ex-list,table.cm-t',root).forEach(tb=>{const hs=[...tb.rows[0].cells].map(c=>c.textContent.trim());
@@ -2507,7 +2507,7 @@ function tblLabels(root){$$('table.ex-list,table.cm-t',root).forEach(tb=>{const 
 /* ================= 描画 ================= */
 function visiblePages(d){return PAGES.filter(p=>ITEMS.some(it=>it.page===p.k&&avail(it,d)))}
 function render(){const T=cur(),d=S.day;
-  if(S.page!=='plan'&&!visiblePages(d).some(p=>p.k===S.page))S.page='acts';
+  if(S.page!=='plan'&&!visiblePages(d).some(p=>p.k===S.page))S.page='home';
   const PM=S.page==='plan';document.body.classList.toggle('plan-mode',PM);$('#btnPlan').innerHTML=PM?'← ダッシュボードに戻る':`${TAB_IC.plan}宣伝設計`;$('#btnPlan').setAttribute('aria-pressed',PM);
   $('#selTitle').value=S.title;$('#selPo').innerHTML=poster(T,{fit:'slice'});$('#phaseChip').textContent=relLbl(d);$('#dateLbl').innerHTML=md(dateOf(T,d))+(d>T.today?'<em class="fut">この先は見本の数字</em>':'');
   const dy=$('#day');dy.min=-70;dy.max=D1;dy.value=d;
