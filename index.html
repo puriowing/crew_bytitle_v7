@@ -816,6 +816,24 @@ svg.art{display:block;width:100%;height:auto}
   .tab.on{color:#fff;border-bottom-color:#9fd6cb}
   .wrap{padding-top:22px}
 }
+
+/* 宣伝設計の入口とモード */
+.top .plan-btn{display:inline-flex;align-items:center;gap:6px;background:#f3dfae;color:#4a3a10;border-color:#f3dfae}
+.top .plan-btn:hover{background:#f7e8c3;color:#4a3a10;border-color:#f7e8c3}
+.top .plan-btn svg{width:15px;height:15px}
+body.plan-mode .top{background:linear-gradient(180deg,#3a3320 0%,#4a4128 100%)}
+body.plan-mode .top .plan-btn{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.3)}
+body.plan-mode .tab.on{border-bottom-color:#f3dfae}
+.tab .ti b{font-size:14px}
+.tab.pn-back{opacity:.85}
+.plan-empty h2{font-size:16px;margin-bottom:8px}.plan-empty ul{margin:0 0 12px;padding-left:18px;font-size:13px;color:var(--ink2)}
+@media(min-width:901px){.tab .ti{display:none}}
+@media(max-width:900px){
+  .top .plan-btn{display:none}
+  body.m-more .top .plan-btn{display:inline-flex}
+  body.plan-mode .top .plan-btn{display:inline-flex;padding:4px 10px;font-size:11.5px}
+  body.plan-mode .tab .ti b{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#f3dfae;color:#4a3a10;font-size:12px}
+}
 @media print{.top,#panel,#scrim,#cmdk{display:none}.card{break-inside:avoid;box-shadow:none}}
 
 /* 宣伝設計：客層の地図 */
@@ -890,6 +908,7 @@ tr.tg-few td{color:var(--sub)}
       <span id="dateLbl" class="num"></span>
       <button id="btnToday" class="btn" style="padding:3px 10px">今日</button>
     </div>
+    <button id="btnPlan" class="btn plan-btn" aria-pressed="false"></button>
     <button id="btnSearch" class="btn">指標を検索<kbd>⌘K</kbd></button>
     <button id="mDate" class="chip m-only" aria-expanded="false"></button>
     <button id="mMore" class="btn m-only" aria-label="その他の操作" aria-expanded="false">…</button>
@@ -2413,22 +2432,40 @@ I('deliver','k_sns','公式SNS：ここだけ確認',12,[6],(T,d)=>{const o=snsC
 (function(){const p=PAGES.find(x=>x.k==='deliver');if(p)p.q='広告と公式SNSが、作品への関心につながっているか'})();
 SRC_USE.k_ad=[6,1,3,5];SRC_USE.k_sns=[6,3];
 
+/* 宣伝設計は、ふだんのタブとは分けて、ヘッダーの入口から入る画面にする */
+const PLAN_SEC=[['p_sec1','誰に','1'],['p_sec2','いつ','2'],['p_sec3','どこで・何を','3']];
+function planNav(T,d){const ok=ITEMS.some(it=>it.page==='plan'&&avail(it,d));
+  return `<button class="tab pn-back" data-planx><span class="ti">${_ic('<path d="M15 5l-7 7 7 7"/>')}</span><span class="tl">ダッシュボードに戻る</span><span class="ts">戻る</span></button>`+
+    (ok?PLAN_SEC.map(([id,n,no])=>`<button class="tab" data-psec="${id}"><span class="ti"><b class="num">${no}</b></span><span class="tl">${no}　${n}</span><span class="ts">${n}</span></button>`).join(''):'')}
+function planEmpty(T,d){const pre=d<0,ph=S.phase>=3,pd=Math.min(T.today,-1)<0?Math.min(T.today,-1):-30;
+  return `<div class="card plan-empty"><h2>この条件では、宣伝設計は表示できません</h2><ul>
+    ${ph?'':'<li>宣伝設計は、類似作を劇場で観た人の回答（CAST）を使うため、Phase 3 から使えます。</li>'}
+    ${pre?'':'<li>宣伝設計は、公開前に宣伝を組み立てるための画面です。いまの基準日は公開後です。</li>'}</ul>
+    <div class="fm-b">${pre?'':`<button class="btn" data-plandays="${d<0?d:-30}">基準日を公開30日前にする</button>`}${ph||S.client?'':'<button class="btn" data-p="3">Phase 3 にする</button>'}<button class="btn" data-planx>ダッシュボードに戻る</button></div></div>`}
+$('#btnPlan').onclick=()=>{if(S.page==='plan'){setPage(S.prevPage||'home')}else{S.prevPage=S.page;setPage('plan')}};
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-psec],[data-planx],[data-plandays]');if(!t)return;ev.stopPropagation();
+  if(t.dataset.planx!=null){setPage(S.prevPage&&S.prevPage!=='plan'?S.prevPage:'home');return}
+  if(t.dataset.plandays){S.day=+t.dataset.plandays;render();return}
+  const el=$('#it-'+t.dataset.psec);if(el){const y=el.getBoundingClientRect().top+scrollY-($('.top').offsetHeight+12);window.scrollTo(0,y)}},true);
+
 /* スマホ幅で表をカードにするため、各セルに列名を持たせる */
 function tblLabels(root){$$('table.ex-list,table.cm-t',root).forEach(tb=>{const hs=[...tb.rows[0].cells].map(c=>c.textContent.trim());
   [...tb.rows].slice(1).forEach(r=>[...r.cells].forEach((c,i)=>{const h=hs[i]||'';c.dataset.l=h;if(/^(施策|指標)$/.test(h))c.classList.add('tc-main');else if(h==='日付')c.classList.add('tc-date')}))})}
 /* ================= 描画 ================= */
 function visiblePages(d){return PAGES.filter(p=>ITEMS.some(it=>it.page===p.k&&avail(it,d)))}
 function render(){const T=cur(),d=S.day;
-  if(!visiblePages(d).some(p=>p.k===S.page))S.page='acts';
+  if(S.page!=='plan'&&!visiblePages(d).some(p=>p.k===S.page))S.page='acts';
+  const PM=S.page==='plan';document.body.classList.toggle('plan-mode',PM);$('#btnPlan').innerHTML=PM?'← ダッシュボードに戻る':`${TAB_IC.plan}宣伝設計`;$('#btnPlan').setAttribute('aria-pressed',PM);
   $('#selTitle').value=S.title;$('#selPo').innerHTML=poster(T,{fit:'slice'});$('#phaseChip').textContent=relLbl(d);$('#dateLbl').innerHTML=md(dateOf(T,d))+(d>T.today?'<em class="fut">この先は見本の数字</em>':'');
   const dy=$('#day');dy.min=-70;dy.max=D1;dy.value=d;
   $$('#segPhase button').forEach(b=>b.classList.toggle('on',+b.dataset.p===S.phase));
   document.body.classList.toggle('client',S.client);$('#btnClient').textContent=S.client?'社内表示に戻す':'配給会社の表示にする';
-  $('#tabs').innerHTML=visiblePages(d).map(p=>`<button class="tab ${p.k===S.page?'on':''}" data-page="${p.k}"><span class="ti">${TAB_IC[p.k]||''}${tabDot(T,d,p.k)}</span><span class="tl">${p.n}</span><span class="ts">${TAB_SHORT[p.k]}</span></button>`).join('');
+  $('#tabs').innerHTML=PM?planNav(T,d):visiblePages(d).filter(p=>p.k!=='plan').map(p=>`<button class="tab ${p.k===S.page?'on':''}" data-page="${p.k}"><span class="ti">${TAB_IC[p.k]||''}${tabDot(T,d,p.k)}</span><span class="tl">${p.n}</span><span class="ts">${TAB_SHORT[p.k]}</span></button>`).join('');
   $('#mDate').textContent=`${md(dateOf(T,d))}｜${relLbl(d)}`;appSave();
   const pg=PAGES.find(p=>p.k===S.page),list=ITEMS.filter(it=>it.page===S.page&&avail(it,d)),dl=list.filter(it=>it.deep);
   const card=it=>{const o=it.fn(T,d);return `<section class="card c${it.w}" id="it-${it.id}" data-need="${it.need.join(',')}"><div class="card-h"><h2>${it.t}</h2><span class="d">${o.d||''}</span></div>${srcChips(it)}${o.h}</section>`};
   $('#page').innerHTML=`${S.page==='home'?heroHTML(T,d):''}<div class="pg-head">${S.page==='home'?'':`<span class="pg-po">${poster(T,{fit:'slice'})}</span>`}<h1>${pg.n}</h1><span class="pg-q">${pg.q}</span><span class="chip neu">${T.name}｜${md(dateOf(T,d))}時点</span><span class="srcs int-only" style="margin:0"><span class="sc-l">社内表示：各項目に、使っているデータを出しています</span><span class="sc">番号つき＝6分類</span><span class="sc c">共通のデータ</span><span class="sc l">点線＝上のPhaseで加わる</span></span></div>${castGuide(T,d)}<div class="grid">${list.filter(it=>!it.deep).map(card).join('')}</div>${dl.length?`<details class="deep" ${S.deepOpen[S.page]?'open':''}><summary>くわしく見る<span>${dl.length}項目</span></summary><div class="grid">${dl.map(card).join('')}</div></details>`:''}`;
+  if(PM&&!list.length){const g=$('#page .grid');if(g)g.outerHTML=planEmpty(T,d)}
   const dt=$('details.deep');if(dt)dt.addEventListener('toggle',()=>{S.deepOpen[S.page]=dt.open});
   const cgd=$('details.castg');if(cgd)cgd.addEventListener('toggle',()=>{S.castOpen=cgd.open});
   bindTimeline($('#page'));tblLabels($('#page'));
