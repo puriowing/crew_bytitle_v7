@@ -879,6 +879,19 @@ body.plan-mode .mode-sw button.on{background:#f3dfae;color:#4a3a10}
   .mode-m .mode-sw{width:100%}
   .mode-m .mode-sw button{flex:1;justify-content:center;padding:6px 8px}
 }
+
+/* 素材：観客の記憶に残った素材 */
+.rc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+.rc{border:1px solid var(--rule);border-radius:12px;padding:10px;background:#fcfbf9;display:flex;flex-direction:column;gap:6px}
+.rc.rc1{border-color:#d9b48a;background:#fdf7ee}
+.rc>b{font-size:13.5px}
+.rc-th{position:relative;display:block;border-radius:8px;overflow:hidden;aspect-ratio:16/9;background:#222}
+.rc-th svg.art{position:absolute;inset:0;width:100%;height:100%}
+.rc-b{position:absolute;left:6px;top:6px;font-style:normal;font-size:10px;font-weight:700;background:#8a4b12;color:#fff;border-radius:999px;padding:1px 8px}
+.rc-m{display:grid;grid-template-columns:1fr 52px;gap:2px 6px;align-items:center;font-size:11px;color:var(--sub)}
+.rc-m span{grid-column:1/-1}.rc-m i{display:block;height:7px;border-radius:4px}.rc-m b{text-align:right;color:var(--ink);font-size:12.5px}
+.cr-ev{display:block;width:100%;font-size:11px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cr-ev b{color:var(--accent2)}
 @media print{.top,#panel,#scrim,#cmdk{display:none}.card{break-inside:avoid;box-shadow:none}}
 
 /* 宣伝設計：客層の地図 */
@@ -2137,9 +2150,9 @@ function crStats(T,c,d){if(c.d>d)return null;const r=rng(T.seed*29+c.i*13),g=1-M
   if(c.k==='mov'){const v=(ad?260000:140000)*pw*(0.6+r()*0.8)*g,cr=22+r()*38;return {a:['再生',fN(v),'回'],b:['最後まで見た割合',f1(cr),'%'],eng:v*(0.03+cr/1500)}}
   if(c.k==='ban'){const v=900000*pw*(0.5+r())*g,ct=0.25+r()*0.9;return {a:['表示',fN(v),'回'],b:['クリック率',f2(ct),'%'],eng:v*ct/100*2.2}}
   const v=95000*pw*(0.5+r())*g*(c.k==='photo'?1.25:1),er=2.2+r()*5.5;return {a:['投稿の表示',fN(v),'回'],b:['反応率',f1(er),'%'],eng:v*er/100}}
-function crCard(T,c,d,rank){const st=crStats(T,c,d),th=thOf(T),pl=c.d>d;
+function crCard(T,c,d,rank,lite){const st=lite?null:crStats(T,c,d),th=thOf(T),pl=c.d>d,ef=lite&&!pl&&!isAd(c.e)&&c.e.d+2<=d?evEff(T,c.e,d):null;
   return `<button class="cr ${pl?'plan':''}" data-cr="${c.id}"><span class="cr-th k-${c.k}" style="background:${th.g[0]}">${crArt(T,c)}<i class="cr-k">${CR_K[c.k]}</i>${rank?`<i class="cr-rank num">${rank}</i>`:''}${pl?'<i class="cr-plan">公開予定</i>':''}</span>
-    <span class="cr-n">${c.n}</span><span class="cr-m"><span>${md(dateOf(T,c.d))}｜${relLbl(c.d)}</span>${st?`<span>${st.a[0]} <b>${st.a[1]}</b>${st.a[2]}</span><span>${st.b[0]} <b>${st.b[1]}</b>${st.b[2]}</span>`:''}</span></button>`}
+    <span class="cr-n">${c.n}</span><span class="cr-m"><span>${md(dateOf(T,c.d))}｜${relLbl(c.d)}</span>${st?`<span>${st.a[0]} <b>${st.a[1]}</b>${st.a[2]}</span><span>${st.b[0]} <b>${st.b[1]}</b>${st.b[2]}</span>`:''}${lite&&!pl?`<span class="cr-ev"><i class="cdot" style="background:${CH[c.e.ch].c}"></i>${ef!=null?`効き具合 <b>${ef}</b>｜`:isAd(c.e)?'広告｜':''}${esc(c.e.label)}</span>`:''}</span></button>`}
 const crTop=(T,d)=>crList(T).filter(c=>c.d<=d).map(c=>({c,s:crStats(T,c,d)})).sort((a,b)=>b.s.eng-a.s.eng);
 
 /* ---------- SNSの投稿（公式アカウント） ---------- */
@@ -2171,10 +2184,10 @@ I('creative','cr_top','反応が大きかった素材',12,[6],(T,d)=>{const tp=c
   return {d:`${relLbl(d)}までに出した素材から`,h:tp.length?`<div class="cr-tops">${tp.map((x,i)=>crCard(T,x.c,d,i+1)).join('')}</div><div class="note">「反応」は、再生・クリック・いいね等を同じ物差しにそろえた数です。素材を押すと、くわしい数字と、その素材を出した施策が開きます。</div>`:'<div class="empty">まだ素材を出していません。</div>'}},{hide:d=>!crList(cur()).some(c=>c.d<=d)});
 I('creative','cr_wall','素材の一覧',12,[6],(T,d)=>{const all=crList(T),f=S.crf||'all',srt=S.crs||'new';
   let L=all.filter(c=>c.d<=d&&(f==='all'||(f==='ph'?['still','photo'].includes(c.k):c.k===f)));
-  L=srt==='eng'?L.sort((a,b)=>crStats(T,b,d).eng-crStats(T,a,d).eng):L.reverse();
+  const efv=c=>!isAd(c.e)&&c.e.d+2<=d?(evEff(T,c.e,d)??-1):-2;L=srt==='eff'?L.sort((a,b)=>efv(b)-efv(a)):L.reverse();
   const cnt=k=>all.filter(c=>c.d<=d&&(k==='all'||(k==='ph'?['still','photo'].includes(c.k):c.k===k))).length;
-  return {d:`${all.filter(c=>c.d<=d).length}点`,h:`<div class="cr-bar"><span class="seg">${CR_F.map(([k,n])=>`<button class="${f===k?'on':''}" data-crf="${k}">${n}<small class="num">${cnt(k)}</small></button>`).join('')}</span><span class="sp"></span><span class="seg">${[['new','新しい順'],['eng','反応の大きい順']].map(([k,n])=>`<button class="${srt===k?'on':''}" data-crs="${k}">${n}</button>`).join('')}</span></div>
-    ${L.length?`<div class="cr-grid">${L.map(c=>crCard(T,c,d)).join('')}</div>`:'<div class="empty">この種類の素材は、まだありません。</div>'}`}});
+  return {d:`${all.filter(c=>c.d<=d).length}点`,h:`<div class="cr-bar"><span class="seg">${CR_F.map(([k,n])=>`<button class="${f===k?'on':''}" data-crf="${k}">${n}<small class="num">${cnt(k)}</small></button>`).join('')}</span><span class="sp"></span><span class="seg">${[['new','新しい順'],['eff','施策の効き具合順']].map(([k,n])=>`<button class="${srt===k?'on':''}" data-crs="${k}">${n}</button>`).join('')}</span></div>
+    ${L.length?`<div class="cr-grid">${L.map(c=>crCard(T,c,d,0,true)).join('')}</div><div class="note">各素材の下は、その素材を出した施策と、施策の効き具合（同じ種類の過去の施策の中での位置）。素材ごとの細かい数字は、素材を押すと開きます。</div>`:'<div class="empty">この種類の素材は、まだありません。</div>'}`}});
 I('creative','cr_posts','公式SNSの投稿',12,[6],(T,d)=>{const f=S.spf||'all',all=spFeed(T).filter(p=>p.d<=d),L=all.filter(p=>f==='all'||p.pf===f).slice(-12).reverse();
   return {d:'新しい順・直近12件',h:`<div class="cr-bar"><span class="seg">${['all','X','Instagram','TikTok','YouTube'].map(k=>`<button class="${f===k?'on':''}" data-spf="${k}">${k==='all'?'すべて':k}<small class="num">${k==='all'?all.length:all.filter(p=>p.pf===k).length}</small></button>`).join('')}</span></div>
     ${L.length?`<div class="sp-grid">${L.map(p=>spCard(T,p)).join('')}</div>`:'<div class="empty">この媒体の投稿は、まだありません。</div>'}<div class="note">公式アカウントの投稿を、そのままの見た目で並べています。数字は投稿ごとの表示回数と反応です。</div>`}});
@@ -2500,6 +2513,26 @@ PAGES.sort((a,b)=>PG_ORDER.indexOf(a.k)-PG_ORDER.indexOf(b.k));
 function modeSw(PM,where){return `<div class="mode-sw ${where==='d'?'mode-d':''}" role="tablist" aria-label="画面の切り替え"><button role="tab" class="${PM?'on':''}" data-mode="plan" aria-selected="${PM}">${TAB_IC.plan}宣伝設計</button><button role="tab" class="${PM?'':'on'}" data-mode="run" aria-selected="${!PM}">${TAB_IC.acts}効果測定</button></div>`}
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-mode]');if(!t)return;ev.stopPropagation();const PM=S.page==='plan';
   if(t.dataset.mode==='plan'&&!PM){S.prevPage=S.page;setPage('plan')}else if(t.dataset.mode==='run'&&PM){setPage(S.prevPage&&S.prevPage!=='plan'?S.prevPage:'home')}},true);
+
+
+/* 観た人・観たい人が覚えていた素材（作品分析にしか出せない部分） */
+I('creative','cr_recall','観客の記憶に残った素材',12,[],(T,d)=>{const post=has(2)&&d>=0;
+  if(post){const m=castMats(T).slice().sort((a,b)=>b.best-a.best),mx=Math.max(...m.map(x=>x.seen));
+    return {d:`劇場で観た人の回答から｜${relLbl(d)}まで`,h:`<div class="rc-grid">${m.map((x,i)=>`<div class="rc ${i===0?'rc1':''}"><span class="rc-th">${matArt(T,x.n)}${i===0?'<i class="rc-b">いちばん観たいと思わせた</i>':''}</span><b>${x.n}</b>
+      <div class="rc-m"><span>見た覚えがある</span><i style="width:${x.seen/mx*100}%;background:#d9b48a"></i><b class="num">${f1(x.seen)}%</b></div>
+      <div class="rc-m"><span>いちばん観たいと思わせた</span><i style="width:${x.best/mx*100}%;background:#8a4b12"></i><b class="num">${f1(x.best)}%</b></div></div>`).join('')}</div>
+      <div class="note">劇場で観た人に「見た覚えのある宣伝素材」「いちばん観たいと思わせた素材」を聞いた結果です。広告やSNSの反応ではわからない「来場につながった素材」がわかります。</div>`}}
+  const r=R(T,92),i=at(T,'intent',Math.min(d,-1)),L=['本予告','特報','ポスター','TVスポット','主題歌の映像'].map(n=>{const l=2+r()*9;return {n,seen:12+r()*30,lift:l}}).sort((a,b)=>b.lift-a.lift),mx=Math.max(...L.map(x=>x.seen));
+  return {d:'毎週の鑑賞意向調査から',h:`<div class="rc-grid">${L.map((x,k)=>`<div class="rc ${k===0?'rc1':''}"><span class="rc-th">${matArt(T,x.n)}${k===0?'<i class="rc-b">観たい気持ちをいちばん押し上げた</i>':''}</span><b>${x.n}</b>
+    <div class="rc-m"><span>見た覚えがある</span><i style="width:${x.seen/mx*100}%;background:#d9b48a"></i><b class="num">${f1(x.seen)}%</b></div>
+    <div class="rc-m"><span>見た人の観たい率（全体との差）</span><i style="width:${x.lift/11*100}%;background:#4e8780"></i><b class="num">+${f1(x.lift)}pt</b></div></div>`).join('')}</div>
+    <div class="note">公開後は、劇場で観た人の回答（来場につながった素材）に切り替わります。</div>`}},{any:[1,2]});
+SRC_USE.cr_recall=[2,1];
+/* 並び：記憶に残った素材 → 一覧 → これから出す素材 → くわしく（反応の大きかった素材・公式SNSの投稿） */
+(function(){const ids=['cr_recall','cr_wall','cr_next','cr_top','cr_posts'],its=ids.map(id=>ITEMS.splice(ITEMS.findIndex(x=>x.id===id),1)[0]),j=ITEMS.findIndex(x=>x.page==='creative');
+  ITEMS.splice(j<0?ITEMS.length:j,0,...its);ITEMS.find(x=>x.id==='cr_top').deep=true;ITEMS.find(x=>x.id==='cr_posts').deep=true;
+  const t=ITEMS.find(x=>x.id==='cr_top');t.t='反応が大きかった素材（媒体の数字）'})();
+(function(){const p=PAGES.find(x=>x.k==='creative');if(p)p.q='どんな素材を出し、どれが観客の記憶と来場に残ったか'})();
 
 /* スマホ幅で表をカードにするため、各セルに列名を持たせる */
 function tblLabels(root){$$('table.ex-list,table.cm-t',root).forEach(tb=>{const hs=[...tb.rows[0].cells].map(c=>c.textContent.trim());
