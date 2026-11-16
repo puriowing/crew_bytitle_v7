@@ -798,20 +798,6 @@ tr.tg-few td{color:var(--sub)}
 .sum-b{border-radius:10px;padding:8px 12px 2px;margin-top:auto}
 @media (max-width:900px){.ins{grid-template-columns:1fr}}
 
-/* 宣伝設計：宣伝プランのたたき台 */
-.dr{display:grid;grid-template-columns:150px 1fr 290px;gap:14px;border:1px dashed var(--warnln);background:#fffaf0;border-radius:12px;padding:12px 14px;margin-bottom:8px}
-.dr>div{min-width:0}
-.dr.now{border:2px solid var(--ink);background:#fff}
-.dr.past{opacity:.55;background:var(--neufill);border-style:solid;border-color:var(--rule)}
-.dr-w b{display:block;font-family:'Zen Maru Gothic',sans-serif;font-size:13.5px;margin-bottom:4px}
-.dr h3{white-space:normal;overflow:visible;margin:0 0 6px;font-family:'Zen Maru Gothic',sans-serif;font-size:15px}
-.dr dl{display:grid;grid-template-columns:86px 1fr;gap:3px 8px;margin:0;font-size:13px}
-.dr dt{color:var(--sub);font-size:12px}
-.dr dd{margin:0}
-.dr-s{font-size:12.5px;display:flex;flex-direction:column;gap:8px;min-width:0}
-.dr-s small{display:block;color:var(--sub);font-size:11px}
-.dr-s .no{color:var(--badtx);font-weight:700}
-@media (max-width:900px){.dr{grid-template-columns:1fr;gap:8px}}
 </style>
 </head>
 <body>
@@ -1772,32 +1758,9 @@ const PLI={
    b:[`同じ告知でも、層によって届く場所が違います。「${mx.n}」と「${mn.n}」では、知らせる場所を分けて考える材料になります。`,'決めた理由も層で違います。場所だけでなく、何を前に出すか（内容・出演者・話題など）も、層ごとに変える余地があります。']}}
 };
 ITEMS.filter(it=>it.page==='plan'&&PLI[it.id]).forEach(it=>{const f=it.fn;it.fn=(T,d)=>{const o=f(T,d),x=PLI[it.id](T,d,o);return x&&x.a.length?{...o,h:pliH(x)+o.h.replace(/<ul class="tg-pts">[\s\S]*?<\/ul>/,'')}:o}});
-I('plan','p_sum','宣伝設計の要点',12,[2],(T,d)=>{const c=plCtx(T,d),g=(id,k,n=0)=>{const x=PLI[id](T,d,{h:''});return x&&x[k][n]||''},ps=a=>a.filter(Boolean).map(x=>`<p>${x}</p>`).join(''),
-   col=(t,q,a,b)=>`<div class="sum-c"><div class="sum-t">${t}<small>${q}</small></div><div>${ps(a)}</div><div class="sum-b"><b>宣伝への示唆</b>${ps(b)}</div></div>`;
-  return {d:c.on?`いま選んでいる層（${tgNames(c.D,c.sel)}）をもとにまとめています`:'類似作の観客全体をもとにまとめています',h:`<div class="three">${col('1　誰に','向けるか',[g('p_map','a'),g('p_area','a')],[g('p_map','b'),g('p_area','b')])}${col('2　いつ','強めるか',[g('a_simtime','a'),g('a_simtime','a',1)],[g('a_simtime','b'),g('a_simtime','b',1)])}${col('3　どこで、何を','伝えるか',[g('i_simroute','a')],[g('i_simroute','b'),g('i_simroute','b',1)])}</div>
-   <div class="note">「わかること」と「宣伝への示唆」は、類似作の実績の数字から、決まった文で出しています。この作品での結果を約束するものではありません。下で層を選び直すと、内容も変わります。</div>`}},{when:'pre'});
-ITEMS.splice(ITEMS.findIndex(x=>x.id==='p_sec1'),0,ITEMS.pop());
-/* ================= 宣伝設計：宣伝プランのたたき台 =================
-   類似作の数字から、決まった手順で「いつ・誰に・何を・どこで」を組む。根拠の数字と、この作品の予定を必ず並べる */
+/* SNSの中で、どの媒体が多いか */
 const SNS_N=['X','Instagram','YouTube','TikTok'];
 const snsOf=(D,idx)=>{const ss=D.segs.filter(s=>idx.includes(s.i)),w=sumA(ss.map(s=>s.sh))||1,f=s=>nrm([[.9,1.2,1.1,.9,.6,.4][s.a],[1.1,1.3,1.1,.8,.5,.3][s.a]*(s.g?.75:1.2),[1,.9,1,1.1,1.1,1][s.a]*(s.g?1.2:.9),[1.6,1.2,.7,.4,.25,.15][s.a]]);return SNS_N.map((_,k)=>sumA(ss.map(s=>s.sh*f(s)[k]))/w)};
-function draftRows(T,d){const {D,sel,on,W}=plCtx(T,d),X=areaData(T),cw=Math.floor(d/7),ok=D.segs.filter(s=>s.cnt>=TG_MIN),nmOf=ix=>D.segs.filter(s=>ix.includes(s.i)).map(s=>s.n).join('・');
-  const core=on?sel:D.tags.many,Ac=tgAgg(D,core),womI=D.tags.nps.filter(i=>!core.includes(i)),wom=womI.length?womI:D.tags.nps.slice(0,1),Aw=tgAgg(D,wom);
-  const e=s=>s.dec[0]+s.dec[1],early=ok.slice().sort((p,q)=>e(q)-e(p)).slice(0,2).map(s=>s.i),Ae=tgAgg(D,early),df=D.segs.map(s=>D.now[s.i]-s.sh),gap=D.segs.filter(s=>df[s.i]<=-1.5).sort((p,q)=>df[p.i]-df[q.i])[0];
-  const place=(A,ix)=>{const k=iMax(A.know),r=ROUTES2[k];let t=`${r.n}（${f1(A.know[k])}%）`;if(r.k==='F2'){const sn=snsOf(D,ix),m=iMax(sn);t+=`。とくに${SNS_N[m]}`}return t},say=A=>`「${WHY[iMax(A.why)]}」を前に出す（決めた理由の${f1(Math.max(...A.why))}%）`;
-  const late=Ac.dec[3]+Ac.dec[4],ty=X.u-X.ua>=3?'都市型':X.u-X.ua<=-3?'ローカル型':'全国型',sp=X.u-X.late>=3,rows=[
-   {w:'公開8〜5週前',w0:-8,w1:-5,what:'本予告と前売りで、早く決める層に先に決めてもらう',who:nmOf(early),say:say(Ae),where:place(Ae,early),why:`この層は、公開の2週間以上前に決める人が${f1(Ae.dec[0]+Ae.dec[1])}%（観客全体 ${f1(W.dec[0]+W.dec[1])}%）`,ty:['本予告の解禁','主題歌の発表']},
-   {w:'公開4〜3週前',w0:-4,w1:-3,what:'試写会・先行上映で、すすめてくれる層に先に観てもらう',who:nmOf(wom),say:'観た人の感想そのものを、次の告知の材料にする',where:place(Aw,wom),why:`この層のすすめたい度は ${pt(Aw.nps)}（観客全体 ${pt(W.nps)}）`,ty:['完成披露']},
-   {w:'公開2週前〜公開週',w0:-2,w1:0,what:late>=45?'公開週に向けて、中心の層への告知をいちばん厚くする':'公開週だけに寄せず、2週前から続けて中心の層に告知する',who:nmOf(core),say:say(Ac),where:place(Ac,core)+(ty==='都市型'?'。地域は3大都市圏を厚く':ty==='ローカル型'?'。地域は全国に同じ厚みで':''),why:`この層は、公開の直前〜当日に決める人が${f1(late)}%。類似作は${ty}（3大都市圏 ${f1(X.u)}%）`,ty:['場面写真・カウントダウン','前夜祭','初日舞台挨拶']},
-   {w:'公開週〜公開3週目',w0:0,w1:2,what:'観た人の感想が広がる仕掛けを用意する'+(sp?'。3週目からは地方にも告知を広げる':''),who:'観た人から、まだ観ていない人へ',say:'観た人の言葉を、そのまま使う',where:`家族・友人から聞いて知った人は${f1(W.know[6])}%`,why:`よく伸びた類似作は、人から聞いて来た人が多い。${sp?`3週目以降は3大都市圏の割合が${f1(X.late)}%に下がる`:'観られる場所の割合は、日がたっても変わらない'}`,ty:['感想投稿キャンペーン','大ヒット御礼']}];
-  if(gap&&cw<0){const Ag=tgAgg(D,[gap.i]);rows.push({w:'いまから公開まで',w0:cw,w1:0,what:'まだ少ない層に、追加で知らせる',who:gap.n,say:say(Ag),where:place(Ag,[gap.i]),why:`類似作の観客の${f1(gap.sh)}%を占める層が、いま観たい人では${f1(D.now[gap.i])}%（${pt(df[gap.i])}）`,ty:[]})}
-  return rows.sort((p,q)=>p.w0-q.w0||p.w1-q.w1).map(r=>({...r,st:r.w1<cw?'past':r.w0<=cw?'now':'nxt',ev:T.ev.filter(x=>!isAd(x)&&r.ty.includes(x.ty))}))}
-I('plan','p_draft','宣伝プランのたたき台',12,[2],(T,d)=>{const c=plCtx(T,d),rows=draftRows(T,d),ST={past:'過ぎた時期',now:'いま',nxt:'これから'};
-  return {d:c.on?`いま選んでいる層（${tgNames(c.D,c.sel)}）を中心に組んでいます`:'人数の多い層を中心に組んでいます',h:`${rows.map(r=>`<div class="dr ${r.st}"><div class="dr-w"><b>${r.w}</b><span class="chip ${r.st==='now'?'':'neu'}">${ST[r.st]}</span></div>
-    <div><h3>${r.what}</h3><dl><dt>誰に</dt><dd>${r.who}</dd><dt>何を伝える</dt><dd>${r.say}</dd><dt>どこで</dt><dd>${r.where}</dd></dl></div>
-    <div class="dr-s"><div><small>根拠（類似作）</small>${r.why}</div><div><small>この作品の予定</small>${r.ty.length?(r.ev.length?r.ev.map(x=>`<span data-ev="${x.id}" style="cursor:pointer">${x.d<=d?'●':'○'} ${x.label}（${md(dateOf(T,x.d))}）</span>`).join('<br>'):`<span class="no">${r.st==='past'?'この時期の施策は入っていません':'予定が入っていません'}</span>`):'層を絞った施策は、登録からは分かりません'}</div></div></div>`).join('')}
-   <div class="note">類似作の実績の数字から、決まった手順で組んだたたき台です。予算・素材・出演者の都合は入っていません。広告の量や媒体ごとの配分は、ここでは扱っていません。層を選び直すと、中身も変わります。●＝実施ずみ　○＝予定（押すと中身が開きます）。</div>`}},{when:'pre'});
-ITEMS.splice(ITEMS.findIndex(x=>x.id==='p_sec1'),0,ITEMS.pop());
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-tg],[data-tga]');if(!t)return;const T=cur(),D=tgData(T),sel=tgSel(T),y=window.scrollY;
   if(t.dataset.tga)S.tg[T.k]=t.dataset.tga==='none'?[]:D.tags[t.dataset.tga].slice();
   else{const i=+t.dataset.tg;S.tg[T.k]=sel.includes(i)?sel.filter(x=>x!==i):sel.concat(i).sort((p,q)=>p-q)}
@@ -1863,7 +1826,7 @@ const SRC_USE={
   h_views:[3,6,4,1,'B'],h_moves:[3,6,5,4,1,2],h_goal:['B',1],h_all:[3,6,5,4,1,2],
   o_pos:[3,6,5,4],o_final:['B',4,2],o_legs:['B'],o_similar:['B',1],o_supply:['S','B'],o_comp:['S'],o_check:['B'],
   o_share:['B','S',1],o_winlose:[1,3,6,'S'],o_slate:['S'],o_cmpts:[3,6,5,4,1],o_mult:['B',4,2],o_how:[],
-  o_simsat:[2,'B'],a_answer:[2,6],cr_top:[6],cr_wall:[6],cr_posts:[6],cr_next:[6],p_gap:[1,2],p_hit:[2,'B'],p_draft:[2,1,6,'N'],p_cal:['N',3,2,6],
+  o_simsat:[2,'B'],a_answer:[2,6],cr_top:[6],cr_wall:[6],cr_posts:[6],cr_next:[6],p_gap:[1,2],p_hit:[2,'B'],p_cal:['N',3,2,6],
   o_demand:[1,'S'],o_sim:[1,'S'],o_pressure:[1,'S'],o_upside:[1,6],o_curve:['B',1],o_demandix:[1,2,'S']
 };
 const srcPhase=k=>typeof k!=='number'?0:[3,6].includes(k)?1:[4,5].includes(k)?2:3;
@@ -1872,7 +1835,7 @@ function srcChips(it){const use=SRC_USE[it.id]||it.need;if(!use.length)return '<
   return `<div class="srcs int-only"><span class="sc-l">使っているデータ</span>${on.map(k=>`<span class="sc ${typeof k==='number'?'':'c'} ${k===2?'k2':''}">${typeof k==='number'?k+' ':''}${SRC_NAME[k]}</span>`).join('')}${later.map(k=>`<span class="sc l" title="Phase ${srcPhase(k)}で加わります">${k} ${SRC_NAME[k]}<i>Phase ${srcPhase(k)}から</i></span>`).join('')}</div>`}
 
 /* 社内表示：CAST（鑑賞後アンケート）が、公開前と公開後でどう使われるかの案内 */
-const CAST_PRE=['a_simtime','i_simroute','u_sim','o_simsat','p_map','p_pick','p_table','p_gap','p_hit','p_segtime','p_cal','p_segroute','p_area','p_sum','p_draft'],CAST_MIX=['h_nums','h_voice','o_final','o_mult'];
+const CAST_PRE=['a_simtime','i_simroute','u_sim','o_simsat','p_map','p_pick','p_table','p_gap','p_hit','p_segtime','p_cal','p_segroute','p_area'],CAST_MIX=['h_nums','h_voice','o_final','o_mult'];
 const usesCast=it=>(SRC_USE[it.id]||it.need).includes(2);
 function castGuide(T,d){const sp=S.phase;S.phase=3;const post=ITEMS.filter(it=>(it.need.includes(2)||CAST_MIX.includes(it.id))&&!CAST_PRE.includes(it.id)&&avail(it,20)),pre=ITEMS.filter(it=>CAST_PRE.includes(it.id));S.phase=sp;
   const isPre=d<0,pg=k=>PAGES.find(x=>x.k===k).n,preDay=Math.min(T.today,-12)<0?Math.min(T.today,-1):-12;
