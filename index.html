@@ -892,6 +892,17 @@ body.plan-mode .mode-sw button.on{background:#f3dfae;color:#4a3a10}
 .rc-m span{grid-column:1/-1}.rc-m i{display:block;height:7px;border-radius:4px}.rc-m b{text-align:right;color:var(--ink);font-size:12.5px}
 .cr-ev{display:block;width:100%;font-size:11px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cr-ev b{color:var(--accent2)}
+
+/* 関心と評判：ここだけ確認 */
+.ik-g{margin-bottom:12px}
+.ik-gh{display:flex;align-items:center;gap:8px;font:700 13.5px 'Zen Maru Gothic',sans-serif;margin:4px 0 6px}
+.ik-gh span{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:12px}
+.ik-r{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:70px minmax(0,1fr) auto 108px;gap:12px;align-items:center;border:1px solid var(--rule);border-radius:12px;padding:10px 14px;background:#fcfbf9}
+.ik-r:hover{border-color:var(--accent-line);background:#fff}
+.ik-p{position:relative;height:8px;border-radius:4px;background:linear-gradient(90deg,#f1d5d0,#f1eee8 40%,#f1eee8 60%,#d5ebdc)}
+.ik-p::after{content:'';position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--sub-weak)}
+.ik-p i{position:absolute;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--accent2);box-shadow:0 0 0 2px #fff}
+@media(max-width:900px){.ik-r{grid-template-columns:56px minmax(0,1fr) auto;gap:6px 10px}.ik-r .ck-q{grid-column:2/4}.ik-r .ik-p{grid-row:1}.ik-r .ck-v{grid-column:2;text-align:left}.ik-r .tone{grid-column:3}}
 @media print{.top,#panel,#scrim,#cmdk{display:none}.card{break-inside:avoid;box-shadow:none}}
 
 /* 宣伝設計：客層の地図 */
@@ -2533,6 +2544,33 @@ SRC_USE.cr_recall=[2,1];
   ITEMS.splice(j<0?ITEMS.length:j,0,...its);ITEMS.find(x=>x.id==='cr_top').deep=true;ITEMS.find(x=>x.id==='cr_posts').deep=true;
   const t=ITEMS.find(x=>x.id==='cr_top');t.t='反応が大きかった素材（媒体の数字）'})();
 (function(){const p=PAGES.find(x=>x.k==='creative');if(p)p.q='どんな素材を出し、どれが観客の記憶と来場に残ったか'})();
+
+/* 関心と評判：上に「ここだけ確認」、主要なグラフ3つ、残りは「くわしく見る」 */
+const IK=[
+  {st:'知られているか',k:'buzz',q:'話題になっているか',hit:'i_buzz'},
+  {st:'知られているか',k:'search',q:'作品名で調べられているか',hit:'i_search'},
+  {st:'知られているか',k:'aware',q:'作品が知られているか',hit:'i_aware'},
+  {st:'観たいと思われているか',k:'clip',q:'観たい登録が積み上がっているか',hit:'i_clip',mode:'cum'},
+  {st:'観たいと思われているか',k:'intent',q:'観たい人が増えているか',hit:'i_aware'},
+  {st:'評判はよいか',k:'sent',q:'好意的な声が多いか',hit:'i_sent'},
+  {st:'評判はよいか',k:'score',q:'観た人の評価は高いか',hit:'i_score'},
+  {st:'評判はよいか',k:'sat',q:'観た人は満足しているか',hit:'i_sat'},
+  {st:'口コミで広がっているか',k:'mark',q:'観た記録が伸び続けているか',hit:'i_mark',mode:'cum'},
+  {st:'口コミで広がっているか',k:'nps',q:'人にすすめたい人が多いか',hit:'i_sat'}];
+I('interest','i_key','関心と評判：ここだけ確認',12,[],(T,d)=>{const rows=IK.filter(x=>mAvail(x.k,d)&&at(T,x.k,d)!=null);if(!rows.length)return {d:'',h:'<div class="empty">この段階で使えるデータがありません。</div>'};
+  const val=x=>RATE.has(x.k)?avgR(T,x.k,d-6,d):x.mode==='cum'?sumR(T,x.k,D0,d):sumR(T,x.k,d-6,d),fm=x=>{const v=val(x);return x.k==='score'?f2(v):RATE.has(x.k)?f1(v):fN(v)};
+  const sub=x=>RATE.has(x.k)?'直近7日の平均':x.mode==='cum'?'これまでの累計':'直近7日の合計';
+  const groups=[...new Set(rows.map(x=>x.st))],ps=rows.map(x=>posOf(T,x.k,d,x.mode)),weak=rows.map((x,i)=>({x,p:ps[i]})).sort((a,b)=>a.p-b.p)[0],strong=rows.map((x,i)=>({x,p:ps[i]})).sort((a,b)=>b.p-a.p)[0];
+  const tone=p=>p>=60?['good','類似作より上']:p>=40?['warn','類似作なみ']:['bad','類似作より下'];
+  return {d:`類似作の同じ時期と比べて｜${relLbl(d)}`,h:`<ul class="todo" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-bottom:14px">
+      <li class="${strong.p>=60?'good':''}"><b>いちばん上位：${strong.x.q}</b>${M[strong.x.k].n}は類似作の中で ${strong.p}（50が真ん中）。</li>
+      <li class="${weak.p<40?'warn':''}"><b>いちばん下位：${weak.x.q}</b>${M[weak.x.k].n}は類似作の中で ${weak.p}。${weak.p<40?'ここを補う施策を考えます。':''}</li></ul>
+    ${groups.map((g,gi)=>`<div class="ik-g"><div class="ik-gh"><span class="num">${gi+1}</span>${g}</div><div class="chk">${rows.map((x,i)=>({x,i})).filter(o=>o.x.st===g).map(({x,i})=>{const [tc,tl]=tone(ps[i]);
+      return `<button class="ck-r ik-r" data-go="interest" data-hit="${x.hit}"><span class="ik-p"><i style="left:${ps[i]}%"></i></span><div class="ck-q"><b>${x.q}</b><small>${M[x.k].n}｜${sub(x)}</small></div><div class="ck-v"><b class="num">${fm(x)}</b><small>${M[x.k].u}</small></div><span class="tone ${tc}">${tl}</span></button>`}).join('')}</div></div>`).join('')}
+    <div class="note">左の小さな帯は、類似作の同じ時期の中での位置（左ほど下、右ほど上、真ん中の線が類似作の真ん中）。行を押すと、くわしいグラフに移ります。</div>`}},{any:[1,2,3,4,5]});
+SRC_USE.i_key=[3,5,1,4,2];
+(function(){const it=ITEMS.splice(ITEMS.findIndex(x=>x.id==='i_key'),1)[0],j=ITEMS.findIndex(x=>x.page==='interest');ITEMS.splice(j,0,it);
+  const keep=['i_key','i_buzz','i_words','i_aware','i_sat'];ITEMS.forEach(x=>{if(x.page==='interest'&&!keep.includes(x.id))x.deep=true;if(['i_buzz','i_aware'].includes(x.id))x.w=12})})();
 
 /* スマホ幅で表をカードにするため、各セルに列名を持たせる */
 function tblLabels(root){$$('table.ex-list,table.cm-t',root).forEach(tb=>{const hs=[...tb.rows[0].cells].map(c=>c.textContent.trim());
