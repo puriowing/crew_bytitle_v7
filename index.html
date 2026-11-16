@@ -1477,7 +1477,7 @@ I('plan','u_sim','類似作を観た人たち',12,[2],(T,d)=>{const D=tgData(T),
    <div><div class="sub-h">ふだん映画館に行く頻度</div>${stack(GOF.map((l,i)=>({l,v:W.go[i],c:GOC[i]})))}
    <div class="kpis" style="margin-top:14px">${kpi('満足度',f1(W.sat),'%')}${kpi('すすめたい度',pt(W.nps),'')}${kpi('2回以上観た人',f1(W.rep),'%')}</div></div></div>
    ${simNote('この作品の観客はまだいないので、類似作を実際に観た人の姿を出しています。下のヒートマップで、性別×年代の層ごとに分けて見られます。')}`}},{when:'pre'});
-I('plan','p_map','類似作の観客は、どんな人たちか',12,[2],(T,d)=>{const D=tgData(T),sel=tgSel(T),mx=Math.max(...D.segs.map(s=>s.sh)),A=tgAgg(D,sel);
+I('plan','p_map','性別×年代で分けて、狙う層を選ぶ',12,[2],(T,d)=>{const D=tgData(T),sel=tgSel(T),mx=Math.max(...D.segs.map(s=>s.sh)),A=tgAgg(D,sel);
   const tile=s=>{const few=s.cnt<TG_MIN,tg=[D.tags.many.includes(s.i)?'<i>多い</i>':'',D.tags.sat.includes(s.i)?'<i>満足が高い</i>':'',D.tags.nps.includes(s.i)?'<i>すすめてくれる</i>':'',few?'<i class="few">参考</i>':''].join('');
     return `<button class="tg ${sel.includes(s.i)?'on':''}" data-tg="${s.i}" aria-pressed="${sel.includes(s.i)}" style="background:rgba(78,135,128,${(.07+s.sh/mx*.5).toFixed(2)})" title="${s.n}｜回答 ${fN(s.cnt)}件"><span class="a">${AGES[s.a]}</span><span class="v num">${f1(s.sh)}<small>%</small></span><span class="m">満足 ${Math.round(s.sat)}%・すすめたい ${pt(s.nps)}</span><span class="tags">${tg}</span></button>`};
   return {d:'ヒートマップ。色が濃いほど、観客に占める割合が大きい層',h:`<div class="tg-leg"><span>数字＝類似作の観客に占める割合</span><span>「多い」「満足が高い」「すすめてくれる」＝それぞれ上位3つの層</span><span>押すと、狙う層として選べます</span></div>
