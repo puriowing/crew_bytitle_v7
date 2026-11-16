@@ -1555,6 +1555,21 @@ I('plan','p_pick','選んだ層の内訳',12,[2],(T,d)=>{const D=tgData(T),sel=t
    ${simNote('黒い線＝類似作の観客全体。類似作を観た人の実績で、この作品での結果を約束するものではありません。')}`}},{when:'pre'});
 I('plan','p_table','客層ごとの内訳',12,[2],(T,d)=>{const D=tgData(T),sel=tgSel(T);
   return {d:'12の層を横並びで比べる。行を押すと、狙う層として選べます',h:`<div class="tw"><table><tr><th>客層</th><th class="r">観客に占める割合</th><th class="r">回答</th><th class="r">満足度</th><th class="r">すすめたい度</th><th>いちばん多いきっかけ</th><th>いちばん多い理由</th><th class="r">2週間以上前に決めた</th><th>誰と</th></tr>${D.segs.map(s=>`<tr class="${sel.includes(s.i)?'tg-on':''} ${s.cnt<TG_MIN?'tg-few':''}" data-tg="${s.i}" style="cursor:pointer"><td><b>${s.n}</b>${s.cnt<TG_MIN?' <small>参考</small>':''}</td><td class="r num">${f1(s.sh)}%</td><td class="r num">${fN(s.cnt)}件</td><td class="r num">${f1(s.sat)}%</td><td class="r num">${pt(s.nps)}</td><td>${ROUTES2[iMax(s.know)].n}</td><td>${WHY[iMax(s.why)]}</td><td class="r num">${f1(s.dec[0]+s.dec[1])}%</td><td>${WITH[iMax(s.wth)]}</td></tr>`).join('')}</table></div>${simNote('色のついた行＝いま選んでいる層。')}`}},{when:'pre'});
+/* どこで観たか：劇場は館ごとのQRで自動で分かる。参加館の偏りがあるので、同じ映画館での全作品の平均と比べる */
+const AREA=['3大都市圏の中心部','3大都市圏の近郊','政令市・県庁所在地','そのほかの地域'],AREA_C=['#1b3a5b','#5b6f9c','#b08040','#c2603f'],AREA_AVG=[24,33,23,20],
+  THT=['大型・PLF併設館','都市型シネコン','郊外SC併設館','ミニシアター・独立系'],THT_AVG=[18,34,44,4],REG=['北海道・東北','関東','中部','近畿','中国・四国','九州・沖縄'],REG_AVG=[9,40,13,19,7,12];
+const _ar={};
+function areaData(T){if(_ar[T.k])return _ar[T.k];const D=tgData(T),r=R(T,305),tilt=(r()-.35)*.5,w=a=>sumA(D.segs.map(s=>s.sh*a(s)))/100;
+  const seg=D.segs.map(s=>nrm(AREA_AVG.map((b,k)=>b*(1+tilt*(1.5-k)*.6)*(1+(2.5-s.a)*(1.5-k)*.07)*(.9+r()*.2))));
+  const all=AREA.map((_,k)=>w(s=>seg[s.i][k])),u=all[0]+all[1],ua=AREA_AVG[0]+AREA_AVG[1];
+  return _ar[T.k]={seg,all,u,ua,tht:nrm(THT_AVG.map((b,k)=>b*(1+tilt*[.3,.5,-.5,.2][k])*(.9+r()*.2))),reg:nrm(REG_AVG.map((b,k)=>b*(1+tilt*[-.5,.5,-.2,.3,-.5,-.3][k])*(.9+r()*.2))),far:9+tilt*8+r()*4,late:u-3-r()*5}}
+I('plan','p_area','類似作の観客は、どこで観たか',12,[2],(T,d)=>{const D=tgData(T),X=areaData(T),sel=tgSel(T),df=X.u-X.ua,ty=df>=3?'都市型':df<=-3?'ローカル型':'全国型',ws=sumA(D.segs.filter(s=>sel.includes(s.i)).map(s=>s.sh))||1,S2=AREA.map((_,k)=>sumA(D.segs.filter(s=>sel.includes(s.i)).map(s=>s.sh*X.seg[s.i][k]))/ws);
+  const rows=(L,a,w,c)=>bars(L.map((l,i)=>({l,v:a[i],cmp:w[i]})),{fmt:f1,u:'%',c});
+  return {d:'映画館は、館ごとのQRコードから自動で分かります',h:`<div class="kpis" style="margin-bottom:16px">${kpi('類似作の型',ty,'',`3大都市圏の割合が、全作品の平均より ${pt(df)}`)}${kpi('3大都市圏で観た人',f1(X.u),'%',`全作品の平均 ${f1(X.ua)}%`)}${kpi('公開3週目以降に観た人では',f1(X.late),'%',X.u-X.late>=3?'日がたつと、地方へ広がっています':'公開週とほぼ変わりません')}${kpi('片道1時間以上かけて来た人',f1(X.far),'%','全作品の平均 9.0%')}</div>
+   <div class="three"><div><div class="sub-h">都市圏の区分</div>${rows(AREA,X.all,AREA_AVG,'#1b3a5b')}</div><div><div class="sub-h">地域</div>${rows(REG,X.reg,REG_AVG,'#5b6f9c')}</div><div><div class="sub-h">映画館のタイプ</div>${rows(THT,X.tht,THT_AVG,'#4e8780')}</div></div>
+   <div class="note">黒い線＝同じ映画館での、全作品の平均。</div>
+   <div class="sub-h">選んだ層が観た場所</div>${sel.length?`<div class="two"><div><div class="note" style="margin:0 0 4px">選んだ層（${tgNames(D,sel)}）</div>${stack(AREA.map((l,i)=>({l,v:S2[i],c:AREA_C[i]})))}</div><div><div class="note" style="margin:0 0 4px">類似作の観客全体</div>${stack(AREA.map((l,i)=>({l,v:X.all[i],c:AREA_C[i]})))}</div></div>`:'<div class="empty">上のヒートマップで、狙う層を選んでください。</div>'}
+   ${simNote('アンケートに参加している映画館での回答です。参加館は地域や立地にかたよりがあるため、割合そのものではなく、全作品の平均との差で読みます。')}`}},{when:'pre'});
 I('plan','p_gap','いま観たいと言っている人との差',6,[1,2],(T,d)=>{const D=tgData(T),df=D.segs.map(s=>D.now[s.i]-s.sh),lo=D.segs.filter(s=>df[s.i]<=-1.5).sort((p,q)=>df[p.i]-df[q.i]),hi=D.segs.filter(s=>df[s.i]>=1.5).sort((p,q)=>df[q.i]-df[p.i]);
   return {d:'週ごとの調査で「観たい」と答えた人の内訳と、類似作の観客の内訳',h:`<ul class="tg-pts"><li>類似作では来ていたのに、まだ少ない層：${lo.length?lo.slice(0,3).map(s=>`${s.n}（${pt(df[s.i])}）`).join('、'):'目立つ層はありません'}</li><li>類似作より多く集まっている層：${hi.length?hi.slice(0,3).map(s=>`${s.n}（${pt(df[s.i])}）`).join('、'):'目立つ層はありません'}</li></ul>${bars(D.segs.map(s=>({l:s.n,v:D.now[s.i],cmp:s.sh,c:df[s.i]<=-1.5?'#c2603f':'#5b6f9c'})),{fmt:f1,u:'%',cmp:'類似作の観客に占める割合。赤い棒＝類似作より1.5pt以上少ない層'})}`}},{when:'pre'});
 I('plan','p_hit','よく伸びた類似作と、そうでない類似作の観客の違い',6,[2],(T,d)=>{const r=R(T,303),h=Math.ceil(PEERS.length/2),l=PEERS.length-h,rw=[['女性の割合',58,52],['30代以上の割合',61,49],['映画館に行くのが年1〜2回の人',36,27],['家族・友人から聞いて知った人',22,13],['2人以上で観た人',71,62],['満足度',88,79]].map(x=>[x[0],x[1]*(.95+r()*.1),x[2]*(.95+r()*.1)]);
@@ -1675,7 +1690,7 @@ function srcChips(it){const use=SRC_USE[it.id]||it.need;if(!use.length)return '<
   return `<div class="srcs int-only"><span class="sc-l">使っているデータ</span>${on.map(k=>`<span class="sc ${typeof k==='number'?'':'c'} ${k===2?'k2':''}">${typeof k==='number'?k+' ':''}${SRC_NAME[k]}</span>`).join('')}${later.map(k=>`<span class="sc l" title="Phase ${srcPhase(k)}で加わります">${k} ${SRC_NAME[k]}<i>Phase ${srcPhase(k)}から</i></span>`).join('')}</div>`}
 
 /* 社内表示：CAST（鑑賞後アンケート）が、公開前と公開後でどう使われるかの案内 */
-const CAST_PRE=['a_simtime','i_simroute','u_sim','o_simsat','p_map','p_pick','p_table','p_gap','p_hit','p_segtime','p_cal','p_segroute'],CAST_MIX=['h_nums','h_voice','o_final','o_mult'];
+const CAST_PRE=['a_simtime','i_simroute','u_sim','o_simsat','p_map','p_pick','p_table','p_gap','p_hit','p_segtime','p_cal','p_segroute','p_area'],CAST_MIX=['h_nums','h_voice','o_final','o_mult'];
 const usesCast=it=>(SRC_USE[it.id]||it.need).includes(2);
 function castGuide(T,d){const sp=S.phase;S.phase=3;const post=ITEMS.filter(it=>(it.need.includes(2)||CAST_MIX.includes(it.id))&&!CAST_PRE.includes(it.id)&&avail(it,20)),pre=ITEMS.filter(it=>CAST_PRE.includes(it.id));S.phase=sp;
   const isPre=d<0,pg=k=>PAGES.find(x=>x.k===k).n,preDay=Math.min(T.today,-12)<0?Math.min(T.today,-1):-12;
