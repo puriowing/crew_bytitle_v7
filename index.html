@@ -507,6 +507,31 @@ details.deep>.grid{margin-top:16px}
   .sel{max-width:170px}
 }
 @media print{.top,#panel,#scrim,#cmdk{display:none}.card{break-inside:avoid;box-shadow:none}}
+
+/* 宣伝設計：客層の地図 */
+.tgm-row{display:grid;grid-template-columns:44px 1fr;gap:10px;margin-bottom:8px}
+.tgm-l{font-family:'Zen Maru Gothic',sans-serif;font-weight:700;font-size:13px;color:var(--ink2);display:grid;place-items:center}
+.tgm-g{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.tg{position:relative;border:2px solid transparent;border-radius:12px;padding:9px 10px 8px;text-align:left;min-width:0;color:var(--ink)}
+.tg .a{display:block;font-size:12px;font-weight:700}
+.tg .v{display:block;font-size:23px;line-height:1.25}
+.tg .v small{font-size:11px;margin-left:1px}
+.tg .m{display:block;font-size:10.5px;color:var(--ink2)}
+.tg .tags{display:flex;flex-wrap:wrap;gap:3px;margin-top:5px;min-height:17px}
+.tg .tags i{font-style:normal;font-size:10px;font-weight:700;background:rgba(255,255,255,.9);color:var(--ink2);border-radius:999px;padding:0 6px}
+.tg .tags i.few{background:transparent;border:1px dashed var(--sub-weak);color:var(--sub)}
+.tg:hover{border-color:var(--accent-line)}
+.tg.on{border-color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.14)}
+.tg.on::after{content:'✓';position:absolute;top:6px;right:7px;width:18px;height:18px;border-radius:50%;background:var(--ink);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center}
+.tg-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px;font-size:13px}
+.tg-bar b{font-family:'Zen Maru Gothic',sans-serif}
+.tg-bar .btn{margin-left:0}
+.tg-pts{margin:0 0 14px;padding:10px 14px 10px 30px;background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:12px;font-size:13px}
+.tg-pts li{margin:2px 0}
+tr.tg-on td{background:var(--accent-soft)}
+tr.tg-few td{color:var(--sub)}
+.tg-leg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11.5px;color:var(--sub);margin-bottom:10px}
+@media (max-width:900px){.tgm-row{grid-template-columns:1fr;gap:4px}.tgm-l{place-items:start}.tgm-g{grid-template-columns:repeat(3,1fr);gap:6px}.tg .v{font-size:20px}}
 </style>
 </head>
 <body>
@@ -808,7 +833,7 @@ function closePanel(){document.body.classList.remove('pn')}
 <script>
 /* ================= ページと項目 ================= */
 const PAGES=[
-  {k:'acts',n:'施策と反応',q:'何をやって、どう動いたか'},{k:'home',n:'今日',q:'いま何が起きているか'},
+  {k:'acts',n:'施策と反応',q:'何をやって、どう動いたか'},{k:'plan',n:'宣伝設計',q:'誰に向けて、宣伝を組み立てるか'},{k:'home',n:'今日',q:'いま何が起きているか'},
   {k:'deliver',n:'届け方',q:'効率よく届いているか'},{k:'interest',n:'関心と評判',q:'関心を持たれ、どう評価されているか'},
   {k:'audience',n:'観客',q:'誰が観たいと思い、誰が観ているか'},{k:'outlook',n:'見通し',q:'どこまで伸びるか'}];
 const ITEMS=[];
@@ -1327,6 +1352,59 @@ I('outlook','o_simsat','類似作の満足度と、公開後の伸び',6,[2],(T,
   return {d:SIMN(),h:`<div class="kpis">${kpi('満足度が高かった類似作',f1(med(hi.map(x=>x.m))),'倍',`最終興収÷初週末。${hi.length}本の中央値`)}${kpi('満足度が低かった類似作',f1(med(lo.map(x=>x.m))),'倍',`${lo.length}本の中央値`)}${kpi('類似作の満足度',f1(md2),'%','中央値')}</div>
    ${simNote('満足度が高い作品ほど、初週末のあとも長く伸びています。この作品の満足度が出たら、どちらの型に近いかで見通しの幅を絞ります。')}`}},{when:'pre'});
 
+/* ================= 宣伝設計：類似作の鑑賞後アンケートから、狙う層を考える =================
+   性別×年代の12の層ごとに、割合・満足度・知ったきっかけ・決めた理由・決めた時期を出す。押して「狙う層」に選べる */
+const SEX=['女性','男性'],TG_MIN=300;
+const DEC=['1か月より前','2週間〜1か月前','4〜10日前','前日〜3日前','観た当日'],WHY=['ストーリー・内容','出演者','世の中の話題','予告編・ポスター','原作','人にすすめられた・約束','主題歌・音楽','特別な上映（IMAXなど）'],WITH=['ひとり','友人','恋人・夫婦','家族'],GOF=['年1〜2回','年3〜11回','月1回以上'],GOC=['#c2603f','#b08040','#1b3a5b'];
+const _tg={},nrm=a=>{const s=sumA(a)||1;return a.map(v=>v/s*100)};
+function tgData(T){if(_tg[T.k])return _tg[T.k];const r=R(T,301),j=(v,w)=>v*(1-w/2+r()*w);
+  const base=[[6,19,12,9,7,4],[4,11,9,8,7,4]],raw=[];SEX.forEach((_,g)=>AGES.forEach((_,a)=>raw.push(j(base[g][a],.5))));
+  const sh=nrm(raw),N=PEERS.length*(560+Math.round(r()*80));
+  const segs=sh.map((s,i)=>{const g=i<6?0:1,a=i%6,kf={F2:1.6-.22*a,B:.55+.2*a,E:.6+.15*a,F1:1.25-.08*a,A:.8+.06*a,D:1,H:(1.3-.1*a)*(g?.9:1.1)};
+    return {i,g,a,n:SEX[g]+AGES[a],sh:s,cnt:Math.round(N*s/100),sat:clamp(80+a*1.2+(g?-2:1)+(r()-.5)*8,60,96),nps:12+(g?-4:5)+(a<2?6:0)+(r()-.5)*22,rep:j(a<2?12:8,.6),
+      know:ROUTES2.map(x=>clamp(x.b*kf[x.k]*j(1,.3),1,80)),
+      why:nrm([24,21,15,12,10,9,5,4].map((b,k)=>b*[.8+.1*a,(g?.7:1.25)*(1.15-.05*a),1.4-.15*a,1,a>=1&&a<=3?1.2:.8,g?1.1:.9,a<2?1.3:.8,g?1.4:.8][k]*j(1,.3))),
+      dec:nrm([14,19,21,24,22].map((b,k)=>b*(1-(k-2)*(a-2.5)*.09)*j(1,.3))),
+      wth:nrm([34,27,22,17].map((b,k)=>b*[.8+.1*a+(g?.25:0),1.7-.28*a,.7+.12*a,a===0||a===2||a===3?1.5:.8][k]*j(1,.3))),
+      go:nrm([30,48,22].map((b,k)=>b*[1.4-.12*a,1,.6+.14*a][k]*j(1,.2)))}});
+  const ok=segs.filter(s=>s.cnt>=TG_MIN),top=(f)=>ok.slice().sort((p,q)=>f(q)-f(p)).slice(0,3).map(s=>s.i);
+  const r2=R(T,302),now=nrm(segs.map(s=>s.sh*(.6+r2()*.8)));
+  return _tg[T.k]={segs,N,now,tags:{many:top(s=>s.sh),sat:top(s=>s.sat),nps:top(s=>s.nps)}}}
+function tgAgg(D,idx){const ss=D.segs.filter(s=>idx.includes(s.i)),w=sumA(ss.map(s=>s.sh))||1,av=f=>sumA(ss.map(s=>f(s)*s.sh))/w,arr=(k,n)=>Array.from({length:n},(_,x)=>av(s=>s[k][x]));
+  return {sh:sumA(ss.map(s=>s.sh)),cnt:sumA(ss.map(s=>s.cnt)),sat:av(s=>s.sat),nps:av(s=>s.nps),rep:av(s=>s.rep),know:arr('know',ROUTES2.length),why:arr('why',WHY.length),dec:arr('dec',DEC.length),wth:arr('wth',WITH.length),go:arr('go',GOF.length)}}
+const tgSel=T=>{S.tg=S.tg||{};if(!S.tg[T.k])S.tg[T.k]=tgData(T).tags.many.slice();return S.tg[T.k]};
+const pt=v=>(v>=0?'+':'')+f1(v)+'pt',iMax=a=>a.indexOf(Math.max(...a));
+I('plan','p_basis','もとにしている類似作',12,[2],(T,d)=>{const D=tgData(T),own=PAST.filter(p=>p.k!==T.k);
+  return {d:SIMN(),h:`<div class="kpis" style="margin-bottom:12px">${kpi('類似作',PEERS.length,'本',`うち自社の過去作 ${own.length}本`)}${kpi('鑑賞後アンケートの回答',fN(D.N),'件','類似作の合計')}${kpi('選び方',T.genre,'',`${T.kind}・公開規模200〜400スクリーン・直近3年`)}</div>
+   <div class="note" style="margin:0 0 10px">この作品の観客はまだいないので、近い作品を実際に観た人の回答から、誰に向けて宣伝を組み立てるかを考えます。回答が${TG_MIN}件に満たない層は「参考」と表示します。自社の過去作：${own.map(p=>p.name).join('／')}</div>
+   <div class="tg-bar"><span>あわせて見る</span><button class="btn" data-go="acts" data-hit="a_simtime">いつ観ると決めたか</button><button class="btn" data-go="interest" data-hit="i_simroute">どこで知り、なぜ決めたか</button><button class="btn" data-go="outlook" data-hit="o_simsat">満足度と公開後の伸び</button></div>`}},{when:'pre'});
+I('plan','p_map','類似作の観客は、どんな人たちか',12,[2],(T,d)=>{const D=tgData(T),sel=tgSel(T),mx=Math.max(...D.segs.map(s=>s.sh)),A=tgAgg(D,sel);
+  const tile=s=>{const few=s.cnt<TG_MIN,tg=[D.tags.many.includes(s.i)?'<i>多い</i>':'',D.tags.sat.includes(s.i)?'<i>満足が高い</i>':'',D.tags.nps.includes(s.i)?'<i>すすめてくれる</i>':'',few?'<i class="few">参考</i>':''].join('');
+    return `<button class="tg ${sel.includes(s.i)?'on':''}" data-tg="${s.i}" aria-pressed="${sel.includes(s.i)}" style="background:rgba(78,135,128,${(.07+s.sh/mx*.5).toFixed(2)})" title="${s.n}｜回答 ${fN(s.cnt)}件"><span class="a">${AGES[s.a]}</span><span class="v num">${f1(s.sh)}<small>%</small></span><span class="m">満足 ${Math.round(s.sat)}%・すすめたい ${pt(s.nps)}</span><span class="tags">${tg}</span></button>`};
+  return {d:'ヒートマップ。色が濃いほど、観客に占める割合が大きい層',h:`<div class="tg-leg"><span>数字＝類似作の観客に占める割合</span><span>「多い」「満足が高い」「すすめてくれる」＝それぞれ上位3つの層</span><span>押すと、狙う層として選べます</span></div>
+   ${SEX.map((x,g)=>`<div class="tgm-row"><div class="tgm-l">${x}</div><div class="tgm-g">${D.segs.filter(s=>s.g===g).map(tile).join('')}</div></div>`).join('')}
+   <div class="tg-bar"><b>選んでいる層：${sel.length}つ</b><span>類似作の観客の <b class="num">${f1(A.sh)}%</b> にあたります</span><button class="btn" data-tga="many">多い順に3つ</button><button class="btn" data-tga="sat">満足が高い3つ</button><button class="btn" data-tga="nps">すすめてくれる3つ</button><button class="btn" data-tga="none">すべて外す</button></div>`}},{when:'pre'});
+I('plan','p_pick','選んだ層の内訳',12,[2],(T,d)=>{const D=tgData(T),sel=tgSel(T);if(!sel.length)return {d:'',h:'<div class="empty">上の地図で、狙う層を選んでください。</div>'};
+  const A=tgAgg(D,sel),W=tgAgg(D,D.segs.map(s=>s.i)),kd=A.know.map((v,i)=>v-W.know[i]),wd=A.why.map((v,i)=>v-W.why[i]),ki=iMax(kd),wi=iMax(wd),early=A.dec[0]+A.dec[1],earlyW=W.dec[0]+W.dec[1],wm=iMax(A.wth);
+  const names=D.segs.filter(s=>sel.includes(s.i)).map(s=>s.n).join('・'),rows=(L,a,w,c,sort)=>{const x=L.map((l,i)=>({l,v:a[i],cmp:w[i]}));return bars(sort?x.sort((p,q)=>q.v-p.v):x,{fmt:f1,u:'%',c})};
+  return {d:names,h:`<ul class="tg-pts"><li>観客全体と比べて多いきっかけは「${ROUTES2[ki].n}」（${pt(kd[ki])}）</li><li>観客全体と比べて多い理由は「${WHY[wi]}」（${pt(wd[wi])}）</li><li>公開の2週間以上前に観ると決めた人は ${f1(early)}%（全体 ${f1(earlyW)}%）。${early>earlyW+1.5?'早い時期から届ける意味が大きい層です。':early<earlyW-1.5?'公開の直前に決める人が多い層です。':'決める時期は全体とほぼ同じです。'}</li><li>いちばん多い観かたは「${WITH[wm]}」（${f1(A.wth[wm])}%）</li></ul>
+   <div class="kpis" style="margin-bottom:16px">${kpi('観客に占める割合',f1(A.sh),'%',`回答 ${fN(A.cnt)}件`)}${kpi('満足度',f1(A.sat),'%',`全体 ${f1(W.sat)}%`)}${kpi('すすめたい度',pt(A.nps),'',`全体 ${pt(W.nps)}`)}${kpi('2回以上観た人',f1(A.rep),'%',`全体 ${f1(W.rep)}%`)}</div>
+   <div class="three"><div><div class="sub-h">この作品を知ったきっかけ<small style="font-weight:400;color:var(--sub)">（あてはまるものすべて）</small></div>${rows(ROUTES2.map(x=>x.n),A.know,W.know,'#1b3a5b',1)}</div>
+   <div><div class="sub-h">観ようと決めた、いちばんの理由</div>${rows(WHY,A.why,W.why,'#2f6b52',1)}</div>
+   <div><div class="sub-h">観ると決めた時期</div>${rows(DEC,A.dec,W.dec,'#4e8780')}<div class="sub-h">誰と観たか</div>${rows(WITH,A.wth,W.wth,'#a06a86')}</div></div>
+   <div class="sub-h">ふだん映画館に行く頻度</div><div class="two"><div><div class="note" style="margin:0 0 4px">選んだ層</div>${stack(GOF.map((l,i)=>({l,v:A.go[i],c:GOC[i]})))}</div><div><div class="note" style="margin:0 0 4px">類似作の観客全体</div>${stack(GOF.map((l,i)=>({l,v:W.go[i],c:GOC[i]})))}</div></div>
+   ${simNote('黒い線＝類似作の観客全体。類似作を観た人の実績で、この作品での結果を約束するものではありません。')}`}},{when:'pre'});
+I('plan','p_table','客層ごとの内訳',12,[2],(T,d)=>{const D=tgData(T),sel=tgSel(T);
+  return {d:'12の層を横並びで比べる。行を押すと、狙う層として選べます',h:`<div class="tw"><table><tr><th>客層</th><th class="r">観客に占める割合</th><th class="r">回答</th><th class="r">満足度</th><th class="r">すすめたい度</th><th>いちばん多いきっかけ</th><th>いちばん多い理由</th><th class="r">2週間以上前に決めた</th><th>誰と</th></tr>${D.segs.map(s=>`<tr class="${sel.includes(s.i)?'tg-on':''} ${s.cnt<TG_MIN?'tg-few':''}" data-tg="${s.i}" style="cursor:pointer"><td><b>${s.n}</b>${s.cnt<TG_MIN?' <small>参考</small>':''}</td><td class="r num">${f1(s.sh)}%</td><td class="r num">${fN(s.cnt)}件</td><td class="r num">${f1(s.sat)}%</td><td class="r num">${pt(s.nps)}</td><td>${ROUTES2[iMax(s.know)].n}</td><td>${WHY[iMax(s.why)]}</td><td class="r num">${f1(s.dec[0]+s.dec[1])}%</td><td>${WITH[iMax(s.wth)]}</td></tr>`).join('')}</table></div>${simNote('色のついた行＝いま選んでいる層。')}`}},{when:'pre'});
+I('plan','p_gap','いま観たいと言っている人との差',6,[1,2],(T,d)=>{const D=tgData(T),df=D.segs.map(s=>D.now[s.i]-s.sh),lo=D.segs.filter(s=>df[s.i]<=-1.5).sort((p,q)=>df[p.i]-df[q.i]),hi=D.segs.filter(s=>df[s.i]>=1.5).sort((p,q)=>df[q.i]-df[p.i]);
+  return {d:'週ごとの調査で「観たい」と答えた人の内訳と、類似作の観客の内訳',h:`<ul class="tg-pts"><li>類似作では来ていたのに、まだ少ない層：${lo.length?lo.slice(0,3).map(s=>`${s.n}（${pt(df[s.i])}）`).join('、'):'目立つ層はありません'}</li><li>類似作より多く集まっている層：${hi.length?hi.slice(0,3).map(s=>`${s.n}（${pt(df[s.i])}）`).join('、'):'目立つ層はありません'}</li></ul>${bars(D.segs.map(s=>({l:s.n,v:D.now[s.i],cmp:s.sh,c:df[s.i]<=-1.5?'#c2603f':'#5b6f9c'})),{fmt:f1,u:'%',cmp:'類似作の観客に占める割合。赤い棒＝類似作より1.5pt以上少ない層'})}`}},{when:'pre'});
+I('plan','p_hit','よく伸びた類似作と、そうでない類似作の観客の違い',6,[2],(T,d)=>{const r=R(T,303),h=Math.ceil(PEERS.length/2),l=PEERS.length-h,rw=[['女性の割合',58,52],['30代以上の割合',61,49],['映画館に行くのが年1〜2回の人',36,27],['家族・友人から聞いて知った人',22,13],['2人以上で観た人',71,62],['満足度',88,79]].map(x=>[x[0],x[1]*(.95+r()*.1),x[2]*(.95+r()*.1)]);
+  return {d:'最終興収÷初週末の倍率で、類似作を2つに分けた比較',h:`<div class="tw"><table><tr><th>観客の特徴</th><th class="r">よく伸びた${h}本</th><th class="r">そうでない${l}本</th><th class="r">差</th></tr>${rw.map(x=>`<tr><td>${x[0]}</td><td class="r num">${f1(x[1])}%</td><td class="r num">${f1(x[2])}%</td><td class="r num">${pt(x[1]-x[2])}</td></tr>`).join('')}</table></div>${simNote('本数が少ないため、傾向の参考です。差があっても、それが伸びた原因とは限りません。')}`}},{when:'pre'});
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-tg],[data-tga]');if(!t)return;const T=cur(),D=tgData(T),sel=tgSel(T),y=window.scrollY;
+  if(t.dataset.tga)S.tg[T.k]=t.dataset.tga==='none'?[]:D.tags[t.dataset.tga].slice();
+  else{const i=+t.dataset.tg;S.tg[T.k]=sel.includes(i)?sel.filter(x=>x!==i):sel.concat(i).sort((p,q)=>p-q)}
+  render();window.scrollTo({top:y})});
+
 /* ================= 施策の答え合わせ：反応の先の「来場」を、鑑賞後アンケートでつなぐ =================
    観に来た人が「何で知り、何が決め手だったか」を、施策の種類・費用と並べる */
 /* 経路は、設問C04（どこで知りましたか・あてはまるものすべて）の選択肢をまとめたもの（13_共通コード仕様 §2）。
@@ -1387,7 +1465,7 @@ const SRC_USE={
   h_views:[3,6,4,1,'B'],h_moves:[3,6,5,4,1,2],h_goal:['B',1],h_all:[3,6,5,4,1,2],
   o_pos:[3,6,5,4],o_final:['B',4,2],o_legs:['B'],o_similar:['B',1],o_supply:['S','B'],o_comp:['S'],o_check:['B'],
   o_share:['B','S',1],o_winlose:[1,3,6,'S'],o_slate:['S'],o_cmpts:[3,6,5,4,1],o_mult:['B',4,2],o_how:[],
-  o_simsat:[2,'B'],a_answer:[2,6],
+  o_simsat:[2,'B'],a_answer:[2,6],p_gap:[1,2],p_hit:[2,'B'],
   o_demand:[1,'S'],o_sim:[1,'S'],o_pressure:[1,'S'],o_upside:[1,6],o_curve:['B',1],o_demandix:[1,2,'S']
 };
 const srcPhase=k=>typeof k!=='number'?0:[3,6].includes(k)?1:[4,5].includes(k)?2:3;
@@ -1396,7 +1474,7 @@ function srcChips(it){const use=SRC_USE[it.id]||it.need;if(!use.length)return '<
   return `<div class="srcs int-only"><span class="sc-l">使っているデータ</span>${on.map(k=>`<span class="sc ${typeof k==='number'?'':'c'} ${k===2?'k2':''}">${typeof k==='number'?k+' ':''}${SRC_NAME[k]}</span>`).join('')}${later.map(k=>`<span class="sc l" title="Phase ${srcPhase(k)}で加わります">${k} ${SRC_NAME[k]}<i>Phase ${srcPhase(k)}から</i></span>`).join('')}</div>`}
 
 /* 社内表示：CAST（鑑賞後アンケート）が、公開前と公開後でどう使われるかの案内 */
-const CAST_PRE=['a_simtime','i_simroute','u_sim','o_simsat'],CAST_MIX=['h_nums','h_voice','o_final','o_mult'];
+const CAST_PRE=['a_simtime','i_simroute','u_sim','o_simsat','p_map','p_pick','p_table','p_gap','p_hit'],CAST_MIX=['h_nums','h_voice','o_final','o_mult'];
 const usesCast=it=>(SRC_USE[it.id]||it.need).includes(2);
 function castGuide(T,d){const sp=S.phase;S.phase=3;const post=ITEMS.filter(it=>(it.need.includes(2)||CAST_MIX.includes(it.id))&&!CAST_PRE.includes(it.id)&&avail(it,20)),pre=ITEMS.filter(it=>CAST_PRE.includes(it.id));S.phase=sp;
   const isPre=d<0,pg=k=>PAGES.find(x=>x.k===k).n,preDay=Math.min(T.today,-12)<0?Math.min(T.today,-1):-12;
@@ -1482,7 +1560,7 @@ function selfCheck(){const keep={...S,deepOpen:{...S.deepOpen}},bad=[];let n=0;S
   Object.assign(S,keep);render();return {pages:n,bad:bad.slice(0,30),badCount:bad.length}}
 
 /* ================= スマホアプリとして使うための部分 ================= */
-const TAB_SHORT={acts:'施策',home:'今日',deliver:'届け方',interest:'関心',audience:'観客',outlook:'見通し'};
+const TAB_SHORT={acts:'施策',plan:'設計',home:'今日',deliver:'届け方',interest:'関心',audience:'観客',outlook:'見通し'};
 const APPK='crew_v7_app_1';
 /* 前回の作品・ページ・表示を覚えておき、次に開いたときに戻す（基準日は毎回「今日」に戻す） */
 function appSave(){try{localStorage.setItem(APPK,JSON.stringify({title:S.title,page:S.page,phase:S.phase,client:S.client,jv:S.jv,jw:S.jw,fk:S.fk,tlRange:S.tlRange,cmpSet:S.cmpSet,castOpen:S.castOpen}))}catch(e){}}
