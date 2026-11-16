@@ -512,6 +512,17 @@ details.deep>.grid{margin-top:16px}
 
 
 /* ここまでの積み上げ */
+.cm-fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;border-radius:12px;background:var(--neufill);margin-bottom:12px}
+.cm-fold>summary::-webkit-details-marker{display:none}
+.cm-fold[open]>summary{background:var(--accent-soft)}
+.cm-sm{font-size:13px;font-weight:700;margin-right:6px}.cm-sm b{font-size:16px}
+.cm-chip{font-size:12px;border-radius:999px;padding:2px 10px;border:1px solid var(--rule2);background:#fff}
+.cm-chip.up{background:var(--goodfill);border-color:var(--goodln);color:var(--goodtx)}.cm-chip.dn{background:var(--badfill);border-color:var(--badln);color:var(--badtx)}
+.cm-tg{margin-left:auto;font-size:12px;font-weight:700;color:var(--accent2)}
+.cm-tg::after{content:'開く ▾'}.cm-fold[open] .cm-tg::after{content:'閉じる ▴'}
+.cm-t tr.cm-up td{background:var(--goodfill)}.cm-t tr.cm-dn td{background:var(--badfill)}
+.cm-t tr.cm-up td:first-child{box-shadow:inset 3px 0 0 #5fae86}.cm-t tr.cm-dn td:first-child{box-shadow:inset 3px 0 0 #d98476}
+
 .cm-top{display:grid;grid-template-columns:240px 1fr;gap:14px;margin-bottom:6px}
 .cm-n{border:1px solid var(--accent-line);background:var(--accent-soft);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
 .cm-n>small{font-size:12px;color:var(--sub)}.cm-n>b{font-size:34px;line-height:1.1}.cm-n>b small{font-size:13px;margin-left:2px}
@@ -2063,6 +2074,9 @@ document.addEventListener('click',ev=>{const t=ev.target.closest('[data-roi]');i
 /* ================= ここまでの積み上げ（施策の数・各指標の累計を、類似作の同じ時点と比べる） ================= */
 const CUM_K=['buzz','oimp','oeng','aimp','search','clip','mark'],CUM_R=['aware','intent','sent','score','sat','nps'];
 const cumPeers=()=>PEERS.concat(PAST);
+const cmCls=r=>{if(r==null)return '';r=Math.round(r);return r>=110?'cm-up':r<=90?'cm-dn':'cm-eq'};
+const cumOpen=()=>{try{return localStorage.getItem('crew_v7_cumfold')!=='0'}catch(e){return true}};
+document.addEventListener('toggle',ev=>{if(ev.target.classList&&ev.target.classList.contains('cm-fold'))try{localStorage.setItem('crew_v7_cumfold',ev.target.open?'1':'0')}catch(e){}},true);
 const _cx={};
 function cumVals(X,d){const key=X.k+'|'+d+'|'+(X.k===S.title?X.ev.length:'');if(_cx[key])return _cx[key];const done=X.ev.filter(e=>e.d<=d),o={n:done.length,cost:sumA(done.map(e=>e.cost||0))*1e4,ch:{}};
   done.forEach(e=>o.ch[e.ch]=(o.ch[e.ch]||0)+1);o.ex=sumA(done.map(e=>{const x=expoOf(X,e,d);return x?x.tot:0}));
@@ -2070,17 +2084,18 @@ function cumVals(X,d){const key=X.k+'|'+d+'|'+(X.k===S.title?X.ev.length:'');if(
 function cumRank(v,arr){return arr.filter(x=>x>v).length+1}
 function ratioBar(r){const w=clamp(r,50,150)-50;return `<div class="rb"><i class="c"></i><i class="f ${r>=100?'up':'dn'}" style="${r>=100?`left:50%;width:${w-50}%`:`left:${w}%;width:${50-w}%`}"></i></div>`}
 I('acts','a_cum','ここまでの積み上げ',12,[],(T,d)=>{const me=cumVals(T,d),P=cumPeers().map(X=>cumVals(X,d)),N=P.length,pm=k=>med(P.map(p=>p[k]).filter(x=>x!=null));
-  const row=(n,u,v,k,fmt)=>{const m=pm(k),r=m?v/m*100:null,rk=cumRank(v,P.map(p=>p[k]));return `<tr><td>${n}</td><td class="r"><b class="num">${fmt?fmt(v):fN(v)}</b><small class="ex-u">${u}</small></td><td class="r num">${fmt?fmt(m):fN(m)}${u}</td><td class="cm-r"><b class="num" style="color:${r>=100?'var(--goodtx)':'var(--badtx)'}">${r==null?'—':Math.round(r)+'%'}</b>${r==null?'':ratioBar(r)}</td><td class="r"><small>${N+1}本中</small> <b class="num">${rk}</b>位</td></tr>`};
+  const row=(n,u,v,k,fmt)=>{const m=pm(k),r=m?v/m*100:null,rk=cumRank(v,P.map(p=>p[k]));return `<tr class="${cmCls(r)}"><td>${n}</td><td class="r"><b class="num">${fmt?fmt(v):fN(v)}</b><small class="ex-u">${u}</small></td><td class="r num">${fmt?fmt(m):fN(m)}${u}</td><td class="cm-r"><b class="num" style="color:${r>=100?'var(--goodtx)':'var(--badtx)'}">${r==null?'—':Math.round(r)+'%'}</b>${r==null?'':ratioBar(r)}</td><td class="r"><small>${N+1}本中</small> <b class="num">${rk}</b>位</td></tr>`};
   const rows=[];if(has(6)){rows.push(row('費用の合計','円',me.cost,'cost'));rows.push(row('露出の合計（推定を含む）','回',me.ex,'ex'))}
   CUM_K.filter(k=>mAvail(k,d)).forEach(k=>rows.push(row(M[k].n+(M[k].sub?`<small>${M[k].sub}</small>`:''),M[k].u,me[k],k)));
-  const rr=CUM_R.filter(k=>mAvail(k,d)&&me[k]!=null).map(k=>{const m=pm(k),df=me[k]-m,rk=cumRank(me[k],P.map(p=>p[k]));return `<tr><td>${M[k].n}</td><td class="r"><b class="num">${k==='score'?f2(me[k]):f1(me[k])}</b><small class="ex-u">${M[k].u}</small></td><td class="r num">${k==='score'?f2(m):f1(m)}${M[k].u}</td><td class="cm-r"><b class="num" style="color:${df>=0?'var(--goodtx)':'var(--badtx)'}">${df>=0?'+':''}${k==='score'?f2(df):f1(df)}${k==='score'?'点':'pt'}</b>${m?ratioBar(me[k]/m*100):''}</td><td class="r"><small>${N+1}本中</small> <b class="num">${rk}</b>位</td></tr>`});
+  const rr=CUM_R.filter(k=>mAvail(k,d)&&me[k]!=null).map(k=>{const m=pm(k),df=me[k]-m,rk=cumRank(me[k],P.map(p=>p[k]));return `<tr class="${cmCls(m?100+df/Math.abs(m)*100:100)}"><td>${M[k].n}</td><td class="r"><b class="num">${k==='score'?f2(me[k]):f1(me[k])}</b><small class="ex-u">${M[k].u}</small></td><td class="r num">${k==='score'?f2(m):f1(m)}${M[k].u}</td><td class="cm-r"><b class="num" style="color:${df>=0?'var(--goodtx)':'var(--badtx)'}">${df>=0?'+':''}${k==='score'?f2(df):f1(df)}${k==='score'?'点':'pt'}</b>${m?ratioBar(me[k]/m*100):''}</td><td class="r"><small>${N+1}本中</small> <b class="num">${rk}</b>位</td></tr>`});
   const nm=pm('n'),nr=Math.round(me.n/nm*100),plan=T.ev.filter(e=>e.d>d).length;
-  return {d:`公開84日前から${md(dateOf(T,d))}まで｜類似作${N}本の同じ時点と比べて`,h:`<div class="cm-top">
+  const cnt=(rows.join('')+rr.join('')),nu=(cnt.match(/class="cm-up"/g)||[]).length,nd=(cnt.match(/class="cm-dn"/g)||[]).length;
+  return {d:`公開84日前から${md(dateOf(T,d))}まで｜類似作${N}本の同じ時点と比べて`,h:`<details class="cm-fold" ${cumOpen()?'open':''}><summary><span class="cm-sm">施策 <b class="num">${me.n}</b>件（類似作の${nr}%）</span><span class="cm-chip up">類似作より上 <b class="num">${nu}</b></span><span class="cm-chip">ほぼ同じ <b class="num">${rows.length+rr.length-nu-nd}</b></span><span class="cm-chip dn">類似作より下 <b class="num">${nd}</b></span><span class="cm-tg"></span></summary><div class="cm-top">
     <div class="cm-n"><small>実施した施策</small><b class="num">${me.n}<small>件</small></b><span>類似作の中央値 ${nm}件｜<b style="color:${nr>=100?'var(--goodtx)':'var(--badtx)'}">${nr}%</b></span>${plan?`<span>このあと予定 ${plan}件</span>`:''}</div>
     <div class="cm-ch">${Object.entries(CH).map(([c,v])=>{const a=me.ch[c]||0,m=med(P.map(p=>p.ch[c]||0));return `<div><i class="cdot" style="background:${v.c}"></i>${v.n}<b class="num">${a}</b><small>件（類似作 ${m}件）</small></div>`}).join('')}</div></div>
     <div class="sub-h">数の指標（累計）</div><div class="tw"><table class="ex-t cm-t"><tr><th>指標</th><th class="r">この作品の累計</th><th class="r">類似作の中央値</th><th>類似作との比</th><th class="r">順位</th></tr>${rows.join('')}</table></div>
     ${rr.length?`<div class="sub-h">率の指標（${md(dateOf(T,d))}時点の値）</div><div class="tw"><table class="ex-t cm-t"><tr><th>指標</th><th class="r">この作品</th><th class="r">類似作の中央値</th><th>類似作との差</th><th class="r">順位</th></tr>${rr.join('')}</table></div>`:''}
-    <div class="note">類似作は、ジャンル・公開規模が近い${N}本です。比の帯は50%〜150%の範囲で、真ん中の線が100%です。どの作品も、公開日を基準に同じ時点（${relLbl(d)}）までをそろえて比べています。100%で類似作の真ん中と同じ。率の指標は累計ではなく、その日の値の差です。</div>`}},{any:[3,6]});
+    <div class="note">類似作は、ジャンル・公開規模が近い${N}本です。比の帯は50%〜150%の範囲で、真ん中の線が100%です。行の色は、緑＝類似作より10%以上上、赤＝10%以上下（率の指標は差が中央値の10%以上）。どの作品も、公開日を基準に同じ時点（${relLbl(d)}）までをそろえて比べています。100%で類似作の真ん中と同じ。率の指標は累計ではなく、その日の値の差です。</div></details>`}},{any:[3,6]});
 (function(){const i=ITEMS.findIndex(x=>x.id==='a_cum'),it=ITEMS.splice(i,1)[0],j=ITEMS.findIndex(x=>x.id==='a_today');ITEMS.splice(j+1,0,it)})();
 SRC_USE.a_cum=[3,6,5,4,1,2,'N'];
 
