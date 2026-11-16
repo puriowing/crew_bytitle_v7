@@ -623,6 +623,21 @@ tr.tg-on td{background:var(--accent-soft)}
 tr.tg-few td{color:var(--sub)}
 .tg-leg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11.5px;color:var(--sub);margin-bottom:10px}
 @media (max-width:900px){.tgm-row{grid-template-columns:1fr;gap:4px}.tgm-l{place-items:start}.tgm-g{grid-template-columns:repeat(3,1fr);gap:6px}.tg .v{font-size:20px}}
+
+/* 宣伝設計：区切りの見出しと、週ごとの表 */
+#it-p_sec1,#it-p_sec2{background:none;border:0;box-shadow:none;padding:8px 4px 0;margin-bottom:-8px}
+#it-p_sec2{margin-top:14px}
+#it-p_sec1 .srcs,#it-p_sec2 .srcs{display:none}
+#it-p_sec1 h2,#it-p_sec2 h2{font-size:19px}
+.cal{border-collapse:separate;border-spacing:2px;width:100%}
+.cal th,.cal td{text-align:center;padding:5px 2px;min-width:42px;font-size:12px;border:0;border-radius:6px;white-space:nowrap}
+.cal th:first-child,.cal td:first-child{text-align:left;min-width:150px;padding-right:10px;position:sticky;left:0;background:var(--card);z-index:1;border-radius:0}
+.cal td:first-child small{display:block;color:var(--sub);font-weight:400;font-size:10.5px}
+.cal th small{display:block;font-size:10px;color:var(--accent2)}
+.cal .cur{box-shadow:inset 0 0 0 2px var(--ink)}
+.cal .sep td{text-align:left;font-size:11.5px;color:var(--sub);padding-top:12px;background:none}
+.cal .mk{font-weight:700;cursor:pointer;margin-left:2px}
+@media (max-width:900px){.cal th:first-child,.cal td:first-child{min-width:112px;white-space:normal}}
 </style>
 </head>
 <body>
@@ -1423,11 +1438,6 @@ const ALIAS={"今日の結論": "h_verdict", "宣伝効果指数の推移（な�
    自社の過去作は名前を出せる。他社の作品は、名前を出さず類似作全体の集計としてだけ使う */
 const SIMN=()=>`類似作${PEERS.length}本の集計。他社の作品は名前を出しません`;
 const simNote=t=>`<div class="note">${t}　回答の少ない作品は集計から外します。</div>`;
-I('plan','a_simtime','類似作の観客は、いつ観ると決めたか',12,[2],(T,d)=>{const r=R(T,201),o=[['1か月より前',14,'公開1か月より前'],['2週間〜1か月前',19,'公開2〜5週前ごろ'],['4〜10日前',21,'公開1〜2週前ごろ'],['前日〜3日前',24,'公開の直前'],['観た当日',22,'公開した週']].map(x=>[x[0],x[1]*(0.8+r()*0.4),x[2]]),tot=sumA(o.map(x=>x[1])),sh=o.map(x=>x[1]/tot*100);
-  const now=d<-35?0:d<-10?1:d<-3?2:d<0?3:4,done=sumA(sh.slice(0,now)),left=100-done;
-  return {d:`${SIMN()}。公開初週に観た人の回答`,h:`<div class="kpis" style="margin-bottom:14px">${kpi('いまの時期にあたるのは',o[now][0],'','に決めた人たち')}${kpi('ここまでに決めた人',f1(done),'%','類似作を初週に観た人のうち')}${kpi('これから決める人',f1(left),'%','まだ取りに行ける人')}</div>
-   ${bars(o.map((x,i)=>({l:`観る${x[0]}に決めた${i===now?'（いま）':''}`,v:sh[i],c:i===now?'#4e8780':i<now?'#b9bec4':'#8fb9b3'})),{fmt:f1,u:'%'})}
-   ${simNote('アンケートでは「観に行くことを決めたのは、いつ頃ですか」と、観た日から数えて聞いています。公開初週に観た人に絞ると、おおよそ公開日から数えた時期（'+o.map(x=>x[2]).join('／')+'）に読み替えられます。施策をどの時期に厚くするかの手がかりになります。')}`}},{when:'pre'});
 I('interest','i_simroute','類似作の観客は、どこで知り、なぜ観ると決めたか',12,[2],(T,d)=>{const r=R(T,202),kn=ROUTES2.map(x=>({l:x.n,v:x.b*(0.75+r()*0.5)})).sort((a,b)=>b.v-a.v);
   return {d:SIMN(),h:`<div class="three"><div><div class="sub-h">この作品を知ったきっかけ<small style="font-weight:400;color:var(--sub)">（あてはまるものすべて）</small></div>${bars(kn,{fmt:f1,u:'%',c:'#1b3a5b'})}</div>
    <div><div class="sub-h">観ようと決めた、いちばんの理由</div>${bars([['ストーリー・内容',24],['出演者',21],['世の中の話題',15],['予告編・ポスター',12],['原作',10],['人にすすめられた・約束',9],['主題歌・音楽',5],['特別な上映（IMAXなど）',4]].map(x=>({l:x[0],v:x[1]*(0.75+r()*0.5)})).sort((a,b)=>b.v-a.v),{fmt:f1,u:'%',c:'#2f6b52'})}</div>
@@ -1465,6 +1475,7 @@ function tgAgg(D,idx){const ss=D.segs.filter(s=>idx.includes(s.i)),w=sumA(ss.map
   return {sh:sumA(ss.map(s=>s.sh)),cnt:sumA(ss.map(s=>s.cnt)),sat:av(s=>s.sat),nps:av(s=>s.nps),rep:av(s=>s.rep),know:arr('know',ROUTES2.length),why:arr('why',WHY.length),dec:arr('dec',DEC.length),wth:arr('wth',WITH.length),go:arr('go',GOF.length)}}
 const tgSel=T=>{S.tg=S.tg||{};if(!S.tg[T.k])S.tg[T.k]=tgData(T).tags.many.slice();return S.tg[T.k]};
 const pt=v=>(v>=0?'+':'')+f1(v)+'pt',iMax=a=>a.indexOf(Math.max(...a));
+I('plan','p_sec1','1　誰に向けるか',12,[2],()=>({d:'類似作を実際に観た人から、狙う層を考える',h:''}),{when:'pre'});
 I('plan','p_basis','もとにしている類似作',12,[2],(T,d)=>{const D=tgData(T),own=PAST.filter(p=>p.k!==T.k);
   return {d:SIMN(),h:`<div class="kpis" style="margin-bottom:12px">${kpi('類似作',PEERS.length,'本',`うち自社の過去作 ${own.length}本`)}${kpi('鑑賞後アンケートの回答',fN(D.N),'件','類似作の合計')}${kpi('選び方',T.genre,'',`${T.kind}・公開規模200〜400スクリーン・直近3年`)}</div>
    <div class="note" style="margin:0 0 10px">この作品の観客はまだいないので、近い作品を実際に観た人の回答から、誰に向けて宣伝を組み立てるかを考えます。回答が${TG_MIN}件に満たない層は「参考」と表示します。自社の過去作：${own.map(p=>p.name).join('／')}</div>
@@ -1491,6 +1502,35 @@ I('plan','p_gap','いま観たいと言っている人との差',6,[1,2],(T,d)=>
   return {d:'週ごとの調査で「観たい」と答えた人の内訳と、類似作の観客の内訳',h:`<ul class="tg-pts"><li>類似作では来ていたのに、まだ少ない層：${lo.length?lo.slice(0,3).map(s=>`${s.n}（${pt(df[s.i])}）`).join('、'):'目立つ層はありません'}</li><li>類似作より多く集まっている層：${hi.length?hi.slice(0,3).map(s=>`${s.n}（${pt(df[s.i])}）`).join('、'):'目立つ層はありません'}</li></ul>${bars(D.segs.map(s=>({l:s.n,v:D.now[s.i],cmp:s.sh,c:df[s.i]<=-1.5?'#c2603f':'#5b6f9c'})),{fmt:f1,u:'%',cmp:'類似作の観客に占める割合。赤い棒＝類似作より1.5pt以上少ない層'})}`}},{when:'pre'});
 I('plan','p_hit','よく伸びた類似作と、そうでない類似作の観客の違い',6,[2],(T,d)=>{const r=R(T,303),h=Math.ceil(PEERS.length/2),l=PEERS.length-h,rw=[['女性の割合',58,52],['30代以上の割合',61,49],['映画館に行くのが年1〜2回の人',36,27],['家族・友人から聞いて知った人',22,13],['2人以上で観た人',71,62],['満足度',88,79]].map(x=>[x[0],x[1]*(.95+r()*.1),x[2]*(.95+r()*.1)]);
   return {d:'最終興収÷初週末の倍率で、類似作を2つに分けた比較',h:`<div class="tw"><table><tr><th>観客の特徴</th><th class="r">よく伸びた${h}本</th><th class="r">そうでない${l}本</th><th class="r">差</th></tr>${rw.map(x=>`<tr><td>${x[0]}</td><td class="r num">${f1(x[1])}%</td><td class="r num">${f1(x[2])}%</td><td class="r num">${pt(x[1]-x[2])}</td></tr>`).join('')}</table></div>${simNote('本数が少ないため、傾向の参考です。差があっても、それが伸びた原因とは限りません。')}`}},{when:'pre'});
+I('plan','p_sec2','2　いつ強めるか',12,[2],()=>({d:'類似作の観客が決めた時期と、類似作が施策を行った時期から考える',h:''}),{when:'pre'});
+const DEC_WHEN=['公開1か月より前','公開2〜5週前ごろ','公開1〜2週前ごろ','公開の直前','公開した週'],decNow=d=>d<-35?0:d<-10?1:d<-3?2:d<0?3:4;
+const tgNames=(D,sel)=>D.segs.filter(s=>sel.includes(s.i)).map(s=>s.n).join('・');
+I('plan','a_simtime','類似作の観客は、いつ観ると決めたか',12,[2],(T,d)=>{const D=tgData(T),sel=tgSel(T),all=D.segs.map(s=>s.i),on=sel.length>0,A=tgAgg(D,on?sel:all),W=tgAgg(D,all),now=decNow(d),done=sumA(A.dec.slice(0,now)),doneW=sumA(W.dec.slice(0,now));
+  return {d:on?`選んだ層（${tgNames(D,sel)}）。公開初週に観た人の回答`:`${SIMN()}。公開初週に観た人の回答`,h:`<div class="kpis" style="margin-bottom:14px">${kpi('いまの時期にあたるのは',DEC[now],'','に決めた人たち')}${kpi('ここまでに決めた人',f1(done),'%',on?`観客全体は ${f1(doneW)}%`:'類似作を初週に観た人のうち')}${kpi('これから決める人',f1(100-done),'%',on?`観客全体は ${f1(100-doneW)}%`:'まだ取りに行ける人')}</div>
+   ${bars(DEC.map((l,i)=>({l:`${l}に決めた${i===now?'（いま）':''}`,v:A.dec[i],cmp:on?W.dec[i]:null,c:i===now?'#4e8780':i<now?'#b9bec4':'#8fb9b3'})),{fmt:f1,u:'%',cmp:on?'類似作の観客全体':null})}
+   ${simNote('アンケートでは「観に行くことを決めたのは、いつ頃ですか」と、観た日から数えて聞いています。公開初週に観た人に絞ると、おおよそ公開日から数えた時期（'+DEC_WHEN.join('／')+'）に読み替えられます。上の「誰に向けるか」で層を選び直すと、ここも変わります。')}`}},{when:'pre'});
+I('plan','p_segtime','客層ごとの、決める時期',12,[2],(T,d)=>{const D=tgData(T),sel=tgSel(T),now=decNow(d),left=s=>now?sumA(s.dec.slice(now)):s.dec[0];
+  return {d:'ヒートマップ。色が濃いほど、その時期に決めた人が多い',h:`<div class="two"><div>${heat(D.segs.map(s=>(sel.includes(s.i)?'✓ ':'')+s.n),DEC,(i,j)=>D.segs[i].dec[j])}<div class="note">✓＝いま選んでいる層。左の列ほど早く、右の列ほど公開の直前です。</div></div>
+   <div><div class="sub-h">${now?`これから決める人の割合（いま＝${relLbl(d)}）`:'公開の1か月より前に決める人の割合'}</div>${bars(D.segs.slice().sort((p,q)=>left(q)-left(p)).map(s=>({l:(sel.includes(s.i)?'✓ ':'')+s.n,v:left(s),c:sel.includes(s.i)?'#4e8780':'#b9bec4'})),{fmt:f1,u:'%',max:100})}<div class="note">${now?'割合が高い層ほど、いまから届けても間に合う人が多く残っています。':'割合が高い層ほど、早い時期の告知で決める人が多い層です。'}緑の棒＝いま選んでいる層。</div></div></div>${simNote('類似作を公開初週に観た人の回答です。')}`}},{when:'pre'});
+/* 類似作が、公開までのどの週に何をしたか。広告は出稿量で結果が変わるため並べない */
+const CAL_TY=EV_TYPES.filter((t,i)=>!EV_TPL[i][1].startsWith('PAID')),CAL_OFF={'本予告の解禁':-14,'キャスト解禁':-7,'主題歌の発表':7,'完成披露':-7},CAL_W=Array.from({length:16},(_,i)=>i-12),wkL=w=>w<0?`${-w}週前`:w===0?'公開週':`${w+1}週目`,wkP=w=>(w<0?'公開':'公開')+wkL(w).replace('公開週','週');
+const _cal={};
+function calData(){if(_cal.d)return _cal.d;const rows=CAL_TY.map(ty=>{const i=EV_TYPES.indexOf(ty),d0=EV_TPL[i][0],wk={},ws=[];
+    PEERS.forEach(p=>{const r=rng(p.seed*7+i*31);if(d0!==0&&r()<.22)return;const w=Math.floor(clamp(d0+(d0===0?0:(CAL_OFF[ty]||0)+Math.round((r()-.5)*16)),D0,27)/7);wk[w]=(wk[w]||0)+1;ws.push(w)});
+    return {ty,wk,n:ws.length,mode:+Object.keys(wk).sort((a,b)=>wk[b]-wk[a]||a-b)[0]}}),buzz={};
+  CAL_W.forEach(w=>buzz[w]=med(PEERS.map(p=>sumR(p,'buzz',w*7,w*7+6))));return _cal.d={rows,buzz}}
+I('plan','p_cal','類似作は、公開までのどの週に何をしていたか',12,[2,3],(T,d)=>{const C=calData(),D=tgData(T),sel=tgSel(T),on=sel.length>0,A=tgAgg(D,on?sel:D.segs.map(s=>s.i)),cw=Math.floor(d/7),cc=w=>w===cw?'cur':'';
+  const dm=Math.max(A.dec[0],A.dec[1],A.dec[2],A.dec[3]+A.dec[4]),bm=Math.max(...CAL_W.map(w=>C.buzz[w])),half=PEERS.length/2,pts=[];
+  C.rows.forEach(r=>{const e=T.ev.find(x=>x.ty===r.ty);if(!e){if(r.n>=half)pts.push(`「${r.ty}」は類似作${r.n}本が実施（いちばん多いのは${wkP(r.mode)}）。この作品には入っていません${r.mode<cw?'（すでに過ぎた時期）':''}`);return}
+    const tw=Math.floor(e.d/7);if(Math.abs(tw-r.mode)>=2)pts.push(`「${r.ty}」は、この作品が${wkP(tw)}、類似作は${wkP(r.mode)}がいちばん多い（${r.wk[r.mode]}本）`)});
+  const span=(n,v)=>`<td colspan="${n}" style="background:rgba(176,128,64,${v==null?0:(.1+v/dm*.5).toFixed(2)})">${v==null?'—':f1(v)+'%'}</td>`;
+  return {d:`${SIMN()}。左が古く、右が新しい`,h:`<ul class="tg-pts">${pts.length?pts.slice(0,5).map(x=>`<li>${x}</li>`).join(''):'<li>類似作と比べて、時期が2週間以上ずれている施策や、入っていない施策はありません。</li>'}</ul>
+   <div class="tw"><table class="cal"><tr><th></th>${CAL_W.map(w=>`<th class="${cc(w)}">${wkL(w)}${w===cw?'<small>いま</small>':''}</th>`).join('')}</tr>
+   <tr><td><b>観ると決めた人</b><small>${on?'選んだ層':'類似作の観客全体'}・この時期に決めた割合</small></td>${span(8,A.dec[0])}${span(2,A.dec[1])}${span(2,A.dec[2])}${span(1,A.dec[3]+A.dec[4])}${span(3,null)}</tr>
+   <tr><td><b>類似作の話題の量</b><small>1週間の投稿数・中央値</small></td>${CAL_W.map(w=>`<td class="num ${cc(w)}" style="background:rgba(91,111,156,${(.06+C.buzz[w]/bm*.5).toFixed(2)})">${fN(C.buzz[w])}</td>`).join('')}</tr>
+   <tr class="sep"><td colspan="${CAL_W.length+1}">類似作が施策を行った週（数字＝${PEERS.length}本のうち何本か）　●＝この作品で実施ずみ　○＝この作品の予定</td></tr>
+   ${C.rows.map(r=>{const ev=T.ev.filter(x=>x.ty===r.ty);return `<tr><td><b>${r.ty}</b><small>類似作 ${r.n}本が実施</small></td>${CAL_W.map(w=>{const n=r.wk[w]||0,m=ev.filter(x=>Math.floor(x.d/7)===w).map(x=>`<span class="mk" data-ev="${x.id}" title="${x.label}">${x.d<=d?'●':'○'}</span>`).join('');return `<td class="num ${cc(w)}" style="background:rgba(78,135,128,${n?(.1+n/PEERS.length*.6).toFixed(2):0})">${n||''}${m}</td>`}).join('')}</tr>`}).join('')}</table></div>
+   <div class="note">施策は、公開されている情報から拾えたものです。広告は、出稿量で結果が変わるため並べていません。決めた時期は、アンケートの選択肢をおおよその週に置き換えています。●○を押すと、その施策の中身が開きます。</div>`}},{when:'pre'});
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-tg],[data-tga]');if(!t)return;const T=cur(),D=tgData(T),sel=tgSel(T),y=window.scrollY;
   if(t.dataset.tga)S.tg[T.k]=t.dataset.tga==='none'?[]:D.tags[t.dataset.tga].slice();
   else{const i=+t.dataset.tg;S.tg[T.k]=sel.includes(i)?sel.filter(x=>x!==i):sel.concat(i).sort((p,q)=>p-q)}
@@ -1541,7 +1581,7 @@ function castLine(T,e,d){const c=castRoutes(T,d),x=c.rows.find(r=>r.ch&&r.ch.inc
   if(!x&&!m)return `<div class="note cast"><b>来場とのつながり</b>この種類の施策（${CH[e.ch].n}）は、鑑賞後アンケートの選択肢と対応していないため、来場とのつながりを出せません。</div>`;
   return `<div class="note cast"><b>来場とのつながり</b>${x?`観に来た人のうち、「${x.n}」で知った人は <b class="num">${f1(x.know)}%</b>、いちばんのきっかけに挙げた人は <b class="num">${f1(x.one)}%</b> です。この種類の施策（${x.cnt}件）の費用は、全体の ${f1(x.cost)}%。${x.map==='p'?`<small>${x.why}。</small>`:''}`:''}${m?`${x?'<br>':''}素材「${m.n}」を見た覚えがある観客は <b class="num">${f1(m.seen)}%</b>、いちばん観たいと思わせた素材に挙げた人は <b class="num">${f1(m.best)}%</b> です。`:''}<small>施策ひとつずつではなく、種類ごと・素材ごとの数字です。</small></div>`}
 /* 主役のページでは、日誌のすぐ下に置く */
-(function(){const mv=(id,after)=>{const i=ITEMS.findIndex(x=>x.id===id);if(i<0)return;const it=ITEMS.splice(i,1)[0],j=ITEMS.findIndex(x=>x.id===after);ITEMS.splice(j+1,0,it)};mv('a_simtime','p_hit');mv('a_answer','a_log')})();
+(function(){const mv=(id,after)=>{const i=ITEMS.findIndex(x=>x.id===id);if(i<0)return;const it=ITEMS.splice(i,1)[0],j=ITEMS.findIndex(x=>x.id===after);ITEMS.splice(j+1,0,it)};mv('a_simtime','p_sec2');mv('a_answer','a_log')})();
 
 /* 社内表示：各項目が、どのデータソースから成り立っているか。
    1 KARTE／2 CAST／3 SNS計測／4 レビュー／5 検索／6 宣伝データ／B 興収実績／S 上映スケジュール／N 公開記事（自動取得）
@@ -1556,7 +1596,7 @@ const SRC_USE={
   h_views:[3,6,4,1,'B'],h_moves:[3,6,5,4,1,2],h_goal:['B',1],h_all:[3,6,5,4,1,2],
   o_pos:[3,6,5,4],o_final:['B',4,2],o_legs:['B'],o_similar:['B',1],o_supply:['S','B'],o_comp:['S'],o_check:['B'],
   o_share:['B','S',1],o_winlose:[1,3,6,'S'],o_slate:['S'],o_cmpts:[3,6,5,4,1],o_mult:['B',4,2],o_how:[],
-  o_simsat:[2,'B'],a_answer:[2,6],cr_top:[6],cr_wall:[6],cr_posts:[6],cr_next:[6],p_gap:[1,2],p_hit:[2,'B'],
+  o_simsat:[2,'B'],a_answer:[2,6],cr_top:[6],cr_wall:[6],cr_posts:[6],cr_next:[6],p_gap:[1,2],p_hit:[2,'B'],p_cal:['N',3,2,6],
   o_demand:[1,'S'],o_sim:[1,'S'],o_pressure:[1,'S'],o_upside:[1,6],o_curve:['B',1],o_demandix:[1,2,'S']
 };
 const srcPhase=k=>typeof k!=='number'?0:[3,6].includes(k)?1:[4,5].includes(k)?2:3;
@@ -1565,7 +1605,7 @@ function srcChips(it){const use=SRC_USE[it.id]||it.need;if(!use.length)return '<
   return `<div class="srcs int-only"><span class="sc-l">使っているデータ</span>${on.map(k=>`<span class="sc ${typeof k==='number'?'':'c'} ${k===2?'k2':''}">${typeof k==='number'?k+' ':''}${SRC_NAME[k]}</span>`).join('')}${later.map(k=>`<span class="sc l" title="Phase ${srcPhase(k)}で加わります">${k} ${SRC_NAME[k]}<i>Phase ${srcPhase(k)}から</i></span>`).join('')}</div>`}
 
 /* 社内表示：CAST（鑑賞後アンケート）が、公開前と公開後でどう使われるかの案内 */
-const CAST_PRE=['a_simtime','i_simroute','u_sim','o_simsat','p_map','p_pick','p_table','p_gap','p_hit'],CAST_MIX=['h_nums','h_voice','o_final','o_mult'];
+const CAST_PRE=['a_simtime','i_simroute','u_sim','o_simsat','p_map','p_pick','p_table','p_gap','p_hit','p_segtime','p_cal'],CAST_MIX=['h_nums','h_voice','o_final','o_mult'];
 const usesCast=it=>(SRC_USE[it.id]||it.need).includes(2);
 function castGuide(T,d){const sp=S.phase;S.phase=3;const post=ITEMS.filter(it=>(it.need.includes(2)||CAST_MIX.includes(it.id))&&!CAST_PRE.includes(it.id)&&avail(it,20)),pre=ITEMS.filter(it=>CAST_PRE.includes(it.id));S.phase=sp;
   const isPre=d<0,pg=k=>PAGES.find(x=>x.k===k).n,preDay=Math.min(T.today,-12)<0?Math.min(T.today,-1):-12;
