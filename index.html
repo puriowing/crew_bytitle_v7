@@ -512,6 +512,28 @@ details.deep>.grid{margin-top:16px}
 
 
 
+
+/* スマホ幅：一覧の表をカードに */
+@media(max-width:900px){
+  .ex-list,.ex-list tbody,.cm-t,.cm-t tbody{display:block;width:100%}
+  .ex-list tr:first-child,.cm-t tr:first-child{display:none}
+  .ex-list tr,.cm-t tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;border:1px solid var(--rule);border-radius:12px;padding:10px 12px;margin-bottom:8px;background:#fcfbf9}
+  .ex-list td,.cm-t td{display:block;border:0!important;padding:0!important;text-align:left!important;min-width:0!important;max-width:none!important;background:none!important;box-shadow:none!important}
+  .ex-list td::before,.cm-t td::before{content:attr(data-l);display:block;font-size:10.5px;color:var(--sub);font-weight:400;margin-bottom:1px}
+  .ex-list td.tc-main,.ex-list td.tc-date,.cm-t td.tc-main{grid-column:1/-1}
+  .ex-list td.tc-main::before,.ex-list td.tc-date::before,.cm-t td.tc-main::before{display:none}
+  .ex-list td.tc-main,.cm-t td.tc-main{font-weight:700;font-size:13.5px}
+  .ex-list td.tc-date{font-size:11.5px;color:var(--sub);margin-bottom:-6px}
+  .ex-list td.tc-date small{display:inline;margin-left:6px}
+  .ex-list tr.rx-hot{background:#fdf6ec;border-color:var(--warnln)}
+  .cm-t tr.cm-up{background:var(--goodfill);border-color:var(--goodln)}.cm-t tr.cm-dn{background:var(--badfill);border-color:var(--badln)}
+  .ex-row{min-width:0}
+  .cm-r{min-width:0}.cm-r>b{width:auto;margin-right:8px}
+  .ex-list .snt.sm{width:100%!important}
+  .ex-top{grid-column:1/-1}
+  #panel .ex-t:not(.ex-list) th:nth-child(2),#panel .ex-t:not(.ex-list) td:nth-child(2){display:none}
+  #panel .ex-t:not(.ex-list) td:nth-child(3){white-space:nowrap}
+}
 /* 効いた施策の順位：スマホはカード */
 .rkm{display:none}
 @media(max-width:900px){
@@ -2181,6 +2203,9 @@ I('acts','a_cum','ここまでの積み上げ',12,[],(T,d)=>{const me=cumVals(T,
 (function(){const i=ITEMS.findIndex(x=>x.id==='a_cum'),it=ITEMS.splice(i,1)[0],j=ITEMS.findIndex(x=>x.id==='a_today');ITEMS.splice(j+1,0,it)})();
 SRC_USE.a_cum=[3,6,5,4,1,2,'N'];
 
+/* スマホ幅で表をカードにするため、各セルに列名を持たせる */
+function tblLabels(root){$$('table.ex-list,table.cm-t',root).forEach(tb=>{const hs=[...tb.rows[0].cells].map(c=>c.textContent.trim());
+  [...tb.rows].slice(1).forEach(r=>[...r.cells].forEach((c,i)=>{const h=hs[i]||'';c.dataset.l=h;if(/^(施策|指標)$/.test(h))c.classList.add('tc-main');else if(h==='日付')c.classList.add('tc-date')}))})}
 /* ================= 描画 ================= */
 function visiblePages(d){return PAGES.filter(p=>ITEMS.some(it=>it.page===p.k&&avail(it,d)))}
 function render(){const T=cur(),d=S.day;
@@ -2196,7 +2221,7 @@ function render(){const T=cur(),d=S.day;
   $('#page').innerHTML=`${S.page==='home'?heroHTML(T,d):''}<div class="pg-head">${S.page==='home'?'':`<span class="pg-po">${poster(T,{fit:'slice'})}</span>`}<h1>${pg.n}</h1><span class="pg-q">${pg.q}</span><span class="chip neu">${T.name}｜${md(dateOf(T,d))}時点</span><span class="srcs int-only" style="margin:0"><span class="sc-l">社内表示：各項目に、使っているデータを出しています</span><span class="sc">番号つき＝6分類</span><span class="sc c">共通のデータ</span><span class="sc l">点線＝上のPhaseで加わる</span></span></div>${castGuide(T,d)}<div class="grid">${list.filter(it=>!it.deep).map(card).join('')}</div>${dl.length?`<details class="deep" ${S.deepOpen[S.page]?'open':''}><summary>くわしく見る<span>${dl.length}項目</span></summary><div class="grid">${dl.map(card).join('')}</div></details>`:''}`;
   const dt=$('details.deep');if(dt)dt.addEventListener('toggle',()=>{S.deepOpen[S.page]=dt.open});
   const cgd=$('details.castg');if(cgd)cgd.addEventListener('toggle',()=>{S.castOpen=cgd.open});
-  bindTimeline($('#page'));
+  bindTimeline($('#page'));tblLabels($('#page'));
   document.documentElement.style.setProperty('--toph',$('.top').offsetHeight+'px');
 }
 function setPage(p,hit){closePanel();S.page=p;if(hit){const h=ITEMS.find(x=>x.id===hit||x.hit===hit&&x.page===p);if(h&&h.deep)S.deepOpen[p]=true}render();window.scrollTo({top:0});
