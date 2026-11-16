@@ -511,6 +511,22 @@ details.deep>.grid{margin-top:16px}
 
 
 
+
+/* 効いた施策の順位：スマホはカード */
+.rkm{display:none}
+@media(max-width:900px){
+  .rk-desk{display:none}
+  .rkm{display:grid;gap:8px}
+  .rkm-c{all:unset;cursor:pointer;display:grid;grid-template-columns:26px minmax(0,1fr) 64px;gap:10px;align-items:start;border:1px solid var(--rule);border-radius:12px;padding:10px 12px;background:#fcfbf9}
+  .rkm-n{font-size:18px;color:var(--accent2);text-align:center;padding-top:1px}
+  .rkm-b b{display:block;font-size:13.5px;line-height:1.4}
+  .rkm-b small{display:block;font-size:11px;color:var(--sub);margin-top:2px}
+  .rkm-k{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:6px;font-size:11px;color:var(--sub)}
+  .rkm-k b{color:var(--ink);font-size:12px;margin-left:4px}
+  .rkm-e{text-align:right}.rkm-e small{display:block;font-size:10px;color:var(--sub)}
+  .rkm-e b{font-size:22px;line-height:1.1}
+  .rkm-e i{display:block;height:5px;border-radius:3px;margin-top:4px;background:linear-gradient(90deg,var(--accent) var(--w),var(--neufill) var(--w))}
+}
 /* ここまでの積み上げ */
 .cm-fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;border-radius:12px;background:var(--neufill);margin-bottom:12px}
 .cm-fold>summary::-webkit-details-marker{display:none}
@@ -727,6 +743,23 @@ tr.tg-few td{color:var(--sub)}
 .cal .sep td{text-align:left;font-size:11.5px;color:var(--sub);padding-top:12px;background:none}
 .cal .mk{font-weight:700;cursor:pointer;margin-left:2px}
 @media (max-width:900px){.cal th:first-child,.cal td:first-child{min-width:112px;white-space:normal}}
+
+/* 宣伝設計：わかること／宣伝への示唆（示唆は事実と見た目を変える） */
+.ins{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 14px}
+.ins>div{border-radius:12px;padding:10px 14px;font-size:13px;min-width:0}
+.ins b,.sum-b b{display:block;font-family:'Zen Maru Gothic',sans-serif;font-size:12px;margin-bottom:3px}
+.ins ul{margin:0;padding-left:18px}
+.ins li{margin:2px 0}
+.ins-a{background:var(--accent-soft);border:1px solid var(--accent-line)}
+.ins-a b{color:var(--accent2)}
+.ins-b,.sum-b{background:#fffaf0;border:1px dashed var(--warnln)}
+.ins-b b,.sum-b b{color:var(--warntx)}
+.sum-c{border:1px solid var(--rule);border-radius:12px;padding:12px 14px;min-width:0;display:flex;flex-direction:column;gap:6px}
+.sum-t{font-family:'Zen Maru Gothic',sans-serif;font-weight:700;font-size:15px}
+.sum-t small{font-size:12px;color:var(--sub);margin-left:4px;font-weight:400}
+.sum-c p{margin:0 0 6px;font-size:13px}
+.sum-b{border-radius:10px;padding:8px 12px 2px;margin-top:auto}
+@media (max-width:900px){.ins{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -1255,9 +1288,12 @@ I('acts','a_tl','横向きの年表',12,[],(T,d)=>{const L=tlLayers(d),rg={all:[
     ${L.av.filter(k=>!(M[k].post&&d<0)).map(k=>`<button class="lchip ${L.on.includes(k)?'on':''}" data-layer="${k}"><i style="background:${M[k].c}"></i>${M[k].n}</button>`).join('')}</div>
     ${timeline(T,Math.max(rg[0],D0),Math.min(rg[1],D1),L.on.filter(k=>!(M[k].post&&d<0)),'main')}`}},{any:[3,6],deep:true});
 I('acts','a_rank','効いた施策の順位',8,[],(T,d)=>{const ks=upKeys(),rows=T.ev.filter(e=>e.d<=d&&!isAd(e)).map(e=>({e,eff:evEff(T,e,d)})).sort((a,b)=>(b.eff??-1)-(a.eff??-1));
-  return {d:'行を押すと内容と前後の動き',h:`<div class="tw"><table><tr><th>施策</th><th>種類</th>${ks.map(k=>`<th class="r">${M[k].n}</th>`).join('')}<th class="r">効き具合</th></tr>
+  return {d:'行を押すと内容と前後の動き',h:`<div class="tw rk-desk"><table><tr><th>施策</th><th>種類</th>${ks.map(k=>`<th class="r">${M[k].n}</th>`).join('')}<th class="r">効き具合</th></tr>
    ${rows.map(({e,eff})=>`<tr class="click" data-ev="${e.id}"><td>${e.label}<br><small style="color:var(--sub-weak)">${md(dateOf(T,e.d))}${evNear(T,e)?'｜別の施策と重なり':''}${adsOnX(T,e).length?'｜広告で後押し':''}</small></td><td><i class="cdot" style="background:${CH[e.ch].c}"></i>${CH[e.ch].n}</td>
    ${ks.map(k=>{const o=absUp(T,e,k,d);return `<td class="r">${o?absTx(o.tot,k):'計測中'}</td>`}).join('')}<td class="r">${eff??'—'}</td></tr>`).join('')}</table></div>
+   <div class="rkm">${rows.map(({e,eff},i)=>`<button class="rkm-c" data-ev="${e.id}"><span class="rkm-n num">${eff==null?'—':i+1}</span><span class="rkm-b"><b>${e.label}</b><small><i class="cdot" style="background:${CH[e.ch].c}"></i>${CH[e.ch].n}｜${md(dateOf(T,e.d))}${evNear(T,e)?'｜別の施策と重なり':''}${adsOnX(T,e).length?'｜広告で後押し':''}</small>
+     <span class="rkm-k">${ks.map(k=>{const o=absUp(T,e,k,d);return `<span>${M[k].n}<b class="num">${o?absTx(o.tot,k):'計測中'}</b></span>`}).join('')}</span></span>
+     <span class="rkm-e"><small>効き具合</small><b class="num">${eff??'—'}</b>${eff!=null?`<i style="--w:${eff}%"></i>`:''}</span></button>`).join('')}</div>
    <div class="note">各指標の数字は、施策を実施した日からの3日間の合計です。効き具合は、同じ種類の過去の施策の中での位置（0〜100）。因果を示すものではありません。広告は、出稿量やターゲティングで結果が変わるため、順位には入れていません。「広告で後押し」とある施策は、数字に広告の分が含まれます。</div>`}},{any:[3,6]});
 I('acts','a_ch','種類別の平均',4,[],(T,d)=>{const by={};T.ev.filter(e=>e.d+2<=d&&!isAd(e)).forEach(e=>{const v=evEff(T,e,d);if(v!=null)(by[e.ch]=by[e.ch]||[]).push(v)});
   const rows=Object.entries(by).map(([c,v])=>({l:`${CH[c].n}（${v.length}件）`,v:mean(v),c:CH[c].c})).sort((a,b)=>b.v-a.v);
@@ -1643,6 +1679,52 @@ I('plan','p_segroute','客層ごとの、きっかけと理由',12,[2],(T,d)=>{c
   return {d:'ヒートマップ。色が濃いほど、その層で多い',h:`<div class="two"><div><div class="sub-h">知ったきっかけ<small style="font-weight:400;color:var(--sub)">（あてはまるものすべて）</small></div>${heat(nm,RT_S,(i,j)=>D.segs[i].know[j])}</div>
    <div><div class="sub-h">観ようと決めた、いちばんの理由</div>${heat(nm,WHY_S,(i,j)=>D.segs[i].why[j])}</div></div>
    <div class="note">✓＝いま選んでいる層。列の名前は短くしています（公式＝作品の公式サイト・公式SNS／記事＝ニュース・映画情報サイト、新聞・雑誌／SNS＝X・Instagram・YouTube・TikTok／映画館＝予告編・ポスター／口コミ＝家族・友人・知人から聞いた／すすめ＝人にすすめられた・約束）。</div>${simNote('どの層に、どこで、何を伝えるかの手がかりになります。')}`}},{when:'pre'});
+/* ================= 宣伝設計：各項目の「わかること」と「宣伝への示唆」 =================
+   どちらも数字から決まった文を出す（その場で文章を生成しない）。示唆は「候補」「材料」にとどめ、事実と見た目を変える */
+const plLis=h=>{const m=h.match(/<ul class="tg-pts">([\s\S]*?)<\/ul>/);return m?m[1].split('</li>').map(x=>x.replace('<li>','').trim()).filter(Boolean):[]};
+const pliH=x=>`<div class="ins"><div class="ins-a"><b>わかること</b><ul>${x.a.map(t=>`<li>${t}</li>`).join('')}</ul></div><div class="ins-b"><b>宣伝への示唆</b><ul>${x.b.map(t=>`<li>${t}</li>`).join('')}</ul></div></div>`;
+const plCtx=(T,d)=>{const D=tgData(T),sel=tgSel(T),all=D.segs.map(s=>s.i),on=sel.length>0;return {D,sel,on,A:tgAgg(D,on?sel:all),W:tgAgg(D,all),who:on?'選んだ層':'類似作の観客',nm:i=>D.segs[i].n}};
+const WHY_HINT=['物語の中身が決め手になっています。あらすじや見どころが伝わる予告・記事が合います。','出演者が決め手になっています。出演者本人が出る露出（番組・インタビュー・舞台挨拶）が合います。','世の中の話題が決め手になっています。公開の前後に、話題の山をつくれるかが鍵になります。','予告編やポスターが決め手になっています。映像と絵の出来と、目に入る回数が効きます。','原作が決め手になっています。原作の読者の目に入る場所での告知が合います。','人からのすすめが決め手になっています。観た人の感想が広がる仕掛けが合います。','主題歌・音楽が決め手になっています。曲が流れる場面を増やす告知が合います。','特別な上映が決め手になっています。上映の形式と、観られる映画館の情報が役立ちます。'];
+const RT_HINT={F2:'SNSで知った人がいちばん多くなっています。ただし、公式の投稿・広告・ほかの人の投稿のどれが効いたかは、ここからは分かりません。',B:'テレビで知った人がいちばん多くなっています（CMと番組での紹介は区別できません）。',A:'映画館の予告編・ポスターで知った人がいちばん多く、映画館によく行く人が中心です。上映前の予告が土台になります。',H:'家族・友人から聞いて知った人がいちばん多くなっています。先に観た人の感想が、次の人を連れてくる作品群です。',F1:'公式サイト・公式SNSで知った人がいちばん多くなっています。公式からの発信を追っている人が中心です。',E:'記事で知った人がいちばん多くなっています。取材や記事につながる話題づくりが合います。',D:'街なかの広告で知った人がいちばん多くなっています。'};
+const PLI={
+ u_sim:(T,d)=>{const {D,W}=plCtx(T,d),ag=AGES.map((_,a)=>sumA(D.segs.filter(s=>s.a===a).map(s=>s.sh))),ai=iMax(ag),fem=sumA(D.segs.filter(s=>s.g===0).map(s=>s.sh)),wi=iMax(W.wth),light=W.go[0]>=30;
+  return {a:[`いちばん多い年代は${AGES[ai]}（${f1(ag[ai])}%）、女性が${f1(fem)}%です。`,`映画館に行くのが年1〜2回の人が${f1(W.go[0])}%。${light?'ふだん映画をあまり観ない人まで動いた作品群です。':'映画をよく観る人が中心の作品群です。'}`],
+   b:[light?'映画ファン向けの場所だけでは届きにくい人が多いので、ふだんの生活の中で目に入る場所での告知が候補になります。':'映画情報サイトや映画館の予告編など、映画をよく観る人の目に入る場所が土台になります。',wi===0?'ひとりで観る人がいちばん多いので、平日や仕事帰りに行きやすいことが伝わる情報が役立ちます。':`「${WITH[wi]}」と観る人がいちばん多いので、誰かを誘うきっかけになる訴求が合います。`]}},
+ p_map:(T,d)=>{const {D,nm}=plCtx(T,d),t=D.tags,ms=sumA(t.many.map(i=>D.segs[i].sh)),both=t.many.filter(i=>t.nps.includes(i)),small=t.nps.filter(i=>!t.many.includes(i));
+  return {a:[`多い層は ${t.many.map(nm).join('・')}（合わせて観客の${f1(ms)}%）。`,`すすめてくれる層は ${t.nps.map(nm).join('・')}、満足が高い層は ${t.sat.map(nm).join('・')}。`],
+   b:[both.length?`「${both.map(nm).join('・')}」は、人数が多く、すすめてくれる度合いも高い層です。中心に据える候補になります。`:'人数が多い層と、すすめてくれる層が重なっていません。人数を取る層と、口コミの起点にする層を分けて考える必要があります。',small.length?`「${small.map(nm).join('・')}」は人数は多くないものの、すすめてくれる度合いが高い層です。早めに届けると、口コミの起点になりえます。`:null].filter(Boolean)}},
+ p_pick:(T,d,o)=>{const {sel,A,W}=plCtx(T,d);if(!sel.length)return null;
+  return {a:plLis(o.h),b:[`選んだ層は、類似作の観客の${f1(A.sh)}%にあたります。${A.sh<35?'これだけでは観客の3分の1ほどなので、広げる先の層をもう1つ決めておくと組み立てやすくなります。':A.sh>65?'かなり広い選び方です。訴求を1つに絞りにくいので、まず中心の層を決めるのが先です。':'中心に据える層として、ちょうどよい広さです。'}`,A.nps<W.nps-3?'観たあとにすすめてくれる度合いは、全体より低めです。口コミを頼りにするなら、すすめてくれる層も合わせて狙うのが候補です。':A.nps>W.nps+3?'観たあとにすすめてくれる度合いが、全体より高い層です。早めに観てもらえると、口コミが広がりやすくなります。':null].filter(Boolean)}},
+ p_table:(T,d)=>{const {D}=plCtx(T,d),e=s=>s.dec[0]+s.dec[1],l=s=>s.dec[3]+s.dec[4],E=D.segs.slice().sort((p,q)=>e(q)-e(p))[0],L=D.segs.slice().sort((p,q)=>l(q)-l(p))[0],N=D.segs.filter(s=>s.cnt>=TG_MIN).sort((p,q)=>q.nps-p.nps)[0];
+  return {a:[`早く決める人が多いのは「${E.n}」（2週間以上前に決めた人 ${f1(e(E))}%）、直前に決める人が多いのは「${L.n}」（前日〜当日 ${f1(l(L))}%）です。`,`すすめたい度がいちばん高いのは「${N.n}」（${pt(N.nps)}）。`],
+   b:['層によって、決める時期もきっかけも違います。1つの告知で全員に届けるより、層ごとに時期と場所を分けて考える材料になります。']}},
+ p_area:(T,d)=>{const X=areaData(T),df=X.u-X.ua,ty=df>=3?'都市型':df<=-3?'ローカル型':'全国型',sp=X.u-X.late>=3;
+  return {a:[`類似作は${ty}です（3大都市圏で観た人 ${f1(X.u)}%、全作品の平均より ${pt(df)}）。`,sp?`公開3週目以降は3大都市圏の割合が${f1(X.late)}%に下がり、日がたつと地方へ広がっています。`:'公開から日がたっても、観られる場所の割合はほとんど変わりません。'],
+   b:[ty==='都市型'?'公開時は都市部に厚く届け、地方は公開後の評判を見て広げる組み立てが候補です。都市部でのイベントや街なかの告知が届きやすい作品群です。':ty==='ローカル型'?'全国に同じ厚みで届く手段が合いやすい作品群です。地方でのイベントや、地方の人の目に入る場所での告知も候補になります。':'都市と地方で大きな差はありません。地域で配分を変えるより、層で分けて考えるのが先です。',X.far>=11?'遠くから来る人が多い作品群です。近くに上映館がない人にも観たい気持ちがあるので、上映館の情報をわかりやすく伝えることが役立ちます。':null].filter(Boolean)}},
+ p_gap:(T,d,o)=>{const {D}=plCtx(T,d),df=D.segs.map(s=>D.now[s.i]-s.sh),lo=D.segs.filter(s=>df[s.i]<=-1.5).sort((p,q)=>df[p.i]-df[q.i]),hi=D.segs.filter(s=>df[s.i]>=1.5).sort((p,q)=>df[q.i]-df[p.i]);
+  return {a:plLis(o.h),b:[lo.length?`「${lo[0].n}」は、類似作では来ていたのに、いまはまだ少ない層です。公開までにこの層へ向けた告知を足すかどうかの、検討材料になります。`:'類似作と比べて、大きく取りこぼしている層は見当たりません。',hi.length?`「${hi[0].n}」はすでに多く集まっています。新しい告知より、観に行く日を決めてもらう情報（上映館・前売り）が合う段階です。`:null].filter(Boolean)}},
+ p_hit:()=>({a:['よく伸びた類似作ほど、ふだん映画館に行かない人と、人から聞いて来た人が多くなっています。満足度も高めです。'],b:['初週のあとも伸びるかどうかは、映画ファンの外まで広がるかが分かれ目になりそうです。公開後に、感想が人づてに広がる仕掛けを用意しておくことが候補です。','本数が少ないため、あくまで傾向です。差があっても、それが伸びた原因とは限りません。']}),
+ a_simtime:(T,d)=>{const {A,who}=plCtx(T,d),now=decNow(d),done=sumA(A.dec.slice(0,now)),left=100-done,mi=iMax(A.dec),late=A.dec[3]+A.dec[4],early=A.dec[0]+A.dec[1];
+  return {a:[`${who}のうち、ここまでに決めた人は${f1(done)}%、これから決める人は${f1(left)}%です。`,`いちばん多いのは「${DEC[mi]}」に決めた人（${f1(A.dec[mi])}%）。公開の直前〜当日に決めた人は、合わせて${f1(late)}%です。`],
+   b:[left>=60?'まだ大半の人がこれから決めます。いまからの告知でも間に合う時期です。':left>=30?'決めた人と、これから決める人が混ざる時期です。新しく知らせる告知と、観に行く日を決めてもらう情報の両方が要ります。':'すでに多くの人が決めています。上映館・日時・前売りなど、行動につながる情報が中心になります。',late>=45?'公開の直前から当日に決める人が多いので、公開週に告知の山を持ってくる組み立てが合います。':early>=38?'公開の2週間以上前に決める人が多いので、前売りや早めの予告で先に決めてもらう組み立てが合います。':'早く決める人と直前に決める人が、ほぼ同じです。告知を1回の山にせず、公開まで続ける組み立てが合います。']}},
+ p_segtime:(T,d)=>{const {D}=plCtx(T,d),now=decNow(d),left=s=>now?sumA(s.dec.slice(now)):s.dec[0],o=D.segs.slice().sort((p,q)=>left(q)-left(p)),hi=o[0],lo=o[o.length-1];
+  return now?{a:[`これから決める人がいちばん多く残っているのは「${hi.n}」（${f1(left(hi))}%）、いちばん少ないのは「${lo.n}」（${f1(left(lo))}%）です。`],b:[`いまから告知を足すなら、「${o.slice(0,2).map(s=>s.n).join('・')}」に向けたものが間に合いやすい時期です。`,`「${lo.n}」は、すでに決めた人が多い層です。新しい告知より、上映館や日時の情報が役立つ段階です。`]}
+   :{a:[`公開の1か月より前に決める人が多いのは「${hi.n}」（${f1(left(hi))}%）、少ないのは「${lo.n}」（${f1(left(lo))}%）です。`],b:[`「${hi.n}」には、早い時期の告知や前売りが合います。「${lo.n}」は直前に決める人が多いので、公開が近づいてからの告知が合います。`]}},
+ p_cal:(T,d,o)=>{const C=calData(),cw=Math.floor(d/7),best=C.rows.slice().sort((p,q)=>(q.wk[cw]||0)-(p.wk[cw]||0))[0],ramp=CAL_W.find(w=>w<0&&C.buzz[w]>=C.buzz[0]*.3),nx=T.ev.filter(e=>!isAd(e)&&e.d>d&&e.d<=d+14),a=plLis(o.h);
+  if(best&&best.wk[cw])a.push(`いまの週（${wkP(cw)}）に、類似作でいちばん多く行われていたのは「${best.ty}」（${best.wk[cw]}本）です。`);
+  return {a,b:[ramp!=null?`類似作の話題は、${wkP(ramp)}ごろから大きく増えています。それまでに、予告と主な情報を出しそろえておくことが候補です。`:null,nx.length?`この先2週間に、この作品では${nx.length}件の施策が予定されています。類似作の多い週と重なっているかを、下の表で確かめられます。`:'この先2週間、この作品には広告以外の施策の予定がありません。類似作がこの時期に行っていた施策が、追加の候補になります。'].filter(Boolean)}},
+ i_simroute:(T,d)=>{const {A,W,on,who}=plCtx(T,d),ki=iMax(A.know),wi=iMax(A.why),kd=A.know.map((v,i)=>v-W.know[i]),kx=iMax(kd);
+  return {a:[`${who}でいちばん多いきっかけは「${ROUTES2[ki].n}」（${f1(A.know[ki])}%）、いちばん多い理由は「${WHY[wi]}」（${f1(A.why[wi])}%）です。`,on?`観客全体と比べて多いきっかけは「${ROUTES2[kx].n}」（${pt(kd[kx])}）。`:null].filter(Boolean),b:[WHY_HINT[wi],RT_HINT[ROUTES2[ki].k]]}},
+ p_segroute:(T,d)=>{const {D}=plCtx(T,d),rg=ROUTES2.map((_,k)=>{const v=D.segs.map(s=>s.know[k]);return Math.max(...v)-Math.min(...v)}),k=iMax(rg),v=D.segs.map(s=>s.know[k]),mx=D.segs[iMax(v)],mn=D.segs[v.indexOf(Math.min(...v))],mk=iMax(mn.know);
+  return {a:[`層による差がいちばん大きいきっかけは「${ROUTES2[k].n}」です（${mx.n} ${f1(mx.know[k])}%、${mn.n} ${f1(mn.know[k])}%）。`,`「${mn.n}」でいちばん多いきっかけは「${ROUTES2[mk].n}」（${f1(mn.know[mk])}%）。`],
+   b:[`同じ告知でも、層によって届く場所が違います。「${mx.n}」と「${mn.n}」では、知らせる場所を分けて考える材料になります。`,'決めた理由も層で違います。場所だけでなく、何を前に出すか（内容・出演者・話題など）も、層ごとに変える余地があります。']}}
+};
+ITEMS.filter(it=>it.page==='plan'&&PLI[it.id]).forEach(it=>{const f=it.fn;it.fn=(T,d)=>{const o=f(T,d),x=PLI[it.id](T,d,o);return x&&x.a.length?{...o,h:pliH(x)+o.h.replace(/<ul class="tg-pts">[\s\S]*?<\/ul>/,'')}:o}});
+I('plan','p_sum','宣伝設計の要点',12,[2],(T,d)=>{const c=plCtx(T,d),g=(id,k,n=0)=>{const x=PLI[id](T,d,{h:''});return x&&x[k][n]||''},ps=a=>a.filter(Boolean).map(x=>`<p>${x}</p>`).join(''),
+   col=(t,q,a,b)=>`<div class="sum-c"><div class="sum-t">${t}<small>${q}</small></div><div>${ps(a)}</div><div class="sum-b"><b>宣伝への示唆</b>${ps(b)}</div></div>`;
+  return {d:c.on?`いま選んでいる層（${tgNames(c.D,c.sel)}）をもとにまとめています`:'類似作の観客全体をもとにまとめています',h:`<div class="three">${col('1　誰に','向けるか',[g('p_map','a'),g('p_area','a')],[g('p_map','b'),g('p_area','b')])}${col('2　いつ','強めるか',[g('a_simtime','a'),g('a_simtime','a',1)],[g('a_simtime','b'),g('a_simtime','b',1)])}${col('3　どこで、何を','伝えるか',[g('i_simroute','a')],[g('i_simroute','b'),g('i_simroute','b',1)])}</div>
+   <div class="note">「わかること」と「宣伝への示唆」は、類似作の実績の数字から、決まった文で出しています。この作品での結果を約束するものではありません。下で層を選び直すと、内容も変わります。</div>`}},{when:'pre'});
+ITEMS.splice(ITEMS.findIndex(x=>x.id==='p_sec1'),0,ITEMS.pop());
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-tg],[data-tga]');if(!t)return;const T=cur(),D=tgData(T),sel=tgSel(T),y=window.scrollY;
   if(t.dataset.tga)S.tg[T.k]=t.dataset.tga==='none'?[]:D.tags[t.dataset.tga].slice();
   else{const i=+t.dataset.tg;S.tg[T.k]=sel.includes(i)?sel.filter(x=>x!==i):sel.concat(i).sort((p,q)=>p-q)}
@@ -1717,7 +1799,7 @@ function srcChips(it){const use=SRC_USE[it.id]||it.need;if(!use.length)return '<
   return `<div class="srcs int-only"><span class="sc-l">使っているデータ</span>${on.map(k=>`<span class="sc ${typeof k==='number'?'':'c'} ${k===2?'k2':''}">${typeof k==='number'?k+' ':''}${SRC_NAME[k]}</span>`).join('')}${later.map(k=>`<span class="sc l" title="Phase ${srcPhase(k)}で加わります">${k} ${SRC_NAME[k]}<i>Phase ${srcPhase(k)}から</i></span>`).join('')}</div>`}
 
 /* 社内表示：CAST（鑑賞後アンケート）が、公開前と公開後でどう使われるかの案内 */
-const CAST_PRE=['a_simtime','i_simroute','u_sim','o_simsat','p_map','p_pick','p_table','p_gap','p_hit','p_segtime','p_cal','p_segroute','p_area'],CAST_MIX=['h_nums','h_voice','o_final','o_mult'];
+const CAST_PRE=['a_simtime','i_simroute','u_sim','o_simsat','p_map','p_pick','p_table','p_gap','p_hit','p_segtime','p_cal','p_segroute','p_area','p_sum'],CAST_MIX=['h_nums','h_voice','o_final','o_mult'];
 const usesCast=it=>(SRC_USE[it.id]||it.need).includes(2);
 function castGuide(T,d){const sp=S.phase;S.phase=3;const post=ITEMS.filter(it=>(it.need.includes(2)||CAST_MIX.includes(it.id))&&!CAST_PRE.includes(it.id)&&avail(it,20)),pre=ITEMS.filter(it=>CAST_PRE.includes(it.id));S.phase=sp;
   const isPre=d<0,pg=k=>PAGES.find(x=>x.k===k).n,preDay=Math.min(T.today,-12)<0?Math.min(T.today,-1):-12;
