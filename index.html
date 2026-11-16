@@ -792,6 +792,30 @@ svg.art{display:block;width:100%;height:auto}
   .cr-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 10px}
   .sel-po{display:none}
 }
+
+/* ヘッダーを濃い色にして、本文とのメリハリをつける */
+.top{background:linear-gradient(180deg,#1d3a37 0%,#244641 100%);border-bottom:0;box-shadow:0 4px 16px rgba(20,35,32,.18);color:#fff}
+.top .brand{color:#fff}.top .brand span{color:rgba(255,255,255,.7)}
+.top .sel,.top .datebox,.top .btn{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.24);color:#fff}
+.top .sel option{color:var(--ink)}
+.top .btn:hover{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.4);color:#fff}
+.top .btn kbd{color:rgba(255,255,255,.55)}
+.top .chip{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.28);color:#fff}
+.top #dateLbl{color:#fff}
+.top .datebox input[type=range]{accent-color:#9fd6cb}
+.top .fut{background:#f3dfae;border-color:#f3dfae;color:#5a4410}
+.top .internal{color:rgba(255,255,255,.75);border-color:rgba(255,255,255,.3)}
+.top .seg{background:rgba(255,255,255,.12)}
+.top .seg button{color:rgba(255,255,255,.75)}
+.top .seg button.on{background:#fff;color:var(--accent2)}
+.top .sel-po{box-shadow:0 0 0 1.5px rgba(255,255,255,.5)}
+@media(min-width:901px){
+  .tabs{border-top:1px solid rgba(255,255,255,.1)}
+  .tab{color:rgba(255,255,255,.68)}
+  .tab:hover{color:#fff}
+  .tab.on{color:#fff;border-bottom-color:#9fd6cb}
+  .wrap{padding-top:22px}
+}
 @media print{.top,#panel,#scrim,#cmdk{display:none}.card{break-inside:avoid;box-shadow:none}}
 
 /* 宣伝設計：客層の地図 */
