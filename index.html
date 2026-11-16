@@ -510,6 +510,22 @@ details.deep>.grid{margin-top:16px}
 
 
 
+
+/* ここまでの積み上げ */
+.cm-top{display:grid;grid-template-columns:240px 1fr;gap:14px;margin-bottom:6px}
+.cm-n{border:1px solid var(--accent-line);background:var(--accent-soft);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.cm-n>small{font-size:12px;color:var(--sub)}.cm-n>b{font-size:34px;line-height:1.1}.cm-n>b small{font-size:13px;margin-left:2px}
+.cm-n span{font-size:12px;color:var(--ink2)}
+.cm-ch{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.cm-ch>div{border:1px solid var(--rule);border-radius:12px;padding:8px 12px;font-size:12px;display:flex;flex-direction:column}
+.cm-ch b{font-size:20px}.cm-ch small{color:var(--sub);font-size:11px}
+.cm-t td small{display:block;color:var(--sub-weak);font-size:10.5px}
+.cm-t td.r small,.cm-t .ex-u{display:inline;margin-left:2px}
+.cm-r{min-width:170px}.cm-r>b{display:inline-block;width:52px}
+.rb{display:inline-block;vertical-align:middle;position:relative;width:110px;height:10px;background:var(--neufill);border-radius:5px}
+.rb i{position:absolute;top:0;bottom:0}.rb .c{left:50%;width:1.5px;background:var(--sub);top:-3px;bottom:-3px}
+.rb .f.up{background:#5fae86;border-radius:0 5px 5px 0}.rb .f.dn{background:#d98476;border-radius:5px 0 0 5px}
+@media(max-width:900px){.cm-top{grid-template-columns:1fr}}
 /* 費用対効果 */
 .roi2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:8px 0}
 .roi-c{border:1px solid var(--rule);border-radius:12px;padding:12px;background:#fff;min-width:0}
@@ -689,7 +705,7 @@ tr.tg-few td{color:var(--sub)}
 #it-p_sec2,#it-p_sec3{margin-top:14px}
 #it-p_sec1 .srcs,#it-p_sec2 .srcs,#it-p_sec3 .srcs{display:none}
 #it-p_sec1 h2,#it-p_sec2 h2,#it-p_sec3 h2{font-size:19px}
-#it-p_segtime .two>div,#it-p_segroute .two>div{min-width:0}
+#it-p_segtime .two>div,#it-p_segroute .two>div,#it-p_area .two>div{min-width:0}
 #it-p_segtime td:first-child,#it-p_segroute td:first-child{white-space:nowrap}
 .cal{border-collapse:separate;border-spacing:2px;width:100%}
 .cal th,.cal td{text-align:center;padding:5px 2px;min-width:42px;font-size:12px;border:0;border-radius:6px;white-space:nowrap}
@@ -1556,7 +1572,7 @@ I('plan','p_pick','選んだ層の内訳',12,[2],(T,d)=>{const D=tgData(T),sel=t
 I('plan','p_table','客層ごとの内訳',12,[2],(T,d)=>{const D=tgData(T),sel=tgSel(T);
   return {d:'12の層を横並びで比べる。行を押すと、狙う層として選べます',h:`<div class="tw"><table><tr><th>客層</th><th class="r">観客に占める割合</th><th class="r">回答</th><th class="r">満足度</th><th class="r">すすめたい度</th><th>いちばん多いきっかけ</th><th>いちばん多い理由</th><th class="r">2週間以上前に決めた</th><th>誰と</th></tr>${D.segs.map(s=>`<tr class="${sel.includes(s.i)?'tg-on':''} ${s.cnt<TG_MIN?'tg-few':''}" data-tg="${s.i}" style="cursor:pointer"><td><b>${s.n}</b>${s.cnt<TG_MIN?' <small>参考</small>':''}</td><td class="r num">${f1(s.sh)}%</td><td class="r num">${fN(s.cnt)}件</td><td class="r num">${f1(s.sat)}%</td><td class="r num">${pt(s.nps)}</td><td>${ROUTES2[iMax(s.know)].n}</td><td>${WHY[iMax(s.why)]}</td><td class="r num">${f1(s.dec[0]+s.dec[1])}%</td><td>${WITH[iMax(s.wth)]}</td></tr>`).join('')}</table></div>${simNote('色のついた行＝いま選んでいる層。')}`}},{when:'pre'});
 /* どこで観たか：劇場は館ごとのQRで自動で分かる。参加館の偏りがあるので、同じ映画館での全作品の平均と比べる */
-const AREA=['3大都市圏の中心部','3大都市圏の近郊','政令市・県庁所在地','そのほかの地域'],AREA_C=['#1b3a5b','#5b6f9c','#b08040','#c2603f'],AREA_AVG=[24,33,23,20],
+const AREA=['3大都市圏の中心部','3大都市圏の近郊','政令市・県庁所在地','そのほかの地域'],AREA_C=['#1b3a5b','#5b6f9c','#b08040','#c2603f'],AREA_S=['中心部','近郊','政令市など','そのほか'],AREA_AVG=[24,33,23,20],
   THT=['大型・PLF併設館','都市型シネコン','郊外SC併設館','ミニシアター・独立系'],THT_AVG=[18,34,44,4],REG=['北海道・東北','関東','中部','近畿','中国・四国','九州・沖縄'],REG_AVG=[9,40,13,19,7,12];
 const _ar={};
 function areaData(T){if(_ar[T.k])return _ar[T.k];const D=tgData(T),r=R(T,305),tilt=(r()-.35)*.5,w=a=>sumA(D.segs.map(s=>s.sh*a(s)))/100;
@@ -1568,7 +1584,7 @@ I('plan','p_area','類似作の観客は、どこで観たか',12,[2],(T,d)=>{co
   return {d:'映画館は、館ごとのQRコードから自動で分かります',h:`<div class="kpis" style="margin-bottom:16px">${kpi('類似作の型',ty,'',`3大都市圏の割合が、全作品の平均より ${pt(df)}`)}${kpi('3大都市圏で観た人',f1(X.u),'%',`全作品の平均 ${f1(X.ua)}%`)}${kpi('公開3週目以降に観た人では',f1(X.late),'%',X.u-X.late>=3?'日がたつと、地方へ広がっています':'公開週とほぼ変わりません')}${kpi('片道1時間以上かけて来た人',f1(X.far),'%','全作品の平均 9.0%')}</div>
    <div class="three"><div><div class="sub-h">都市圏の区分</div>${rows(AREA,X.all,AREA_AVG,'#1b3a5b')}</div><div><div class="sub-h">地域</div>${rows(REG,X.reg,REG_AVG,'#5b6f9c')}</div><div><div class="sub-h">映画館のタイプ</div>${rows(THT,X.tht,THT_AVG,'#4e8780')}</div></div>
    <div class="note">黒い線＝同じ映画館での、全作品の平均。</div>
-   <div class="sub-h">選んだ層が観た場所</div>${sel.length?`<div class="two"><div><div class="note" style="margin:0 0 4px">選んだ層（${tgNames(D,sel)}）</div>${stack(AREA.map((l,i)=>({l,v:S2[i],c:AREA_C[i]})))}</div><div><div class="note" style="margin:0 0 4px">類似作の観客全体</div>${stack(AREA.map((l,i)=>({l,v:X.all[i],c:AREA_C[i]})))}</div></div>`:'<div class="empty">上のヒートマップで、狙う層を選んでください。</div>'}
+   <div class="sub-h">選んだ層が観た場所</div>${sel.length?`<div class="two"><div><div class="note" style="margin:0 0 4px">選んだ層（${tgNames(D,sel)}）</div>${stack(AREA_S.map((l,i)=>({l,v:S2[i],c:AREA_C[i]})))}</div><div><div class="note" style="margin:0 0 4px">類似作の観客全体</div>${stack(AREA_S.map((l,i)=>({l,v:X.all[i],c:AREA_C[i]})))}</div></div><div class="note">中心部・近郊＝3大都市圏。</div>`:'<div class="empty">上のヒートマップで、狙う層を選んでください。</div>'}
    ${simNote('アンケートに参加している映画館での回答です。参加館は地域や立地にかたよりがあるため、割合そのものではなく、全作品の平均との差で読みます。')}`}},{when:'pre'});
 I('plan','p_gap','いま観たいと言っている人との差',6,[1,2],(T,d)=>{const D=tgData(T),df=D.segs.map(s=>D.now[s.i]-s.sh),lo=D.segs.filter(s=>df[s.i]<=-1.5).sort((p,q)=>df[p.i]-df[q.i]),hi=D.segs.filter(s=>df[s.i]>=1.5).sort((p,q)=>df[q.i]-df[p.i]);
   return {d:'週ごとの調査で「観たい」と答えた人の内訳と、類似作の観客の内訳',h:`<ul class="tg-pts"><li>類似作では来ていたのに、まだ少ない層：${lo.length?lo.slice(0,3).map(s=>`${s.n}（${pt(df[s.i])}）`).join('、'):'目立つ層はありません'}</li><li>類似作より多く集まっている層：${hi.length?hi.slice(0,3).map(s=>`${s.n}（${pt(df[s.i])}）`).join('、'):'目立つ層はありません'}</li></ul>${bars(D.segs.map(s=>({l:s.n,v:D.now[s.i],cmp:s.sh,c:df[s.i]<=-1.5?'#c2603f':'#5b6f9c'})),{fmt:f1,u:'%',cmp:'類似作の観客に占める割合。赤い棒＝類似作より1.5pt以上少ない層'})}`}},{when:'pre'});
@@ -2043,6 +2059,30 @@ I('acts','a_roi','費用対効果の評価',12,[6],(T,d)=>{const L=T.ev.filter(e
 (function(){const i=ITEMS.findIndex(x=>x.id==='a_roi'),it=ITEMS.splice(i,1)[0],j=ITEMS.findIndex(x=>x.id==='a_ch');ITEMS.splice(j+1,0,it)})();
 SRC_USE.a_roi=[6,3,'N'];
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-roi]');if(!t)return;ev.stopPropagation();S.roi=t.dataset.roi;render()},true);
+
+/* ================= ここまでの積み上げ（施策の数・各指標の累計を、類似作の同じ時点と比べる） ================= */
+const CUM_K=['buzz','oimp','oeng','aimp','search','clip','mark'],CUM_R=['aware','intent','sent','score','sat','nps'];
+const cumPeers=()=>PEERS.concat(PAST);
+const _cx={};
+function cumVals(X,d){const key=X.k+'|'+d+'|'+(X.k===S.title?X.ev.length:'');if(_cx[key])return _cx[key];const done=X.ev.filter(e=>e.d<=d),o={n:done.length,cost:sumA(done.map(e=>e.cost||0))*1e4,ch:{}};
+  done.forEach(e=>o.ch[e.ch]=(o.ch[e.ch]||0)+1);o.ex=sumA(done.map(e=>{const x=expoOf(X,e,d);return x?x.tot:0}));
+  CUM_K.forEach(k=>o[k]=sumR(X,k,D0,d));CUM_R.forEach(k=>o[k]=at(X,k,d));return _cx[key]=o}
+function cumRank(v,arr){return arr.filter(x=>x>v).length+1}
+function ratioBar(r){const w=clamp(r,50,150)-50;return `<div class="rb"><i class="c"></i><i class="f ${r>=100?'up':'dn'}" style="${r>=100?`left:50%;width:${w-50}%`:`left:${w}%;width:${50-w}%`}"></i></div>`}
+I('acts','a_cum','ここまでの積み上げ',12,[],(T,d)=>{const me=cumVals(T,d),P=cumPeers().map(X=>cumVals(X,d)),N=P.length,pm=k=>med(P.map(p=>p[k]).filter(x=>x!=null));
+  const row=(n,u,v,k,fmt)=>{const m=pm(k),r=m?v/m*100:null,rk=cumRank(v,P.map(p=>p[k]));return `<tr><td>${n}</td><td class="r"><b class="num">${fmt?fmt(v):fN(v)}</b><small class="ex-u">${u}</small></td><td class="r num">${fmt?fmt(m):fN(m)}${u}</td><td class="cm-r"><b class="num" style="color:${r>=100?'var(--goodtx)':'var(--badtx)'}">${r==null?'—':Math.round(r)+'%'}</b>${r==null?'':ratioBar(r)}</td><td class="r"><small>${N+1}本中</small> <b class="num">${rk}</b>位</td></tr>`};
+  const rows=[];if(has(6)){rows.push(row('費用の合計','円',me.cost,'cost'));rows.push(row('露出の合計（推定を含む）','回',me.ex,'ex'))}
+  CUM_K.filter(k=>mAvail(k,d)).forEach(k=>rows.push(row(M[k].n+(M[k].sub?`<small>${M[k].sub}</small>`:''),M[k].u,me[k],k)));
+  const rr=CUM_R.filter(k=>mAvail(k,d)&&me[k]!=null).map(k=>{const m=pm(k),df=me[k]-m,rk=cumRank(me[k],P.map(p=>p[k]));return `<tr><td>${M[k].n}</td><td class="r"><b class="num">${k==='score'?f2(me[k]):f1(me[k])}</b><small class="ex-u">${M[k].u}</small></td><td class="r num">${k==='score'?f2(m):f1(m)}${M[k].u}</td><td class="cm-r"><b class="num" style="color:${df>=0?'var(--goodtx)':'var(--badtx)'}">${df>=0?'+':''}${k==='score'?f2(df):f1(df)}${k==='score'?'点':'pt'}</b>${m?ratioBar(me[k]/m*100):''}</td><td class="r"><small>${N+1}本中</small> <b class="num">${rk}</b>位</td></tr>`});
+  const nm=pm('n'),nr=Math.round(me.n/nm*100),plan=T.ev.filter(e=>e.d>d).length;
+  return {d:`公開84日前から${md(dateOf(T,d))}まで｜類似作${N}本の同じ時点と比べて`,h:`<div class="cm-top">
+    <div class="cm-n"><small>実施した施策</small><b class="num">${me.n}<small>件</small></b><span>類似作の中央値 ${nm}件｜<b style="color:${nr>=100?'var(--goodtx)':'var(--badtx)'}">${nr}%</b></span>${plan?`<span>このあと予定 ${plan}件</span>`:''}</div>
+    <div class="cm-ch">${Object.entries(CH).map(([c,v])=>{const a=me.ch[c]||0,m=med(P.map(p=>p.ch[c]||0));return `<div><i class="cdot" style="background:${v.c}"></i>${v.n}<b class="num">${a}</b><small>件（類似作 ${m}件）</small></div>`}).join('')}</div></div>
+    <div class="sub-h">数の指標（累計）</div><div class="tw"><table class="ex-t cm-t"><tr><th>指標</th><th class="r">この作品の累計</th><th class="r">類似作の中央値</th><th>類似作との比</th><th class="r">順位</th></tr>${rows.join('')}</table></div>
+    ${rr.length?`<div class="sub-h">率の指標（${md(dateOf(T,d))}時点の値）</div><div class="tw"><table class="ex-t cm-t"><tr><th>指標</th><th class="r">この作品</th><th class="r">類似作の中央値</th><th>類似作との差</th><th class="r">順位</th></tr>${rr.join('')}</table></div>`:''}
+    <div class="note">類似作は、ジャンル・公開規模が近い${N}本です。比の帯は50%〜150%の範囲で、真ん中の線が100%です。どの作品も、公開日を基準に同じ時点（${relLbl(d)}）までをそろえて比べています。100%で類似作の真ん中と同じ。率の指標は累計ではなく、その日の値の差です。</div>`}},{any:[3,6]});
+(function(){const i=ITEMS.findIndex(x=>x.id==='a_cum'),it=ITEMS.splice(i,1)[0],j=ITEMS.findIndex(x=>x.id==='a_today');ITEMS.splice(j+1,0,it)})();
+SRC_USE.a_cum=[3,6,5,4,1,2,'N'];
 
 /* ================= 描画 ================= */
 function visiblePages(d){return PAGES.filter(p=>ITEMS.some(it=>it.page===p.k&&avail(it,d)))}
