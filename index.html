@@ -590,6 +590,26 @@ details.deep>.grid{margin-top:16px}
 .rb i{position:absolute;top:0;bottom:0}.rb .c{left:50%;width:1.5px;background:var(--sub);top:-3px;bottom:-3px}
 .rb .f.up{background:#5fae86;border-radius:0 5px 5px 0}.rb .f.dn{background:#d98476;border-radius:5px 0 0 5px}
 @media(max-width:900px){.cm-top{grid-template-columns:1fr}}
+
+/* 施策ごとの効いた層 */
+.tone.neu{background:var(--neufill);color:var(--ink2);border-color:var(--rule2)}
+.sg{display:grid;grid-template-columns:40px repeat(6,minmax(0,1fr));gap:3px;margin:4px 0}
+.sg-h{font-size:10.5px;color:var(--sub);text-align:center}
+.sg-r{font-size:11.5px;font-weight:700;display:flex;align-items:center}
+.sg-c{position:relative;border-radius:7px;padding:7px 2px;text-align:center;font-size:12px;line-height:1.2}
+.sg-c small{display:block;font-size:9.5px;opacity:.8}
+.sg-c.tg{outline:2px dashed #b06a12;outline-offset:-2px}
+.sg-c.best::after{content:'';position:absolute;top:3px;right:3px;width:7px;height:7px;border-radius:50%;background:#d0473b;box-shadow:0 0 0 1.5px #fff}
+.sg-lg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:11px;color:var(--sub);margin:4px 0 12px}
+.sg-lg i{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:4px}
+.sg-lg i.tg{border:2px dashed #b06a12}.sg-lg i.best{width:8px;height:8px;border-radius:50%;background:#d0473b}
+.sg-t{font-size:12px;font-weight:700;margin:12px 0 4px}
+.sg-fq{display:grid;gap:5px;margin-bottom:8px}
+.sg-fq>div{display:grid;grid-template-columns:80px 1fr 62px;align-items:center;gap:8px;font-size:12px}
+.sg-fq i{display:block;height:10px;border-radius:5px;background:var(--accent)}
+.sg-fq b{text-align:right}
+.sg-list td.sg-v{font-family:'Nunito',sans-serif;font-weight:700;border-radius:4px}
+@media(max-width:900px){.ex-list.sg-list td.sg-v{padding:4px 6px!important;border-radius:6px;background:var(--hb)!important}.sg-list td.sg-v::before{color:inherit;opacity:.85}.sg-list tr{grid-template-columns:repeat(3,minmax(0,1fr))}.sg-list td:nth-last-child(-n+2){grid-column:1/-1}}
 /* 費用対効果 */
 .roi2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:8px 0}
 .roi-c{border:1px solid var(--rule);border-radius:12px;padding:12px;background:#fff;min-width:0}
@@ -2173,7 +2193,6 @@ function roiHTML(T,e,d){if(!has(6))return '';
     <div class="roi-c"><small>この作品のほかの施策と比べて</small>
       ${o.inn?`<div class="roi-h"><b class="num" style="font-size:24px">${o.inn.rank}</b>位<small>／${o.inn.N}件中</small>　${roiBadge(o.inn.score)}</div>${o.inn.ms.map(m=>mrow(m,'作品内の中央値')).join('')}${roiStrip(o.inn.ms[0])}`:'<div class="empty">比べられる施策が足りません。</div>'}</div></div>
     <div class="note">費用1万円あたりに、どれだけ露出と話題の上乗せ（実施からの3日間）を得たかで比べています。点数は比べた相手の中での位置（0〜100、50が真ん中）。露出は推定を含むため目安です。${isAd(e)?'広告は出稿量で話題が決まるため、露出だけで比べています。':''}</div>`}
-const evDetail=(T,e,d)=>rxBanner(T,e,d)+crStrip(T,e)+roiHTML(T,e,d)+expoHTML(T,e,d)+rxHTML(T,e,d)+evDetail0(T,e,d);
 
 I('acts','a_roi','費用対効果の評価',12,[6],(T,d)=>{const L=T.ev.filter(e=>e.d+2<=d&&e.cost).map(e=>({e,o:roiOf(T,e,d)})).filter(x=>x.o),srt=S.roi||'out';
   if(!L.length)return {d:'',h:'<div class="empty">実施から3日たった施策がまだありません。</div>'};
@@ -2216,6 +2235,45 @@ I('acts','a_cum','ここまでの積み上げ',12,[],(T,d)=>{const me=cumVals(T,
     <div class="note">類似作は、ジャンル・公開規模が近い${N}本です。比の帯は50%〜150%の範囲で、真ん中の線が100%です。行の色は、緑＝類似作より10%以上上、赤＝10%以上下（率の指標は差が中央値の10%以上）。どの作品も、公開日を基準に同じ時点（${relLbl(d)}）までをそろえて比べています。100%で類似作の真ん中と同じ。率の指標は累計ではなく、その日の値の差です。</div></details>`}},{any:[3,6]});
 (function(){const i=ITEMS.findIndex(x=>x.id==='a_cum'),it=ITEMS.splice(i,1)[0],j=ITEMS.findIndex(x=>x.id==='a_today');ITEMS.splice(j+1,0,it)})();
 SRC_USE.a_cum=[3,6,5,4,1,2,'N'];
+
+/* ================= 施策がどの層に効いたか（性別×年代、ふだん映画館に行く頻度） =================
+   観たい率の伸び＝鑑賞意向調査（KARTE）の実施前後の週の差（Phase 3）。それより前の段階は「反応した人の構成」（SNS計測・広告の配信データ）で代わりに見る */
+const SEG_N=SEX.flatMap(g=>AGES.map(a=>g+a)),SEG_F=['年1〜2本','年3〜5本','年6本以上'];
+const SEG_CH={OWNED:[1.5,1.4,1,.7,.5,.4],PAID_DIGITAL:[1,1.4,1.3,1,.7,.5],PAID_TV:[.5,.7,1,1.3,1.5,1.6],EVENT:[1.2,1.5,1.2,.8,.6,.5],PR:[.8,1.1,1.2,1.1,1,.9]};
+const SEG_TY={'主題歌の発表':[1.8,1.4,.9,.6,.4,.3],'入場者特典の告知':[1.6,1,1.3,1.2,.5,.4],'感想投稿キャンペーン':[1.5,1.5,1,.7,.5,.4]};
+const SEG_FEM={OWNED:1.15,EVENT:1.3,PR:1.1},SEG_FQ={PAID_TV:[1.5,1,.6],OWNED:[.8,1.1,1.3],EVENT:[.6,1,1.6],PR:[.8,1.1,1.2],PAID_DIGITAL:[1.2,1,.8]};
+const SEG_G={'恋愛・青春':{f:1.2,a:[1.3,1.3,1,.8,.7,.6]},'サスペンス':{f:.85,a:[.8,1,1.1,1.2,1.2,1.1]},'ファミリー':{f:1,a:[1.4,.8,1.3,1.2,.7,.6]}};
+const segName=i=>SEX[i<6?0:1]+AGES[i%6];
+function segOf(T,e,d){if(e.d+2>d||!(has(1)||has(3)||has(6)))return null;const r=rng(T.seed*71+e.id*13+7),ch=SEG_CH[e.ch]||SEG_CH.PR,ty=SEG_TY[e.ty],gn=SEG_G[T.genre]||{f:1,a:[1,1,1,1,1,1]},fem=(SEG_FEM[e.ch]||1)*(e.ty==='キャスト解禁'?1.3:1)*gn.f;
+  const w=SEG_N.map((_,i)=>{const g=i<6?0:1,a=i%6;return (ty?ty[a]:ch[a])*gn.a[a]*(g?1:fem)*(0.8+r()*0.4)}),mw=mean(w),idx=w.map(x=>x/mw*100);
+  const D=tgData(T),sh=D.segs.map(s=>s.sh),comp=nrm(sh.map((s,i)=>s*w[i]));
+  let lift=null,L=null,fq=null;if(has(1)){const u=uplift(T,e,'intent',d);L=Math.max(0.3,u==null?0.5:u);lift=w.map(x=>L*x/mw*(0.85+r()*0.3));fq=(SEG_FQ[e.ch]||[1,1,1]).map(x=>L*x*(0.85+r()*0.3))}
+  const v=lift||idx,order=v.map((x,i)=>i).sort((a,b)=>v[b]-v[a]),tg=tgSel(T),tgv=tg.length?mean(tg.map(i=>idx[i])):null;
+  return {w,idx,comp,lift,L,fq,best:order.slice(0,2),worst:order[order.length-1],tg,tgv}}
+function segGrid(o,mode){const v=mode==='lift'?o.lift:o.comp,mx=Math.max(...v),fmt=mode==='lift'?(x=>'+'+f1(x)):(x=>f1(x)+'%');
+  return `<div class="sg"><div class="sg-h"></div>${AGES.map(a=>`<div class="sg-h">${a}</div>`).join('')}${SEX.map((g,gi)=>`<div class="sg-r">${g}</div>${AGES.map((_,ai)=>{const i=gi*6+ai,x=v[i],t=x/mx;
+    return `<div class="sg-c ${o.tg.includes(i)?'tg':''} ${o.best.includes(i)?'best':''}" style="background:rgba(78,135,128,${(0.08+t*0.82).toFixed(2)});color:${t>.55?'#fff':'var(--ink)'}" title="${segName(i)}"><b class="num">${fmt(x)}</b>${mode==='comp'?`<small>${Math.round(o.idx[i])}</small>`:''}</div>`}).join('')}`).join('')}</div>
+    <div class="sg-lg"><span><i class="tg"></i>狙った層</span><span><i class="best"></i>いちばん効いた層</span>${mode==='comp'?'<span>下の小さな数字＝この施策のふだんとの比（100＝作品のふだんの反応と同じ構成）</span>':''}</div>`}
+function segHTML(T,e,d){const o=segOf(T,e,d);if(o===null&&e.d+2>d)return `<div class="sub-h">どの層に効いたか</div><div class="empty">実施から3日たつと出ます。</div>`;if(!o)return '';
+  const b=o.best.map(segName).join('・'),tgTx=o.tgv==null?'':o.tgv>=110?`狙った層（${o.tg.map(segName).join('・')}）に、平均の${f1(o.tgv/100)}倍よく効いています。`:o.tgv<=90?`狙った層（${o.tg.map(segName).join('・')}）への効きは、平均の${f1(o.tgv/100)}倍にとどまっています。`:`狙った層（${o.tg.map(segName).join('・')}）への効きは、ほぼ平均どおりです。`;
+  return `<div class="sub-h">どの層に効いたか</div>
+    <ul class="todo" style="margin:6px 0 10px"><li class="good"><b>いちばん効いた層：${b}</b>${o.lift?`観たい率が ${o.best.map(i=>'+'+f1(o.lift[i])+'pt').join('・')} 伸びました（全体は +${f1(o.L)}pt）。`:`ふだんより反応した人の割合が高い層です。`}</li>${tgTx?`<li class="${o.tgv>=110?'good':o.tgv<=90?'warn':''}"><b>狙った層への効き</b>${tgTx}</li>`:''}<li><b>あまり届かなかった層：${segName(o.worst)}</b>${o.lift?`伸びは +${f1(o.lift[o.worst])}pt。`:'ふだんより反応が少ない層です。'}</li></ul>
+    ${o.lift?`<div class="sg-t">観たい率の伸び（実施前後の週の差、pt）</div>${segGrid(o,'lift')}
+      <div class="sg-t">ふだん映画館に行く頻度別の伸び</div><div class="sg-fq">${SEG_F.map((n,i)=>`<div><span>${n}</span><i style="width:${o.fq[i]/Math.max(...o.fq)*100}%"></i><b class="num">+${f1(o.fq[i])}pt</b></div>`).join('')}</div>`:''}
+    <div class="sg-t">反応した人の構成（%）</div>${segGrid(o,'comp')}
+    <div class="note">${o.lift?'観たい率の伸びは、毎週の鑑賞意向調査で、実施前の週と実施後の週を層ごとに比べたものです。同じ週にほかの施策があると、その分も含みます。':'いまのデータの範囲では「観たい気持ちが動いたか」までは測れないため、反応した人（SNSの反応・広告の配信先）の構成で見ています。'}狙った層は「宣伝設計」で選んだ層です。</div>`}
+const evDetail=(T,e,d)=>rxBanner(T,e,d)+crStrip(T,e)+roiHTML(T,e,d)+segHTML(T,e,d)+expoHTML(T,e,d)+rxHTML(T,e,d)+evDetail0(T,e,d);
+
+const SEG6=[[0,1],[2,3],[4,5],[6,7],[8,9],[10,11]],SEG6N=['女性 10〜20代','女性 30〜40代','女性 50代以上','男性 10〜20代','男性 30〜40代','男性 50代以上'];
+I('acts','a_seg','施策ごとの効いた層',12,[],(T,d)=>{const L=T.ev.filter(e=>e.d+2<=d).map(e=>({e,o:segOf(T,e,d)})).filter(x=>x.o).sort((a,b)=>b.e.d-a.e.d);
+  if(!L.length)return {d:'',h:'<div class="empty">実施から3日たった施策がまだありません。</div>'};const lf=!!L[0].o.lift;
+  const g6=o=>SEG6.map(p=>mean(p.map(i=>lf?o.lift[i]:o.idx[i]))),all=L.map(x=>g6(x.o)),mx=Math.max(...all.flat());
+  return {d:`${relLbl(d)}まで・${L.length}件｜${lf?'観たい率の伸び（pt）':'反応のしやすさ（100＝その施策の平均）'}`,h:`<div class="tw"><table class="ex-t ex-list sg-list"><tr><th>施策</th>${SEG6N.map(n=>`<th class="r">${n}</th>`).join('')}<th>いちばん効いた層</th><th>狙った層への効き</th></tr>
+    ${L.map(({e,o},k)=>`<tr data-ev="${e.id}"><td><i class="cdot" style="background:${CH[e.ch].c}"></i>${esc(e.label)}<small>${md(dateOf(T,e.d))}｜${CH[e.ch].n}</small></td>${all[k].map(v=>{const t=v/mx;return `<td class="r sg-v" style="--hb:rgba(78,135,128,${(0.06+t*0.8).toFixed(2)});background:var(--hb);color:${t>.55?'#fff':'inherit'}">${lf?'+'+f1(v):Math.round(v)}</td>`}).join('')}
+      <td>${o.best.map(segName).join('・')}</td><td>${o.tgv==null?'—':`<span class="tone ${o.tgv>=110?'good':o.tgv<=90?'warn':'neu'}">${f1(o.tgv/100)}倍</span>`}</td></tr>`).join('')}</table></div>
+    <div class="note">${lf?'観たい率の伸びは、毎週の鑑賞意向調査で実施前後の週を比べたものです。':'いまのデータの範囲では、反応した人（SNSの反応・広告の配信先）の構成で見ています。100より大きいほど、その層がよく反応しました。'}「狙った層への効き」は、宣伝設計で選んだ層での効き方が平均の何倍か。行を押すと、12の層にわけた詳細が開きます。</div>`}},{any:[1,3,6]});
+(function(){const i=ITEMS.findIndex(x=>x.id==='a_seg'),it=ITEMS.splice(i,1)[0],j=ITEMS.findIndex(x=>x.id==='a_roi');ITEMS.splice(j+1,0,it)})();
+SRC_USE.a_seg=[1,3,6];
 
 /* スマホ幅で表をカードにするため、各セルに列名を持たせる */
 function tblLabels(root){$$('table.ex-list,table.cm-t',root).forEach(tb=>{const hs=[...tb.rows[0].cells].map(c=>c.textContent.trim());
