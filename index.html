@@ -2075,7 +2075,7 @@ document.addEventListener('click',ev=>{const t=ev.target.closest('[data-roi]');i
 const CUM_K=['buzz','oimp','oeng','aimp','search','clip','mark'],CUM_R=['aware','intent','sent','score','sat','nps'];
 const cumPeers=()=>PEERS.concat(PAST);
 const cmCls=r=>{if(r==null)return '';r=Math.round(r);return r>=110?'cm-up':r<=90?'cm-dn':'cm-eq'};
-const cumOpen=()=>{try{return localStorage.getItem('crew_v7_cumfold')!=='0'}catch(e){return true}};
+const cumOpen=()=>{try{return localStorage.getItem('crew_v7_cumfold')==='1'}catch(e){return false}};
 document.addEventListener('toggle',ev=>{if(ev.target.classList&&ev.target.classList.contains('cm-fold'))try{localStorage.setItem('crew_v7_cumfold',ev.target.open?'1':'0')}catch(e){}},true);
 const _cx={};
 function cumVals(X,d){const key=X.k+'|'+d+'|'+(X.k===S.title?X.ev.length:'');if(_cx[key])return _cx[key];const done=X.ev.filter(e=>e.d<=d),o={n:done.length,cost:sumA(done.map(e=>e.cost||0))*1e4,ch:{}};
