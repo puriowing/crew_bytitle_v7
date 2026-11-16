@@ -508,6 +508,32 @@ details.deep>.grid{margin-top:16px}
 }
 
 
+
+/* 施策ごとの反応・炎上リスク */
+.snt{display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--neufill)}
+.snt.sm{height:9px}.snt i{display:block;height:100%}
+.snt .p{background:#5fae86}.snt .o{background:#cfcac0}.snt .n{background:#d98476}
+.rx-days{display:grid;gap:5px;margin:4px 0 14px}
+.rx-days>div{display:grid;grid-template-columns:44px 1fr 64px 84px;align-items:center;gap:8px;font-size:11.5px;color:var(--sub)}
+.rx-days .snt{justify-self:start;width:100%}
+.rx-days b{color:var(--ink);text-align:right}
+.rx-two{gap:14px}
+.rx-q{font-size:12px;max-width:220px}.rx-q.p{color:var(--goodtx)}.rx-q.n{color:var(--badtx)}
+.ex-list tr.rx-hot td{background:#fdf6ec}
+.rk{display:block;width:100%;text-align:left;border:1px solid;border-radius:14px;padding:12px 14px;margin:10px 0;font:inherit}
+.rk.warn{background:var(--warnfill);border-color:var(--warnln)}.rk.bad{background:var(--badfill);border-color:var(--badln)}
+.rk small{color:var(--sub);margin-left:1px}.rk>div b.num{font-size:17px;margin-left:4px}
+.rk-t{display:block;margin:6px 0 2px;font-size:14px}
+.rk ul{margin:4px 0 0;padding-left:18px;font-size:12.5px;color:var(--ink2)}
+.rk-a{margin-top:8px;font-size:12.5px;background:rgba(255,255,255,.7);border-radius:8px;padding:6px 10px}.rk-a b{display:block;font-size:11.5px;color:var(--sub)}
+.rk-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.rk-list .rk{margin:0;cursor:pointer}.rk-list .rk:hover{box-shadow:var(--shadow)}
+.rk-e{margin-left:10px;font-size:12px;color:var(--sub)}
+.rk-q{display:block;font-size:12.5px;color:var(--badtx);margin:4px 0}
+.rk-q::before{content:'「'}.rk-q::after{content:'」'}
+.rk-m{display:block;font-size:11.5px;color:var(--sub)}
+.rk-ok{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--ink2)}
+@media(max-width:900px){.rx-days>div{grid-template-columns:40px 1fr 56px}.rx-days small{display:none}}
 /* 施策ごとの露出 */
 .ex-bar{display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--neufill)}
 .ex-bar i{display:block;height:100%}
@@ -977,6 +1003,7 @@ I('home','h_verdict','今日の結論',7,[],(T,d)=>{const sc=scoreOf(T,d),pv=sco
    <div class="fac">${p.map(x=>`<span>${x.n}<b>${x.v}</b></span>`).join('')}</div>
    <div class="note">${scoreName()}は、上の数字をならしたものです。50が類似作の真ん中にあたります。</div></div></div>`}},{any:[3,6]});
 I('home','h_todo','今日の注意点とやること',5,[],(T,d)=>{const li=[];
+  if(has(3)){const rk=T.ev.filter(e=>e.d<=d&&e.d>=d-14).map(e=>({e,o:rxOf(T,e,d)})).filter(x=>x.o&&x.o.risk.lv!=='平常').sort((a,b)=>b.o.risk.score-a.o.risk.score)[0];if(rk)li.push([rk.o.risk.lv==='警戒'?'bad':'warn',`炎上リスク：${rk.o.risk.lv}（「${esc(rk.e.label)}」）`,rk.o.risk.sc?rk.o.risk.sc.act:'否定的な投稿の中身を確認してください。'])}
   const nx=T.ev.filter(e=>e.d>d).sort((a,b)=>a.d-b.d)[0];
   if(nx&&nx.d-d<=7)li.push(['',`${nx.d-d}日後に「${nx.label}」`,`${CH[nx.ch].n}の施策です。実施の3日後から反応の前後比較が出ます。`]);
   else if(d<0)li.push(['warn','この先7日間、施策の予定がありません',`公開まであと${-d}日です。話題が途切れないよう、投稿や露出の追加を検討してください。`]);
@@ -1793,7 +1820,6 @@ I('creative','cr_next','これから出す素材',12,[6],(T,d)=>{const L=crList(
 
 function crStrip(T,e){const L=crList(T).filter(c=>c.e.id===e.id);if(!L.length)return '';
   return `<div class="cr-strip">${L.map(c=>`<button class="cr-s" data-cr="${c.id}" title="${c.n}"><span class="cr-th k-${c.k}" style="background:${thOf(T).g[0]}">${crArt(T,c)}</span><small>${c.n}</small></button>`).join('')}</div>`}
-const evDetail=(T,e,d)=>crStrip(T,e)+expoHTML(T,e,d)+evDetail0(T,e,d);
 function openCreative(cid){const T=cur(),d=S.day,c=crList(T).find(x=>x.id===cid);if(!c)return;const e=c.e,ch=CH[e.ch],st=crStats(T,c,d),eff=!isAd(e)&&e.d+2<=d?evEff(T,e,d):null;
   const others=S.cmpSet.map(k=>TT[k]).filter(X=>X&&X.k!==T.k).map(X=>({X,c:crList(X).find(q=>q.n===c.n&&q.d<=evMax(X))})).filter(o=>o.c);
   $('#panel').innerHTML=`<button class="pn-x" aria-label="閉じる">×</button>
@@ -1868,6 +1894,76 @@ I('acts','a_expo','施策ごとの露出量と媒体',12,[6],(T,d)=>{const L=T.e
 (function(){const i=ITEMS.findIndex(x=>x.id==='a_expo'),it=ITEMS.splice(i,1)[0],j=ITEMS.findIndex(x=>x.id==='a_log');ITEMS.splice(j+1,0,it)})();
 SRC_USE.a_expo=[6,'N'];
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-exs]');if(!t)return;ev.stopPropagation();S.exs=t.dataset.exs;render()},true);
+
+/* ================= 施策ごとの反応（投稿の中身・センチメント・炎上リスク） =================
+   本番はSNS計測の投稿データから。投稿は40字以内の抜き出しで、投稿者の名前・アカウントは出さない */
+const RX_P={'製作発表':['この組み合わせは絶対観る','ビジュアルの空気感がすごく好き','公開まで待ちきれない'],'キャスト解禁':['このキャストはイメージどおり','追加キャストが豪華すぎる','役にぴったりだと思う'],
+  '特報の広告':['特報だけで鳥肌が立った','映像がきれい。劇場で観たい'],'本予告の解禁':['予告で泣いた','音楽の入り方が最高','映像のスケールが大きい'],'本予告の広告':['広告で流れてきて気になった','予告をもう一回観たくなる'],
+  '主題歌の発表':['主題歌が作品に合いすぎ','この人の新曲うれしい'],'完成披露':['舞台挨拶の雰囲気がよかった','キャストの仲の良さが伝わる'],'TVスポット':['CMで見て気になった','テレビで流れるとワクワクする'],
+  '場面写真・カウントダウン':['場面写真の色がきれい','カウントダウンで気分が上がる'],'公開直前の広告':['もうすぐ公開だと気づけた'],'前夜祭':['前夜祭最高だった','一足先に観られてうれしい'],
+  '初日舞台挨拶':['初日に観てよかった','挨拶で泣いてしまった','中継があってありがたい'],'感想投稿キャンペーン':['感想に公式が反応してくれた','みんなの感想を読むのが楽しい'],
+  '大ヒット御礼':['大ヒットおめでとう','もう一回観に行く'],'口コミ訴求の広告':['広告の感想が本当にそのとおり'],'入場者特典の告知':['特典のデザインがかわいい','第2弾のためにまた行く']};
+const RX_N={'製作発表':['原作のイメージと違う気がする'],'キャスト解禁':['このキャストは少し意外'],'特報の広告':['同じ広告が何度も流れてくる'],'本予告の解禁':['予告がちょっと長い'],'本予告の広告':['広告をスキップできない'],
+  '主題歌の発表':['前の曲のほうが好きだった'],'完成披露':['中継がなかったのが残念'],'TVスポット':['CMが多すぎる'],'場面写真・カウントダウン':['毎日の投稿は少し多い'],'公開直前の広告':['同じ広告ばかり流れてくる'],
+  '前夜祭':['チケットが取れなかった'],'初日舞台挨拶':['中継の音声が聞き取りにくかった'],'感想投稿キャンペーン':['応募の条件がわかりにくい'],'大ヒット御礼':['地方でも舞台挨拶をしてほしい'],
+  '口コミ訴求の広告':['口コミの広告は少し盛りすぎ'],'入場者特典の告知':['特典目当ての人ばかりになりそう']};
+const RX_RISK={
+  t1:{ty:'TVスポット',lv:'注意',topic:'TVスポットで結末に近い場面を流している（ネタバレ）',w:['ネタバレ','見せすぎ'],neg:27,
+    posts:['CMで結末の場面を流すのはやめてほしい','ネタバレされた気分。CMは見ないほうがいい','あのCM、物語の一番大事なところでは？'],act:'結末に近い場面を使っていないTVスポットへの差し替えを検討。否定的な投稿の伸びを1日2回確認。'},
+  t2:{ty:'初日舞台挨拶',lv:'警戒',topic:'舞台挨拶での発言の一部が切り取られて広まっている',w:['配慮','切り取り','説明'],neg:41,
+    posts:['あの発言は配慮がなさすぎる','切り取りでは？全文を読んでから判断したい','公式は何か説明しないの？'],act:'当日中に発言の全文と前後の文脈を確認し、関係者と公式コメントの要否を決める。予定している宣伝の投稿・広告は一時止めることを検討。'},
+  t3:{ty:'入場者特典の告知',lv:'注意',topic:'特典がすぐ無くなる・転売への不満',w:['転売','数が少ない'],neg:24,
+    posts:['初日の午前で特典終了。数が少なすぎる','フリマアプリに特典が大量に出ている','子どもが楽しみにしていたのにもらえなかった'],act:'劇場ごとの配布状況を確認し、追加配布や配布方法の案内を検討。'}};
+const PFS=['X','Instagram','TikTok','YouTube'];
+const RX_LV={'平常':'good','注意':'warn','警戒':'bad'};
+function rxOf(T,e,d){if(e.d>d||!has(3))return null;const r=rng(T.seed*61+e.id*11+5),sc=RX_RISK[T.k]&&RX_RISK[T.k].ty===e.ty?RX_RISK[T.k]:null,L=Math.min(3,d-e.d);
+  const n=Math.max(20,Math.round(sumR(T,'buzz',e.d,e.d+L)*0.2*(e.str||1)*(sc&&sc.lv==='警戒'?2.4:1)));
+  let neg=sc?sc.neg*(0.95+r()*0.1)*(L<1&&sc.lv==='警戒'?0.7:1):clamp((at(T,'neg',e.d)||8)*(0.7+r()*0.6)+(isAd(e)?3:0),2,19),pos=clamp((at(T,'sent',e.d)||60)*(sc?0.75:1)*(0.92+r()*0.12),20,92-neg);const neu=100-pos-neg;
+  const days=[];for(let k=0;k<=L;k++){const w=Math.exp(-k*(sc?0.25:0.9)),nk=sc&&sc.lv==='警戒'?neg*(0.6+k*0.35):neg*(0.9+r()*0.2);days.push({d:e.d+k,c:n*w/(1+(L?0.5*L:0)),neg:clamp(nk,1,70)})}
+  const pick=(a,k)=>a.map((t,i)=>({t,pf:PFS[Math.floor(r()*4)],rp:Math.round((20+r()*r()*900)*T.power*(k||1)),d:e.d+Math.floor(r()*(L+1))}));
+  const P=pick((RX_P[e.ty]||['楽しみ','気になる','観に行きたい']).slice(0,3)).sort((a,b)=>b.rp-a.rp);
+  const N=(sc?pick(sc.posts,sc.lv==='警戒'?9:4):[]).concat(pick(RX_N[e.ty]||['広告が多すぎる'])).slice(0,3).sort((a,b)=>b.rp-a.rp);
+  const growth=days.length>1?days[days.length-1].neg/days[0].neg:1,spread=N.length?Math.max(...N.map(x=>x.rp)):0;
+  const score=Math.round(clamp(8+(neg-8)*1.7+(sc?sc.w.length*6:0)+(growth>1.3?12:0)+Math.min(14,spread/250),2,98));
+  const lv=score>=70?'警戒':score>=40?'注意':'平常',why=[];
+  if(neg>=15)why.push(`否定的な投稿の割合が ${f1(neg)}%（同じ種類の施策の平均は 9.5%）`);
+  if(growth>1.3)why.push(`否定的な投稿の割合が、実施日から ${f1(growth)}倍に増えている`);
+  if(spread>=600)why.push(`否定的な投稿のうち、広まった数がいちばん多いもので ${fN(spread)}件`);
+  if(sc)why.push(`炎上につながりやすい言葉（${sc.w.map(w=>'「'+w+'」').join('')}）が含まれる`);
+  return {n,pos,neu,neg,days,P,N,risk:{score,lv,why,sc}}}
+const rxTone=lv=>`<span class="tone ${RX_LV[lv]}">炎上リスク：${lv}</span>`;
+function rxBanner(T,e,d){const o=rxOf(T,e,d);if(!o||o.risk.lv==='平常')return '';const k=o.risk;
+  return `<div class="rk ${RX_LV[k.lv]}"><div>${rxTone(k.lv)} <b class="num">${k.score}</b><small>／100</small></div>${k.sc?`<b class="rk-t">${k.sc.topic}</b>`:''}<ul>${k.why.map(w=>`<li>${w}</li>`).join('')}</ul>${k.sc?`<div class="rk-a"><b>おすすめの対応</b>${k.sc.act}</div>`:''}</div>`}
+const vline=(x,c)=>`<div class="${c}">${x.t}<small>${x.pf}｜${md(dateOf(cur(),x.d))}｜広まった数 ${fN(x.rp)}</small></div>`;
+function rxHTML(T,e,d){if(!has(3))return '';const o=rxOf(T,e,d);
+  if(!o)return `<div class="sub-h">この施策への反応</div><div class="empty">実施した日から、反応の投稿が集まります。</div>`;
+  const dm=Math.max(...o.days.map(x=>x.c));
+  return `<div class="sub-h">この施策への反応</div>
+    <div class="kpis" style="margin:8px 0 10px">${kpi('反応の投稿',fN(o.n),'件',`実施から${o.days.length}日間`)}${kpi('好意的',f1(o.pos),'%')}${kpi('否定的',f1(o.neg),'%','同じ種類の施策の平均 9.5%')}${kpi('炎上リスク',o.risk.score,'／100',rxTone(o.risk.lv))}</div>
+    <div class="snt"><i class="p" style="width:${o.pos}%"></i><i class="o" style="width:${o.neu}%"></i><i class="n" style="width:${o.neg}%"></i></div>
+    <div class="ex-lg"><span><i style="background:#5fae86"></i>好意的 ${f1(o.pos)}%</span><span><i style="background:#cfcac0"></i>どちらでもない ${f1(o.neu)}%</span><span><i style="background:#d98476"></i>否定的 ${f1(o.neg)}%</span></div>
+    <div class="rx-days">${o.days.map(x=>`<div><span>${md(dateOf(T,x.d))}</span><div class="snt sm" style="width:${Math.max(6,x.c/dm*100)}%"><i class="p" style="width:${100-x.neg}%"></i><i class="n" style="width:${x.neg}%"></i></div><b class="num">${fN(x.c)}件</b><small>否定的 ${f1(x.neg)}%</small></div>`).join('')}</div>
+    <div class="two rx-two"><div><div class="sub-h" style="margin-top:4px">好意的な投稿</div><div class="voice">${o.P.map(x=>vline(x,'p')).join('')}</div></div>
+      <div><div class="sub-h" style="margin-top:4px">否定的な投稿</div><div class="voice">${o.N.map(x=>vline(x,'n')).join('')}</div></div></div>
+    <div class="note">投稿は40字以内の抜き出しで、投稿者の名前は出しません。「広まった数」は、その投稿が再投稿・引用された数です。</div>`}
+const evDetail=(T,e,d)=>rxBanner(T,e,d)+crStrip(T,e)+expoHTML(T,e,d)+rxHTML(T,e,d)+evDetail0(T,e,d);
+
+I('acts','a_rx','施策ごとの反応と炎上リスク',12,[3],(T,d)=>{const L=T.ev.filter(e=>e.d<=d).map(e=>({e,o:rxOf(T,e,d)})).filter(x=>x.o),srt=S.rxs||'new';
+  if(!L.length)return {d:'',h:'<div class="empty">実施した施策がまだありません。</div>'};
+  L.sort(srt==='risk'?(a,b)=>b.o.risk.score-a.o.risk.score:(a,b)=>b.e.d-a.e.d);const al=L.filter(x=>x.o.risk.lv!=='平常').length;
+  return {d:`${relLbl(d)}まで・${L.length}件の施策`,h:`<div class="cr-bar"><span class="seg">${[['new','新しい順'],['risk','リスクの高い順']].map(([k,n])=>`<button class="${srt===k?'on':''}" data-rxs="${k}">${n}</button>`).join('')}</span><span class="ex-sum">${al?`<span class="tone warn">注意以上 ${al}件</span>`:'<span class="tone good">炎上の兆しはありません</span>'}</span></div>
+    <div class="tw"><table class="ex-t ex-list"><tr><th>日付</th><th>施策</th><th class="r">反応の投稿</th><th>センチメント</th><th>目立つ好意的な声</th><th>目立つ否定的な声</th><th>炎上リスク</th></tr>
+    ${L.map(({e,o})=>`<tr data-ev="${e.id}" class="${o.risk.lv!=='平常'?'rx-hot':''}"><td>${md(dateOf(T,e.d))}<small>${relLbl(e.d)}</small></td><td><i class="cdot" style="background:${CH[e.ch].c}"></i>${esc(e.label)}<small>${CH[e.ch].n}</small></td><td class="r num">${fN(o.n)}</td>
+      <td><div class="snt sm" style="width:120px"><i class="p" style="width:${o.pos}%"></i><i class="o" style="width:${o.neu}%"></i><i class="n" style="width:${o.neg}%"></i></div><small>否定的 ${f1(o.neg)}%</small></td>
+      <td class="rx-q p">${o.P[0].t}</td><td class="rx-q n">${o.N[0].t}</td><td>${rxTone(o.risk.lv).replace('炎上リスク：','')} <b class="num">${o.risk.score}</b></td></tr>`).join('')}</table></div>
+    <div class="note">炎上リスクは、否定的な投稿の割合・その伸び方・広まり方・炎上につながりやすい言葉から、0〜100で出しています。40以上で「注意」、70以上で「警戒」。行を押すと、投稿の中身が開きます。</div>`}});
+(function(){const i=ITEMS.findIndex(x=>x.id==='a_rx'),it=ITEMS.splice(i,1)[0],j=ITEMS.findIndex(x=>x.id==='a_expo');ITEMS.splice(j+1,0,it)})();
+I('home','h_risk','炎上リスクの見張り',12,[3],(T,d)=>{const L=T.ev.filter(e=>e.d<=d&&e.d>=d-14).map(e=>({e,o:rxOf(T,e,d)})).filter(x=>x.o&&x.o.risk.lv!=='平常').sort((a,b)=>b.o.risk.score-a.o.risk.score);
+  return {d:'直近2週間の施策への反応から',h:L.length?`<div class="rk-list">${L.map(({e,o})=>`<button class="rk ${RX_LV[o.risk.lv]}" data-ev="${e.id}"><div>${rxTone(o.risk.lv)} <b class="num">${o.risk.score}</b><small>／100</small><span class="rk-e">${md(dateOf(T,e.d))}「${esc(e.label)}」</span></div>${o.risk.sc?`<b class="rk-t">${o.risk.sc.topic}</b>`:''}<span class="rk-q">${o.N[0].t}</span><span class="rk-m">否定的 ${f1(o.neg)}%・反応の投稿 ${fN(o.n)}件　くわしく見る ›</span></button>`).join('')}</div>`
+    :`<div class="rk-ok"><span class="tone good">炎上の兆しはありません</span>直近2週間の施策で、否定的な投稿が目立って増えているものはありません。</div>`}});
+(function(){const i=ITEMS.findIndex(x=>x.id==='h_risk'),it=ITEMS.splice(i,1)[0],j=ITEMS.findIndex(x=>x.id==='h_todo');ITEMS.splice(j+1,0,it)})();
+SRC_USE.a_rx=[3];SRC_USE.h_risk=[3];
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-rxs]');if(!t)return;ev.stopPropagation();S.rxs=t.dataset.rxs;render()},true);
 
 /* ================= 描画 ================= */
 function visiblePages(d){return PAGES.filter(p=>ITEMS.some(it=>it.page===p.k&&avail(it,d)))}
