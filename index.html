@@ -1440,12 +1440,6 @@ const ALIAS={"今日の結論": "h_verdict", "宣伝効果指数の推移（な�
    自社の過去作は名前を出せる。他社の作品は、名前を出さず類似作全体の集計としてだけ使う */
 const SIMN=()=>`類似作${PEERS.length}本の集計。他社の作品は名前を出しません`;
 const simNote=t=>`<div class="note">${t}　回答の少ない作品は集計から外します。</div>`;
-I('audience','u_sim','類似作を観た人たち',12,[2],(T,d)=>{const r=R(T,203),ag=dist(r,[9,31,22,17,13,8],.35),fr=dist(R(T,204),[30,48,22],.3);
-  return {d:SIMN(),h:`<div class="three"><div><div class="sub-h">年代</div>${bars(AGES.map((a,i)=>({l:a,v:ag[i]})),{fmt:f1,u:'%',c:'#5b6f9c'})}<div class="note">女性の割合は ${f1(50+r()*14)}%。</div></div>
-   <div><div class="sub-h">誰と観たか</div>${bars([['ひとり',33],['友人',27],['恋人・夫婦',23],['家族',17]].map(x=>({l:x[0],v:x[1]*(0.75+r()*0.5)})),{fmt:f1,u:'%',c:'#a06a86'})}</div>
-   <div><div class="sub-h">ふだん映画館に行く頻度</div>${stack([{l:'年1〜2回',v:fr[0],c:'#c2603f'},{l:'年3〜11回',v:fr[1],c:'#b08040'},{l:'月1回以上',v:fr[2],c:'#1b3a5b'}])}
-   <div class="sub-h">2回以上観た人</div><div class="big num">${f1(8+r()*10)}<small>%</small></div></div></div>
-   ${simNote('この作品の観客はまだいないので、類似作を実際に観た人の姿を出しています。週ごとの調査で見える「観たい人」と見比べると、狙う層のずれに気づけます。')}`}},{when:'pre'});
 I('outlook','o_simsat','類似作の満足度と、公開後の伸び',6,[2],(T,d)=>{const pt=PEERS.map(p=>({s:at(p,'sat',20),m:p.final/(sumR(p,'gross',0,2)*1e4)})),md2=med(pt.map(x=>x.s)),hi=pt.filter(x=>x.s>=md2),lo=pt.filter(x=>x.s<md2);
   return {d:SIMN(),h:`<div class="kpis">${kpi('満足度が高かった類似作',f1(med(hi.map(x=>x.m))),'倍',`最終興収÷初週末。${hi.length}本の中央値`)}${kpi('満足度が低かった類似作',f1(med(lo.map(x=>x.m))),'倍',`${lo.length}本の中央値`)}${kpi('類似作の満足度',f1(md2),'%','中央値')}</div>
    ${simNote('満足度が高い作品ほど、初週末のあとも長く伸びています。この作品の満足度が出たら、どちらの型に近いかで見通しの幅を絞ります。')}`}},{when:'pre'});
@@ -1477,6 +1471,12 @@ I('plan','p_basis','もとにしている類似作',12,[2],(T,d)=>{const D=tgDat
   return {d:SIMN(),h:`<div class="kpis" style="margin-bottom:12px">${kpi('類似作',PEERS.length,'本',`うち自社の過去作 ${own.length}本`)}${kpi('鑑賞後アンケートの回答',fN(D.N),'件','類似作の合計')}${kpi('選び方',T.genre,'',`${T.kind}・公開規模200〜400スクリーン・直近3年`)}</div>
    <div class="note" style="margin:0 0 10px">この作品の観客はまだいないので、近い作品を実際に観た人の回答から、誰に向けて宣伝を組み立てるかを考えます。回答が${TG_MIN}件に満たない層は「参考」と表示します。自社の過去作：${own.map(p=>p.name).join('／')}</div>
    <div class="tg-bar"><span>あわせて見る</span><button class="btn" data-go="outlook" data-hit="o_simsat">満足度と公開後の伸び</button></div>`}},{when:'pre'});
+I('plan','u_sim','類似作を観た人たち',12,[2],(T,d)=>{const D=tgData(T),W=tgAgg(D,D.segs.map(s=>s.i)),ag=AGES.map((_,a)=>sumA(D.segs.filter(s=>s.a===a).map(s=>s.sh))),fem=sumA(D.segs.filter(s=>s.g===0).map(s=>s.sh));
+  return {d:'観客全体の姿',h:`<div class="three"><div><div class="sub-h">年代</div>${bars(AGES.map((a,i)=>({l:a,v:ag[i]})),{fmt:f1,u:'%',c:'#5b6f9c'})}<div class="note">女性の割合は ${f1(fem)}%。</div></div>
+   <div><div class="sub-h">誰と観たか</div>${bars(WITH.map((l,i)=>({l,v:W.wth[i]})),{fmt:f1,u:'%',c:'#a06a86'})}</div>
+   <div><div class="sub-h">ふだん映画館に行く頻度</div>${stack(GOF.map((l,i)=>({l,v:W.go[i],c:GOC[i]})))}
+   <div class="kpis" style="margin-top:14px">${kpi('満足度',f1(W.sat),'%')}${kpi('すすめたい度',pt(W.nps),'')}${kpi('2回以上観た人',f1(W.rep),'%')}</div></div></div>
+   ${simNote('この作品の観客はまだいないので、類似作を実際に観た人の姿を出しています。下のヒートマップで、性別×年代の層ごとに分けて見られます。')}`}},{when:'pre'});
 I('plan','p_map','類似作の観客は、どんな人たちか',12,[2],(T,d)=>{const D=tgData(T),sel=tgSel(T),mx=Math.max(...D.segs.map(s=>s.sh)),A=tgAgg(D,sel);
   const tile=s=>{const few=s.cnt<TG_MIN,tg=[D.tags.many.includes(s.i)?'<i>多い</i>':'',D.tags.sat.includes(s.i)?'<i>満足が高い</i>':'',D.tags.nps.includes(s.i)?'<i>すすめてくれる</i>':'',few?'<i class="few">参考</i>':''].join('');
     return `<button class="tg ${sel.includes(s.i)?'on':''}" data-tg="${s.i}" aria-pressed="${sel.includes(s.i)}" style="background:rgba(78,135,128,${(.07+s.sh/mx*.5).toFixed(2)})" title="${s.n}｜回答 ${fN(s.cnt)}件"><span class="a">${AGES[s.a]}</span><span class="v num">${f1(s.sh)}<small>%</small></span><span class="m">満足 ${Math.round(s.sat)}%・すすめたい ${pt(s.nps)}</span><span class="tags">${tg}</span></button>`};
