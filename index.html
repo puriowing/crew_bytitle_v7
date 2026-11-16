@@ -857,6 +857,28 @@ body.plan-mode .tab.on{border-bottom-color:#f3dfae}
   .top{box-shadow:none}
   .wrap{padding-top:24px}
 }
+
+/* 宣伝設計｜効果測定 の切り替えと、タブのまとまり */
+#btnPlan{display:none!important}
+.mode-sw{display:inline-flex;flex:none;align-self:center;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:3px;gap:2px}
+.mode-sw button{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;color:rgba(255,255,255,.72);border-radius:999px;padding:5px 13px;font:700 12.5px 'Zen Maru Gothic',sans-serif;white-space:nowrap}
+.mode-sw button svg{width:15px;height:15px}
+.mode-sw button:hover{color:#fff}
+.mode-sw button.on{background:#fff;color:var(--accent2);box-shadow:0 1px 4px rgba(0,0,0,.2)}
+body.plan-mode .mode-sw button.on{background:#f3dfae;color:#4a3a10}
+.mode-m{display:none}
+@media(min-width:901px){
+  .mode-d{margin:0 14px 8px 0}
+  .tab.gsep{margin-left:14px}
+  .tab.gsep::before{content:'';position:absolute;left:-8px;top:12px;bottom:14px;width:1px;background:rgba(255,255,255,.18);box-shadow:none;border-radius:0}
+  .tab.gsep.on::before{left:-12px;top:auto;bottom:0;width:12px;height:12px;background:transparent;border-bottom-right-radius:12px;box-shadow:5px 5px 0 5px var(--bg)}
+}
+@media(max-width:900px){
+  .mode-d{display:none}
+  .mode-m{display:flex;justify-content:center;padding:0 12px 8px;max-width:1280px;margin:0 auto}
+  .mode-m .mode-sw{width:100%}
+  .mode-m .mode-sw button{flex:1;justify-content:center;padding:6px 8px}
+}
 @media print{.top,#panel,#scrim,#cmdk{display:none}.card{break-inside:avoid;box-shadow:none}}
 
 /* 宣伝設計：客層の地図 */
@@ -942,6 +964,7 @@ tr.tg-few td{color:var(--sub)}
       <button id="btnClient" class="btn" style="padding:3px 10px"></button>
     </div>
   </div>
+  <div class="mode-m" id="modeSwM"></div>
   <nav class="tabs" id="tabs"></nav>
 </header>
 <main class="wrap" id="page"></main>
@@ -2458,18 +2481,25 @@ SRC_USE.k_ad=[6,1,3,5];SRC_USE.k_sns=[6,3];
 /* 宣伝設計は、ふだんのタブとは分けて、ヘッダーの入口から入る画面にする */
 const PLAN_SEC=[['p_sec1','誰に','1'],['p_sec2','いつ','2'],['p_sec3','どこで・何を','3']];
 function planNav(T,d){const ok=ITEMS.some(it=>it.page==='plan'&&avail(it,d));
-  return `<button class="tab pn-back" data-planx><span class="ti">${_ic('<path d="M15 5l-7 7 7 7"/>')}</span><span class="tl">ダッシュボードに戻る</span><span class="ts">戻る</span></button>`+
-    (ok?PLAN_SEC.map(([id,n,no])=>`<button class="tab" data-psec="${id}"><span class="ti"><b class="num">${no}</b></span><span class="tl">${n}</span><span class="ts">${n}</span></button>`).join(''):'')}
+  return ok?PLAN_SEC.map(([id,n,no])=>`<button class="tab" data-psec="${id}"><span class="ti"><b class="num">${no}</b></span><span class="tl">${n}</span><span class="ts">${n}</span></button>`).join(''):''}
 function planEmpty(T,d){const pre=d<0,ph=S.phase>=3,pd=Math.min(T.today,-1)<0?Math.min(T.today,-1):-30;
   return `<div class="card plan-empty"><h2>この条件では、宣伝設計は表示できません</h2><ul>
     ${ph?'':'<li>宣伝設計は、類似作を劇場で観た人の回答（CAST）を使うため、Phase 3 から使えます。</li>'}
     ${pre?'':'<li>宣伝設計は、公開前に宣伝を組み立てるための画面です。いまの基準日は公開後です。</li>'}</ul>
-    <div class="fm-b">${pre?'':`<button class="btn" data-plandays="${d<0?d:-30}">基準日を公開30日前にする</button>`}${ph||S.client?'':'<button class="btn" data-p="3">Phase 3 にする</button>'}<button class="btn" data-planx>ダッシュボードに戻る</button></div></div>`}
+    <div class="fm-b">${pre?'':`<button class="btn" data-plandays="${d<0?d:-30}">基準日を公開30日前にする</button>`}${ph||S.client?'':'<button class="btn" data-p="3">Phase 3 にする</button>'}<button class="btn" data-planx>効果測定に切り替える</button></div></div>`}
 $('#btnPlan').onclick=()=>{if(S.page==='plan'){setPage(S.prevPage||'home')}else{S.prevPage=S.page;setPage('plan')}};
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-psec],[data-planx],[data-plandays]');if(!t)return;ev.stopPropagation();
   if(t.dataset.planx!=null){setPage(S.prevPage&&S.prevPage!=='plan'?S.prevPage:'home');return}
   if(t.dataset.plandays){S.day=+t.dataset.plandays;render();return}
   const el=$('#it-'+t.dataset.psec);if(el){const y=el.getBoundingClientRect().top+scrollY-($('.top').offsetHeight+12);window.scrollTo(0,y)}},true);
+
+/* 並び：何をして今どうか → 何を出し、どう届けたか → どう受け止められ、誰が来たか → どこまで伸びるか */
+const PG_ORDER=['acts','home','creative','deliver','interest','audience','outlook','plan'],PG_GSEP=['creative','interest','outlook'];
+PAGES.sort((a,b)=>PG_ORDER.indexOf(a.k)-PG_ORDER.indexOf(b.k));
+/* 宣伝設計｜効果測定 の切り替え（どちらにいるか常に見える） */
+function modeSw(PM,where){return `<div class="mode-sw ${where==='d'?'mode-d':''}" role="tablist" aria-label="画面の切り替え"><button role="tab" class="${PM?'on':''}" data-mode="plan" aria-selected="${PM}">${TAB_IC.plan}宣伝設計</button><button role="tab" class="${PM?'':'on'}" data-mode="run" aria-selected="${!PM}">${TAB_IC.acts}効果測定</button></div>`}
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-mode]');if(!t)return;ev.stopPropagation();const PM=S.page==='plan';
+  if(t.dataset.mode==='plan'&&!PM){S.prevPage=S.page;setPage('plan')}else if(t.dataset.mode==='run'&&PM){setPage(S.prevPage&&S.prevPage!=='plan'?S.prevPage:'acts')}},true);
 
 /* スマホ幅で表をカードにするため、各セルに列名を持たせる */
 function tblLabels(root){$$('table.ex-list,table.cm-t',root).forEach(tb=>{const hs=[...tb.rows[0].cells].map(c=>c.textContent.trim());
@@ -2483,7 +2513,7 @@ function render(){const T=cur(),d=S.day;
   const dy=$('#day');dy.min=-70;dy.max=D1;dy.value=d;
   $$('#segPhase button').forEach(b=>b.classList.toggle('on',+b.dataset.p===S.phase));
   document.body.classList.toggle('client',S.client);$('#btnClient').textContent=S.client?'社内表示に戻す':'配給会社の表示にする';
-  $('#tabs').innerHTML=PM?planNav(T,d):visiblePages(d).filter(p=>p.k!=='plan').map(p=>`<button class="tab ${p.k===S.page?'on':''}" data-page="${p.k}"><span class="ti">${TAB_IC[p.k]||''}${tabDot(T,d,p.k)}</span><span class="tl">${p.n}</span><span class="ts">${TAB_SHORT[p.k]}</span></button>`).join('');
+  $('#modeSwM').innerHTML=modeSw(PM);$('#tabs').innerHTML=modeSw(PM,'d')+(PM?planNav(T,d):visiblePages(d).filter(p=>p.k!=='plan').map(p=>`<button class="tab ${p.k===S.page?'on':''} ${PG_GSEP.includes(p.k)?'gsep':''}" data-page="${p.k}"><span class="ti">${TAB_IC[p.k]||''}${tabDot(T,d,p.k)}</span><span class="tl">${p.n}</span><span class="ts">${TAB_SHORT[p.k]}</span></button>`).join(''));
   $('#mDate').textContent=`${md(dateOf(T,d))}｜${relLbl(d)}`;appSave();
   const pg=PAGES.find(p=>p.k===S.page),list=ITEMS.filter(it=>it.page===S.page&&avail(it,d)),dl=list.filter(it=>it.deep);
   const card=it=>{const o=it.fn(T,d);return `<section class="card c${it.w}" id="it-${it.id}" data-need="${it.need.join(',')}"><div class="card-h"><h2>${it.t}</h2><span class="d">${o.d||''}</span></div>${srcChips(it)}${o.h}</section>`};
