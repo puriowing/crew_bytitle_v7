@@ -507,6 +507,22 @@ details.deep>.grid{margin-top:16px}
   .sel{max-width:170px}
 }
 
+
+/* 施策ごとの露出 */
+.ex-bar{display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--neufill)}
+.ex-bar i{display:block;height:100%}
+.ex-bar.sm{height:10px;flex:none}
+.ex-lg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:11.5px;color:var(--sub);margin:8px 0 12px}
+.ex-lg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:0}
+.ex-lg b{color:var(--ink);margin-left:2px}
+.ex-t td small{display:block;color:var(--sub-weak);font-size:10.5px}
+.ex-t .ex-u{display:block}
+.ex-list tr[data-ev]{cursor:pointer}.ex-list tr[data-ev]:hover td{background:var(--accent-soft)}
+.ex-row{display:flex;align-items:center;gap:8px;min-width:180px}
+.ex-row .ex-bar{max-width:calc(100% - 60px)}
+.ex-top{font-size:12px;color:var(--ink2);max-width:280px}
+.ex-sum{margin-left:auto;font-size:12.5px;color:var(--sub)}.ex-sum b{font-size:17px;color:var(--ink);margin:0 2px}
+.ex-more summary{cursor:pointer;font-size:12.5px;font-weight:700;color:var(--accent2);margin:6px 0}
 /* V7：ビジュアル（ポスター・素材・SNS投稿） */
 svg.art{display:block;width:100%;height:auto}
 .sel-po{width:26px;height:39px;border-radius:4px;overflow:hidden;flex:none;box-shadow:0 1px 4px rgba(0,0,0,.25)}
@@ -1777,7 +1793,7 @@ I('creative','cr_next','これから出す素材',12,[6],(T,d)=>{const L=crList(
 
 function crStrip(T,e){const L=crList(T).filter(c=>c.e.id===e.id);if(!L.length)return '';
   return `<div class="cr-strip">${L.map(c=>`<button class="cr-s" data-cr="${c.id}" title="${c.n}"><span class="cr-th k-${c.k}" style="background:${thOf(T).g[0]}">${crArt(T,c)}</span><small>${c.n}</small></button>`).join('')}</div>`}
-const evDetail=(T,e,d)=>crStrip(T,e)+evDetail0(T,e,d);
+const evDetail=(T,e,d)=>crStrip(T,e)+expoHTML(T,e,d)+evDetail0(T,e,d);
 function openCreative(cid){const T=cur(),d=S.day,c=crList(T).find(x=>x.id===cid);if(!c)return;const e=c.e,ch=CH[e.ch],st=crStats(T,c,d),eff=!isAd(e)&&e.d+2<=d?evEff(T,e,d):null;
   const others=S.cmpSet.map(k=>TT[k]).filter(X=>X&&X.k!==T.k).map(X=>({X,c:crList(X).find(q=>q.n===c.n&&q.d<=evMax(X))})).filter(o=>o.c);
   $('#panel').innerHTML=`<button class="pn-x" aria-label="閉じる">×</button>
@@ -1800,6 +1816,58 @@ function heroHTML(T,d){const th=thOf(T),rec=crList(T).filter(c=>c.d<=d).slice(-3
       ${has(6)?`<button class="btn ghost" data-page="creative">素材をすべて見る（${n}点）</button>`:''}</div>
     ${has(6)&&rec.length?`<div class="hero-strip"><em>最近出した素材</em>${rec.map(c=>`<button data-cr="${c.id}"><span class="cr-th k-${c.k}" style="background:${th.g[0]}">${crArt(T,c)}</span><small>${c.n}</small></button>`).join('')}</div>`:''}</div></section>`}
 function matArt(T,n){const i=n.length*7;return /ポスター|ビジュアル/.test(n)?poster(T,{fit:'slice'}):/SNS/.test(n)?sqImg(T,i,''):movThumb(T,i,'','')}
+
+/* ================= 施策ごとの露出（どの媒体に、どれだけ出たか） =================
+   本番は 記事＝公開記事の自動取得、広告・TV＝出稿レポート、公式SNS＝各アカウントの数字。見本では媒体名を伏せて種類＋記号で出す */
+const EXK={web:['Web記事','#0e7490'],tv:['テレビ','#7c3aed'],print:['新聞・雑誌','#8a6414'],radio:['ラジオ','#a3413a'],own:['公式SNS','#1b3a5b'],ad:['動画・SNS広告','#b06a12'],venue:['会場','#1f7a4d']};
+const EX_WEB=['映画情報サイト','エンタメニュースサイト','総合ニュースサイト','ポータルサイトのニュース','スポーツ紙のWeb版','女性向けWebメディア','音楽ニュースサイト','カルチャー系Webマガジン'];
+const EX_TV=['朝の情報番組','昼の情報番組','夕方のニュース番組','深夜のエンタメ番組','週末の映画紹介番組'];
+const EX_PRINT=['スポーツ紙','映画雑誌','女性誌','全国紙の文化面'];
+const EXL='ABCDEFGH';
+function expoOf(T,e,d){const ad=isAd(e),plan=e.d>d;if(plan&&!ad)return null;
+  const r=rng(T.seed*53+e.id*7+3),pw=T.power*(e.str||1),L=[],g=plan?1:Math.min(1,(d-e.d+1)/3),day=k=>Math.min(d,e.d+k);
+  const add=(n,k,dd,v,note)=>L.push({n,k,d:dd,v:Math.round(v),note});
+  const arts=(n,big)=>{for(let i=0;i<n;i++){const j=Math.floor(r()*EX_WEB.length);add(`${EX_WEB[j]} ${EXL[Math.floor(r()*5)]}`,'web',day(Math.floor(r()*3)),(3000+r()*r()*90000*(big?1.6:1))*pw,'閲覧（推定）')}};
+  const tvs=n=>{for(let i=0;i<n;i++)add(EX_TV[Math.floor(r()*EX_TV.length)]+` ${EXL[i]}`,'tv',day(Math.floor(r()*2)+1),(1.2e6+r()*3.5e6)*pw,'視聴（延べ・推定）')};
+  if(e.ch==='PAID_DIGITAL'){const all=e.cost*1e4/T.cpmD*1000,f=plan?1:Math.min(1,(d-e.d+1)/(e.len||1));
+    MEDIA.forEach(m=>add(m[0],'ad',e.d,all*f*m[1]*(0.85+r()*0.3),plan?'表示（予定）':'表示'))}
+  else if(e.ch==='PAID_TV'){const spots=Math.max(10,Math.round(e.cost/18)),f=plan?1:Math.min(1,(d-e.d+1)/(e.len||1)),st=['在京キー局 A','在京キー局 B','在京キー局 C','在京キー局 D','系列の地方局（まとめ）'];
+    const w=st.map(()=>0.6+r()*0.8),ws=sumA(w);st.forEach((n,i)=>{const sp=Math.round(spots*w[i]/ws*f);if(sp)add(n,'tv',e.d,sp*(2.6e5+r()*2.4e5)*pw,plan?`${sp}本（予定）`:`${sp}本・視聴（延べ・推定）`)})}
+  else if(e.ch==='OWNED'){const base=(at(T,'oimp',e.d)||20000)*2.2;[['X',.34],['Instagram',.28],['TikTok',.22],['YouTube',.16]].forEach(([n,s])=>add(`公式 ${n}`,'own',e.d,base*s*(0.7+r()*0.6),'表示'));
+    arts(Math.round((1+r()*3)*g),false)}
+  else if(e.ch==='PR'){arts(Math.max(1,Math.round((e.art||6)*g)),true);
+    if(/舞台挨拶|製作発表|主題歌|特集|インタビュー/.test(e.label+e.ty))tvs(Math.round((1+r()*2)*g));
+    if(r()>.35)add(EX_PRINT[Math.floor(r()*EX_PRINT.length)],'print',day(1),(1.5e5+r()*6e5)*pw,'部数（推定）');
+    if(r()>.6)add('ラジオ番組 A','radio',day(2),(1.5e5+r()*3e5)*pw,'聴取（推定）')}
+  else{add('会場','venue',e.d,(400+r()*1600)*Math.min(1.4,pw),'来場');arts(Math.round((10+r()*18)*g),true);tvs(Math.round((2+r()*3)*g));
+    for(let i=0;i<Math.round((1+r())*g);i++)add(EX_PRINT[Math.floor(r()*EX_PRINT.length)],'print',day(1),(1.5e5+r()*6e5)*pw,'部数（推定）')}
+  L.sort((a,b)=>b.v-a.v);const by={};L.forEach(x=>by[x.k]=(by[x.k]||0)+x.v);
+  return {rows:L,tot:sumA(L.map(x=>x.v)),by,n:new Set(L.map(x=>x.n.replace(/ [A-H]$/,''))).size,plan}}
+function expoBar(o){const t=o.tot||1;return `<div class="ex-bar">${Object.entries(o.by).map(([k,v])=>`<i style="width:${v/t*100}%;background:${EXK[k][1]}" title="${EXK[k][0]}"></i>`).join('')}</div><div class="ex-lg">${Object.entries(o.by).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<span><i style="background:${EXK[k][1]}"></i>${EXK[k][0]} <b class="num">${fN(v)}</b></span>`).join('')}</div>`}
+function expoHTML(T,e,d){const o=expoOf(T,e,d);
+  if(!o)return `<div class="sub-h">露出した媒体</div><div class="empty">実施した日から、記事・番組・投稿が集まります。</div>`;
+  const row=x=>`<tr><td><i class="cdot" style="background:${EXK[x.k][1]}"></i>${x.n}</td><td>${EXK[x.k][0]}</td><td>${md(dateOf(T,x.d))}</td><td class="r"><b class="num">${fN(x.v)}</b><small class="ex-u">${x.note}</small></td></tr>`,
+    hd='<tr><th>媒体</th><th>種類</th><th>日付</th><th class="r">露出量</th></tr>';
+  return `<div class="sub-h">${o.plan?'出稿予定の媒体':'露出した媒体'}</div>
+    <div class="kpis" style="margin:8px 0 10px">${kpi(o.plan?'露出量（予定）':'露出量（延べ）',fN(o.tot),'回')}${kpi('媒体の種類',Object.keys(o.by).length,'種類')}${kpi('記事・番組・枠の数',o.rows.length,'件')}</div>
+    ${expoBar(o)}
+    <div class="tw"><table class="ex-t">${hd}${o.rows.slice(0,8).map(row).join('')}</table></div>
+    ${o.rows.length>8?`<details class="ex-more"><summary>ほか ${o.rows.length-8}件を見る</summary><div class="tw"><table class="ex-t">${o.rows.slice(8).map(row).join('')}</table></div></details>`:''}
+    <div class="note">露出量は、記事の閲覧・番組の視聴・広告や投稿の表示・会場の来場を「目に触れた回数」として足したものです。記事と番組の数字は推定です。</div>`}
+
+I('acts','a_expo','施策ごとの露出量と媒体',12,[6],(T,d)=>{const L=T.ev.filter(e=>e.d<=d).map(e=>({e,o:expoOf(T,e,d)})).filter(x=>x.o&&x.o.rows.length),srt=S.exs||'new';
+  if(!L.length)return {d:'',h:'<div class="empty">実施した施策がまだありません。</div>'};
+  L.sort(srt==='big'?(a,b)=>b.o.tot-a.o.tot:(a,b)=>b.e.d-a.e.d);const mx=Math.max(...L.map(x=>x.o.tot)),all=sumA(L.map(x=>x.o.tot));
+  return {d:`${relLbl(d)}まで・${L.length}件の施策`,h:`<div class="cr-bar"><span class="seg">${[['new','新しい順'],['big','露出量の大きい順']].map(([k,n])=>`<button class="${srt===k?'on':''}" data-exs="${k}">${n}</button>`).join('')}</span><span class="ex-sum">露出量の合計 <b class="num">${fN(all)}</b>回</span></div>
+    <div class="tw"><table class="ex-t ex-list"><tr><th>日付</th><th>施策</th><th>露出量（延べ）</th><th class="r">記事・番組・枠</th><th>主な媒体</th></tr>
+    ${L.map(({e,o})=>`<tr data-ev="${e.id}"><td>${md(dateOf(T,e.d))}<small>${relLbl(e.d)}</small></td><td><i class="cdot" style="background:${CH[e.ch].c}"></i>${esc(e.label)}<small>${CH[e.ch].n}</small></td>
+      <td><div class="ex-row"><div class="ex-bar sm" style="width:${Math.max(4,o.tot/mx*100)}%">${Object.entries(o.by).map(([k,v])=>`<i style="width:${v/o.tot*100}%;background:${EXK[k][1]}"></i>`).join('')}</div><b class="num">${fN(o.tot)}</b></div></td>
+      <td class="r num">${o.rows.length}</td><td class="ex-top">${o.rows.slice(0,3).map(x=>x.n).join('、')}</td></tr>`).join('')}</table></div>
+    <div class="ex-lg">${Object.entries(EXK).map(([k,v])=>`<span><i style="background:${v[1]}"></i>${v[0]}</span>`).join('')}</div>
+    <div class="note">行を押すと、その施策の媒体の一覧が開きます。露出量は「目に触れた回数」の延べで、記事の閲覧と番組の視聴は推定です。</div>`}});
+(function(){const i=ITEMS.findIndex(x=>x.id==='a_expo'),it=ITEMS.splice(i,1)[0],j=ITEMS.findIndex(x=>x.id==='a_log');ITEMS.splice(j+1,0,it)})();
+SRC_USE.a_expo=[6,'N'];
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-exs]');if(!t)return;ev.stopPropagation();S.exs=t.dataset.exs;render()},true);
 
 /* ================= 描画 ================= */
 function visiblePages(d){return PAGES.filter(p=>ITEMS.some(it=>it.page===p.k&&avail(it,d)))}
