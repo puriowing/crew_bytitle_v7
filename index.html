@@ -509,6 +509,24 @@ details.deep>.grid{margin-top:16px}
 
 
 
+
+/* 費用対効果 */
+.roi2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:8px 0}
+.roi-c{border:1px solid var(--rule);border-radius:12px;padding:12px;background:#fff;min-width:0}
+.roi-c>small{display:block;font-size:11.5px;color:var(--sub);margin-bottom:6px}
+.roi-h{display:flex;align-items:baseline;gap:4px;flex-wrap:wrap;margin-bottom:8px}.roi-h b.num{font-size:20px}
+.roi-m{display:grid;grid-template-columns:1fr auto;gap:0 8px;font-size:12px;border-top:1px dashed var(--rule);padding:6px 0}
+.roi-m b.num{font-size:15px;text-align:right}.roi-m b small{font-size:10.5px;color:var(--sub);margin-left:1px}
+.roi-m>small{grid-column:1/-1;color:var(--sub);font-size:11px}
+.roi-st{position:relative;height:18px;margin:10px 4px 0;border-bottom:1px solid var(--rule2)}
+.roi-st i{position:absolute;bottom:4px;width:8px;height:8px;margin-left:-4px;border-radius:50%;background:#cfcac0}
+.roi-st i.md{width:2px;height:14px;margin-left:-1px;border-radius:0;background:var(--sub)}
+.roi-st i.me{width:12px;height:12px;margin-left:-6px;bottom:2px;background:var(--accent);box-shadow:0 0 0 2px #fff}
+.roi-sl{display:flex;justify-content:space-between;font-size:10px;color:var(--sub-weak);margin-top:2px}
+.roi-lg{display:flex;align-items:center;gap:4px 10px;font-size:10.5px;color:var(--sub);margin-top:4px;flex-wrap:wrap}
+.roi-lg i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#cfcac0;margin-right:-6px}
+.roi-lg i.me{background:var(--accent)}.roi-lg i.md{width:2px;height:10px;border-radius:0;background:var(--sub)}
+@media(max-width:900px){.roi2{grid-template-columns:1fr}}
 /* 施策ごとの反応・炎上リスク */
 .snt{display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--neufill)}
 .snt.sm{height:9px}.snt i{display:block;height:100%}
@@ -1946,7 +1964,6 @@ function rxHTML(T,e,d){if(!has(3))return '';const o=rxOf(T,e,d);
     <div class="two rx-two"><div><div class="sub-h" style="margin-top:4px">好意的な投稿</div><div class="voice">${o.P.map(x=>vline(x,'p')).join('')}</div></div>
       <div><div class="sub-h" style="margin-top:4px">否定的な投稿</div><div class="voice">${o.N.map(x=>vline(x,'n')).join('')}</div></div></div>
     <div class="note">投稿は40字以内の抜き出しで、投稿者の名前は出しません。「広まった数」は、その投稿が再投稿・引用された数です。</div>`}
-const evDetail=(T,e,d)=>rxBanner(T,e,d)+crStrip(T,e)+expoHTML(T,e,d)+rxHTML(T,e,d)+evDetail0(T,e,d);
 
 I('acts','a_rx','施策ごとの反応と炎上リスク',12,[3],(T,d)=>{const L=T.ev.filter(e=>e.d<=d).map(e=>({e,o:rxOf(T,e,d)})).filter(x=>x.o),srt=S.rxs||'new';
   if(!L.length)return {d:'',h:'<div class="empty">実施した施策がまだありません。</div>'};
@@ -1964,6 +1981,53 @@ I('home','h_risk','炎上リスクの見張り',12,[3],(T,d)=>{const L=T.ev.filt
 (function(){const i=ITEMS.findIndex(x=>x.id==='h_risk'),it=ITEMS.splice(i,1)[0],j=ITEMS.findIndex(x=>x.id==='h_todo');ITEMS.splice(j+1,0,it)})();
 SRC_USE.a_rx=[3];SRC_USE.h_risk=[3];
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-rxs]');if(!t)return;ev.stopPropagation();S.rxs=t.dataset.rxs;render()},true);
+
+/* ================= 費用対効果（ほかの作品の同じ種類の施策／この作品のほかの施策と比べる） =================
+   効果＝費用1万円あたりの「露出」と「話題の上乗せ（実施からの3日間）」。広告は話題の上乗せを使わない（出稿量で決まるため） */
+const ROI_K={ex:['露出','回'],bz:['話題の上乗せ','件']};
+function roiVals(X,e,dm){if(!e.cost||e.d+2>dm)return null;const v={},o=expoOf(X,e,dm);if(o&&o.tot)v.ex=o.tot/e.cost;
+  if(!isAd(e)&&has(3)){const u=absUp(X,e,'buzz',dm);if(u)v.bz=Math.max(0,u.add)/e.cost}return Object.keys(v).length?v:null}
+const _rp={};
+function roiPool(e){const key=e.ty+'|'+e.ch+'|'+S.phase;if(_rp[key])return _rp[key];let a=[];const src=PEERS.concat(PAST);
+  for(const X of src)for(const q of X.ev)if(q.ty===e.ty){const v=roiVals(X,q,D1);if(v)a.push({X,e:q,v})}
+  if(a.length<5)for(const X of src)for(const q of X.ev)if(q.ch===e.ch&&q.ty!==e.ty){const v=roiVals(X,q,D1);if(v)a.push({X,e:q,v})}
+  return _rp[key]=a}
+const pctIn=(v,arr)=>arr.length?Math.round((arr.filter(x=>x<v).length+0.5*arr.filter(x=>x===v).length)/arr.length*100):null;
+function roiCmp(v,pool){const ms=Object.keys(v).map(k=>{const arr=pool.map(p=>p.v[k]).filter(x=>x!=null);return arr.length>=3?{k,v:v[k],med:med(arr),p:pctIn(v[k],arr),arr}:null}).filter(Boolean);
+  return ms.length?{ms,score:Math.round(mean(ms.map(m=>m.p)))}:null}
+function roiOf(T,e,d){const v=roiVals(T,e,d);if(!v)return null;const pool=roiPool(e),out=roiCmp(v,pool);
+  const own=T.ev.filter(q=>q.d+2<=d).map(q=>({e:q,v:roiVals(T,q,d)})).filter(x=>x.v),ins=own.map(x=>({e:x.e,s:roiCmp(x.v,own)})).filter(x=>x.s).sort((a,b)=>b.s.score-a.s.score);
+  const me=ins.find(x=>x.e.id===e.id);return {v,out,n:pool.length,same:pool.length&&pool[0].e.ty===e.ty,inn:me?{...me.s,rank:ins.indexOf(me)+1,N:ins.length}:null}}
+const roiTone=t=>t>=3?'good':t===2?'warn':'bad';
+const roiBadge=s=>s==null?'<span class="fx-n">—</span>':`<span class="tone ${roiTone(tierOf(s))}">${TIERS[tierOf(s)]}</span> <b class="num">${s}</b>`;
+function roiStrip(m){const L=x=>Math.log10(Math.max(x,1e-3)),a=m.arr.map(L),lo=Math.min(...a,L(m.v)),hi=Math.max(...a,L(m.v)),pos=x=>(L(x)-lo)/((hi-lo)||1)*100;
+  return `<div class="roi-st">${m.arr.map(x=>`<i style="left:${pos(x)}%"></i>`).join('')}<i class="md" style="left:${pos(m.med)}%"></i><i class="me" style="left:${pos(m.v)}%"></i></div><div class="roi-sl"><span>効率が低い</span><span>効率が高い</span></div>`}
+function roiHTML(T,e,d){if(!has(6))return '';
+  if(e.d+2>d)return `<div class="sub-h">費用対効果</div><div class="empty">${e.d>d?'実施後、3日たつと出ます。':'実施から3日たつと出ます。'}</div>`;
+  if(!e.cost)return `<div class="sub-h">費用対効果</div><div class="empty">費用が登録されていないため、出せません。施策を編集して費用を入れると出ます。</div>`;
+  const o=roiOf(T,e,d);if(!o)return '';
+  const mrow=(m,lbl)=>`<div class="roi-m"><span>1万円あたりの${ROI_K[m.k][0]}</span><b class="num">${fN(m.v)}<small>${ROI_K[m.k][1]}</small></b><small>${lbl} ${fN(m.med)}${ROI_K[m.k][1]}｜<b style="color:${m.v>=m.med?'var(--goodtx)':'var(--badtx)'}">${m.med?f1(m.v/m.med):'—'}倍</b></small></div>`;
+  return `<div class="sub-h">費用対効果</div><div class="roi2">
+    <div class="roi-c"><small>ほかの作品の${o.same?`、同じ種類の施策（${e.ty}・${o.n}件）`:`、同じ区分の施策（${CH[e.ch].n}・${o.n}件）`}と比べて</small>
+      ${o.out?`<div class="roi-h">${roiBadge(o.out.score)}<small>／100</small></div>${o.out.ms.map(m=>mrow(m,'中央値')).join('')}${roiStrip(o.out.ms[0])}<div class="roi-lg"><i class="me"></i>この施策<i class="md"></i>中央値<i></i>ほかの作品</div>`:'<div class="empty">比べられる施策が足りません。</div>'}</div>
+    <div class="roi-c"><small>この作品のほかの施策と比べて</small>
+      ${o.inn?`<div class="roi-h"><b class="num" style="font-size:24px">${o.inn.rank}</b>位<small>／${o.inn.N}件中</small>　${roiBadge(o.inn.score)}</div>${o.inn.ms.map(m=>mrow(m,'作品内の中央値')).join('')}${roiStrip(o.inn.ms[0])}`:'<div class="empty">比べられる施策が足りません。</div>'}</div></div>
+    <div class="note">費用1万円あたりに、どれだけ露出と話題の上乗せ（実施からの3日間）を得たかで比べています。点数は比べた相手の中での位置（0〜100、50が真ん中）。露出は推定を含むため目安です。${isAd(e)?'広告は出稿量で話題が決まるため、露出だけで比べています。':''}</div>`}
+const evDetail=(T,e,d)=>rxBanner(T,e,d)+crStrip(T,e)+roiHTML(T,e,d)+expoHTML(T,e,d)+rxHTML(T,e,d)+evDetail0(T,e,d);
+
+I('acts','a_roi','費用対効果の評価',12,[6],(T,d)=>{const L=T.ev.filter(e=>e.d+2<=d&&e.cost).map(e=>({e,o:roiOf(T,e,d)})).filter(x=>x.o),srt=S.roi||'out';
+  if(!L.length)return {d:'',h:'<div class="empty">実施から3日たった施策がまだありません。</div>'};
+  L.sort(srt==='in'?(a,b)=>(a.o.inn?a.o.inn.rank:99)-(b.o.inn?b.o.inn.rank:99):srt==='cost'?(a,b)=>b.e.cost-a.e.cost:(a,b)=>(b.o.out?b.o.out.score:-1)-(a.o.out?a.o.out.score:-1));
+  const best=L.filter(x=>x.o.out).sort((a,b)=>b.o.out.score-a.o.out.score),top=best[0],low=best[best.length-1];
+  return {d:`${relLbl(d)}まで・費用を登録した${L.length}件`,h:`${top&&low&&top!==low?`<ul class="todo" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-bottom:14px"><li class="good"><b>いちばん効率がよい：${esc(top.e.label)}</b>ほかの作品の同じ種類の施策の中で ${TIERS[tierOf(top.o.out.score)]}（${top.o.out.score}）。費用 ${fN(top.e.cost*1e4)}円。</li><li class="${low.o.out.score<40?'warn':''}"><b>いちばん効率が低い：${esc(low.e.label)}</b>ほかの作品の同じ種類の施策の中で ${TIERS[tierOf(low.o.out.score)]}（${low.o.out.score}）。費用 ${fN(low.e.cost*1e4)}円。</li></ul>`:''}
+    <div class="cr-bar"><span class="seg">${[['out','ほかの作品と比べた評価順'],['in','この作品の中の順位'],['cost','費用の大きい順']].map(([k,n])=>`<button class="${srt===k?'on':''}" data-roi="${k}">${n}</button>`).join('')}</span></div>
+    <div class="tw"><table class="ex-t ex-list"><tr><th>施策</th><th class="r">費用</th><th class="r">1万円あたりの露出</th>${has(3)?'<th class="r">1万円あたりの話題の上乗せ</th>':''}<th>ほかの作品の同じ種類と比べて</th><th>この作品の中で</th></tr>
+    ${L.map(({e,o})=>`<tr data-ev="${e.id}"><td><i class="cdot" style="background:${CH[e.ch].c}"></i>${esc(e.label)}<small>${md(dateOf(T,e.d))}｜${CH[e.ch].n}</small></td><td class="r num">${fN(e.cost*1e4)}円</td><td class="r num">${o.v.ex!=null?fN(o.v.ex)+'回':'—'}</td>${has(3)?`<td class="r num">${o.v.bz!=null?fN(o.v.bz)+'件':'—'}</td>`:''}
+      <td>${o.out?roiBadge(o.out.score):'<span class="fx-n">比べる施策が不足</span>'}</td><td>${o.inn?`<b class="num">${o.inn.rank}</b>位／${o.inn.N}件`:'—'}</td></tr>`).join('')}</table></div>
+    <div class="note">費用1万円あたりの露出と話題の上乗せ（実施からの3日間）で比べています。「ほかの作品と比べて」は類似作の同じ種類の施策の中での位置（0〜100）、「この作品の中で」は費用を登録した施策の中での順位です。露出は推定を含むため目安で、因果を示すものではありません。行を押すと、くわしい比較が開きます。</div>`}});
+(function(){const i=ITEMS.findIndex(x=>x.id==='a_roi'),it=ITEMS.splice(i,1)[0],j=ITEMS.findIndex(x=>x.id==='a_ch');ITEMS.splice(j+1,0,it)})();
+SRC_USE.a_roi=[6,3,'N'];
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-roi]');if(!t)return;ev.stopPropagation();S.roi=t.dataset.roi;render()},true);
 
 /* ================= 描画 ================= */
 function visiblePages(d){return PAGES.filter(p=>ITEMS.some(it=>it.page===p.k&&avail(it,d)))}
