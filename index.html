@@ -506,6 +506,97 @@ details.deep>.grid{margin-top:16px}
   .card{padding:15px 14px}
   .sel{max-width:170px}
 }
+
+/* V7：ビジュアル（ポスター・素材・SNS投稿） */
+svg.art{display:block;width:100%;height:auto}
+.sel-po{width:26px;height:39px;border-radius:4px;overflow:hidden;flex:none;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.sel-po svg,.pg-po svg,.sp-av svg{width:100%;height:100%}
+.pg-po{width:34px;height:51px;border-radius:5px;overflow:hidden;align-self:center;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.hero{position:relative;border-radius:20px;overflow:hidden;margin-bottom:20px;box-shadow:0 10px 30px rgba(40,30,20,.18);background:#111;color:#fff}
+.hero-bg{position:absolute;inset:0}.hero-bg svg{width:100%;height:100%}
+.hero::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,8,12,.85) 0%,rgba(8,8,12,.55) 50%,rgba(8,8,12,.2) 100%)}
+.hero-in{position:relative;z-index:1;display:flex;gap:24px;padding:24px 26px;align-items:flex-end}
+.hero-po{width:150px;flex:none;border-radius:10px;overflow:hidden;box-shadow:0 12px 30px rgba(0,0,0,.5)}
+.hero-tx{flex:1;min-width:0}
+.hero-tx h1{font-size:32px;font-weight:900;letter-spacing:.04em;margin:8px 0 2px;line-height:1.25}
+.hero-copy{margin:0 0 14px;opacity:.85;font-size:13.5px}
+.hero-meta{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;opacity:.92}
+.hero-meta b{font-size:16px;margin:0 3px}
+.hero .chip{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.3);color:#fff}
+.hero .btn.ghost{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.4);margin-top:14px}
+.hero .btn.ghost:hover{background:rgba(255,255,255,.22)}
+.hero-strip{display:grid;grid-template-columns:repeat(3,128px);gap:10px;flex:none}
+.hero-strip em{grid-column:1/-1;font-style:normal;font-size:11px;opacity:.8;font-weight:700}
+.hero-strip button{all:unset;cursor:pointer;min-width:0}
+.hero-strip small{display:block;font-size:10.5px;opacity:.9;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cr-th{position:relative;display:grid;place-items:center;overflow:hidden;border-radius:12px;aspect-ratio:4/3;transition:transform .15s,box-shadow .15s}
+.cr-th svg.art{width:100%;height:100%}
+.cr-th.k-vis svg.art{width:auto;height:100%}
+.cr-th.k-ban svg.art{width:92%;height:auto;max-height:92%;border-radius:4px;box-shadow:0 3px 10px rgba(0,0,0,.35)}
+.cr-th.k-ban{background:repeating-linear-gradient(45deg,#ece8e1 0 8px,#f4f1ec 8px 16px)!important}
+.cr-k{position:absolute;left:8px;top:8px;font-style:normal;font-size:10.5px;font-weight:700;background:rgba(0,0,0,.62);color:#fff;border-radius:999px;padding:1px 8px}
+.cr-rank{position:absolute;right:8px;top:6px;font-style:normal;width:28px;height:28px;border-radius:50%;background:#fff;color:var(--accent2);display:grid;place-items:center;font-size:15px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.cr-plan{position:absolute;inset:auto 0 0 0;font-style:normal;text-align:center;background:rgba(255,255,255,.88);color:var(--ink2);font-size:11px;font-weight:700;padding:3px}
+.cr{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:5px;min-width:0}
+.cr:hover .cr-th{transform:translateY(-2px);box-shadow:0 10px 22px rgba(60,50,30,.2)}
+.cr:focus-visible .cr-th{outline:3px solid var(--accent-line)}
+.cr.plan .cr-th svg{filter:grayscale(.7);opacity:.55}
+.cr-n{font-weight:700;font-size:13px;line-height:1.35}
+.cr-m{font-size:11.5px;color:var(--sub);display:flex;gap:4px 10px;flex-wrap:wrap}
+.cr-m b{color:var(--ink);font-family:'Nunito',sans-serif}
+.cr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:18px 16px}
+.cr-tops{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.cr-tops .cr-th{aspect-ratio:16/10}.cr-tops .cr-n{font-size:14.5px}
+.cr-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.cr-bar .seg{flex-wrap:wrap}
+.cr-bar .seg small{margin-left:5px;font-size:10.5px;opacity:.7}
+.cr-strip{display:flex;gap:10px;overflow-x:auto;margin:12px 0 4px;padding-bottom:4px}
+.cr-s{all:unset;cursor:pointer;width:118px;flex:none}
+.cr-s .cr-th{border-radius:8px}
+.cr-s small{display:block;font-size:10.5px;color:var(--sub);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cr-big{border-radius:14px;overflow:hidden;margin:12px 0;display:grid;place-items:center;max-height:62vh}
+.cr-big svg.art{max-height:62vh;width:100%}
+.cr-big.k-vis svg.art{width:auto;height:min(62vh,520px)}
+.cr-big.k-ban{background:repeating-linear-gradient(45deg,#ece8e1 0 8px,#f4f1ec 8px 16px)!important;padding:16px}
+.cr-cmp{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.cr-cmp b{display:block;font-size:12.5px;margin-top:5px}.cr-cmp small{font-size:11px;color:var(--sub)}
+.sp-grid{columns:3 250px;column-gap:16px}
+.spc{break-inside:avoid;margin:0 0 16px;background:#fff;border:1px solid var(--rule);border-radius:14px;padding:12px;font-size:13px;display:flex;flex-direction:column;gap:8px}
+.sp-h{display:flex;align-items:center;gap:8px}
+.sp-av{width:34px;height:34px;border-radius:50%;overflow:hidden;flex:none;box-shadow:0 0 0 1px var(--rule)}
+.sp-h b{font-size:12.5px;display:block;line-height:1.25}
+.sp-h small{color:var(--sub-weak);font-size:11px}
+.sp-pf{font-style:normal;margin-left:auto;font-size:10px;font-weight:800;color:#fff;border-radius:6px;padding:1px 7px;flex:none}
+.spc p{margin:0;line-height:1.6}
+.spc .tag{color:#2a6fb0}
+.sp-img{border-radius:10px;overflow:hidden;position:relative}
+.sp-img.vt{max-width:160px;margin:0 auto;width:100%}
+.sp-play{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px;border-radius:50%;background:rgba(0,0,0,.45);border:2px solid #fff}
+.sp-play::after{content:'';position:absolute;left:17px;top:12px;border-left:15px solid #fff;border-top:9px solid transparent;border-bottom:9px solid transparent}
+.sp-yt{font-size:13px;line-height:1.4}
+.sp-f{display:flex;gap:14px;color:var(--sub);font-size:12px;align-items:center;font-family:'Nunito','Noto Sans JP',sans-serif;font-weight:700}
+.sp-f svg{width:15px;height:15px;vertical-align:-3px;margin-right:4px}
+.sp-f .imp{margin-left:auto}
+.spl{display:grid;gap:10px}
+.spl-r{all:unset;cursor:pointer;display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid var(--rule);border-radius:12px;padding:8px 12px 8px 8px;background:#fcfbf9}
+.spl-r:hover{border-color:var(--accent-line)}
+.spl-i{width:64px;height:64px;border-radius:8px;overflow:hidden}.spl-i svg{width:100%;height:100%}
+.spl-t b{display:block;font-size:13px;line-height:1.4}
+.spl-t small{display:flex;gap:6px;align-items:center;color:var(--sub);font-size:11px;margin-top:3px}
+.spl-t .sp-pf{margin:0}
+.spl-n{display:flex;flex-direction:column;align-items:flex-end;font-size:10.5px;color:var(--sub)}
+.spl-n b{font-size:14px;color:var(--ink);margin-left:4px}
+.tthumb{display:inline-block;width:46px;height:30px;border-radius:5px;overflow:hidden;vertical-align:middle;margin-right:8px;background:#222}
+.tthumb svg{width:100%;height:100%}
+@media(max-width:900px){
+  .hero-in{flex-wrap:wrap;padding:16px;gap:14px}
+  .hero-po{width:96px}
+  .hero-tx h1{font-size:22px}
+  .hero-strip{grid-template-columns:repeat(3,minmax(0,1fr));width:100%}
+  .cr-tops{grid-template-columns:1fr}
+  .cr-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 10px}
+  .sel-po{display:none}
+}
 @media print{.top,#panel,#scrim,#cmdk{display:none}.card{break-inside:avoid;box-shadow:none}}
 
 /* 宣伝設計：客層の地図 */
@@ -538,7 +629,7 @@ tr.tg-few td{color:var(--sub)}
 <header class="top">
   <div class="top-in">
     <div class="brand">CREW<span>作品分析</span></div>
-    <select id="selTitle" class="sel" aria-label="作品"></select>
+    <span id="selPo" class="sel-po"></span><select id="selTitle" class="sel" aria-label="作品"></select>
     <div class="datebox">
       <span id="phaseChip" class="chip"></span>
       <input id="day" type="range" aria-label="基準日">
@@ -807,7 +898,7 @@ function bindTimeline(root){$$('.tl',root).forEach(tl=>{const T=cur(),a=+tl.data
   tl.addEventListener('mouseleave',()=>{cur_.style.display=dt.style.display='none';$$('[data-v]',tl).forEach(el=>{const k=el.dataset.v;el.firstChild.textContent=fmtBy(M[k].u)(at(T,k,Math.min(S.day,b)))})})})}
 
 /* 施策カード（右パネル） */
-function evDetail(T,e,d){const c=CH[e.ch],done=e.d<=d,ks=LAYER_KEYS.filter(k=>has(M[k].need)&&k!=='aimp'&&k!=='sat'&&!(M[k].post&&e.d<0));
+function evDetail0(T,e,d){const c=CH[e.ch],done=e.d<=d,ks=LAYER_KEYS.filter(k=>has(M[k].need)&&k!=='aimp'&&k!=='sat'&&!(M[k].post&&e.d<0));
   const L=e.len||1,o0=absUp(T,e,ks[0],d);
   const rows=ks.map(k=>{const o=absUp(T,e,k,d),m=M[k],rt=RATE.has(k);if(!o)return `<div><span>${m.n}</span><small>計測中</small><span></span></div>`;
     return `<div><span>${m.n}</span><small>${rt?'実施前 '+f1(o.b)+m.u:'ふだんの'+o.w+'日分 '+fN(o.base)+m.u}</small><b class="num">${absTx(o.tot,k)}</b></div>`}).join('');
@@ -868,7 +959,7 @@ const POST_TXT=['本予告を公開しました','キャストからのメッセ
 function posts(T,d,n){const r=R(T,d+500),a=[];for(let i=0;i<8;i++){const dd=d-Math.floor(r()*7),imp=at(T,'oimp',dd)*(0.15+r()*0.5);
   a.push({d:dd,t:POST_TXT[(i+T.seed+d+200)%POST_TXT.length],pf:['X','Instagram','TikTok','YouTube'][Math.floor(r()*4)],imp,eng:imp*(0.02+r()*0.05)})}
   return a.sort((x,y)=>y.eng-x.eng).slice(0,n)}
-I('home','h_posts','反応が大きかった公式の投稿',6,[6],(T,d)=>({d:'直近7日間',h:`<div class="tw"><table><tr><th>投稿</th><th>媒体</th><th class="r">表示</th><th class="r">反応</th></tr>${posts(T,d,3).map(p=>`<tr><td>${p.t}<br><small style="color:var(--sub-weak)">${md(dateOf(T,p.d))}</small></td><td>${p.pf}</td><td class="r">${fN(p.imp)}</td><td class="r">${fN(p.eng)}</td></tr>`).join('')}</table></div>`}));
+I('home','h_posts','反応が大きかった公式の投稿',6,[6],(T,d)=>({d:'直近7日間',h:`<div class="spl">${posts(T,d,3).map((p,i)=>`<button class="spl-r" data-go="creative" data-hit="cr_posts"><span class="spl-i">${sqImg(T,T.seed*43+i+d,'')}</span><span class="spl-t"><b>${p.t}</b><small><i class="sp-pf" style="background:${PF_C[p.pf]}">${p.pf}</i>${md(dateOf(T,p.d))}</small></span><span class="spl-n"><span>表示<b class="num">${fN(p.imp)}</b></span><span>反応<b class="num">${fN(p.eng)}</b></span></span></button>`).join('')}</div>`}));
 const V_PRE=[['p','予告だけで泣きそう。公開日に観に行く'],['p','主題歌が流れた瞬間に鳥肌が立った'],['p','このキャストなら間違いない'],['n','予告で話を見せすぎている気がする'],['p','原作が好きなので楽しみにしている']];
 const V_POST=[['p','後半はずっと泣いていた。もう一度観たい'],['p','家族を誘ってまた行くつもり'],['p','映画館で観てよかったと思える音だった'],['n','中盤が少し長く感じた'],['n','予告の印象とは違う話だった'],['p','エンドロールで誰も席を立たなかった']];
 I('home','h_voice','生の声',6,[3],(T,d)=>{const v=(d<0?V_PRE:V_POST).map(x=>[...x,'SNSの投稿']);
@@ -1093,7 +1184,7 @@ I('deliver','d_owned','公式SNSの伸び',6,[6],(T,d)=>{const i7=sumR(T,'oimp',
    ${chart(T,[{n:'表示回数',vals:slice(T,'oimp',D0,Math.max(d,0),d),c:M.oimp.c,fill:true}],{a:D0,b:Math.max(d,0),u:'回',h:140,marks:T.ev.filter(e=>e.ch==='OWNED').map(e=>({d:e.d,c:CH.OWNED.c}))})}`}});
 I('deliver','d_plat','公式SNSの媒体別',6,[6],(T,d)=>{const r=R(T,6),i=sumR(T,'oimp',D0,d),sh=dist(r,[40,28,20,12],.4);
   return {d:'基準日までの累計',h:`<div class="tw"><table><tr><th>媒体</th><th class="r">投稿</th><th class="r">表示回数</th><th class="r">反応</th><th class="r">反応率</th></tr>${['X','Instagram','TikTok','YouTube'].map((p,k)=>{const im=i*sh[k]/100,er=2+r()*4;return `<tr><td>${p}</td><td class="r">${Math.round((d-D0)/(2+k))}</td><td class="r">${fN(im)}</td><td class="r">${fN(im*er/100)}</td><td class="r">${f2(er)}%</td></tr>`}).join('')}</table></div>`}});
-I('deliver','d_posts','投稿別の反応',6,[6],(T,d)=>({d:'直近7日間・反応の大きい順',h:`<div class="tw"><table><tr><th>投稿</th><th>媒体</th><th class="r">表示</th><th class="r">反応</th><th class="r">反応率</th></tr>${posts(T,d,6).map(p=>`<tr><td>${p.t}</td><td>${p.pf}</td><td class="r">${fN(p.imp)}</td><td class="r">${fN(p.eng)}</td><td class="r">${f2(p.eng/p.imp*100)}%</td></tr>`).join('')}</table></div>`}));
+I('deliver','d_posts','投稿別の反応',6,[6],(T,d)=>({d:'直近7日間・反応の大きい順',h:`<div class="tw"><table><tr><th>投稿</th><th>媒体</th><th class="r">表示</th><th class="r">反応</th><th class="r">反応率</th></tr>${posts(T,d,6).map((p,i)=>`<tr><td><span class="tthumb">${sqImg(T,T.seed*47+i+d,'')}</span>${p.t}</td><td>${p.pf}</td><td class="r">${fN(p.imp)}</td><td class="r">${fN(p.eng)}</td><td class="r">${f2(p.eng/p.imp*100)}%</td></tr>`).join('')}</table></div>`}));
 I('deliver','d_lift','広告のあとに検索が増えたか',6,[5,6],(T,d)=>{const rows=T.ev.filter(e=>e.ch.startsWith('PAID')&&e.d+2<=d).map(e=>({l:e.label,v:Math.max(0,uplift(T,e,'search',d)),c:CH[e.ch].c}));
   return {d:'出稿開始の前後で、検索がどれだけ増えたか',h:rows.length?bars(rows,{fmt:v=>'+'+f1(v),u:'%'}):'<div class="empty">出稿から3日たつと表示されます。</div>'}});
 I('deliver','d_exposed','広告を見た人と見ていない人の差',6,[1,6],(T,d)=>{const i=at(T,'intent',d),r=R(T,8),lift=3+r()*6;
@@ -1265,7 +1356,7 @@ I('audience','u_pre2','観たい気持ちの中身',12,[1],(T,d)=>{const r=R(T,9
 I('audience','u_pre3','観たい形式と単価',6,[1],(T,d)=>{const r=R(T,91),up=120+r()*160;return {d:'週ごとの調査から',h:`${bars([['通常の上映',58],['IMAX・ドルビーなど',22],['4D',9],['こだわらない',11]].map(x=>({l:x[0],v:x[1]*(0.8+r()*.4)})),{fmt:f1,u:'%',c:'#1b3a5b'})}
   <div class="kpis" style="margin-top:12px">${kpi('追加で払ってもよい額',fN(up),'円','特別な形式に対して')}${kpi('チケットの平均単価（見込み）',fN(1450+up*.22),'円')}${kpi('1上映あたりの席数',150,'席','公開規模からの想定')}</div>`}},DP);
 I('audience','u_creative','記憶に残った宣伝素材',6,[1],(T,d)=>{const r=R(T,92),i=at(T,'intent',Math.min(d,-1));
-  return {d:'見た覚えがある人の割合と、その人たちの観たい率',h:`<div class="tw"><table><tr><th>素材</th><th class="r">見た覚えがある</th><th class="r">見た人の観たい率</th><th class="r">全体との差</th></tr>${['本予告','特報','ポスター','TVスポット','主題歌の映像'].map(n=>{const l=2+r()*9;return `<tr><td>${n}</td><td class="r">${f1(12+r()*30)}%</td><td class="r">${f1(i+l)}%</td><td class="r" style="color:var(--goodtx)">+${f1(l)}pt</td></tr>`}).join('')}</table></div>`}},DP);
+  return {d:'見た覚えがある人の割合と、その人たちの観たい率',h:`<div class="tw"><table><tr><th>素材</th><th class="r">見た覚えがある</th><th class="r">見た人の観たい率</th><th class="r">全体との差</th></tr>${['本予告','特報','ポスター','TVスポット','主題歌の映像'].map(n=>{const l=2+r()*9;return `<tr><td><span class="tthumb">${matArt(T,n)}</span>${n}</td><td class="r">${f1(12+r()*30)}%</td><td class="r">${f1(i+l)}%</td><td class="r" style="color:var(--goodtx)">+${f1(l)}pt</td></tr>`}).join('')}</table></div>`}},DP);
 I('audience','u_rival','一緒に検討されている作品',6,[1],(T,d)=>{const r=R(T,93);return {d:'この作品を観たい人が、同じ時期にほかに観たい作品',h:bars(comps(T).map(c=>({l:c.n,v:8+r()*28,c:c.c})).sort((a,b)=>b.v-a.v),{fmt:f1,u:'%'})+'<div class="note">割合が高い作品とは、同じ客を取り合います。</div>'}},DP);
 I('audience','u_items','調査で取得している項目',6,[1],()=>({d:'週ごとの調査',h:`<div class="words">${['認知','認知の深さ','観たい気持ち','観る確かさ','観る時期','同行者','劇場か配信か','観たい形式','追加で払える額','知ったきっかけ','観たい理由','見た覚えのある素材','一緒に検討している作品'].map(w=>`<span>${w}</span>`).join('')}</div>`}),DP);
 
@@ -1442,7 +1533,7 @@ I('acts','a_answer','施策の答え合わせ',12,[2],(T,d)=>{const c=castRoutes
    <div class="note">この表に出てこない施策の種類：${c.none.map(x=>`${CH[x.c].n}（費用の${f1(x.cost)}%）`).join('、')}。アンケートの選択肢に、対応する経路がありません。SNSや動画サイトで見た広告は「X・Instagram・YouTube・TikTok」に、舞台挨拶は記事やニュースの経路に入ります。</div>
    <div class="sub-h">どの宣伝素材を覚えていて、どれで観たいと思ったか</div>
    <div class="tw"><table class="ans"><tr><th>宣伝素材</th><th>対応する施策</th><th>見た覚えがある<small>（あてはまるものすべて）</small></th><th>いちばん観たいと思わせた<small>（1つだけ）</small></th></tr>
-    ${mats.map(m=>{const ev=evOf(m);return `<tr><td>${m.n}</td><td>${ev.length?ev.slice(0,2).map(e=>`<button class="sq" data-jev="${e.id}" style="border-color:${CH[e.ch].c}"><i class="cdot" style="background:${CH[e.ch].c}"></i>${e.ty}</button>`).join(''):'<span class="fx-n">—</span>'}</td>${bar(m.seen,'#d9b48a',mm)}${bar(m.best,'#8a4b12',mm)}</tr>`}).join('')}</table></div>
+    ${mats.map(m=>{const ev=evOf(m);return `<tr><td><span class="tthumb">${matArt(T,m.n)}</span>${m.n}</td><td>${ev.length?ev.slice(0,2).map(e=>`<button class="sq" data-jev="${e.id}" style="border-color:${CH[e.ch].c}"><i class="cdot" style="background:${CH[e.ch].c}"></i>${e.ty}</button>`).join(''):'<span class="fx-n">—</span>'}</td>${bar(m.seen,'#d9b48a',mm)}${bar(m.best,'#8a4b12',mm)}</tr>`}).join('')}</table></div>
    <div class="note">素材は、施策の種類とそのまま対応します。施策を押すと、日誌のその施策が開きます。</div>
    ${c.W>=1?`<div class="sub-h">いちばんのきっかけの移り変わり</div>${heat(ROUTES2.map(x=>x.n),wk.map(w=>`公開${w+1}週目`),(i,j)=>castWeek(T,j).one[i])}<div class="note">週を追って、入口がどこへ移っているかを見ます。口コミが増えていれば、感想を広げる施策が効く時期です。</div>`:'<div class="note">2週目に入ると、週ごとの移り変わりが出ます。</div>'}
    <div class="note">回答した人に偏りがあるため、数字は目安です。回答の少ない週は集計から外します。</div>`}},{when:'post'});
@@ -1465,7 +1556,7 @@ const SRC_USE={
   h_views:[3,6,4,1,'B'],h_moves:[3,6,5,4,1,2],h_goal:['B',1],h_all:[3,6,5,4,1,2],
   o_pos:[3,6,5,4],o_final:['B',4,2],o_legs:['B'],o_similar:['B',1],o_supply:['S','B'],o_comp:['S'],o_check:['B'],
   o_share:['B','S',1],o_winlose:[1,3,6,'S'],o_slate:['S'],o_cmpts:[3,6,5,4,1],o_mult:['B',4,2],o_how:[],
-  o_simsat:[2,'B'],a_answer:[2,6],p_gap:[1,2],p_hit:[2,'B'],
+  o_simsat:[2,'B'],a_answer:[2,6],cr_top:[6],cr_wall:[6],cr_posts:[6],cr_next:[6],p_gap:[1,2],p_hit:[2,'B'],
   o_demand:[1,'S'],o_sim:[1,'S'],o_pressure:[1,'S'],o_upside:[1,6],o_curve:['B',1],o_demandix:[1,2,'S']
 };
 const srcPhase=k=>typeof k!=='number'?0:[3,6].includes(k)?1:[4,5].includes(k)?2:3;
@@ -1484,11 +1575,188 @@ function castGuide(T,d){const sp=S.phase;S.phase=3;const post=ITEMS.filter(it=>(
    <div class="cg-row ${sp===3&&!isPre?'cur':''}"><div class="cg-h"><b>公開後</b>この作品を観た人の回答で、確かめる<button class="btn" data-day="2" data-cgp>公開3日目にする</button><button class="btn" data-day="20" data-cgp>公開3週目にする</button></div><div class="cg-c">${chips(post,20,sp===3&&!isPre)}</div></div>
    <div class="note">項目を押すと、Phase 3・その時期の表示に切り替えて、その項目へ移動します。基準日は、上のスライダーでも公開後まで動かせます。</div></details>`}
 
+/* ================= ビジュアル素材（ポスター・映像・写真・SNS投稿） =================
+   本番は配給会社から受け取った画像・動画のサムネイルを使う。見本では作品ごとに絵を描いている */
+const ART_TH={
+  t1:{m:'stars',g:['#0b1240','#33266b','#b9608f'],tx:'#fff4dc',ac:'#ffd98a',fg:'#0a0d24',pc:'#070a1c',copy:'あの夜、星がひとつ歌いはじめた。',fig:'pair',h:'hoshifuru_movie'},
+  t2:{m:'rail',g:['#061114','#123238','#4a1818'],tx:'#f1e6cf',ac:'#e3b65a',fg:'#030809',pc:'#010304',copy:'終電のあと、真実が動き出す。',fig:'one',h:'lasttrain_movie'},
+  t3:{m:'hills',g:['#5fbfee','#bfe7fb','#fff0b8'],tx:'#ffffff',ac:'#ff7a59',fg:'#3f9a5f',pc:'#2b3a55',copy:'小さな体で、大きな世界へ。',fig:'kid',dark:1,h:'bokura_daibouken'},
+  a1:{m:'petals',g:['#e9a6a9','#f6ddd2','#a9cfd2'],tx:'#ffffff',ac:'#d9586f',fg:'#7a5262',pc:'#5a3e4a',copy:'春が来るたび、君を思い出す。',fig:'pair',dark:1,h:'kyonen_haru'},
+  a2:{m:'sea',g:['#1b6aa3','#7cc3ea','#fff1c2'],tx:'#ffffff',ac:'#f2a33a',fg:'#e9cf98',pc:'#18405e',copy:'最後の夏休みが、はじまる。',fig:'pair',dark:1,h:'natsu_homeroom'}
+};
+const thOf=T=>ART_TH[T.k]||ART_TH.t1;
+let _aid=0;
+const FT=`font-family="'Zen Maru Gothic','Noto Sans JP',sans-serif"`;
+function person(x,y,s,c){return `<g fill="${c}"><circle cx="${x}" cy="${y-s*.86}" r="${s*.13}"/><path d="M${x-s*.17} ${y-s*.68}Q${x} ${y-s*.78} ${x+s*.17} ${y-s*.68}L${x+s*.13} ${y-s*.28}L${x+s*.1} ${y}L${x-s*.1} ${y}L${x-s*.13} ${y-s*.28}Z"/></g>`}
+function figs(th,w,h,y,fx,fs){const x=w*fx;
+  if(th.fig==='one')return person(x,y,fs*1.15,th.pc)+`<path d="M${x-fs*.15} ${y-fs*.5}L${x-fs*.24} ${y}L${x+fs*.24} ${y}L${x+fs*.15} ${y-fs*.5}Z" fill="${th.pc}"/>`;
+  if(th.fig==='kid')return person(x,y,fs*.7,th.pc)+`<ellipse cx="${x+fs*.28}" cy="${y-fs*.08}" rx="${fs*.12}" ry="${fs*.08}" fill="${th.pc}"/><circle cx="${x+fs*.38}" cy="${y-fs*.17}" r="${fs*.06}" fill="${th.pc}"/>`;
+  return person(x-fs*.14,y,fs,th.pc)+person(x+fs*.14,y,fs*.9,th.pc)}
+function scene(th,w,h,sd,o={}){const r=rng(sd),id='ar'+(++_aid),m=Math.min(w,h),hz=h*(o.hz||.8),fs=(o.fs||.3)*h,fx=o.fx!=null?o.fx:.3+r()*.4;
+  let s=`<defs><linearGradient id="${id}g" x1="0" y1="0" x2="0" y2="1">${th.g.map((c,i)=>`<stop offset="${i/(th.g.length-1)}" stop-color="${c}"/>`).join('')}</linearGradient><radialGradient id="${id}r"><stop offset="0" stop-color="${th.ac}" stop-opacity=".85"/><stop offset="1" stop-color="${th.ac}" stop-opacity="0"/></radialGradient></defs><rect width="${w}" height="${h}" fill="url(#${id}g)"/>`;
+  if(th.m==='stars'){for(let i=0;i<Math.round(40+w*h/900);i++)s+=`<circle cx="${(r()*w).toFixed(1)}" cy="${(r()*hz*.9).toFixed(1)}" r="${((r()*1.1+.3)*m/200).toFixed(2)}" fill="#fff" opacity="${(.3+r()*.7).toFixed(2)}"/>`;
+    const mx=w*(.62+r()*.25),my=h*(.14+r()*.12);s+=`<circle cx="${mx}" cy="${my}" r="${m*.26}" fill="url(#${id}r)" opacity=".45"/><circle cx="${mx}" cy="${my}" r="${m*.07}" fill="#fff6dc"/>`;
+    s+=`<path d="M${w*(.08+r()*.2)} ${h*.1}l${m*.22} ${m*.1}" stroke="#fff" stroke-width="${m/240}" opacity=".75" stroke-linecap="round"/>`;
+    s+=`<path d="M0 ${hz}Q${w*.3} ${hz-h*.07} ${w*.55} ${hz-h*.015}T${w} ${hz-h*.05}V${h}H0Z" fill="${th.fg}"/>`;
+    if(!o.nofig)s+=figs(th,w,h,hz-h*.02,fx,fs)}
+  else if(th.m==='rail'){const vx=w*(.45+r()*.2),vy=hz*.55;
+    s+=`<circle cx="${vx}" cy="${vy}" r="${m*.5}" fill="url(#${id}r)" opacity=".55"/><rect y="${vy}" width="${w}" height="${h-vy}" fill="${th.fg}" opacity=".88"/>`;
+    [.18,.38,.62,.82].forEach(t=>s+=`<path d="M${vx} ${vy}L${w*t} ${h}" stroke="${th.ac}" stroke-width="${m/160}" opacity=".45"/>`);
+    for(let i=1;i<7;i++){const t=Math.pow(i/7,1.5),lx=vx+(w*-.05-vx)*t,ly=vy-h*.03+(h*.06-vy)*t;s+=`<circle cx="${lx}" cy="${ly}" r="${m*.09*t+1}" fill="url(#${id}r)"/><circle cx="${lx}" cy="${ly}" r="${m*.012*t+.6}" fill="#fff3d0"/>`}
+    s+=`<circle cx="${vx}" cy="${vy}" r="${m*.025}" fill="#fff"/><rect x="${w*.76}" y="${h*.28}" width="${w*.13}" height="${h*.018}" fill="#e0533f" opacity=".85"/>`;
+    for(let i=0;i<Math.round(30+w*h/1500);i++){const x=r()*w,y=r()*h;s+=`<path d="M${x.toFixed(1)} ${y.toFixed(1)}l${-m*.012} ${m*.06}" stroke="#cfe3e6" stroke-width="${m/320}" opacity=".28"/>`}
+    if(!o.nofig)s+=figs(th,w,h,hz,fx,fs)}
+  else if(th.m==='hills'){s+=`<circle cx="${w*.8}" cy="${h*.2}" r="${m*.3}" fill="url(#${id}r)" opacity=".35"/><circle cx="${w*.8}" cy="${h*.2}" r="${m*.09}" fill="#fff6c8"/>`;
+    for(let i=0;i<3;i++){const cx=r()*w,cy=h*(.12+r()*.25),k=m*(.05+r()*.04);s+=`<g fill="#fff" opacity=".92"><ellipse cx="${cx}" cy="${cy}" rx="${k*2}" ry="${k*.8}"/><ellipse cx="${cx-k*.6}" cy="${cy-k*.5}" rx="${k}" ry="${k*.8}"/><ellipse cx="${cx+k*.5}" cy="${cy-k*.6}" rx="${k*1.1}" ry="${k*.9}"/></g>`}
+    const bx=w*(.12+r()*.22),by=h*(.28+r()*.14);s+=`<path d="M${bx} ${by+m*.055}q${m*.02} ${m*.08} ${-m*.01} ${m*.16}" stroke="#555" stroke-width="${m/300}" fill="none"/><ellipse cx="${bx}" cy="${by}" rx="${m*.045}" ry="${m*.056}" fill="${th.ac}"/>`;
+    [['#b5e3a0',.13],['#7ccb84',.06],[th.fg,0]].forEach(([c,k],i)=>s+=`<path d="M0 ${hz-h*k}Q${w*(.25+i*.15)} ${hz-h*(k+.1)} ${w*.6} ${hz-h*k}T${w} ${hz-h*(k+.04)}V${h}H0Z" fill="${c}"/>`);
+    if(!o.nofig)s+=figs(th,w,h,hz,fx,fs)}
+  else if(th.m==='petals'){s+=`<circle cx="${w*.25}" cy="${h*.22}" r="${m*.35}" fill="#fff" opacity=".35"/>`;
+    for(let i=0;i<Math.round(25+w*h/1800);i++){const x=r()*w,y=r()*h,k=m*(.01+r()*.012);s+=`<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="${k*1.6}" ry="${k}" fill="#fff" opacity="${(.45+r()*.5).toFixed(2)}" transform="rotate(${Math.round(r()*180)} ${x.toFixed(1)} ${y.toFixed(1)})"/>`}
+    s+=`<path d="M0 ${hz}Q${w*.5} ${hz-h*.05} ${w} ${hz}V${h}H0Z" fill="${th.fg}" opacity=".55"/>`;if(!o.nofig)s+=figs(th,w,h,hz,fx,fs)}
+  else{const sy=hz-h*.16;s+=`<circle cx="${w*.7}" cy="${sy}" r="${m*.3}" fill="url(#${id}r)" opacity=".6"/><circle cx="${w*.7}" cy="${sy}" r="${m*.11}" fill="#fff3c9"/><rect y="${sy}" width="${w}" height="${h-sy}" fill="#1f6f9e" opacity=".9"/>`;
+    for(let i=0;i<6;i++)s+=`<rect x="${w*(.45+r()*.4)}" y="${sy+(hz-sy)*(.1+i*.15)}" width="${w*(.04+r()*.1)}" height="${m/150}" fill="#fff3c9" opacity=".6"/>`;
+    s+=`<path d="M0 ${hz}Q${w*.5} ${hz-h*.04} ${w} ${hz+h*.02}V${h}H0Z" fill="${th.fg}"/>`;if(!o.nofig)s+=figs(th,w,h,hz+h*.03,fx,fs)}
+  return s}
+const svgW=(w,h,inner,o={})=>`<svg class="art" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid ${o.fit||'slice'}" role="img" aria-label="${o.lbl||''}">${inner}</svg>`;
+function tLines(n){if(n.length<=9)return [n];const i=n.indexOf('・');if(i>0)return [n.slice(0,i),n.slice(i+1)];const j=n.indexOf('の');return j>0&&j<n.length-2?[n.slice(0,j+1),n.slice(j+1)]:[n]}
+function titleTx(T,th,cx,cy,maxW,maxF,anc='middle'){const L=tLines(T.name),fs=Math.min(maxF,maxW/Math.max(...L.map(l=>l.length))),sh=th.dark?` stroke="rgba(0,0,0,.3)" stroke-width="${(fs*.14).toFixed(1)}" paint-order="stroke"`:'';
+  return L.map((l,i)=>`<text x="${cx}" y="${cy+i*fs*1.12}" font-size="${fs.toFixed(1)}" font-weight="900" fill="${th.tx}" text-anchor="${anc}" letter-spacing="1" ${FT}${sh}>${l}</text>`).join('')}
+const openTx=(T,short)=>{const o=T.open;return short?`${o.getMonth()+1}.${o.getDate()}`:`${o.getMonth()+1}月${o.getDate()}日 全国ロードショー`};
+function poster(T,o={}){const th=thOf(T),w=200,h=300,id='ap'+(++_aid),tz=!!o.teaser;
+  let s=scene(th,w,h,T.seed*3+(tz?7:1),{hz:tz?.92:.74,fs:tz?.13:.34,fx:.5});
+  s+=`<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset=".45" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".62"/></linearGradient></defs><rect width="${w}" height="${h}" fill="url(#${id})"/>`;
+  s+=`<text x="${w/2}" y="${h*.085}" font-size="8.6" fill="${th.tx}" text-anchor="middle" letter-spacing="1.5" ${FT} font-weight="700"${th.dark?' stroke="rgba(0,0,0,.25)" stroke-width="1.4" paint-order="stroke"':''}>${th.copy}</text>`;
+  s+=titleTx(T,th,w/2,tz?h*.55:h*.8,w*.84,tz?22:28);
+  s+=`<text x="${w/2}" y="${h*.955}" font-size="8" fill="#fff" text-anchor="middle" letter-spacing="1" ${FT} font-weight="700">${tz?`${T.open.getFullYear()}年 公開`:openTx(T)}</text>`;
+  if(!tz)for(let i=0;i<3;i++)s+=`<rect x="${w*(.16+i*.03)}" y="${h*(.895+i*.014)}" width="${w*(.68-i*.06)}" height="1.6" fill="#fff" opacity=".35"/>`;
+  return svgW(w,h,s,{lbl:T.name+(tz?' ティザービジュアル':' ポスター'),fit:o.fit||'meet'})}
+function still(T,i,o={}){const th=thOf(T),w=320,h=180,r=rng(T.seed*11+i),close=i%2===1;
+  return svgW(w,h,scene(th,w,h,T.seed*11+i*5,{hz:.72+r()*.14,fs:close?.62:.32,fx:close?(.25+r()*.5):(.2+r()*.6)}),{lbl:'場面写真'})}
+function stagePic(T,i){const th=thOf(T),w=320,h=180,r=rng(T.seed*13+i),id='as'+(++_aid);
+  let s=`<rect width="${w}" height="${h}" fill="#17130f"/><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1">${th.g.map((c,k)=>`<stop offset="${k/(th.g.length-1)}" stop-color="${c}"/>`).join('')}</linearGradient></defs>
+    <rect x="${w*.06}" y="${h*.06}" width="${w*.88}" height="${h*.56}" fill="url(#${id})"/>${titleTx(T,th,w/2,h*.3,w*.5,20)}
+    <rect y="${h*.7}" width="${w}" height="${h*.3}" fill="#3a2e25"/>`;
+  for(let k=0;k<3;k++)s+=`<path d="M${w*(.2+k*.3)} 0L${w*(.1+k*.3)} ${h*.75}L${w*(.32+k*.3)} ${h*.75}Z" fill="#fff" opacity=".06"/>`;
+  const n=4+Math.floor(r()*2);for(let k=0;k<n;k++)s+=person(w*(.2+k*.6/(n-1)),h*.82,h*(.4+r()*.1),'#0b0908');
+  for(let k=0;k<4;k++){const x=r()*w,y=h*(.05+r()*.5);s+=`<circle cx="${x}" cy="${y}" r="9" fill="#fff" opacity=".12"/><circle cx="${x}" cy="${y}" r="2.2" fill="#fff"/>`}
+  return svgW(w,h,s,{lbl:'イベント写真'})}
+function movThumb(T,i,lbl,dur){const th=thOf(T),w=320,h=180,id='am'+(++_aid),r=rng(T.seed*17+i);
+  let s=scene(th,w,h,T.seed*17+i*3,{hz:.74+r()*.1,fs:.36+r()*.2,fx:.25+r()*.5});
+  s+=`<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset=".5" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".65"/></linearGradient></defs><rect width="${w}" height="${h}" fill="url(#${id})"/>`;
+  s+=`<text x="48" y="${h-14}" font-size="14" font-weight="900" fill="#fff" ${FT}>${lbl}</text>`;
+  s+=`<circle cx="${w/2}" cy="${h/2-6}" r="21" fill="rgba(0,0,0,.45)" stroke="#fff" stroke-width="2"/><path d="M${w/2-6} ${h/2-17}L${w/2+11} ${h/2-6}L${w/2-6} ${h/2+5}Z" fill="#fff"/>`;
+  if(dur)s+=`<rect x="${w-84}" y="${h-25}" width="38" height="16" rx="4" fill="rgba(0,0,0,.7)"/><text x="${w-65}" y="${h-13}" font-size="10.5" fill="#fff" text-anchor="middle" font-family="Nunito,sans-serif" font-weight="700">${dur}</text>`;
+  return svgW(w,h,s,{lbl:lbl})}
+function banner(T,i,sz,cta){const th=thOf(T),W=sz==='wide'?400:300,H=sz==='wide'?100:250,id='ab'+(++_aid);
+  let s=scene(th,W,H,T.seed*19+i,{hz:.85,fs:sz==='wide'?.6:.3,fx:sz==='wide'?.86:.72})+`<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#000" stop-opacity=".6"/><stop offset=".7" stop-color="#000" stop-opacity="0"/></linearGradient></defs><rect width="${W}" height="${H}" fill="url(#${id})"/>`;
+  if(sz==='wide')s+=`<text x="14" y="26" font-size="9.5" fill="#fff" ${FT} font-weight="700">${th.copy}</text>${titleTx({...T,name:T.name},{...th,tx:'#fff',dark:0},14,58,W*.55,26,'start')}<rect x="${W*.6}" y="${H/2-13}" width="${W*.2}" height="26" rx="13" fill="${th.ac}"/><text x="${W*.7}" y="${H/2+4.5}" font-size="11" font-weight="900" fill="#1b1b1b" text-anchor="middle" ${FT}>${cta}</text>`;
+  else s+=`<text x="16" y="30" font-size="11" fill="#fff" ${FT} font-weight="700">${th.copy}</text>${titleTx(T,{...th,tx:'#fff',dark:0},16,H*.6,W*.7,30,'start')}<text x="16" y="${H*.6+(tLines(T.name).length)*30+2}" font-size="11" fill="#fff" ${FT} font-weight="700">${openTx(T)}</text><rect x="16" y="${H-46}" width="${W*.5}" height="30" rx="15" fill="${th.ac}"/><text x="${16+W*.25}" y="${H-26.5}" font-size="12" font-weight="900" fill="#1b1b1b" text-anchor="middle" ${FT}>${cta}</text>`;
+  return svgW(W,H,s,{lbl:'広告バナー',fit:'meet'})}
+function sqImg(T,i,band,o={}){const th=thOf(T),w=o.w||240,h=o.h||240,r=rng(T.seed*23+i);
+  let s=scene(th,w,h,T.seed*23+i*7,{hz:.78+r()*.08,fs:.34+r()*.18,fx:.25+r()*.5});
+  if(band)s+=`<rect y="${h*.06}" width="${w}" height="${h*.16}" fill="rgba(0,0,0,.55)"/><text x="${w/2}" y="${h*.06+h*.11}" font-size="${Math.min(h*.09,w*.8/band.length)}" font-weight="900" fill="#fff" text-anchor="middle" ${FT}>${band}</text>`;
+  return svgW(w,h,s,{lbl:band||'投稿画像'})}
+
+/* ---------- 素材の一覧（施策から作る） ---------- */
+const CR_K={vis:'ポスター・ビジュアル',mov:'映像',still:'場面写真',photo:'イベント写真',ban:'広告バナー',post:'SNS用の画像'};
+const CR_F=[['all','すべて'],['vis','ポスター・ビジュアル'],['mov','映像'],['ph','写真'],['ban','広告バナー'],['post','SNS用の画像']];
+const CR_MAP={
+  '製作発表':[['vis','ティザービジュアル',{tz:1}]],'キャスト解禁':[['post','キャスト解禁の告知画像',{band:'キャスト解禁'}]],
+  '特報の広告':[['mov','特報',{dur:'0:30'}],['ban','特報の広告バナー（横長）',{sz:'wide'}]],
+  '本予告の解禁':[['mov','本予告',{dur:'1:32'}],['vis','本ポスター']],'主題歌の発表':[['mov','主題歌入り特別映像',{dur:'2:05'}]],
+  '本予告の広告':[['mov','本予告 15秒版',{dur:'0:15'}],['ban','本予告の広告バナー',{sz:'rect'}],['ban','本予告の広告バナー（横長）',{sz:'wide'}]],
+  '完成披露':[['photo','完成披露試写会の写真']],'TVスポット':[['mov','TVスポット 15秒',{dur:'0:15'}],['mov','TVスポット 30秒',{dur:'0:30'}]],
+  '場面写真・カウントダウン':[['still','場面写真 1'],['still','場面写真 2'],['still','場面写真 3'],['post','カウントダウン画像',{band:'公開まであと3日'}]],
+  '公開直前の広告':[['mov','公開直前 15秒版',{dur:'0:15'}],['ban','公開直前の広告バナー',{sz:'rect'}]],
+  '前夜祭':[['photo','前夜祭の写真']],'初日舞台挨拶':[['photo','初日舞台挨拶の写真']],
+  '感想投稿キャンペーン':[['post','感想投稿キャンペーンの告知画像',{band:'感想を投稿しよう'}],['ban','キャンペーンのバナー（横長）',{sz:'wide'}]],
+  '大ヒット御礼':[['photo','大ヒット御礼 舞台挨拶の写真']],
+  '口コミ訴求の広告':[['mov','口コミ版 15秒',{dur:'0:15'}],['ban','口コミ訴求のバナー',{sz:'rect'}]],
+  '入場者特典の告知':[['post','入場者特典 第2弾の告知画像',{band:'入場者特典 第2弾'}]]
+};
+function crList(T){const out=[];let n=0;T.ev.forEach(e=>(CR_MAP[e.ty]||[]).forEach((c,j)=>{out.push({id:e.id+'_'+j,e,k:c[0],n:c[1],o:c[2]||{},d:e.d,i:n++})}));return out.sort((a,b)=>a.d-b.d||a.i-b.i)}
+function crArt(T,c){const o=c.o,cta=c.d<0?'前売券 発売中':'大ヒット上映中';
+  return c.k==='vis'?poster(T,{teaser:o.tz}):c.k==='mov'?movThumb(T,c.i,c.n,o.dur):c.k==='still'?still(T,c.i):c.k==='photo'?stagePic(T,c.i):c.k==='ban'?banner(T,c.i,o.sz,cta):sqImg(T,c.i,o.band)}
+function crStats(T,c,d){if(c.d>d)return null;const r=rng(T.seed*29+c.i*13),g=1-Math.exp(-(d-c.d+1)/4),pw=T.power*(c.e.str||1),ad=isAd(c.e);
+  if(c.k==='mov'){const v=(ad?260000:140000)*pw*(0.6+r()*0.8)*g,cr=22+r()*38;return {a:['再生',fN(v),'回'],b:['最後まで見た割合',f1(cr),'%'],eng:v*(0.03+cr/1500)}}
+  if(c.k==='ban'){const v=900000*pw*(0.5+r())*g,ct=0.25+r()*0.9;return {a:['表示',fN(v),'回'],b:['クリック率',f2(ct),'%'],eng:v*ct/100*2.2}}
+  const v=95000*pw*(0.5+r())*g*(c.k==='photo'?1.25:1),er=2.2+r()*5.5;return {a:['投稿の表示',fN(v),'回'],b:['反応率',f1(er),'%'],eng:v*er/100}}
+function crCard(T,c,d,rank){const st=crStats(T,c,d),th=thOf(T),pl=c.d>d;
+  return `<button class="cr ${pl?'plan':''}" data-cr="${c.id}"><span class="cr-th k-${c.k}" style="background:${th.g[0]}">${crArt(T,c)}<i class="cr-k">${CR_K[c.k]}</i>${rank?`<i class="cr-rank num">${rank}</i>`:''}${pl?'<i class="cr-plan">公開予定</i>':''}</span>
+    <span class="cr-n">${c.n}</span><span class="cr-m"><span>${md(dateOf(T,c.d))}｜${relLbl(c.d)}</span>${st?`<span>${st.a[0]} <b>${st.a[1]}</b>${st.a[2]}</span><span>${st.b[0]} <b>${st.b[1]}</b>${st.b[2]}</span>`:''}</span></button>`}
+const crTop=(T,d)=>crList(T).filter(c=>c.d<=d).map(c=>({c,s:crStats(T,c,d)})).sort((a,b)=>b.s.eng-a.s.eng);
+
+/* ---------- SNSの投稿（公式アカウント） ---------- */
+const PF_C={X:'#16181c',Instagram:'#c13584',TikTok:'#111',YouTube:'#e62117'};
+const IC={like:'<svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.2C1 8.6 3 5 6.6 5c2 0 3.4 1.1 4.4 2.5C12 6.1 13.4 5 15.4 5 19 5 21 8.6 19.6 11.8 17.5 16.4 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+  rp:'<svg viewBox="0 0 24 24"><path d="M4 9h12l-3-3M20 15H8l3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  cm:'<svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+  eye:'<svg viewBox="0 0 24 24"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>'};
+const SP_TXT={'キャスト解禁':'追加キャストが決定しました。','本予告の解禁':'本予告を公開しました。ぜひ最後まで。','主題歌の発表':'主題歌が決定しました。特別映像も公開中です。','場面写真・カウントダウン':'公開まであと少し。場面写真を公開します。','感想投稿キャンペーン':'観た感想を、ハッシュタグをつけて投稿してください。','入場者特典の告知':'入場者特典の第2弾が決まりました。','完成披露':'完成披露試写会にご来場いただき、ありがとうございました。','初日舞台挨拶':'本日公開しました。初日舞台挨拶のレポートです。','大ヒット御礼':'大ヒット御礼の舞台挨拶を行いました。','製作発表':'製作が決定しました。ティザービジュアルを公開します。','前夜祭':'前夜祭にお越しいただいた皆さま、ありがとうございました。'};
+const _sp={};
+function spFeed(T){const key=T.k+'|'+T.ev.length;if(_sp[key])return _sp[key];const r=rng(T.seed*31+3),a=[],pfs=['X','Instagram','TikTok','YouTube'];
+  const evd={};T.ev.filter(e=>!isAd(e)).forEach(e=>evd[e.d]=e);
+  for(let x=D0+4;x<=D1;x++){const e=evd[x];if(!e&&r()>(x>-21&&x<14?.55:.28))continue;
+    const pf=e?(e.ty.includes('予告')||e.ty.includes('主題歌')?'YouTube':pfs[Math.floor(r()*3)]):pfs[Math.floor(r()*4)],t=e?(SP_TXT[e.ty]||e.label):POST_TXT[Math.floor(r()*POST_TXT.length)];
+    const imp=Math.max(800,at(T,'oimp',x)*(0.25+r()*0.55)*(e?1.8:1)),er=(pf==='TikTok'?5:pf==='Instagram'?3.6:2.4)*(0.6+r()*0.8)/100;
+    a.push({d:x,pf,t,e,i:a.length,imp,eng:imp*er,vid:pf==='TikTok'||pf==='YouTube',band:e&&CR_MAP[e.ty]&&(CR_MAP[e.ty].find(c=>c[2]&&c[2].band)||[])[2]?.band})}
+  return _sp[key]=a}
+const tagOf=T=>'#'+T.name.replace(/[・\s]/g,'');
+function spImg(T,p){const s=T.seed*37+p.i;return p.pf==='TikTok'?sqImg(T,s,p.band||'',{w:180,h:320}):p.pf==='YouTube'?movThumb(T,s,p.e?p.e.ty:'特別映像',['0:15','0:30','1:02','2:05'][p.i%4]):p.pf==='Instagram'?sqImg(T,s,p.band):sqImg(T,s,p.band,{w:320,h:180})}
+function spCard(T,p){const th=thOf(T),pf=p.pf,dt=md(dateOf(T,p.d)),av=`<span class="sp-av">${poster(T,{fit:'slice'})}</span>`,
+  hd=`<div class="sp-h">${av}<span><b>映画「${T.name}」公式</b><small>@${th.h} · ${dt}</small></span><i class="sp-pf" style="background:${PF_C[pf]}">${pf}</i></div>`,
+  tx=`<p>${p.t} <span class="tag">${tagOf(T)}</span></p>`,img=`<div class="sp-img ${pf==='TikTok'?'vt':''}">${spImg(T,p)}${pf==='TikTok'?`<i class="sp-play"></i>`:''}</div>`,
+  ft=`<div class="sp-f"><span>${IC.like}${fN(p.eng*.74)}</span><span>${IC.rp}${fN(p.eng*.14)}</span><span>${IC.cm}${fN(p.eng*.05)}</span><span class="imp">${IC.eye}${fN(p.imp)}</span></div>`;
+  return `<article class="spc" data-pf="${pf}">${pf==='Instagram'?hd+img+ft+tx:pf==='YouTube'?img+`<b class="sp-yt">${p.e?p.e.ty:p.t}｜映画「${T.name}」</b>`+hd+ft:hd+tx+img+ft}</article>`}
+
+/* ---------- 素材のページ ---------- */
+PAGES.splice(1,0,{k:'creative',n:'素材',q:'どんな素材を出し、どれが反応を取ったか'});
+I('creative','cr_top','反応が大きかった素材',12,[6],(T,d)=>{const tp=crTop(T,d).slice(0,3);
+  return {d:`${relLbl(d)}までに出した素材から`,h:tp.length?`<div class="cr-tops">${tp.map((x,i)=>crCard(T,x.c,d,i+1)).join('')}</div><div class="note">「反応」は、再生・クリック・いいね等を同じ物差しにそろえた数です。素材を押すと、くわしい数字と、その素材を出した施策が開きます。</div>`:'<div class="empty">まだ素材を出していません。</div>'}},{hide:d=>!crList(cur()).some(c=>c.d<=d)});
+I('creative','cr_wall','素材の一覧',12,[6],(T,d)=>{const all=crList(T),f=S.crf||'all',srt=S.crs||'new';
+  let L=all.filter(c=>c.d<=d&&(f==='all'||(f==='ph'?['still','photo'].includes(c.k):c.k===f)));
+  L=srt==='eng'?L.sort((a,b)=>crStats(T,b,d).eng-crStats(T,a,d).eng):L.reverse();
+  const cnt=k=>all.filter(c=>c.d<=d&&(k==='all'||(k==='ph'?['still','photo'].includes(c.k):c.k===k))).length;
+  return {d:`${all.filter(c=>c.d<=d).length}点`,h:`<div class="cr-bar"><span class="seg">${CR_F.map(([k,n])=>`<button class="${f===k?'on':''}" data-crf="${k}">${n}<small class="num">${cnt(k)}</small></button>`).join('')}</span><span class="sp"></span><span class="seg">${[['new','新しい順'],['eng','反応の大きい順']].map(([k,n])=>`<button class="${srt===k?'on':''}" data-crs="${k}">${n}</button>`).join('')}</span></div>
+    ${L.length?`<div class="cr-grid">${L.map(c=>crCard(T,c,d)).join('')}</div>`:'<div class="empty">この種類の素材は、まだありません。</div>'}`}});
+I('creative','cr_posts','公式SNSの投稿',12,[6],(T,d)=>{const f=S.spf||'all',all=spFeed(T).filter(p=>p.d<=d),L=all.filter(p=>f==='all'||p.pf===f).slice(-12).reverse();
+  return {d:'新しい順・直近12件',h:`<div class="cr-bar"><span class="seg">${['all','X','Instagram','TikTok','YouTube'].map(k=>`<button class="${f===k?'on':''}" data-spf="${k}">${k==='all'?'すべて':k}<small class="num">${k==='all'?all.length:all.filter(p=>p.pf===k).length}</small></button>`).join('')}</span></div>
+    ${L.length?`<div class="sp-grid">${L.map(p=>spCard(T,p)).join('')}</div>`:'<div class="empty">この媒体の投稿は、まだありません。</div>'}<div class="note">公式アカウントの投稿を、そのままの見た目で並べています。数字は投稿ごとの表示回数と反応です。</div>`}});
+I('creative','cr_next','これから出す素材',12,[6],(T,d)=>{const L=crList(T).filter(c=>c.d>d);
+  return {d:'施策の予定にあわせて',h:`<div class="cr-grid">${L.map(c=>crCard(T,c,d)).join('')}</div>`}},{hide:d=>!crList(cur()).some(c=>c.d>d)});
+
+function crStrip(T,e){const L=crList(T).filter(c=>c.e.id===e.id);if(!L.length)return '';
+  return `<div class="cr-strip">${L.map(c=>`<button class="cr-s" data-cr="${c.id}" title="${c.n}"><span class="cr-th k-${c.k}" style="background:${thOf(T).g[0]}">${crArt(T,c)}</span><small>${c.n}</small></button>`).join('')}</div>`}
+const evDetail=(T,e,d)=>crStrip(T,e)+evDetail0(T,e,d);
+function openCreative(cid){const T=cur(),d=S.day,c=crList(T).find(x=>x.id===cid);if(!c)return;const e=c.e,ch=CH[e.ch],st=crStats(T,c,d),eff=!isAd(e)&&e.d+2<=d?evEff(T,e,d):null;
+  const others=S.cmpSet.map(k=>TT[k]).filter(X=>X&&X.k!==T.k).map(X=>({X,c:crList(X).find(q=>q.n===c.n&&q.d<=evMax(X))})).filter(o=>o.c);
+  $('#panel').innerHTML=`<button class="pn-x" aria-label="閉じる">×</button>
+    <span class="chip neu">${CR_K[c.k]}</span> <span class="chip neu">${md(dateOf(T,c.d))}｜${relLbl(c.d)}</span><h2>${c.n}</h2>
+    <div class="cr-big k-${c.k}" style="background:${thOf(T).g[0]}">${crArt(T,c)}</div>
+    ${st?`<div class="kpis" style="margin:12px 0">${kpi(st.a[0],st.a[1],st.a[2])}${kpi(st.b[0],st.b[1],st.b[2])}${eff!=null?kpi('施策の効き具合',eff,'／100',`同じ種類の過去の施策の中で ${TIERS[tierOf(eff)]}`):''}</div>`:'<div class="empty" style="margin:12px 0">公開予定の素材です。出したあとに数字が入ります。</div>'}
+    <div class="sub-h">この素材を出した施策</div><button class="btn" data-ev="${e.id}"><i class="cdot" style="background:${ch.c}"></i>${esc(e.label)}（${ch.n}）</button>
+    ${has(2)&&d>=0&&e.d<=d?castLine(T,e,d):''}
+    ${others.length?`<div class="sub-h">ほかの作品の、同じ素材</div><div class="cr-cmp">${others.map(o=>{const s2=crStats(o.X,o.c,evMax(o.X));return `<div><span class="cr-th k-${o.c.k}" style="background:${thOf(o.X).g[0]}">${crArt(o.X,o.c)}</span><b>${o.X.name}</b><small>${s2.a[0]} ${s2.a[1]}${s2.a[2]}｜${s2.b[0]} ${s2.b[1]}${s2.b[2]}</small></div>`}).join('')}</div>`:''}`;
+  document.body.classList.add('pn');$('.pn-x').onclick=closePanel}
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-crf],[data-crs],[data-spf],[data-cr]');if(!t)return;ev.stopPropagation();const D=t.dataset;
+  if(D.crf){S.crf=D.crf;render();return}if(D.crs){S.crs=D.crs;render();return}if(D.spf){S.spf=D.spf;render();return}if(D.cr)openCreative(D.cr)},true);
+
+/* ---------- 作品の顔（ポスター）を各所に ---------- */
+function heroHTML(T,d){const th=thOf(T),rec=crList(T).filter(c=>c.d<=d).slice(-3).reverse(),n=crList(T).filter(c=>c.d<=d).length,o=T.open;
+  return `<section class="hero"><div class="hero-bg">${svgW(1200,320,scene(th,1200,320,T.seed*41,{hz:.86,fs:.42,fx:.8}))}</div><div class="hero-in">
+    <div class="hero-po">${poster(T)}</div>
+    <div class="hero-tx"><span class="chip">${T.kind}・${T.genre}</span><h1>${T.name}</h1><p class="hero-copy">${th.copy}</p>
+      <div class="hero-meta"><span>公開日<b class="num">${o.getFullYear()}.${o.getMonth()+1}.${o.getDate()}</b></span><span>公開規模<b class="num">${T.screens}</b>スクリーン</span><span>いま<b>${relLbl(d)}</b></span></div>
+      ${has(6)?`<button class="btn ghost" data-page="creative">素材をすべて見る（${n}点）</button>`:''}</div>
+    ${has(6)&&rec.length?`<div class="hero-strip"><em>最近出した素材</em>${rec.map(c=>`<button data-cr="${c.id}"><span class="cr-th k-${c.k}" style="background:${th.g[0]}">${crArt(T,c)}</span><small>${c.n}</small></button>`).join('')}</div>`:''}</div></section>`}
+function matArt(T,n){const i=n.length*7;return /ポスター|ビジュアル/.test(n)?poster(T,{fit:'slice'}):/SNS/.test(n)?sqImg(T,i,''):movThumb(T,i,'','')}
+
 /* ================= 描画 ================= */
 function visiblePages(d){return PAGES.filter(p=>ITEMS.some(it=>it.page===p.k&&avail(it,d)))}
 function render(){const T=cur(),d=S.day;
   if(!visiblePages(d).some(p=>p.k===S.page))S.page='acts';
-  $('#selTitle').value=S.title;$('#phaseChip').textContent=relLbl(d);$('#dateLbl').innerHTML=md(dateOf(T,d))+(d>T.today?'<em class="fut">この先は見本の数字</em>':'');
+  $('#selTitle').value=S.title;$('#selPo').innerHTML=poster(T,{fit:'slice'});$('#phaseChip').textContent=relLbl(d);$('#dateLbl').innerHTML=md(dateOf(T,d))+(d>T.today?'<em class="fut">この先は見本の数字</em>':'');
   const dy=$('#day');dy.min=-70;dy.max=D1;dy.value=d;
   $$('#segPhase button').forEach(b=>b.classList.toggle('on',+b.dataset.p===S.phase));
   document.body.classList.toggle('client',S.client);$('#btnClient').textContent=S.client?'社内表示に戻す':'配給会社の表示にする';
@@ -1496,7 +1764,7 @@ function render(){const T=cur(),d=S.day;
   $('#mDate').textContent=`${md(dateOf(T,d))}｜${relLbl(d)}`;appSave();
   const pg=PAGES.find(p=>p.k===S.page),list=ITEMS.filter(it=>it.page===S.page&&avail(it,d)),dl=list.filter(it=>it.deep);
   const card=it=>{const o=it.fn(T,d);return `<section class="card c${it.w}" id="it-${it.id}" data-need="${it.need.join(',')}"><div class="card-h"><h2>${it.t}</h2><span class="d">${o.d||''}</span></div>${srcChips(it)}${o.h}</section>`};
-  $('#page').innerHTML=`<div class="pg-head"><h1>${pg.n}</h1><span class="pg-q">${pg.q}</span><span class="chip neu">${T.name}｜${md(dateOf(T,d))}時点</span><span class="srcs int-only" style="margin:0"><span class="sc-l">社内表示：各項目に、使っているデータを出しています</span><span class="sc">番号つき＝6分類</span><span class="sc c">共通のデータ</span><span class="sc l">点線＝上のPhaseで加わる</span></span></div>${castGuide(T,d)}<div class="grid">${list.filter(it=>!it.deep).map(card).join('')}</div>${dl.length?`<details class="deep" ${S.deepOpen[S.page]?'open':''}><summary>くわしく見る<span>${dl.length}項目</span></summary><div class="grid">${dl.map(card).join('')}</div></details>`:''}`;
+  $('#page').innerHTML=`${S.page==='home'?heroHTML(T,d):''}<div class="pg-head">${S.page==='home'?'':`<span class="pg-po">${poster(T,{fit:'slice'})}</span>`}<h1>${pg.n}</h1><span class="pg-q">${pg.q}</span><span class="chip neu">${T.name}｜${md(dateOf(T,d))}時点</span><span class="srcs int-only" style="margin:0"><span class="sc-l">社内表示：各項目に、使っているデータを出しています</span><span class="sc">番号つき＝6分類</span><span class="sc c">共通のデータ</span><span class="sc l">点線＝上のPhaseで加わる</span></span></div>${castGuide(T,d)}<div class="grid">${list.filter(it=>!it.deep).map(card).join('')}</div>${dl.length?`<details class="deep" ${S.deepOpen[S.page]?'open':''}><summary>くわしく見る<span>${dl.length}項目</span></summary><div class="grid">${dl.map(card).join('')}</div></details>`:''}`;
   const dt=$('details.deep');if(dt)dt.addEventListener('toggle',()=>{S.deepOpen[S.page]=dt.open});
   const cgd=$('details.castg');if(cgd)cgd.addEventListener('toggle',()=>{S.castOpen=cgd.open});
   bindTimeline($('#page'));
@@ -1560,7 +1828,7 @@ function selfCheck(){const keep={...S,deepOpen:{...S.deepOpen}},bad=[];let n=0;S
   Object.assign(S,keep);render();return {pages:n,bad:bad.slice(0,30),badCount:bad.length}}
 
 /* ================= スマホアプリとして使うための部分 ================= */
-const TAB_SHORT={acts:'施策',plan:'設計',home:'今日',deliver:'届け方',interest:'関心',audience:'観客',outlook:'見通し'};
+const TAB_SHORT={creative:'素材',acts:'施策',plan:'設計',home:'今日',deliver:'届け方',interest:'関心',audience:'観客',outlook:'見通し'};
 const APPK='crew_v7_app_1';
 /* 前回の作品・ページ・表示を覚えておき、次に開いたときに戻す（基準日は毎回「今日」に戻す） */
 function appSave(){try{localStorage.setItem(APPK,JSON.stringify({title:S.title,page:S.page,phase:S.phase,client:S.client,jv:S.jv,jw:S.jw,fk:S.fk,tlRange:S.tlRange,cmpSet:S.cmpSet,castOpen:S.castOpen}))}catch(e){}}
