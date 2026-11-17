@@ -487,7 +487,8 @@ details.deep>.grid{margin-top:16px}
   .datebox,.top #btnSearch,.internal{display:none}
   body.m-date .datebox{display:flex;width:100%;justify-content:space-between}
   body.m-date .datebox input[type=range]{flex:1;width:auto}
-  body.m-more .top #btnSearch{display:inline-flex}
+  body.m-more .top #btnSearch,body.m-more .top #btnRpt{display:inline-flex}
+  .top #btnRpt{display:none}
   body.m-more .internal{display:flex;width:100%}
   .tabs{position:fixed;left:0;right:0;bottom:0;z-index:35;background:#fbfaf7;border-top:1px solid var(--rule);padding:0 4px env(safe-area-inset-bottom);gap:0;justify-content:space-around;overflow:visible}
   .tab{flex:1;justify-content:center;padding:11px 2px 10px;font-size:12.5px;border-bottom:0;border-top:3px solid transparent;margin-top:-1px}
@@ -931,6 +932,36 @@ body.plan-mode .mode-sw button.on{background:#f3dfae;color:#4a3a10}
   .tab.gsep::before,.tab.gsep.on::before{left:10px;right:18px}
 }
 @media print{.tabs{display:none}body{padding-left:0}.top{margin-left:0}}
+
+/* 数字の出どころ・類似作の選び方・指数の中身・報告書 */
+.prov{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;margin-top:12px;padding-top:8px;border-top:1px dashed var(--rule);font-size:10.5px;color:var(--sub-weak)}
+.pv{font-weight:700;border-radius:999px;padding:0 8px;border:1px solid}
+.pv-m{color:var(--goodtx);border-color:var(--goodln);background:var(--goodfill)}
+.pv-e{color:var(--warntx);border-color:var(--warnln);background:var(--warnfill)}
+.pv-f{color:#5b4fa0;border-color:#d6d0f0;background:#f4f2fc}
+.pv-i{color:var(--accent2);border-color:var(--accent-line);background:var(--accent-soft)}
+.pv-t{margin-left:auto}
+.peer-chip{cursor:pointer;background:#fff;border-color:var(--rule2);color:var(--ink2)}
+.peer-chip:hover{border-color:var(--accent-line);color:var(--accent2)}
+.pe-ul{margin:0;padding-left:18px;font-size:13px;line-height:1.7}
+.sc-how{margin-top:10px}.sc-how summary{cursor:pointer;font-size:12.5px;font-weight:700;color:var(--accent2)}
+.sc-how table{margin-top:6px}
+#rpt{display:none}
+body.rp-on #rpt{display:block;position:fixed;inset:0;z-index:60;background:rgba(30,30,30,.55);overflow:auto;padding:20px 12px 60px}
+.rp-bar{max-width:820px;margin:0 auto 12px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;background:#fff;border-radius:12px;padding:10px 14px;font-size:12px;color:var(--sub)}
+.rp-bar b{font-size:14px;color:var(--ink)}.rp-bar span{flex:1;min-width:200px}
+.btn.pri{background:var(--accent);color:#fff;border-color:var(--accent)}
+.rp-page{max-width:820px;margin:0 auto;background:#fff;border-radius:6px;padding:34px 40px;box-shadow:0 10px 40px rgba(0,0,0,.3);font-size:12.5px}
+.rp-head{display:flex;gap:16px;align-items:center;border-bottom:3px solid var(--accent);padding-bottom:14px;margin-bottom:16px}
+.rp-po{width:60px;height:90px;border-radius:4px;overflow:hidden;flex:none}.rp-po svg{width:100%;height:100%}
+.rp-head small{color:var(--sub);font-weight:700}.rp-head h1{font-size:22px;margin:2px 0}.rp-head p{margin:0;color:var(--sub)}
+.rp-sec{margin-bottom:16px;break-inside:avoid}.rp-sec h2{font-size:14px;border-left:4px solid var(--accent);padding-left:8px;margin-bottom:8px}
+.rp-sec p{margin:4px 0}.rp-big b{font-size:24px;color:var(--accent2)}
+.rp-warn{color:var(--badtx);font-weight:700}
+.rp-sec ul{margin:0;padding-left:18px}
+.rp-sec .todo{grid-template-columns:1fr 1fr}
+.rp-foot{border-top:1px solid var(--rule);padding-top:8px;font-size:10.5px;color:var(--sub)}
+@media print{body.rp-on>*:not(#rpt){display:none!important}body.rp-on{padding:0!important;background:#fff}body.rp-on #rpt{position:static;background:none;padding:0;overflow:visible}.rp-bar{display:none}.rp-page{box-shadow:none;max-width:none;padding:0}}
 @media print{.top,#panel,#scrim,#cmdk{display:none}.card{break-inside:avoid;box-shadow:none}}
 
 /* 宣伝設計：客層の地図 */
@@ -1006,6 +1037,7 @@ tr.tg-few td{color:var(--sub)}
       <button id="btnToday" class="btn" style="padding:3px 10px">今日</button>
     </div>
     <button id="btnPlan" class="btn plan-btn" aria-pressed="false"></button>
+    <button id="btnRpt" class="btn">週の報告書</button>
     <button id="btnSearch" class="btn">指標を検索<kbd>⌘K</kbd></button>
     <button id="mDate" class="chip m-only" aria-expanded="false"></button>
     <button id="mMore" class="btn m-only" aria-label="その他の操作" aria-expanded="false">…</button>
@@ -1313,7 +1345,7 @@ I('home','h_verdict','今日の結論',7,[],(T,d)=>{const sc=scoreOf(T,d),pv=sco
    <div style="flex:1;min-width:220px"><span class="tone ${tc}">${tl}</span> <span class="m" style="font-size:12px;color:var(--sub)">${dp(sc-pv,'','前週比')}</span>
    <h3>${worst.v<40?`${best.n}が強く、${worst.n}が弱い`:best.v>=60?`${best.n}が強い。大きく弱い点はありません`:'類似作とほぼ同じ水準です'}</h3>
    <div class="fac">${p.map(x=>`<span>${x.n}<b>${x.v}</b></span>`).join('')}</div>
-   <div class="note">${scoreName()}は、上の数字をならしたものです。50が類似作の真ん中にあたります。</div></div></div>`}},{any:[3,6]});
+   <div class="note">${scoreName()}は、上の数字をならしたものです。50が類似作の真ん中にあたります。</div>${scoreHow(T,d)}</div></div>`}},{any:[3,6]});
 I('home','h_todo','今日の注意点とやること',5,[],(T,d)=>{const li=[];
   if(has(3)){const rk=T.ev.filter(e=>e.d<=d&&e.d>=d-14).map(e=>({e,o:rxOf(T,e,d)})).filter(x=>x.o&&x.o.risk.lv!=='平常').sort((a,b)=>b.o.risk.score-a.o.risk.score)[0];if(rk)li.push([rk.o.risk.lv==='警戒'?'bad':'warn',`炎上リスク：${rk.o.risk.lv}（「${esc(rk.e.label)}」）`,rk.o.risk.sc?rk.o.risk.sc.act:'否定的な投稿の中身を確認してください。'])}
   const nx=T.ev.filter(e=>e.d>d).sort((a,b)=>a.d-b.d)[0];
@@ -1799,9 +1831,9 @@ I('audience','u_answer','公開前の予測と、実際の観客',12,[2],(T,d)=>
 function openWeek(T,d){return d>=6?sumR(T,'gross',0,6)*1e4:fcBase(T,d).mid*.22}
 I('outlook','o_share','初週の興収シェア',6,[],(T,d)=>{const cs=comps(T),me=openWeek(T,d),co=cs.map(c=>c.sc*1.1e6*c.dm),tot=me+sumA(co),scT=T.screens+sumA(cs.map(c=>c.sc));
   const rank=[me,...co].sort((a,b)=>b-a).indexOf(me)+1;
-  return {d:d>=6?'同じ週の主な作品の中で（実績）':'同じ週の主な作品の中で（見込み）',h:`<div class="sub-h">興収のシェア</div>${stack([{l:'この作品',v:me,c:'#4e8780'},...cs.map((c,i)=>({l:c.n,v:co[i],c:c.c}))])}
+  return {d:d>=6?'同じ週の主な作品の中で（実績）':'同じ週の主な作品の中で（見込み）',h:`<div class="sub-h">興収のシェア</div>${stack([{l:'この作品',v:me,c:'#4e8780'},{l:'同じ週のほかの作品（合計）',v:sumA(co),c:'#c9ccd0'}])}
   <div class="sub-h">スクリーン数のシェア</div>${stack([{l:'この作品',v:T.screens,c:'#4e8780'},...cs.map(c=>({l:c.n,v:c.sc,c:c.c}))])}
-  <div class="kpis" style="margin-top:12px">${kpi('興収のシェア',f1(me/tot*100),'%')}${kpi('スクリーンのシェア',f1(T.screens/scT*100),'%')}${kpi('順位',rank,`位／${cs.length+1}作品`)}</div><div class="note">他の作品の金額は表示しません。</div>`}},{any:[3,6],hide:d=>d<6&&!has(1),...DP});
+  <div class="kpis" style="margin-top:12px">${kpi('興収のシェア',f1(me/tot*100),'%')}${kpi('スクリーンのシェア',f1(T.screens/scT*100),'%')}</div><div class="note">ほかの作品の見込みは、作品ごとには出しません（合計だけ）。スクリーン数は公開されている情報です。</div>`}},{any:[3,6],hide:d=>d<6&&!has(1),...DP});
 I('outlook','o_winlose','競合と比べた強みと弱み',6,[1],(T,d)=>{const r=R(T,100),it=[['認知率',posOf(T,'aware',d)],['観たい率',posOf(T,'intent',d)],['話題の量',posOf(T,'buzz',d)],['スクリーン数',T.screens/mean(comps(T).map(c=>c.sc))*50],['公式SNSの反応',posOf(T,'oeng',d)]];
   const w=it.filter(x=>x[1]>=55),l=it.filter(x=>x[1]<45);
   return {d:'同じ週の作品と比べて',h:`<div class="two"><div><div class="sub-h">強み</div><ul class="todo">${w.map(x=>`<li class="good"><b>${x[0]}</b>同じ週の作品より高い水準です。</li>`).join('')||'<li>目立った強みはまだありません。</li>'}</ul></div><div><div class="sub-h">弱み</div><ul class="todo">${l.map(x=>`<li class="warn"><b>${x[0]}</b>同じ週の作品より低い水準です。</li>`).join('')||'<li>目立った弱みはありません。</li>'}</ul></div></div>`}},DP);
@@ -1831,7 +1863,7 @@ I('outlook','o_upside','これからの施策で見込む上積み',6,[1],(T,d)=
 I('outlook','o_curve','動員の動き',6,[],(T,d)=>{const sc=d>=0?1:preFc(T,d).mid/T.final,act=[],fc=[];for(let x=0;x<=D1;x++){const v=T.s.grossFull[x]*1e4/1450;act.push(x<=d?v:null);fc.push(x>=Math.max(d,0)?v*sc*(d>=0?finalFc(T,Math.max(d,2)).mid/T.final:1):null)}
   return {d:'1日ごとの動員。点線はこの先の見込み',h:chart(T,[{n:'実績',vals:act,c:'#4e8780'},{n:'見込み',vals:fc,c:'#8a929a',dash:true}],{a:0,b:D1,u:'人',h:150})}},{any:[3,6],hide:d=>d<2&&!has(1),...DP});
 I('outlook','o_demandix','需要の強さ',6,[1],(T,d)=>{const a=at(T,'aware',d),i=at(T,'intent',d),cs=comps(T),me=i,rk=[me,...cs.map(c=>c.dm*40)].sort((x,y)=>y-x).indexOf(me)+1;
-  return {d:'どれだけ選ばれそうか',h:`<div class="kpis">${kpi('知っていて観たい人',f1(a*i/100),'%','認知率 × 観たい率')}${kpi('満足してすすめたい人',d>=0&&has(2)?f1(at(T,'sat',d)*clamp(30+at(T,'nps',d)*.6,5,85)/100):'—',d>=0&&has(2)?'%':'','公開後に出ます')}${kpi('需要の強さ',posOf(T,'intent',d),'／100','類似作の中での位置')}${kpi('観たい人の多さの順位',rk,`位／${cs.length+1}作品`,'同じ週の作品の中で')}</div>`}},DP);
+  return {d:'どれだけ選ばれそうか',h:`<div class="kpis">${kpi('知っていて観たい人',f1(a*i/100),'%','認知率 × 観たい率')}${kpi('満足してすすめたい人',d>=0&&has(2)?f1(at(T,'sat',d)*clamp(30+at(T,'nps',d)*.6,5,85)/100):'—',d>=0&&has(2)?'%':'','公開後に出ます')}${kpi('需要の強さ',posOf(T,'intent',d),'／100','類似作の中での位置')}</div>`}},DP);
 
 const ALIAS={"今日の結論": "h_verdict", "宣伝効果指数の推移（なぜこの評価か）": "a_score", "いま何がスコアを動かしているか": "h_verdict", "目標への到達・目標進捗": "h_goal", "指標の健康診断（全指標一覧）": "h_all", "伸びた指標": "h_moves", "落ちた・停滞した指標": "h_moves", "今日効いたTOP3": "h_posts", "観客の生の声": "h_voice", "本日の観客（アンケート速報）": "h_cast", "本日の「観たい」（鑑賞意向の速報）": "h_nums", "見込み動員（現時点の積み上げ）": "h_goal", "目標進捗率": "h_goal", "積み上げの推移（グラフ）": "h_goal", "今日の変化（前日から動いた指標）": "h_nums", "鑑賞意向率（本日）": "h_nums", "劇場鑑賞率": "h_funnel", "興収見込み（本日時点）": "h_goal", "次の一手（自動提案のアクション）": "h_todo", "実動員（累計）": "h_goal", "最多の鑑賞動機": "h_cast", "推奨度NPS（本日の観客）": "h_cast", "満足度（本日の観客）": "h_cast", "5つの観点": "h_views", "今日の注意点": "h_todo", "やること（今日の打ち手）": "h_todo", "どの段で落ちているか": "h_funnel", "必ず観ると答えた人": "h_funnel", "劇場で観る人（配信を待たない層）": "h_funnel", "発信の伸び（表示・反応・フォロワー）": "d_owned", "メディア別 発信パフォーマンス": "d_plat", "公式投稿パフォーマンス（投稿別）": "d_posts", "公式発信の推移": "d_owned", "媒体別の伸び（表示回数）": "d_owned", "プラットフォーム別 発信ミックス": "d_plat", "公式アカウントの発信例": "d_posts", "広告出稿費と効果の推移": "d_trend", "話題獲得単価": "d_sum", "広告 → 指名検索リフト": "d_lift", "全媒体サマリー": "d_sum", "媒体別 効率の推移": "d_mtrend", "予算配分 × 効率": "d_media", "リーチした人（性年代 × 反応）": "d_demo", "指標の翻訳早見表": "d_gloss", "出稿費の媒体別シェア": "d_media", "ポテンシャル5軸（レーダー）": "a_axes", "キャンペーン別の獲得効率": "d_camp", "ターゲティング一致率": "d_demo", "性年代 × 反応（バタフライ）": "d_demo", "構成と反応の要点": "d_demo", "認知率": "i_aware", "累計の到達人数": "d_sum", "指名検索": "i_search", "公式SNSの表示回数（直近4週）": "d_owned", "認知率と指名検索の推移": "i_aware", "1000回表示あたりの費用（CPM）": "d_sum", "動画1回あたりの費用（CPV）": "d_sum", "クリック率（CTR）": "d_sum", "動画が最後まで見られた率（VTR）": "d_sum", "メディアの効率（前週比の動き）": "d_sum", "約束の達成度（観たい率 → 満足度・すすめたい度）": "i_sat", "すすめたい度（NPS）": "i_sat", "満足度": "i_sat", "期待は満たされたか（テーマ別）": "i_sat", "期待の声（公開前・SNS）": "i_words", "観た人の感想（公開後）": "i_rwords", "期待の3本柱（なぜ観たいか）": "i_pillars", "期待の声と感想の対比": "i_words", "期待との差（約束は守られたか）": "i_sat", "施策 × 話題の答え合わせ": "a_rank", "言及量の推移 × 施策マーカー": "i_buzz", "施策ランキング（話題への貢献）": "a_rank", "SNSライブウォール": "i_words", "トレンドの言葉・ハッシュタグ": "i_words", "観たい率": "i_aware", "話題の量": "i_buzz", "感想の空気（センチメント）": "i_sent", "口コミの後押し力": "i_sat", "観たい率と話題の量の推移": "i_aware", "感想の空気の推移": "i_sent", "施策別 効果レポート（実施済）": "a_rank", "チャネル別 平均効果": "a_ch", "これからの施策と興収予測への影響": "o_upside", "効果ランキング（効果スコア）": "a_rank", "凡例と注記（効果の測り方）": "a_rank", "宣伝の流れ（投下 → 反応 → 意向 → 動員）": "a_flow", "要因分解（何が指数を動かしたか）": "a_decomp", "投下 → オーガニック（自走したか）": "a_organic", "反応の中身（話題 × 指名検索）": "a_react", "態度変容（認知率・意向率）": "i_aware", "週次の振り返り（Weekly Recap）": "a_week", "表示期間の切替": "a_tl", "結実（積み上げと目標進捗）": "h_goal", "4指標 総覧": "a_week", "宣伝効果指数": "h_verdict", "実施した施策": "a_rank", "最も効いた施策": "a_rank", "最も効いている媒体": "a_ch", "直近4週で効いた施策": "a_rank", "媒体別の平均効果": "a_ch", "宣伝効果指数の推移 × 施策マーカー": "a_score", "これからの施策（予定一覧）": "a_plan", "観客の素顔": "u_post", "性年代構成（バタフライ）": "u_post", "同行者構成（誰と観たか）": "u_post", "認知経路（どこで知ったか）": "u_post2", "鑑賞動機（なぜ観ると決めたか）": "u_post", "上映フォーマット": "u_format", "年代別NPS（誰がすすめてくれるか）": "u_nps", "認知と意向の現在地": "i_aware", "認知率・意向率の推移": "i_aware", "年代別・性別の鑑賞意向率": "u_pre2", "いつ観る予定か": "u_pre2", "観たいフォーマット・追加課金意欲": "u_pre3", "実競合（作品の食い合い）": "u_rival", "記憶に残ったクリエイティブ": "u_creative", "広告接触 vs 非接触の意向差": "d_exposed", "鑑賞意向調査で取得している項目": "u_items", "内容まで理解している割合": "u_pre2", "鑑賞意向率（ぜひ＋観たい）": "u_pre2", "認知の深さ": "u_pre2", "鑑賞意向の分布": "u_pre2", "どこで知ったか（認知媒体・公開前）": "u_pre", "なぜ観たいか（意向理由）": "i_pillars", "年代別 鑑賞意向率": "u_pre", "性別 鑑賞意向率": "u_pre2", "意欲の質（動員に変わる確度）": "u_pre", "鑑賞の確度": "u_pre", "劇場 vs 配信": "u_pre", "単価と席数（収益の予測材料）": "u_pre3", "チケットの予測平均単価": "u_pre3", "誰と観る予定か（同行）": "u_pre2", "クリエイティブ想起と接触リフト": "u_creative", "ブランドリフト（広告による意向の押し上げ）": "d_exposed", "公開前の意向と公開後の実績の答え合わせ": "u_answer", "鑑賞頻度レイヤー": "u_format", "ヘビー層（コア層）の厚み": "u_format", "来場回数（リピート）": "u_repeat", "どこで知り、なぜ観たか": "u_post2", "決定時期と鑑賞フォーマット": "u_post2", "鑑賞を決めた時期": "u_post2", "どの入口の客が推奨者か": "u_post2", "誰に効くか（クロス集計）": "u_post2", "年代 × 動機（ヒートマップ）": "u_heat", "性別 × 認知経路": "u_post2", "リピーター vs 初見の違い": "u_repeat", "再鑑賞ありの割合": "u_repeat", "この客層が次に観たい作品": "u_next", "最も観たい層": "u_pre2", "最多の認知経路": "u_post2", "最多の観たい理由": "i_pillars", "主な客層": "u_post", "すすめたい度": "u_nps", "年代別の構成・観たい率": "u_answer", "狙った層に届いているか": "u_answer", "リピートの伸びしろ": "u_repeat", "口コミの起点になっている層": "u_nps", "観たい人の確からしさ": "u_pre", "劇場で観るか、配信を待つか": "u_pre", "どれくらい確実に観るか": "u_pre", "また観たい（再鑑賞の意向）": "u_repeat", "実際のリピーター": "u_repeat", "未回収（リピートの取りこぼし）": "u_repeat", "観客プロフィール比較": "o_cmpaud", "満足度・推奨・観客の重なり": "o_cmpaud", "公開スレート・タイムライン": "o_slate", "時系列比較（宣伝効果・需要・期待・言及量）": "o_cmpts", "初週興収シェア予測": "o_share", "スクリーンシェア vs 初週興収シェア": "o_share", "競合ポジショニング（勝ち筋とリスク）": "o_winlose", "初週・最終 興収ベンチマーク": "o_similar", "実績レンジ表（初週・最終・伸び方）": "o_mult", "シェア構成（初週）": "o_share", "シェア・ランキング": "o_share", "勝ち筋（自社が優位な点）": "o_winlose", "リスク（競合が優位な点）": "o_winlose", "初週興収（類似作の中央値比）": "o_similar", "最終興収（類似作の中央値比）": "o_similar", "伸び方（legs）の読み": "o_mult", "需要シェア（観たいの順位）": "o_demandix", "公開規模シミュレーター": "o_sim", "需要 × 供給 と 座席稼働率": "o_demand", "初週動員の積み上げ（需要ファネル）": "o_money", "公開規模（スクリーン数・上映回数・座席数）": "o_supply", "公開週の競合ラインナップ": "o_comp", "市場スクリーンシェアと競合圧力": "o_comp", "初週末 → 最終（伸び方）": "o_mult", "動員カーブ（予測）": "o_curve", "興収予測の結論": "o_money", "この予測の作り方（データと算法）": "o_how", "初週末興収（結論）": "o_money", "最終興収予測（結論）": "o_money", "算出フロー（何がこの数字を動かすか）": "o_how", "この予測の根拠（3つの要素）": "o_how", "需要指数（どれだけ選ばれるか）": "o_demandix", "需要の3要素（認知×意向・満足×推奨・支払意欲）": "o_demandix", "需要 × 配荷 ＝ 結果": "o_demand", "公開規模と最終興収の関係曲線": "o_sim", "スクリーン数プリセット": "o_sim", "初週の需要と供給": "o_demand", "座席供給量（初週7日）": "o_supply", "座席稼働率（初週）": "o_supply", "競合状況による揺れ": "o_pressure", "今週のスクリーン配分（自社 vs 競合）": "o_comp", "競合圧力（需要の食い合い）": "o_pressure", "初週需要への補正（競合の掛け率）": "o_pressure", "競合を織り込んだ初週興収": "o_pressure", "初週末から最終への伸びと施策の反映": "o_mult", "構造（初動集中度）": "o_money", "口コミ補正（legsの掛け率）": "o_mult", "legs（最終÷初週）": "o_mult", "未実施施策で見込む上積み": "o_upside", "全施策実施後の見込み上限": "o_upside", "最終興収の予測": "o_money", "初週興収の予測": "o_money", "公開後の伸び（初週の何倍）": "o_mult", "予測の動き（前週との差）": "o_money", "需要と席の過不足": "o_demand", "席の埋まり具合（稼働率）": "o_supply", "見込み動員の積み上げと目標": "h_goal", "用意した席がどれだけ埋まるか": "o_supply"};
 
@@ -2427,7 +2459,7 @@ document.addEventListener('click',ev=>{const t=ev.target.closest('[data-roi]');i
 
 /* ================= ここまでの積み上げ（施策の数・各指標の累計を、類似作の同じ時点と比べる） ================= */
 const CUM_K=['buzz','oimp','oeng','aimp','search','clip','mark'],CUM_R=['aware','intent','sent','score','sat','nps'];
-const cumPeers=()=>PEERS.concat(PAST);
+const cumPeers=()=>PEERS;
 const cmCls=r=>{if(r==null)return '';r=Math.round(r);return r>=110?'cm-up':r<=90?'cm-dn':'cm-eq'};
 const cumOpen=()=>{try{return localStorage.getItem('crew_v7_cumfold')==='1'}catch(e){return false}};
 document.addEventListener('toggle',ev=>{if(ev.target.classList&&ev.target.classList.contains('cm-fold'))try{localStorage.setItem('crew_v7_cumfold',ev.target.open?'1':'0')}catch(e){}},true);
@@ -2600,6 +2632,46 @@ SRC_USE.i_key=[3,5,1,4,2];
 (function(){const it=ITEMS.splice(ITEMS.findIndex(x=>x.id==='i_key'),1)[0],j=ITEMS.findIndex(x=>x.page==='interest');ITEMS.splice(j,0,it);
   const keep=['i_key','i_buzz','i_words','i_aware','i_sat'];ITEMS.forEach(x=>{if(x.page==='interest'&&!keep.includes(x.id))x.deep=true;if(['i_buzz','i_aware'].includes(x.id))x.w=12})})();
 
+
+/* ================= 信頼のための表示：数字の出どころ・類似作の選び方・指数の中身 ================= */
+const PROV_NAME={1:'鑑賞意向調査（KARTE）',2:'鑑賞後アンケート（CAST）',3:'SNSの投稿',4:'Filmarks',5:'検索の量',6:'宣伝の実績データ',B:'興収の実績',S:'上映スケジュール',N:'公開記事'};
+const PROV_EST=['a_expo','a_roi','a_cum','d_demo','a_seg','a_rx','h_risk','k_ad'],PROV_IDX=['h_verdict','a_score','a_axes','a_decomp','h_views'];
+const karteN=(T,d)=>Math.round(1100+R(T,700+Math.floor(d/7))()*260);
+function provHTML(it,T,d){const use=(SRC_USE[it.id]||it.need).filter(k=>srcPhase(k)<=S.phase&&(typeof k!=='number'||has(k)));if(!use.length)return '';
+  const kind=it.page==='outlook'?['pv-f','予測']:PROV_IDX.includes(it.id)?['pv-i','指数（複数の数字をまとめた点数）']:PROV_EST.includes(it.id)?['pv-e','推定を含む']:['pv-m','実測'];
+  const nm=use.map(k=>k===2&&d>=0?`${PROV_NAME[k]}・回答 ${fN(castResp(T,d))}人`:k===1?`${PROV_NAME[k]}・直近1週の回答 ${fN(karteN(T,d))}人`:PROV_NAME[k]).join('／');
+  return `<div class="prov"><span class="pv ${kind[0]}">${kind[1]}</span><span class="pv-s">${nm}</span><span class="pv-t">${d>T.today?'この先は見本の数字':md(dateOf(T,d))+' 6:00 更新'}</span></div>`}
+function scoreHow(T,d){const p=scoreParts(T,d),W=sumA(p.map(x=>x.w||1));
+  return `<details class="sc-how"><summary>この点数の作り方</summary><table class="ex-t"><tr><th>数字</th><th class="r">類似作の中の位置</th><th class="r">重み</th></tr>${p.map(x=>`<tr><td>${x.n}</td><td class="r num">${x.v}</td><td class="r num">${x.w||1}／${W}</td></tr>`).join('')}<tr><td><b>${scoreName()}</b></td><td class="r num"><b>${scoreOf(T,d)}</b></td><td class="r">重みつき平均</td></tr></table>
+    <div class="note">「類似作の中の位置」は、類似作${PEERS.length}本の同じ時期（公開日を基準にそろえた日）の数字と比べて、何番目にあたるかを0〜100にしたものです。${has(1)?'認知率と観たい率は、来場にいちばん近い数字なので重みを大きくしています。':''}重みは全作品で共通で、作品ごとに変えていません。</div></details>`}
+function openPeers(){const T=cur(),lo=Math.round(T.screens*0.7/10)*10,hi=Math.round(T.screens*1.3/10)*10,own=PAST.length;
+  $('#panel').innerHTML=`<button class="pn-x" aria-label="閉じる">×</button><span class="chip neu">比べている類似作</span><h2>類似作 ${PEERS.length}本の選び方</h2>
+    <div class="kpis" style="margin:12px 0">${kpi('類似作',PEERS.length,'本',`うち自社の過去作 ${own}本`)}${kpi('配給会社',5,'社','自社を含む')}</div>
+    <div class="sub-h">選んだ条件</div><table class="ex-t"><tr><td>作品の種類</td><td>${T.kind}</td></tr><tr><td>ジャンル</td><td>${T.genre}</td></tr><tr><td>公開規模</td><td>${lo}〜${hi}スクリーン（この作品の±30%）</td></tr><tr><td>公開時期</td><td>直近3年</td></tr></table>
+    <div class="sub-h">守っている決まり</div><ul class="pe-ul"><li>ほかの会社の作品は、作品名も数字も個別には出しません。使うのは、類似作全体の真ん中（中央値）と幅だけです。</li><li>4社以上・10本以上そろわないときは、類似作との比較を出しません。</li><li>条件はどの作品にも同じ決まりで当てはめ、特定の会社や作品に有利な選び方はしません。</li><li>自社の過去作は、作品名を出して比べられます。</li></ul>`;
+  document.body.classList.add('pn');$('.pn-x').onclick=closePanel}
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-peers]');if(!t)return;ev.stopPropagation();openPeers()},true);
+
+/* ================= 週の報告書（そのまま社内の報告に使える1枚） ================= */
+function reportHTML(T,d){const a=d-6,b=d,pv=d-7,sc=scoreOf(T,d),[tc,tl]=toneOf(sc),ks=['buzz','oeng','aimp','search','clip','mark','aware','intent','sent','sat'].filter(k=>mAvail(k,d));
+  const val=(k,x)=>RATE.has(k)?avgR(T,k,x-6,x):sumR(T,k,x-6,x),ch=k=>{const v=val(k,d),w=val(k,pv);if(v==null||w==null)return '—';return RATE.has(k)?(v-w>=0?'+':'')+f1(v-w)+'pt':w?((v/w-1)>=0?'+':'')+f1((v/w-1)*100)+'%':'—'};
+  const evs=T.ev.filter(e=>e.d>=a&&e.d<=b).sort((x,y)=>x.d-y.d),nx=T.ev.filter(e=>e.d>b&&e.d<=b+7).sort((x,y)=>x.d-y.d);
+  const rk=has(3)?T.ev.filter(e=>e.d<=d&&e.d>=d-14).map(e=>({e,o:rxOf(T,e,d)})).filter(x=>x.o&&x.o.risk.lv!=='平常'):[];
+  const todo=ITEMS.find(x=>x.id==='h_todo'),tdh=todo&&avail(todo,d)?todo.fn(T,d).h:'';
+  return `<div class="rp-page"><div class="rp-head"><span class="rp-po">${poster(T,{fit:'slice'})}</span><div><small>宣伝の週次報告</small><h1>${T.name}</h1><p>${md(dateOf(T,a))}〜${md(dateOf(T,b))}（${relLbl(b)}）｜${T.kind}・${T.genre}｜${T.screens}スクリーン</p></div></div>
+    ${ITEMS.some(x=>x.id==='h_verdict'&&avail(x,d))?`<div class="rp-sec"><h2>1　今週のまとめ</h2><p class="rp-big"><b class="num">${sc}</b> ${scoreName()}（類似作の真ん中＝50）<span class="tone ${tc}">${tl}</span>　前週から ${sc-scoreOf(T,pv)>=0?'+':''}${sc-scoreOf(T,pv)}</p>
+      <p>${scoreParts(T,d).map(x=>`${x.n} ${x.v}`).join('／')}</p></div>`:''}
+    <div class="rp-sec"><h2>2　主な数字（直近7日）</h2><table class="ex-t"><tr><th>指標</th><th class="r">今週</th><th class="r">前週比</th><th class="r">類似作の中の位置</th></tr>${ks.map(k=>`<tr><td>${M[k].n}</td><td class="r num">${RATE.has(k)?f1(val(k,d)):fN(val(k,d))}${M[k].u}</td><td class="r num">${ch(k)}</td><td class="r num">${posOf(T,k,d)}</td></tr>`).join('')}</table></div>
+    <div class="rp-sec"><h2>3　今週の施策</h2>${evs.length?`<table class="ex-t"><tr><th>日付</th><th>施策</th><th class="r">効き具合</th><th class="r">露出（推定を含む）</th>${has(3)?'<th>炎上リスク</th>':''}</tr>${evs.map(e=>{const ef=!isAd(e)&&e.d+2<=d?evEff(T,e,d):null,x=expoOf(T,e,d),r=has(3)?rxOf(T,e,d):null;return `<tr><td>${md(dateOf(T,e.d))}</td><td>${esc(e.label)}<small>${CH[e.ch].n}</small></td><td class="r num">${ef??(isAd(e)?'広告':'集計中')}</td><td class="r num">${x?fN(x.tot)+'回':'—'}</td>${has(3)?`<td>${r?r.risk.lv:'—'}</td>`:''}</tr>`}).join('')}</table>`:'<p>今週実施した施策はありません。</p>'}</div>
+    <div class="rp-sec"><h2>4　注意点とやること</h2>${rk.length?`<p class="rp-warn">炎上リスク：${rk.map(x=>`「${esc(x.e.label)}」${x.o.risk.lv}（${x.o.risk.score}）${x.o.risk.sc?'　'+x.o.risk.sc.topic:''}`).join('、')}</p>`:''}${tdh}</div>
+    <div class="rp-sec"><h2>5　来週の予定</h2>${nx.length?`<ul>${nx.map(e=>`<li>${md(dateOf(T,e.d))}　${esc(e.label)}（${CH[e.ch].n}${e.cost?`・費用 ${fN(e.cost*1e4)}円`:''}）</li>`).join('')}</ul>`:'<p>来週の施策の予定はありません。</p>'}</div>
+    <div class="rp-foot">データ：${[...new Set(ITEMS.flatMap(x=>SRC_USE[x.id]||x.need))].filter(k=>srcPhase(k)<=S.phase&&(typeof k!=='number'||has(k))).map(k=>PROV_NAME[k]).join('／')}｜${md(dateOf(T,d))} 6:00 時点｜類似作 ${PEERS.length}本（作品名・個別の数字は出していません）</div></div>`}
+function openReport(){const T=cur(),d=S.day;let el=$('#rpt');if(!el){el=document.createElement('div');el.id='rpt';document.body.appendChild(el)}
+  el.innerHTML=`<div class="rp-bar"><b>週の報告書</b><span>このまま印刷するか、印刷の画面で「PDFに保存」を選ぶと、社内の報告にそのまま使えます。</span><button class="btn pri" id="rpPrint">印刷・PDFにする</button><button class="btn" id="rpClose">閉じる</button></div>${reportHTML(T,d)}`;
+  document.body.classList.add('rp-on');$('#rpPrint').onclick=()=>window.print();$('#rpClose').onclick=()=>document.body.classList.remove('rp-on')}
+$('#btnRpt').onclick=openReport;
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('rp-on'))document.body.classList.remove('rp-on')});
+
 /* スマホ幅で表をカードにするため、各セルに列名を持たせる */
 function tblLabels(root){$$('table.ex-list,table.cm-t',root).forEach(tb=>{const hs=[...tb.rows[0].cells].map(c=>c.textContent.trim());
   [...tb.rows].slice(1).forEach(r=>[...r.cells].forEach((c,i)=>{const h=hs[i]||'';c.dataset.l=h;if(/^(施策|指標)$/.test(h))c.classList.add('tc-main');else if(h==='日付')c.classList.add('tc-date')}))})}
@@ -2615,8 +2687,8 @@ function render(){const T=cur(),d=S.day;
   $('#modeSwM').innerHTML=modeSw(PM);$('#tabs').innerHTML=modeSw(PM,'d')+(PM?planNav(T,d):visiblePages(d).filter(p=>p.k!=='plan').map(p=>`<button class="tab ${p.k===S.page?'on':''} ${PG_GSEP.includes(p.k)?'gsep':''}" data-page="${p.k}"><span class="ti">${TAB_IC[p.k]||''}${tabDot(T,d,p.k)}</span><span class="tl">${p.n}</span><span class="ts">${TAB_SHORT[p.k]}</span></button>`).join(''));
   $('#mDate').textContent=`${md(dateOf(T,d))}｜${relLbl(d)}`;appSave();
   const pg=PAGES.find(p=>p.k===S.page),list=ITEMS.filter(it=>it.page===S.page&&avail(it,d)),dl=list.filter(it=>it.deep);
-  const card=it=>{const o=it.fn(T,d);return `<section class="card c${it.w}" id="it-${it.id}" data-need="${it.need.join(',')}"><div class="card-h"><h2>${it.t}</h2><span class="d">${o.d||''}</span></div>${srcChips(it)}${o.h}</section>`};
-  $('#page').innerHTML=`${S.page==='home'?heroHTML(T,d):''}<div class="pg-head">${S.page==='home'?'':`<span class="pg-po">${poster(T,{fit:'slice'})}</span>`}<h1>${pg.n}</h1><span class="pg-q">${pg.q}</span><span class="chip neu">${T.name}｜${md(dateOf(T,d))}時点</span><span class="srcs int-only" style="margin:0"><span class="sc-l">社内表示：各項目に、使っているデータを出しています</span><span class="sc">番号つき＝6分類</span><span class="sc c">共通のデータ</span><span class="sc l">点線＝上のPhaseで加わる</span></span></div>${castGuide(T,d)}<div class="grid">${list.filter(it=>!it.deep).map(card).join('')}</div>${dl.length?`<details class="deep" ${S.deepOpen[S.page]?'open':''}><summary>くわしく見る<span>${dl.length}項目</span></summary><div class="grid">${dl.map(card).join('')}</div></details>`:''}`;
+  const card=it=>{const o=it.fn(T,d);return `<section class="card c${it.w}" id="it-${it.id}" data-need="${it.need.join(',')}"><div class="card-h"><h2>${it.t}</h2><span class="d">${o.d||''}</span></div>${srcChips(it)}${o.h}${provHTML(it,T,d)}</section>`};
+  $('#page').innerHTML=`${S.page==='home'?heroHTML(T,d):''}<div class="pg-head">${S.page==='home'?'':`<span class="pg-po">${poster(T,{fit:'slice'})}</span>`}<h1>${pg.n}</h1><span class="pg-q">${pg.q}</span><span class="chip neu">${T.name}｜${md(dateOf(T,d))}時点</span><button class="chip peer-chip" data-peers>比べている類似作 ${PEERS.length}本 ⓘ</button><span class="srcs int-only" style="margin:0"><span class="sc-l">社内表示：各項目に、使っているデータを出しています</span><span class="sc">番号つき＝6分類</span><span class="sc c">共通のデータ</span><span class="sc l">点線＝上のPhaseで加わる</span></span></div>${castGuide(T,d)}<div class="grid">${list.filter(it=>!it.deep).map(card).join('')}</div>${dl.length?`<details class="deep" ${S.deepOpen[S.page]?'open':''}><summary>くわしく見る<span>${dl.length}項目</span></summary><div class="grid">${dl.map(card).join('')}</div></details>`:''}`;
   if(PM&&!list.length){const g=$('#page .grid');if(g)g.outerHTML=planEmpty(T,d)}
   const dt=$('details.deep');if(dt)dt.addEventListener('toggle',()=>{S.deepOpen[S.page]=dt.open});
   const cgd=$('details.castg');if(cgd)cgd.addEventListener('toggle',()=>{S.castOpen=cgd.open});
