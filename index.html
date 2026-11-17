@@ -903,6 +903,34 @@ body.plan-mode .mode-sw button.on{background:#f3dfae;color:#4a3a10}
 .ik-p::after{content:'';position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--sub-weak)}
 .ik-p i{position:absolute;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--accent2);box-shadow:0 0 0 2px #fff}
 @media(max-width:900px){.ik-r{grid-template-columns:56px minmax(0,1fr) auto;gap:6px 10px}.ik-r .ck-q{grid-column:2/4}.ik-r .ik-p{grid-row:1}.ik-r .ck-v{grid-column:2;text-align:left}.ik-r .tone{grid-column:3}}
+
+/* パソコン幅：上は1段のヘッダー、ページは左の縦メニュー（ヘッダーとつながった濃い色のL字） */
+@media(min-width:901px){
+  :root{--sbw:216px}
+  body{padding-left:var(--sbw)}
+  .top{margin-left:calc(-1 * var(--sbw));backdrop-filter:none;-webkit-backdrop-filter:none}
+  .top-in{max-width:none;padding:10px 22px}
+  .tabs{position:fixed;left:0;top:var(--toph,60px);bottom:0;width:var(--sbw);z-index:29;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:2px;margin:0;max-width:none;padding:14px 0 18px 12px;overflow-y:auto;overflow-x:hidden;background:linear-gradient(180deg,#244641 0%,#1d3a37 100%);border-top:1px solid rgba(255,255,255,.08)}
+  body.plan-mode .tabs{background:linear-gradient(180deg,#4a4128 0%,#3a3320 100%)}
+  .tab{width:100%;justify-content:flex-start;border-radius:12px 0 0 12px!important;padding:10px 14px;font-size:14px;margin:0}
+  .tab.on::after,.tab:not(.gsep).on::before{content:none}
+  .tab.gsep{margin:17px 0 0}
+  .tab.gsep::before,.tab.gsep.on::before{content:'';position:absolute;left:14px;right:26px;top:-9px;bottom:auto;width:auto;height:1px;background:rgba(255,255,255,.14);box-shadow:none;border-radius:0}
+  .mode-d{display:flex;margin:0 12px 14px 0;width:auto;border-radius:12px}
+  .mode-d button{flex:1;justify-content:center;padding:7px 6px;font-size:12px;border-radius:9px}
+  .wrap{padding-top:24px}
+}
+/* 横幅が狭いパソコンでは、アイコンと短い名前だけの細いメニュー */
+@media(min-width:901px) and (max-width:1180px){
+  :root{--sbw:84px}
+  .tabs{padding-left:8px}
+  .tab{flex-direction:column;justify-content:center;gap:3px;padding:9px 4px;font-size:10.5px;text-align:center}
+  .tab .tl{display:none}.tab .ts{display:inline!important}
+  .mode-d{flex-direction:column;margin-right:8px}
+  .mode-d button{flex-direction:column;gap:2px;font-size:10.5px;padding:6px 2px}
+  .tab.gsep::before,.tab.gsep.on::before{left:10px;right:18px}
+}
+@media print{.tabs{display:none}body{padding-left:0}.top{margin-left:0}}
 @media print{.top,#panel,#scrim,#cmdk{display:none}.card{break-inside:avoid;box-shadow:none}}
 
 /* 宣伝設計：客層の地図 */
