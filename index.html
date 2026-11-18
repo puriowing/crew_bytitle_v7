@@ -991,6 +991,7 @@ tr.tg-few td{color:var(--sub)}
 @media (max-width:900px){.tgm-row{grid-template-columns:1fr;gap:4px}.tgm-l{place-items:start}.tgm-g{grid-template-columns:repeat(3,1fr);gap:6px}.tg .v{font-size:20px}}
 
 /* 宣伝設計：区切りの見出しと、週ごとの表 */
+.nps-v{display:grid;gap:6px}.nps-v>div{min-width:0}#it-u_nps td:first-child,#it-u_nps th{white-space:nowrap}#it-u_nps .stack span{font-size:10.5px;overflow:hidden;white-space:nowrap}
 .dv{display:grid;gap:6px}.dv-r{display:grid;grid-template-columns:128px minmax(0,1fr) 62px;gap:8px;align-items:center;font-size:12.5px}.dv-r.hot{background:#fbf3e6;border-radius:6px}
 .dv-l{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:4px}.dv-t{position:relative;height:14px;background:#f1ede5;border-radius:4px}
 .dv-t::after{content:'';position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--ink)}.dv-t i{position:absolute;top:0;bottom:0;border-radius:3px;opacity:.75}.dv-r b{text-align:right;padding-right:4px}
@@ -1685,14 +1686,14 @@ I('audience','u_freq','ふだん映画を観る頻度',6,[],(T,d)=>{const k=audS
 
 I('audience','u_target','狙った層に届いているか',6,[4],(T,d)=>{const c=dist(R(T,43),[8,50,21,10,7,4],.4),m=dist(R(T,40),[7,52,20,10,7,4],.5);
   return {d:'Clip!した人と、Mark!した人の年代の差',h:`<div class="tw"><table><tr><th>年代</th><th class="r">観たい人</th><th class="r">観た人</th><th class="r">差</th></tr>${AGES.map((a,i)=>`<tr><td>${a}</td><td class="r">${f1(c[i])}%</td><td class="r">${f1(m[i])}%</td><td class="r" style="color:${m[i]-c[i]>=0?'var(--goodtx)':'var(--badtx)'}">${m[i]-c[i]>=0?'+':''}${f1(m[i]-c[i])}pt</td></tr>`).join('')}</table></div>`}},{when:'post'});
-I('audience','u_seg','客層別のスコア',6,[4],(T,d)=>{const m=at(T,'score',d),r=R(T,44);return {d:'どの層に刺さったか',h:bars(['10〜20代の女性','10〜20代の男性','30〜40代の女性','30〜40代の男性','50代以上','年10本未満の人','年150本以上の人'].map(l=>({l,v:clamp(m+(r()-.5)*0.6,1,5)})),{max:5,fmt:f2,u:'点',c:'#9c4f3e'})}},{when:'post'});
+I('audience','u_seg','客層別のスコア',6,[4],(T,d)=>{const m=at(T,'score',d),r=R(T,44);return {d:'どの層に刺さったか',h:bars(['10〜20代の女性','10〜20代の男性','30〜40代の女性','30〜40代の男性','50代以上','年10本未満の人','年150本以上の人'].map((l,k)=>({l,v:clamp(m+(r()-.5)*0.6,1,5),cmp:clamp(pMed('score',d,3.6)+[.08,-.05,.1,-.08,.02,-.12,.05][k],1,5)})),{max:5,fmt:f2,u:'点',c:'#9c4f3e',cmp:'類似作の中央値'})}},{when:'post'});
 I('audience','u_overlap','ほかに何を観ているか',6,[4],(T,d)=>{const r=R(T,45);const li=a=>`<table>${a.map(n=>`<tr><td>${n}</td><td class="r">${f1(4+r()*16)}%</td></tr>`).join('')}</table>`;
   return {d:'この作品の観客が、ほかに記録している作品',h:`<div class="two"><div><div class="sub-h">全体と比べて特によく観ている</div>${li(SIMILAR.slice(0,4))}</div><div><div class="sub-h">同じ時期に観ている</div>${li(SIMILAR.slice(8,12))}</div></div>`}});
 I('audience','u_next','この客層が次に観たい作品',6,[4],(T,d)=>{const r=R(T,46);return {d:'公開予定作へのClip!。予告を付ける相手の候補',h:bars(['きみと渡る橋（12月公開）','冬のソナチネ（12月公開）','はるかな星の子（1月公開）','ミッドナイト・ランナーズ（1月公開）','ふたりの台所（2月公開）'].map(l=>({l,v:6+r()*22})).sort((a,b)=>b.v-a.v),{fmt:f1,u:'%',c:'#a06a86'})}});
 I('audience','u_pre','公開前の観たい人',12,[1],(T,d)=>{const r=R(T,47),i=at(T,'intent',Math.min(d,-1));
-  return {d:'週ごとの調査から',h:`<div class="three"><div><div class="sub-h">年代別の観たい率</div>${bars(AGES.map(a=>({l:a,v:clamp(i*(0.5+r()),1,70)})),{fmt:f1,u:'%',c:'#6a9b8a'})}</div>
+  return {d:'週ごとの調査から',h:`<div class="three"><div><div class="sub-h">年代別の観たい率</div>${bars(AGES.map((a,k)=>({l:a,v:clamp(i*(0.5+r()),1,70),cmp:pMed('intent',Math.min(d,-1),20)*[.8,1.2,1.05,.95,.9,.75][k]})),{fmt:f1,u:'%',c:'#6a9b8a',cmp:'類似作の中央値'})}</div>
   <div><div class="sub-h">どれくらい確実に観るか</div>${stack([{l:'必ず',v:28+T.q*18,c:'#2f6b52'},{l:'たぶん',v:40,c:'#6a9b8a'},{l:'迷い中',v:32-T.q*18,c:'#b9bec4'}])}<div class="sub-h">劇場か配信か</div>${stack([{l:'映画館',v:55+T.q*18,c:'#1b3a5b'},{l:'どちらでも',v:22,c:'#8a929a'},{l:'配信を待つ',v:23-T.q*18,c:'#c9ccd0'}])}</div>
-  <div><div class="sub-h">どこで知ったか</div>${bars([['SNS',34],['テレビCM',28],['映画館の予告',24],['動画サイト',21],['家族・友人',12]].map(x=>({l:x[0],v:x[1]*(0.7+r()*0.6)})).sort((a,b)=>b.v-a.v),{fmt:f1,u:'%',c:'#1b3a5b'})}</div></div>`}});
+  <div><div class="sub-h">どこで知ったか</div>${bars([['SNS',34],['テレビCM',28],['映画館の予告',24],['動画サイト',21],['家族・友人',12]].map(x=>({l:x[0],v:x[1]*(0.7+r()*0.6),cmp:x[1]})).sort((a,b)=>b.v-a.v),{fmt:f1,u:'%',c:'#1b3a5b',cmp:'類似作の中央値'})}</div></div>`}});
 I('audience','u_post','実際の観客',12,[2],(T,d)=>{const r=R(T,48);
   return {d:'鑑賞後のアンケートから',h:`<div class="three"><div><div class="sub-h">年代</div>${bars(AGES.map((a,i)=>({l:a,v:dist(R(T,49),[9,30,22,18,13,8],.4)[i]})),{fmt:f1,u:'%',c:'#5b6f9c'})}</div>
   <div><div class="sub-h">誰と観たか</div>${bars([['ひとり',34],['友人',27],['恋人・夫婦',22],['家族',17]].map(x=>({l:x[0],v:x[1]*(0.7+r()*0.6)})),{fmt:f1,u:'%',c:'#a06a86'})}<div class="sub-h">2回目以上の人</div><div class="big num">${f1(6+T.q*14)}<small>%</small></div></div>
@@ -1798,11 +1799,11 @@ I('deliver','d_gloss','広告の指標の読み方',6,[6],()=>({d:'早見表',h:
 I('audience','u_pre2','観たい気持ちの中身',12,[1],(T,d)=>{const r=R(T,90),i=at(T,'intent',Math.min(d,-1)),a=at(T,'aware',Math.min(d,-1));
   return {d:'週ごとの調査から',h:`<div class="three"><div><div class="sub-h">観たい気持ちの分布</div>${stack([{l:'ぜひ観たい',v:i*.38,c:'#2f6b52'},{l:'観たい',v:i*.62,c:'#6a9b8a'},{l:'どちらとも',v:(100-i)*.4,c:'#b9bec4'},{l:'観ない',v:(100-i)*.6,c:'#d9d4ca'}])}
    <div class="sub-h">どこまで知っているか</div>${stack([{l:'内容まで',v:a*.34,c:'#1b3a5b'},{l:'名前だけ',v:a*.66,c:'#5b6f9c'},{l:'知らない',v:100-a,c:'#d9d4ca'}])}<div class="note">内容まで理解している人は、知っている人の34%。</div></div>
-   <div><div class="sub-h">いつ観る予定か</div>${bars([['公開初日・初週',22+T.q*10],['公開2〜3週目',31],['1か月以内',24],['決めていない',23-T.q*10]].map(x=>({l:x[0],v:x[1]})),{fmt:f1,u:'%',c:'#6a9b8a'})}
-   <div class="sub-h">性別の観たい率</div>${bars([{l:'女性',v:i*(0.9+r()*.35)},{l:'男性',v:i*(0.75+r()*.35)}],{fmt:f1,u:'%',c:'#a06a86'})}</div>
-   <div><div class="sub-h">誰と観る予定か</div>${bars([['ひとり',30],['友人',26],['恋人・夫婦',25],['家族',19]].map(x=>({l:x[0],v:x[1]*(0.7+r()*.6)})),{fmt:f1,u:'%',c:'#a06a86'})}
+   <div><div class="sub-h">いつ観る予定か</div>${bars([['公開初日・初週',22+T.q*10],['公開2〜3週目',31],['1か月以内',24],['決めていない',23-T.q*10]].map((x,k)=>({l:x[0],v:x[1],cmp:[27,31,24,18][k]})),{fmt:f1,u:'%',c:'#6a9b8a',cmp:'類似作の中央値'})}
+   <div class="sub-h">性別の観たい率</div>${bars([{l:'女性',v:i*(0.9+r()*.35),cmp:pMed('intent',Math.min(d,-1),20)*1.07},{l:'男性',v:i*(0.75+r()*.35),cmp:pMed('intent',Math.min(d,-1),20)*.92}],{fmt:f1,u:'%',c:'#a06a86',cmp:'類似作の中央値'})}</div>
+   <div><div class="sub-h">誰と観る予定か</div>${bars([['ひとり',30],['友人',26],['恋人・夫婦',25],['家族',19]].map(x=>({l:x[0],v:x[1]*(0.7+r()*.6),cmp:x[1]})),{fmt:f1,u:'%',c:'#a06a86',cmp:'類似作の中央値'})}
    <div class="sub-h">いちばん観たい層</div><div class="big num" style="font-size:20px">${['20代の女性','30代の女性','20代の男性'][Math.floor(r()*3)]}</div></div></div>`}},DP);
-I('audience','u_pre3','観たい形式と単価',6,[1],(T,d)=>{const r=R(T,91),up=120+r()*160;return {d:'週ごとの調査から',h:`${bars([['通常の上映',58],['IMAX・ドルビーなど',22],['4D',9],['こだわらない',11]].map(x=>({l:x[0],v:x[1]*(0.8+r()*.4)})),{fmt:f1,u:'%',c:'#1b3a5b'})}
+I('audience','u_pre3','観たい形式と単価',6,[1],(T,d)=>{const r=R(T,91),up=120+r()*160;return {d:'週ごとの調査から',h:`${bars([['通常の上映',58],['IMAX・ドルビーなど',22],['4D',9],['こだわらない',11]].map(x=>({l:x[0],v:x[1]*(0.8+r()*.4),cmp:x[1]})),{fmt:f1,u:'%',c:'#1b3a5b',cmp:'類似作の中央値'})}
   <div class="kpis" style="margin-top:12px">${kpi('追加で払ってもよい額',fN(up),'円','特別な形式に対して')}${kpi('チケットの平均単価（見込み）',fN(1450+up*.22),'円')}${kpi('1上映あたりの席数',150,'席','公開規模からの想定')}</div>`}},DP);
 I('audience','u_creative','記憶に残った宣伝素材',6,[1],(T,d)=>{const r=R(T,92),i=at(T,'intent',Math.min(d,-1));
   return {d:'見た覚えがある人の割合と、その人たちの観たい率',h:`<div class="tw"><table><tr><th>素材</th><th class="r">見た覚えがある</th><th class="r">見た人の観たい率</th><th class="r">全体との差</th></tr>${['本予告','特報','ポスター','TVスポット','主題歌の映像'].map(n=>{const l=2+r()*9;return `<tr><td><span class="tthumb">${matArt(T,n)}</span>${n}</td><td class="r">${f1(12+r()*30)}%</td><td class="r">${f1(i+l)}%</td><td class="r" style="color:var(--goodtx)">+${f1(l)}pt</td></tr>`}).join('')}</table></div>`}},DP);
@@ -1812,15 +1813,15 @@ I('audience','u_items','調査で取得している項目',6,[1],()=>({d:'週ご
 /* ---------- 観客：公開後（鑑賞後のアンケート） ---------- */
 const ROUTES=['SNS','テレビCM','映画館の予告','動画サイト','家族・友人','映画サイト'],MOTIV=['口コミ・評判','出演者','予告','原作','割引・特典'];
 I('audience','u_post2','どこで知り、なぜ観たか',12,[2],(T,d)=>{const r=R(T,94);
-  return {d:'鑑賞後のアンケートから',h:`<div class="three"><div><div class="sub-h">知ったきっかけ</div>${bars(ROUTES.map((l,i)=>({l,v:[33,26,24,20,14,9][i]*(0.7+r()*.6)})).sort((a,b)=>b.v-a.v),{fmt:f1,u:'%',c:'#1b3a5b'})}</div>
-  <div><div class="sub-h">きっかけ別のすすめたい度</div><table>${ROUTES.slice(0,5).map(l=>`<tr><td>${l}</td><td class="r">${f1(at(T,'nps',d)+(r()-.5)*24)}pt</td></tr>`).join('')}</table><div class="note">高いきっかけから来た人ほど、口コミを広げてくれます。</div></div>
+  return {d:'鑑賞後のアンケートから',h:`<div class="three"><div><div class="sub-h">知ったきっかけ</div>${bars(ROUTES.map((l,i)=>({l,v:[33,26,24,20,14,9][i]*(0.7+r()*.6),cmp:[33,26,24,20,14,9][i]})).sort((a,b)=>b.v-a.v),{fmt:f1,u:'%',c:'#1b3a5b',cmp:'類似作の中央値'})}</div>
+  <div><div class="sub-h">きっかけ別のすすめたい度</div><table><tr><th></th><th class="r">この作品</th><th class="r">類似作の中央値</th></tr>${ROUTES.slice(0,5).map((l,k)=>`<tr><td>${l}</td><td class="r">${f1(at(T,'nps',d)+(r()-.5)*24)}pt</td><td class="r" style="color:var(--sub)">${f1(pMed('nps',d,30)+[-4,-8,2,3,9][k])}pt</td></tr>`).join('')}</table><div class="note">高いきっかけから来た人ほど、口コミを広げてくれます。</div></div>
   <div><div class="sub-h">観ると決めた時期</div>${stack([{l:'当日',v:18+r()*8,c:'#c2603f'},{l:'1週間以内',v:34,c:'#b08040'},{l:'公開前から',v:48-r()*8,c:'#5b6f9c'}])}
   <div class="sub-h">性別と知ったきっかけ</div><table><tr><th></th><th class="r">女性</th><th class="r">男性</th></tr>${ROUTES.slice(0,3).map(l=>`<tr><td>${l}</td><td class="r">${f1(18+r()*22)}%</td><td class="r">${f1(14+r()*22)}%</td></tr>`).join('')}</table></div></div>`}},{when:'post',...DP});
 I('audience','u_heat','年代 × 動機（ヒートマップ）',6,[2],(T,d)=>{const r=R(T,95),v=AGES.map(()=>MOTIV.map(()=>6+r()*34));return {d:'年代ごとに、観ると決めた理由',h:heat(AGES,MOTIV,(i,j)=>v[i][j])}},{when:'post',...DP});
 I('audience','u_repeat','リピート',6,[2],(T,d)=>{const again=18+T.q*22,done=6+T.q*14,s=at(T,'sat',d);
-  return {d:'2回目以上の人と、これからの伸びしろ',h:`<div class="kpis" style="margin-bottom:12px">${kpi('2回目以上の人',f1(done),'%')}${kpi('また観たい',f1(again),'%')}${kpi('まだ来ていない人',f1(Math.max(0,again-done)),'%','また観たい − 2回目以上')}</div>
+  return {d:'2回目以上の人と、これからの伸びしろ',h:`<div class="kpis" style="margin-bottom:12px">${kpi('2回目以上の人',f1(done),'%','類似作の中央値 13.0%')}${kpi('また観たい',f1(again),'%','類似作の中央値 29.0%')}${kpi('まだ来ていない人',f1(Math.max(0,again-done)),'%','また観たい − 2回目以上')}</div>
   <div class="sub-h">来場回数</div>${stack([{l:'1回目',v:100-done,c:'#5b6f9c'},{l:'2回目',v:done*.7,c:'#b08040'},{l:'3回以上',v:done*.3,c:'#c2603f'}])}
-  <div class="sub-h">満足度のちがい</div>${bars([{l:'2回目以上の人',v:Math.min(99,s+6),c:'#2f6b52'},{l:'はじめての人',v:s-1,c:'#6a9b8a'}],{max:100,fmt:f1,u:'%'})}`}},{when:'post',...DP});
+  <div class="sub-h">満足度のちがい</div>${bars([{l:'2回目以上の人',v:Math.min(99,s+6),c:'#2f6b52',cmp:Math.min(99,pMed('sat',d,s)+5)},{l:'はじめての人',v:s-1,c:'#6a9b8a',cmp:pMed('sat',d,s)-1}],{max:100,fmt:f1,u:'%',cmp:'類似作の中央値'})}`}},{when:'post',...DP});
 I('audience','u_nps','誰がすすめてくれるか',6,[2],(T,d)=>{const r=R(T,96),n=at(T,'nps',d),sh=dist(R(T,49),[9,30,22,18,13,8],.4);
   return {d:'年代別のすすめたい度と、すすめたい人の内訳',h:`<div class="two"><div><div class="sub-h">年代別（NPS）</div><table>${AGES.map(a=>`<tr><td>${a}</td><td class="r">${f1(n+(r()-.5)*26)}pt</td></tr>`).join('')}</table></div><div><div class="sub-h">すすめたい人の内訳</div>${bars(AGES.map((a,i)=>({l:a,v:sh[i]*(0.8+r()*.4)})),{fmt:f1,u:'%',c:'#2f6b52'})}</div></div>`}},{when:'post',...DP});
 I('audience','u_format','上映の形式と、映画を観る頻度',6,[2],(T,d)=>{const r=R(T,97),h=10+r()*14;return {d:'鑑賞後のアンケートから',h:`<div class="sub-h">観た形式</div>${stack([{l:'通常',v:72-r()*10,c:'#5b6f9c'},{l:'IMAX・ドルビーなど',v:18+r()*8,c:'#1b3a5b'},{l:'4D',v:8,c:'#b08040'}])}
@@ -1860,11 +1861,12 @@ AUD_SEC.forEach(([id,t,q,w,mem])=>{I('audience',id,t,12,[],()=>({d:q,h:''}),{whe
   Object.defineProperty(by.u_seg,'w',{get:()=>has(2)?12:6,set(){},configurable:true});
   const pf=by.u_post.fn;by.u_post.fn=(T,d)=>{const o=pf(T,d);return {d:o.d,h:o.h.replace('<div class="sub-h">年代</div>','<div class="sub-h">年代（アンケートの回答者）</div>')}}})();
 /* 観客：構成（年代・性別・頻度）のグラフは「年代と性別」「ふだん映画を観る頻度」の1か所だけ。ほかの枠は、差や別の切り口だけを出す */
+function pMed(k,d,fb){const v=PEERS.map(p=>at(p,k,d)).filter(x=>x!=null&&!isNaN(x));return v.length?med(v):fb}
 function dvBars(rows){const mx=Math.max(...rows.map(r=>Math.abs(r.v)),1);return `<div class="dv">${rows.map(r=>`<div class="dv-r ${r.hot?'hot':''}"><span class="dv-l">${r.l}</span><span class="dv-t"><i style="${r.v>=0?'left:50%':'right:50%'};width:${(Math.abs(r.v)/mx*50).toFixed(1)}%;background:${r.v>=0?'var(--goodtx)':'var(--badtx)'}"></i></span><b class="num" style="color:${r.v>=0?'var(--goodtx)':'var(--badtx)'}">${r.v>=0?'+':''}${f1(r.v)}pt</b></div>`).join('')}</div><div class="dv-lg"><span>← 予測より少ない</span><span>予測より多い →</span></div>`}
 (function(){const g=id=>ITEMS.find(x=>x.id===id);
   g('u_post').fn=(T,d)=>{const r=R(T,48);return {d:'鑑賞後のアンケートから',h:`<div class="two"><div><div class="sub-h">誰と観たか</div>${bars([['ひとり',34],['友人',27],['恋人・夫婦',22],['家族',17]].map(x=>({l:x[0],v:x[1]*(0.7+r()*0.6),cmp:x[1]})),{fmt:f1,u:'%',c:'#a06a86',cmp:'類似作の中央値'})}</div>
     <div><div class="sub-h">観ると決めた理由</div>${bars([['口コミ・評判',31],['出演者',29],['予告',26],['原作',18],['割引・特典',9]].map(x=>({l:x[0],v:x[1]*(0.7+r()*0.6),cmp:x[1]})).sort((a,b)=>b.v-a.v),{fmt:f1,u:'%',c:'#2f6b52',cmp:'類似作の中央値'})}</div></div>`}};
-  g('u_format').t='上映の形式';g('u_format').fn=(T,d)=>{const r=R(T,97),a=18+r()*8;return {d:'鑑賞後のアンケートから',h:`<div class="sub-h">観た形式</div>${stack([{l:'通常',v:92-a,c:'#5b6f9c'},{l:'IMAX・ドルビーなど',v:a,c:'#1b3a5b'},{l:'4D',v:8,c:'#b08040'}])}<div class="note">IMAX・ドルビーなどで観た人は ${f1(a)}%。</div>`}};
+  g('u_format').t='上映の形式';g('u_format').fn=(T,d)=>{const r=R(T,97),a=18+r()*8;return {d:'鑑賞後のアンケートから',h:`<div class="sub-h">この作品</div>${stack([{l:'通常',v:92-a,c:'#5b6f9c'},{l:'IMAX・ドルビーなど',v:a,c:'#1b3a5b'},{l:'4D',v:8,c:'#b08040'}])}<div class="sub-h">類似作の中央値</div>${stack([{l:'通常',v:70,c:'#5b6f9c'},{l:'IMAX・ドルビーなど',v:22,c:'#1b3a5b'},{l:'4D',v:8,c:'#b08040'}])}<div class="note">IMAX・ドルビーなどで観た人は ${f1(a)}%（類似作 22.0%）。</div>`}};
   g('u_answer').fn=(T,d)=>{const pk=has(1)?'karte':'sim',pred=pk==='karte'?audMix(T,'karte',d):tgData(T).segs.map(x=>x.sh),act=audMix(T,'cast',d),fp=freqMix(T,'karte'),fa=freqMix(T,'cast');
     const gap=SEG_N.map((_,i)=>i).sort((a,b)=>Math.abs(act[b]-pred[b])-Math.abs(act[a]-pred[a])).slice(0,3),tg=tgSel(T),fs=sumA(act.slice(0,6))-sumA(pred.slice(0,6));
     return {d:`予測＝${pk==='karte'?'公開前の調査で観たいと答えた人':'類似作を観た人'}｜実績＝実際に観た人（補正済み）`,h:`<ul class="todo" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin-bottom:12px">
@@ -1874,6 +1876,11 @@ function dvBars(rows){const mx=Math.max(...rows.map(r=>Math.abs(r.v)),1);return 
       <div><div class="sub-h">1年間に映画館で観る本数：予測との差</div>${dvBars(C11.map((l,i)=>({l,v:fa[i]-fp[i]})))}
         <div class="note">${fa[0]+fa[1]>fp[0]+fp[1]?'予測より、ふだんあまり映画館に行かない人が来ています（広がりが出ている）。':'予測より、よく映画館に行く人に寄っています（広がりが弱い）。'}</div></div></div>
       <div class="note">ここでは予測との差だけを出しています。実際の観客の構成そのものは、上の「年代と性別」「ふだん映画を観る頻度」にあります。「狙い」は宣伝設計で選んだ層です。</div>`}};
+  g('u_nps').fn=(T,d)=>{const r=R(T,96),n=at(T,'nps',d),pn=pMed('nps',d,n),sh=dist(R(T,49),[9,30,22,18,13,8],.4),v=AGES.map(()=>n+(r()-.5)*26),raw=AGES.map((a,i)=>sh[i]*(0.8+r()*.4)),tt=sumA(raw),pm=raw.map(x=>x/tt*100),ts=sumA(sh),al=sh.map(x=>x/ts*100);
+    const AC=['#c2603f','#b08040','#6a9b8a','#5b6f9c','#1b3a5b','#8a929a'],top=AGES.map((_,i)=>i).sort((a,b)=>(pm[b]-al[b])-(pm[a]-al[a]))[0],off=[3,6,-2,-4,-1,-5];
+    return {d:'年代別のすすめたい度と、すすめたい人の年代',h:`<div class="nps-v"><div><div class="sub-h">年代別のすすめたい度（NPS）</div><div class="tw"><table><tr><th>年代</th><th class="r">この作品</th><th class="r">類似作の中央値</th><th class="r">差</th></tr>${AGES.map((a,i)=>{const c=pn+off[i],df=v[i]-c;return `<tr><td>${a}</td><td class="r num">${f1(v[i])}pt</td><td class="r num" style="color:var(--sub)">${f1(c)}pt</td><td class="r num" style="color:${df>=0?'var(--goodtx)':'var(--badtx)'}">${df>=0?'+':''}${f1(df)}</td></tr>`}).join('')}</table></div></div>
+      <div><div class="sub-h">すすめたい人の年代（すすめたい人を100%として）</div>${stack(AGES.map((a,i)=>({l:a,v:pm[i],c:AC[i]})))}<div class="sub-h">観客全体の年代</div>${stack(AGES.map((a,i)=>({l:a,v:al[i],c:AC[i]})))}
+      <div class="note">上の帯が下より長い年代ほど、観客に占める割合のわりに、すすめてくれる人が多い層です。いちばん差が大きいのは <b>${AGES[top]}</b>（すすめたい人の ${f1(pm[top])}%／観客全体の ${f1(al[top])}%）。</div></div></div>`}};
   g('u_target').fn=(T,d)=>{const c=dist(R(T,43),[8,50,21,10,7,4],.4),m=dist(R(T,40),[7,52,20,10,7,4],.5);
     return {d:'予測＝Clip!（観たい登録）した人｜実績＝Mark!（観た記録）した人',h:`${audTag('fm')}<div class="sub-h">年代：予測との差</div>${dvBars(AGES.map((a,i)=>({l:a,v:m[i]-c[i]})))}<div class="note">ここでは予測との差だけを出しています。観た人の構成そのものは、上の「年代と性別」にあります。</div><div class="note int-only">社内向け：鑑賞後のアンケート（CAST）が使える段階では、補正済みの実際の観客との比較に切り替わります。</div>`}}})();
 
