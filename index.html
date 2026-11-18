@@ -1850,7 +1850,10 @@ AUD_SEC.forEach(([id,t,q,w,mem])=>{I('audience',id,t,12,[],()=>({d:q,h:''}),{whe
   ['u_answer','u_post2','u_heat','u_nps','u_repeat','u_format'].forEach(id=>by[id].deep=false);
   /* 公開前の調査の項目は、公開前は表に、公開後は「くわしく見る」にまとめる */
   ['ux_H','u_pre','u_pre2','u_pre3','u_rival'].forEach(id=>Object.defineProperty(by[id],'deep',{get:()=>S.day>=0,set(){},configurable:true}));
-  by.u_pre.t='年代別の観たい率・観る確かさ・知ったきっかけ';by.u_post.t='誰と観たか、なぜ観ると決めたか';by.u_target.t='観たい人と、観た人の年代の差';
+  by.u_pre.t='年代別の観たい率・観る確かさ・知ったきっかけ';by.u_post.t='誰と観たか、なぜ観ると決めたか';by.u_target.t='公開前の予測と、実際の観客';
+  /* 同じ問いは1つの枠で。CASTがあれば u_answer、なければFilmarksの u_target を出す */
+  by.u_target.hide=()=>has(2);const tf=by.u_target.fn;by.u_target.fn=(T,d)=>{const o=tf(T,d);return {d:'予測＝Clip!（観たい登録）した人｜実績＝Mark!（観た記録）した人',h:audTag('fm')+o.h+'<div class="note int-only">社内向け：鑑賞後のアンケート（CAST）が使える段階では、補正済みの実際の観客との比較に切り替わります。</div>'}};
+  Object.defineProperty(by.u_seg,'w',{get:()=>has(2)?12:6,set(){},configurable:true});
   const pf=by.u_post.fn;by.u_post.fn=(T,d)=>{const o=pf(T,d);return {d:o.d,h:o.h.replace('<div class="sub-h">年代</div>','<div class="sub-h">年代（アンケートの回答者）</div>')}}})();
 
 /* ---------- 見通し ---------- */
