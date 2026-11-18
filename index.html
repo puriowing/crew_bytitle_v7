@@ -2543,7 +2543,7 @@ I('deliver','k_ad','広告：ここだけ確認',12,[6],(T,d)=>{const o=adChecks
     ${chkRow(2,'狙った層に届いているか',o.tr==null?'<span class="fx-n">—</span>':`<b class="num">${f1(o.tr)}倍</b>`,o.tr==null?'実施から3日たつと出ます':`狙った層（${o.tg.map(segName).join('・')}）への配信 ${f1(o.del)}%／類似作の観客に占める割合 ${f1(o.pop)}%`,t2,l2)}
     ${chkRow(3,'作品への関心が動いたか',o.mv?`<b class="num">+${f1(o.mv.v)}%</b>`:'<span class="fx-n">—</span>',o.mv?`広告のあとの${M[o.mv.k].n}の増え方（類似作の広告の中央値 +${f1(o.mv.p)}%）${o.ex!=null?`。広告を見た人は、見ていない人より観たい率が +${f1(o.ex)}pt 高い`:''}`:'実施から3日たつと出ます',t3,l3)}
     ${chkRow(4,'効率がおかしいキャンペーンはないか',`<b class="num">${o.bad.length}</b>件`,o.bad.length?o.bad.map(c=>`「${esc(c.e.label)}」${c.cpm>(c.e.ch==='PAID_TV'?900:520)*1.3?`表示単価 ${fN(c.cpm)}円`:''}${c.ctr!=null&&c.ctr<0.6?` クリック率 ${f2(c.ctr)}%`:''}`).join('、')+'（類似作より大きく悪い）':`表示単価・クリック率が類似作より大きく悪いキャンペーンはありません（${o.camp.length}件を確認）`,o.bad.length?'bad':'good',o.bad.length?'確認が必要':'問題なし')}
-    </div><div class="note">キャンペーンごとの詳しい数字は、広告のレポート（別のダッシュボード）で確認します。このページでは、作品の成果につながっているかだけを見ます。下の「くわしく見る」に、これまでの項目をまとめています。</div>`}});
+    </div><div class="note">キャンペーンごとの詳しい数字は、広告のレポート（別のダッシュボード）で確認します。このページでは、作品の成果につながっているかだけを見ます。すぐ下に、表示回数の推移と媒体別の出稿量を出しています。</div>`}});
 function snsChecks(T,d){const a=d-27,P=PEERS,imp=sumR(T,'oimp',a,d),pimp=med(P.map(p=>sumR(p,'oimp',a,d))),eng=sumR(T,'oeng',a,d),er=imp?eng/imp*100:0,per=med(P.map(p=>{const i=sumR(p,'oimp',a,d);return i?sumR(p,'oeng',a,d)/i*100:0}));
   const fol=T.followers*(0.55+0.45*clamp((d-D0)/(T.today-D0+1),0,1)),pfol=med(P.map(p=>p.followers*(0.55+0.45*clamp((d-D0)/(p.today-D0+1),0,1))));
   let wom=null;if(has(3)){const ow=T.ev.filter(e=>e.ch==='OWNED'&&e.d+2<=d).map(e=>uplift(T,e,'buzz',d)).filter(x=>x!=null);if(ow.length){const v=mean(ow);wom={v,p:pctOf(v,peerUps('OWNED','buzz'))}}}
@@ -2561,6 +2561,25 @@ I('deliver','k_sns','公式SNS：ここだけ確認',12,[6],(T,d)=>{const o=snsC
   ITEMS.forEach(it=>{if(it.page==='deliver'&&!['k_ad','k_sns'].includes(it.id))it.deep=true})})();
 (function(){const p=PAGES.find(x=>x.k==='deliver');if(p)p.q='広告と公式SNSが、作品への関心につながっているか'})();
 SRC_USE.k_ad=[6,1,3,5];SRC_USE.k_sns=[6,3];
+/* メディアのページ：「今日」のカード（広告の表示・公式SNSの反応）の受け皿になる推移と内訳は、表に出しておく */
+function mTrend(T,k,d,marks,h){const b=Math.max(d,0);return chart(T,[{n:'類似作の幅（真ん中の半分）',band:peerBand(k,D0,b),c:'#8a929a'},{n:'この作品',vals:slice(T,k,D0,b,d),c:M[k].c}],{a:D0,b,u:M[k].u,h:h||170,marks})}
+function mWk(T,k,d){const w=wkChange(T,k,d),pos=posOf(T,k,d);return kpi('直近7日の'+M[k].n.replace(/^(広告|公式SNS)の/,''),fN(sumR(T,k,d-6,d)),M[k].u,`${w==null?'':'前の週より '+(w>=0?'+':'')+f1(w)+'%'}${pos!=null?`${w==null?'':'｜'}類似作の同じ時期で ${TIERS[tierOf(pos)]}`:''}`)}
+I('deliver','m_admix','媒体別の出稿量',5,[6],(T,d)=>{const rows=mediaRows(T,d),sp=sumA(rows.map(r=>r.sp));if(!sp)return {d:'',h:'<div class="empty">この日までに広告の出稿はありません。</div>'};
+  return {d:'基準日までの累計',h:`${stack(rows.map((r,i)=>({l:r.n,v:r.sp,c:mcol(r.n,i)})))}<div class="note" style="margin-bottom:10px">広告費の配分</div>
+  <div class="tw"><table><tr><th>媒体</th><th class="r">広告費</th><th class="r">配分</th><th class="r">表示回数</th></tr>
+  ${rows.map((r,i)=>`<tr><td><i class="cdot" style="background:${mcol(r.n,i)}"></i>${r.n}</td><td class="r">${fN(r.sp)}円</td><td class="r">${Math.round(r.sp/sp*100)}%</td><td class="r">${fN(r.imp)}</td></tr>`).join('')}</table></div>
+  <div class="note">表示単価やクリック率などの効率は、広告のレポート（別のダッシュボード）で確認します。</div>`}});
+SRC_USE.m_admix=[6];
+(function(){const g=id=>ITEMS.find(x=>x.id===id),tr=g('d_trend'),ow=g('d_owned'),pl=g('d_plat');
+  if(tr){tr.t='広告の表示回数の推移';tr.w=7;tr.hit='aimp';tr.fn=(T,d)=>{const a=adAgg(T,d);if(!a.sp)return {d:'',h:'<div class="empty">この日までに広告の出稿はありません。</div>'};
+    return {d:'1日ごと｜縦の線は広告を始めた日',h:`<div class="kpis" style="margin-bottom:12px">${mWk(T,'aimp',d)}${kpi('ここまでの表示',fN(a.imp),'回')}${kpi('ここまでの広告費',fN(a.sp),'円')}</div>${mTrend(T,'aimp',d,T.ev.filter(e=>e.ch.startsWith('PAID')).map(e=>({d:e.d,c:CH[e.ch].c})),180)}
+      <div class="note">広告の量は予算で決まるため、類似作の幅は「同じ時期にどのくらい出していたか」の目安です。多い・少ないの良し悪しは示しません。</div>`}}}
+  if(ow){ow.t='公式SNSの反応と表示の推移';ow.w=7;ow.hit='oeng';ow.fn=(T,d)=>{const i7=sumR(T,'oimp',d-6,d),e7=sumR(T,'oeng',d-6,d),fo=snsChecks(T,d).fol,mk=T.ev.filter(e=>e.ch==='OWNED').map(e=>({d:e.d,c:CH.OWNED.c}));
+    return {d:'1日ごと｜縦の線は公式SNSの施策',h:`<div class="kpis" style="margin-bottom:12px">${mWk(T,'oeng',d)}${kpi('直近7日の表示',fN(i7),'回')}${kpi('反応率',i7?f2(e7/i7*100):'—','%')}${kpi('フォロワー',fN(fo),'人')}</div>
+      <div class="sub-h" style="margin-top:0">反応（いいね・リポスト・コメントなど）</div>${mTrend(T,'oeng',d,mk,140)}<div class="sub-h">表示回数</div>${mTrend(T,'oimp',d,mk,110)}`}}}
+  if(pl)pl.w=5;
+  const top=['k_ad','d_trend','m_admix','k_sns','d_owned','d_plat'],mv=top.map(id=>ITEMS.splice(ITEMS.findIndex(x=>x.id===id),1)[0]),j=ITEMS.findIndex(x=>x.page==='deliver');
+  ITEMS.splice(j,0,...mv);mv.forEach(it=>it.deep=false)})();
 
 /* 宣伝設計は、ふだんのタブとは分けて、ヘッダーの入口から入る画面にする */
 const PLAN_SEC=[['p_sec1','誰に','1'],['p_sec2','いつ','2'],['p_sec3','どこで・何を','3']];
