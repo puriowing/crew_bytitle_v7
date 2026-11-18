@@ -2716,12 +2716,13 @@ SRC_USE.i_key=[3,5,1,4,2];
 
 
 /* ================= 信頼のための表示：数字の出どころ・類似作の選び方・指数の中身 ================= */
+const provName=k=>S.client?PROV_NAME[k].replace(/（(KARTE|CAST)）/,''):PROV_NAME[k];
 const PROV_NAME={1:'鑑賞意向調査（KARTE）',2:'鑑賞後アンケート（CAST）',3:'SNSの投稿',4:'Filmarks',5:'検索の量',6:'宣伝の実績データ',B:'興収の実績',S:'上映スケジュール',N:'公開記事'};
 const PROV_EST=['a_expo','a_roi','a_cum','d_demo','a_seg','a_rx','h_risk','k_ad'],PROV_IDX=['h_verdict','a_score','a_axes','a_decomp','h_views'];
 const karteN=(T,d)=>Math.round(1100+R(T,700+Math.floor(d/7))()*260);
 function provHTML(it,T,d){const use=(SRC_USE[it.id]||it.need).filter(k=>srcPhase(k)<=S.phase&&(typeof k!=='number'||has(k)));if(!use.length)return '';
   const kind=it.page==='outlook'?['pv-f','予測']:PROV_IDX.includes(it.id)?['pv-i','指数（複数の数字をまとめた点数）']:PROV_EST.includes(it.id)?['pv-e','推定を含む']:['pv-m','実測'];
-  const nm=use.map(k=>k===2&&d>=0?`${PROV_NAME[k]}・回答 ${fN(castResp(T,d))}人`:k===1?`${PROV_NAME[k]}・直近1週の回答 ${fN(karteN(T,d))}人`:PROV_NAME[k]).join('／');
+  const nm=use.map(k=>k===2&&d>=0?`${provName(k)}・回答 ${fN(castResp(T,d))}人`:k===1?`${provName(k)}・直近1週の回答 ${fN(karteN(T,d))}人`:provName(k)).join('／');
   return `<div class="prov"><span class="pv ${kind[0]}">${kind[1]}</span><span class="pv-s">${nm}</span><span class="pv-t">${d>T.today?'この先は見本の数字':md(dateOf(T,d))+' 6:00 更新'}</span></div>`}
 function scoreHow(T,d){const p=scoreParts(T,d),W=sumA(p.map(x=>x.w||1));
   return `<details class="sc-how"><summary>この点数の作り方</summary><table class="ex-t"><tr><th>数字</th><th class="r">類似作の中の位置</th><th class="r">重み</th></tr>${p.map(x=>`<tr><td>${x.n}</td><td class="r num">${x.v}</td><td class="r num">${x.w||1}／${W}</td></tr>`).join('')}<tr><td><b>${scoreName()}</b></td><td class="r num"><b>${scoreOf(T,d)}</b></td><td class="r">重みつき平均</td></tr></table>
@@ -2747,7 +2748,7 @@ function reportHTML(T,d){const a=d-6,b=d,pv=d-7,sc=scoreOf(T,d),[tc,tl]=toneOf(s
     <div class="rp-sec"><h2>3　今週の施策</h2>${evs.length?`<table class="ex-t"><tr><th>日付</th><th>施策</th><th class="r">効き具合</th><th class="r">露出（推定を含む）</th>${has(3)?'<th>炎上リスク</th>':''}</tr>${evs.map(e=>{const ef=!isAd(e)&&e.d+2<=d?evEff(T,e,d):null,x=expoOf(T,e,d),r=has(3)?rxOf(T,e,d):null;return `<tr><td>${md(dateOf(T,e.d))}</td><td>${esc(e.label)}<small>${CH[e.ch].n}</small></td><td class="r num">${ef??(isAd(e)?'広告':'集計中')}</td><td class="r num">${x?fN(x.tot)+'回':'—'}</td>${has(3)?`<td>${r?r.risk.lv:'—'}</td>`:''}</tr>`}).join('')}</table>`:'<p>今週実施した施策はありません。</p>'}</div>
     <div class="rp-sec"><h2>4　注意点とやること</h2>${rk.length?`<p class="rp-warn">炎上リスク：${rk.map(x=>`「${esc(x.e.label)}」${x.o.risk.lv}（${x.o.risk.score}）${x.o.risk.sc?'　'+x.o.risk.sc.topic:''}`).join('、')}</p>`:''}${tdh}</div>
     <div class="rp-sec"><h2>5　来週の予定</h2>${nx.length?`<ul>${nx.map(e=>`<li>${md(dateOf(T,e.d))}　${esc(e.label)}（${CH[e.ch].n}${e.cost?`・費用 ${fN(e.cost*1e4)}円`:''}）</li>`).join('')}</ul>`:'<p>来週の施策の予定はありません。</p>'}</div>
-    <div class="rp-foot">データ：${[...new Set(ITEMS.flatMap(x=>SRC_USE[x.id]||x.need))].filter(k=>srcPhase(k)<=S.phase&&(typeof k!=='number'||has(k))).map(k=>PROV_NAME[k]).join('／')}｜${md(dateOf(T,d))} 6:00 時点｜類似作 ${PEERS.length}本（作品名・個別の数字は出していません）</div></div>`}
+    <div class="rp-foot">データ：${[...new Set(ITEMS.flatMap(x=>SRC_USE[x.id]||x.need))].filter(k=>srcPhase(k)<=S.phase&&(typeof k!=='number'||has(k))).map(k=>provName(k)).join('／')}｜${md(dateOf(T,d))} 6:00 時点｜類似作 ${PEERS.length}本（作品名・個別の数字は出していません）</div></div>`}
 function openReport(){const T=cur(),d=S.day;let el=$('#rpt');if(!el){el=document.createElement('div');el.id='rpt';document.body.appendChild(el)}
   el.innerHTML=`<div class="rp-bar"><b>週の報告書</b><span>このまま印刷するか、印刷の画面で「PDFに保存」を選ぶと、社内の報告にそのまま使えます。</span><button class="btn pri" id="rpPrint">印刷・PDFにする</button><button class="btn" id="rpClose">閉じる</button></div>${reportHTML(T,d)}`;
   document.body.classList.add('rp-on');$('#rpPrint').onclick=()=>window.print();$('#rpClose').onclick=()=>document.body.classList.remove('rp-on')}
