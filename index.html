@@ -991,6 +991,10 @@ tr.tg-few td{color:var(--sub)}
 @media (max-width:900px){.tgm-row{grid-template-columns:1fr;gap:4px}.tgm-l{place-items:start}.tgm-g{grid-template-columns:repeat(3,1fr);gap:6px}.tg .v{font-size:20px}}
 
 /* 宣伝設計：区切りの見出しと、週ごとの表 */
+[id^=it-ux_]{background:none;border:0;box-shadow:none;padding:10px 4px 0 14px;margin:14px 0 -8px;position:relative}
+[id^=it-ux_]::before{content:'';position:absolute;left:0;top:13px;bottom:3px;width:4px;border-radius:2px;background:var(--accent)}
+.grid>[id^=it-ux_]:first-child{margin-top:0}
+[id^=it-ux_] .srcs{display:none}[id^=it-ux_] h2{font-size:19px}
 #it-p_sec1,#it-p_sec2,#it-p_sec3{background:none;border:0;box-shadow:none;padding:8px 4px 0;margin-bottom:-8px}
 #it-p_sec2,#it-p_sec3{margin-top:14px}
 #it-p_sec1 .srcs,#it-p_sec2 .srcs,#it-p_sec3 .srcs{display:none}
@@ -1828,6 +1832,27 @@ I('audience','u_answer','公開前の予測と、実際の観客',12,[2],(T,d)=>
       <div class="note">${fa[0]+fa[1]>fp[0]+fp[1]?'予測より、ふだんあまり映画館に行かない人が来ています（広がりが出ている）。':'予測より、よく映画館に行く人に寄っています（広がりが弱い）。'}</div></div></div>
     <div class="note">実績は、劇場で観た人の回答を、性別・年代・鑑賞頻度の偏りを補正して集計しています。補正の係数は市場全体の偏りから出し、この作品の回答にかけているため、作品ごとの違いは残ります。「狙い」は宣伝設計で選んだ層です。</div>`}},{when:'post',...DP});
 
+/* ---------- 観客：問いの順に区切って並べる（公開前と公開後で並びを変える） ---------- */
+const AUD_SEC=[
+  ['ux_A','誰が観たいと思っているか','観たい人の性別・年代と、ふだん映画をどのくらい観る人たちか','pre',['u_age','u_freq','u_pre']],
+  ['ux_D','誰が観に来たか','実際に観た人の性別・年代、誰と観たか、観ると決めた理由','post',['u_age','u_freq','u_post']],
+  ['ux_H','公開前の調査（ふり返り）','公開前に、観たいと答えていた人たちの記録','post',['u_pre','u_pre2','u_pre3','u_rival','u_creative','u_items']],
+  ['ux_B','どのくらい本気で、どう観るつもりか','観たい気持ちの強さ、観る時期、誰と、どの形式で。同じ時期に迷っている作品','pre',['u_pre2','u_pre3','u_rival']],
+  ['ux_E','狙いどおりに届き、刺さったか','公開前の予測と実際の観客の差、層ごとの評価','post',['u_answer','u_target','u_seg']],
+  ['ux_F','なぜ観て、誰が広げてくれるか','知ったきっかけ・決めた理由と、すすめてくれる人・もう一度来る人','post',['u_post2','u_heat','u_nps','u_repeat','u_format']],
+  ['ux_C','ほかに何を観ている人たちか','この客層の好みと、次に観たい作品。予告を付ける相手や、組む相手の候補','pre',['u_overlap','u_next']],
+  ['ux_G','ほかに何を観ている人たちか','この客層の好みと、次に観たい作品。次の作品へつなぐ材料','post',['u_overlap','u_next']]];
+AUD_SEC.forEach(([id,t,q,w,mem])=>{I('audience',id,t,12,[],()=>({d:q,h:''}),{when:w,sec:true,hide:d=>!mem.some(m=>{const it=ITEMS.find(x=>x.id===m);return it&&avail(it,d)})})});
+(function(){const g=id=>ITEMS.splice(ITEMS.findIndex(x=>x.id===id),1)[0];
+  const order=['ux_A','ux_D','u_age','u_freq','u_post','ux_H','u_pre','ux_B','u_pre2','u_pre3','u_rival','ux_E','u_answer','u_target','u_seg','ux_F','u_post2','u_heat','u_nps','u_repeat','u_format','ux_C','ux_G','u_overlap','u_next','u_creative','u_items'];
+  const rest=ITEMS.filter(x=>x.page==='audience'&&!order.includes(x.id)).map(x=>x.id),mv=[...order,...rest].map(g),j=ITEMS.findIndex(x=>x.page==='outlook');ITEMS.splice(j<0?ITEMS.length:j,0,...mv);
+  const by=Object.fromEntries(mv.map(x=>[x.id,x]));
+  ['u_answer','u_post2','u_heat','u_nps','u_repeat','u_format'].forEach(id=>by[id].deep=false);
+  /* 公開前の調査の項目は、公開前は表に、公開後は「くわしく見る」にまとめる */
+  ['ux_H','u_pre','u_pre2','u_pre3','u_rival'].forEach(id=>Object.defineProperty(by[id],'deep',{get:()=>S.day>=0,set(){},configurable:true}));
+  by.u_pre.t='年代別の観たい率・観る確かさ・知ったきっかけ';by.u_post.t='誰と観たか、なぜ観ると決めたか';by.u_target.t='観たい人と、観た人の年代の差';
+  const pf=by.u_post.fn;by.u_post.fn=(T,d)=>{const o=pf(T,d);return {d:o.d,h:o.h.replace('<div class="sub-h">年代</div>','<div class="sub-h">年代（アンケートの回答者）</div>')}}})();
+
 /* ---------- 見通し ---------- */
 function openWeek(T,d){return d>=6?sumR(T,'gross',0,6)*1e4:fcBase(T,d).mid*.22}
 I('outlook','o_share','初週の興収シェア',6,[],(T,d)=>{const cs=comps(T),me=openWeek(T,d),co=cs.map(c=>c.sc*1.1e6*c.dm),tot=me+sumA(co),scT=T.screens+sumA(cs.map(c=>c.sc));
@@ -2562,6 +2587,7 @@ I('deliver','k_sns','公式SNS：ここだけ確認',12,[6],(T,d)=>{const o=snsC
   ITEMS.forEach(it=>{if(it.page==='deliver'&&!['k_ad','k_sns'].includes(it.id))it.deep=true})})();
 (function(){const p=PAGES.find(x=>x.k==='deliver');if(p)p.q='広告と公式SNSが、作品への関心につながっているか'})();
 SRC_USE.k_ad=[6,1,3,5];SRC_USE.k_sns=[6,3];
+AUD_SEC.forEach(x=>SRC_USE[x[0]]=[]);
 /* メディアのページ：「今日」のカード（広告の表示・公式SNSの反応）の受け皿になる推移と内訳は、表に出しておく */
 function mTrend(T,k,d,marks,h){const b=Math.max(d,0);return chart(T,[{n:'類似作の幅（真ん中の半分）',band:peerBand(k,D0,b),c:'#8a929a'},{n:'この作品',vals:slice(T,k,D0,b,d),c:M[k].c}],{a:D0,b,u:M[k].u,h:h||170,marks})}
 function mWk(T,k,d){const w=wkChange(T,k,d),pos=posOf(T,k,d);return kpi('直近7日の'+M[k].n.replace(/^(広告|公式SNS)の/,''),fN(sumR(T,k,d-6,d)),M[k].u,`${w==null?'':'前の週より '+(w>=0?'+':'')+f1(w)+'%'}${pos!=null?`${w==null?'':'｜'}類似作の同じ時期で ${TIERS[tierOf(pos)]}`:''}`)}
