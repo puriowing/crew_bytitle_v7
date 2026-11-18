@@ -1672,7 +1672,7 @@ function audMix(T,src,d){const D=tgData(T),sh=D.segs.map(x=>x.sh),r=R(T,src==='c
   if(src==='fm'){const ag=[1.3,1.6,1.1,.7,.4,.2];return nrm(sh.map((v,i)=>v*ag[i%6]*(i<6?1.15:1)*(0.85+r()*0.3)))}
   return nrm(sh.map(v=>v*(0.8+r()*0.4)))}
 function freqMix(T,src){const r=R(T,src==='cast'?511:512),b=src==='cast'?[11,38,31,20]:[16,40,28,16];return nrm(b.map(v=>v*(0.8+r()*0.4)))}
-const audTag=(k)=>`<div class="au-src"><b>データ：${AUD_SRC[k][0]}</b><span>${AUD_SRC[k][1]}</span></div>`;
+const audTag=(k)=>`<div class="au-src int-only"><b>データ：${AUD_SRC[k][0]}</b><span>${AUD_SRC[k][1]}</span></div>`;
 function sexAgeBars(v,cmp){const mx=Math.max(...v,...(cmp||[]));return `<div class="sa">${AGES.map((a,ai)=>`<div class="sa-r"><span class="sa-a">${a}</span>${[0,1].map(g=>{const i=g*6+ai;return `<div class="sa-b"><i style="width:${v[i]/mx*100}%;background:${SEXC[g]}"></i>${cmp?`<em style="left:${cmp[i]/mx*100}%"></em>`:''}<b class="num">${f1(v[i])}%</b></div>`}).join('')}</div>`).join('')}</div>
   <div class="sg-lg"><span><i style="background:${SEXC[0]}"></i>女性</span><span><i style="background:${SEXC[1]}"></i>男性</span>${cmp?'<span><i style="width:2px;height:12px;border-radius:0;background:var(--ink)"></i>類似作の中央値</span>':''}</div>`}
 I('audience','u_age','年代と性別',6,[],(T,d)=>{const k=audSrc(d),v=audMix(T,k,d),D=tgData(T),cmp=D.segs.map(x=>x.sh),fem=sumA(v.slice(0,6)),cf=sumA(cmp.slice(0,6));
