@@ -1676,7 +1676,7 @@ const audTag=(k)=>`<div class="au-src"><b>データ：${AUD_SRC[k][0]}</b><span>
 function sexAgeBars(v,cmp){const mx=Math.max(...v,...(cmp||[]));return `<div class="sa">${AGES.map((a,ai)=>`<div class="sa-r"><span class="sa-a">${a}</span>${[0,1].map(g=>{const i=g*6+ai;return `<div class="sa-b"><i style="width:${v[i]/mx*100}%;background:${SEXC[g]}"></i>${cmp?`<em style="left:${cmp[i]/mx*100}%"></em>`:''}<b class="num">${f1(v[i])}%</b></div>`}).join('')}</div>`).join('')}</div>
   <div class="sg-lg"><span><i style="background:${SEXC[0]}"></i>女性</span><span><i style="background:${SEXC[1]}"></i>男性</span>${cmp?'<span><i style="width:2px;height:12px;border-radius:0;background:var(--ink)"></i>類似作の中央値</span>':''}</div>`}
 I('audience','u_age','年代と性別',6,[],(T,d)=>{const k=audSrc(d),v=audMix(T,k,d),D=tgData(T),cmp=D.segs.map(x=>x.sh),fem=sumA(v.slice(0,6)),cf=sumA(cmp.slice(0,6));
-  return {d:k==='cast'?'実際に観た人':k==='karte'?'観たいと答えた人':d<0?'Clip!（観たい登録）した人':'Mark!（観た記録）した人',h:`${audTag(k)}${sexAgeBars(v,cmp)}<div class="note">女性の割合は ${f1(fem)}%（類似作 ${f1(cf)}%）。${k==='fm'?'公開後はCAST、公開前はKARTEのデータに切り替わります。':''}</div>`}},{any:[1,2,4]});
+  return {d:k==='cast'?'実際に観た人':k==='karte'?'観たいと答えた人':d<0?'Clip!（観たい登録）した人':'Mark!（観た記録）した人',h:`${audTag(k)}${sexAgeBars(v,cmp)}<div class="note">女性の割合は ${f1(fem)}%（類似作 ${f1(cf)}%）。${k==='fm'?'<span class="int-only">公開後はCAST、公開前はKARTEのデータに切り替わります。</span>':''}</div>`}},{any:[1,2,4]});
 
 const FQ=['年10本未満','10〜49本','50〜149本','150本以上'],FQC=['#c2603f','#b08040','#5b6f9c','#1b3a5b'];
 I('audience','u_freq','ふだん映画を観る頻度',6,[],(T,d)=>{const k=audSrc(d);
@@ -2650,7 +2650,7 @@ function planNav(T,d){const ok=ITEMS.some(it=>it.page==='plan'&&avail(it,d));
   return ok?PLAN_SEC.map(([id,n,no])=>`<button class="tab" data-psec="${id}"><span class="ti"><b class="num">${no}</b></span><span class="tl">${n}</span><span class="ts">${n}</span></button>`).join(''):''}
 function planEmpty(T,d){const pre=d<0,ph=S.phase>=3,pd=Math.min(T.today,-1)<0?Math.min(T.today,-1):-30;
   return `<div class="card plan-empty"><h2>この条件では、宣伝設計は表示できません</h2><ul>
-    ${ph?'':'<li>宣伝設計は、類似作を劇場で観た人の回答（CAST）を使うため、Phase 3 から使えます。</li>'}
+    ${ph?'':S.client?'<li>宣伝設計は、いまご利用のデータの範囲では表示できません。</li>':'<li>宣伝設計は、類似作を劇場で観た人の回答（CAST）を使うため、Phase 3 から使えます。</li>'}
     ${pre?'':'<li>宣伝設計は、公開前に宣伝を組み立てるための画面です。いまの基準日は公開後です。</li>'}</ul>
     <div class="fm-b">${pre?'':`<button class="btn" data-plandays="${d<0?d:-30}">基準日を公開30日前にする</button>`}${ph||S.client?'':'<button class="btn" data-p="3">Phase 3 にする</button>'}<button class="btn" data-planx>効果測定に切り替える</button></div></div>`}
 $('#btnPlan').onclick=()=>{if(S.page==='plan'){setPage(S.prevPage||'home')}else{S.prevPage=S.page;setPage('plan')}};
