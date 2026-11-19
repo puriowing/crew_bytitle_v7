@@ -294,6 +294,7 @@ body.pn #panel{transform:none}
 .btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
 .btn.pri:hover{background:var(--accent2);color:#fff}
 body.client .int-only{display:none}
+#it-a_log .seg.big{max-width:100%;overflow-x:auto}#it-a_log .seg.big button{white-space:nowrap;flex:none}
 .jl-top{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px}.jl-opt{flex:1 1 340px;min-width:0;border:1px solid var(--rule2);border-radius:10px;padding:0 12px;background:#fff}
 .jl-opt summary{cursor:pointer;padding:8px 0;font-size:12.5px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;list-style:none}.jl-opt summary::-webkit-details-marker{display:none}.jl-opt summary::before{content:'＋';color:var(--accent2);font-weight:700}.jl-opt[open] summary::before{content:'－'}
 .jl-opt summary span{color:var(--sub);font-size:11.5px}.jl-opt[open]{padding-bottom:6px}.jl-opt .ctl{margin:6px 0}.jl-act{display:flex;gap:8px;flex-wrap:wrap}
@@ -1577,7 +1578,8 @@ function seqTable(T,d,sel){const cols=[T,...sel],k=S.fk,wk=x=>Math.floor(x/7),al
   return `<div class="tw"><table class="fx sqt"><tr><th></th>${cols.map((X,i)=>`<th>${X.name}${i?'':'<span class="chip" style="margin-left:6px">この作品</span>'}</th>`).join('')}</tr>${h}</table></div>
    <div class="note">上から下へ、公開に向かって進みます。数字は、施策を実施した日からの3日間の${M[k].n}（合計）です。期間のある施策は開始からの3日間で、続いている週には「（続き）」と出ます。広告は、作品どうしでは比べないので、実施した時期だけを出します。点線の枠は、これから実施する施策。この作品の施策は、押すとくわしく開きます。</div>${sel.length?'':'<div class="empty" style="margin-top:12px">比べる作品を選ぶと、横に並びます。</div>'}`}
 I('acts','a_log','施策の日誌',12,[],(T,d)=>{const ks=JL_KEYS.filter(k=>mAvail(k,d)),mk=magKeys();
-  const tabs=`<div class="ctl"><span class="seg big">${[['log','この作品の日誌'],['fx','施策ごとに比べる'],['seq','進め方を比べる']].map(x=>`<button data-jv="${x[0]}" class="${S.jv===x[0]?'on':''}">${x[1]}</button>`).join('')}</span></div>`;
+  const tabs=`<div class="ctl"><span class="seg big">${[['log','日誌'],['perf','成績の表'],['fx','施策ごとに比べる'],['seq','進め方を比べる']].map(x=>`<button data-jv="${x[0]}" class="${S.jv===x[0]?'on':''}">${x[1]}</button>`).join('')}</span></div>`;
+  if(S.jv==='perf'){const o=ITEMS.find(x=>x.id==='a_perf').fn(T,d);return {d:'同じ施策を、反応・露出量・費用対効果の順に並べ替えて見ます',h:tabs+o.h}}
   if(S.jv!=='log'){const cand=Object.values(TT).filter(X=>X.k!==T.k),sel=cand.filter(X=>S.cmpSet.includes(X.k));if(!fxKeys().includes(S.fk))S.fk=fxKeys()[0];
     return {d:S.jv==='fx'?'同じ種類の施策どうしを、時期に関係なく並べます':'公開までの週をそろえて、施策の組み立てを並べます',h:`${tabs}<div class="ctl"><span style="font-size:11.5px;color:var(--sub)">比べる作品</span>${cand.map(X=>`<button class="lchip ${S.cmpSet.includes(X.k)?'on':''}" data-cs="${X.k}"><i style="background:var(--accent)"></i>${X.name}${X.past?'（過去作）':''}</button>`).join('')}</div><div class="ctl"><span style="font-size:11.5px;color:var(--sub)">比べる数字</span>${fxKeys().map(k=>`<button class="lchip ${S.fk===k?'on':''}" data-fk="${k}"><i style="background:${M[k].c}"></i>${M[k].n}</button>`).join('')}</div>${S.jv==='fx'?fxTable(T,d,sel):seqTable(T,d,sel)}`}}
   return {d:'上が新しい日。施策を押すとくわしく開きます',h:`${tabs}<div class="jl-top"><details class="jl-opt" ${S.jopt?'open':''}><summary><b>表示の設定</b><span>${{all:'全期間',w8:'直近8週',w4:'直近4週'}[S.tlRange]}｜${S.jw==='mag'?'反応の大きさ（総合）':M[S.jw].n}｜${S.jc==='cum'&&!RATE.has(S.jw)?'累計':'1日ごと'}${S.jp?'｜類似作の中央値と比べる':''}</span></summary><div class="ctl"><span style="font-size:11.5px;color:var(--sub)">期間</span><span class="seg">${[['all','全期間'],['w8','直近8週'],['w4','直近4週']].map(x=>`<button data-rg="${x[0]}" class="${S.tlRange===x[0]?'on':''}">${x[1]}</button>`).join('')}</span></div>
@@ -2636,13 +2638,13 @@ I('acts','a_seg','施策ごとの効いた層',12,[],(T,d)=>{const L=T.ev.filter
 (function(){const i=ITEMS.findIndex(x=>x.id==='a_seg'),it=ITEMS.splice(i,1)[0],j=ITEMS.findIndex(x=>x.id==='a_roi');ITEMS.splice(j+1,0,it)})();
 SRC_USE.a_seg=[1,3,6];
 /* 施策ごとの成績：露出量・反応（順位）・費用対効果を1つの表にまとめる。もとの3枠（a_expo・a_rank・a_roi）は出さない */
-I('acts','a_perf','施策ごとの成績',12,[],(T,d)=>{const ks=upKeys(),srt=S.pfs||'new';
+I('acts','a_perf','施策ごとの成績',12,[],(T,d)=>{const ks=upKeys(),srt=S.pfs||'eff';
   const L=T.ev.filter(e=>e.d<=d).map(e=>{const ad=isAd(e),x=expoOf(T,e,d),r=e.cost&&e.d+2<=d?roiOf(T,e,d):null;return {e,ad,x:x&&x.rows.length?x:null,eff:ad?null:evEff(T,e,d),r}});
   if(!L.length)return {d:'',h:'<div class="empty">実施した施策がまだありません。</div>'};
   const key={new:x=>x.e.d,eff:x=>x.eff??-1,big:x=>x.x?x.x.tot:-1,roi:x=>x.r&&x.r.out?x.r.out.score:-1}[srt];L.sort((p,q)=>key(q)-key(p));
   const mx=Math.max(1,...L.map(x=>x.x?x.x.tot:0)),all=sumA(L.map(x=>x.x?x.x.tot:0)),be=L.filter(x=>x.eff!=null).sort((p,q)=>q.eff-p.eff)[0],br=L.filter(x=>x.r&&x.r.out).sort((p,q)=>q.r.out.score-p.r.out.score)[0];
   return {d:`${relLbl(d)}まで・${L.length}件の施策`,h:`${be||br?`<ul class="todo" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-bottom:14px">${be?`<li class="good"><b>いちばん反応が大きい：${esc(be.e.label)}</b>効き具合 ${be.eff}（同じ種類の過去の施策の中での位置。50が真ん中）。</li>`:''}${br?`<li class="good"><b>いちばん費用対効果がよい：${esc(br.e.label)}</b>ほかの作品の同じ種類の施策の中で ${TIERS[tierOf(br.r.out.score)]}（${br.r.out.score}）。費用 ${fN(br.e.cost*1e4)}円。</li>`:''}</ul>`:''}
-    <div class="cr-bar"><span class="seg">${[['new','新しい順'],['eff','反応の大きい順'],['big','露出量の大きい順'],['roi','費用対効果のよい順']].map(([k,n])=>`<button class="${srt===k?'on':''}" data-pfs="${k}">${n}</button>`).join('')}</span><span class="ex-sum">露出量の合計 <b class="num">${fN(all)}</b>回</span></div>
+    <div class="cr-bar"><span class="seg">${[['eff','反応の大きい順'],['big','露出量の大きい順'],['roi','費用対効果のよい順']].map(([k,n])=>`<button class="${srt===k?'on':''}" data-pfs="${k}">${n}</button>`).join('')}</span><span class="ex-sum">露出量の合計 <b class="num">${fN(all)}</b>回</span></div>
     <div class="tw"><table class="ex-t ex-list pf-t"><tr><th>日付</th><th>施策</th><th>露出量（延べ）</th>${ks.map(k=>`<th class="r">${M[k].n}</th>`).join('')}<th class="r">効き具合</th><th class="r">費用</th><th>費用対効果</th></tr>
     ${L.map(({e,ad,x,eff,r})=>`<tr data-ev="${e.id}"><td>${md(dateOf(T,e.d))}<small>${relLbl(e.d)}</small></td><td><i class="cdot" style="background:${CH[e.ch].c}"></i>${esc(e.label)}<small>${CH[e.ch].n}${evNear(T,e)?'｜別の施策と重なり':''}${!ad&&adsOnX(T,e).length?'｜広告で後押し':''}</small></td>
       <td>${x?`<div class="ex-row"><div class="ex-bar sm" style="width:${Math.max(4,x.tot/mx*100)}%">${Object.entries(x.by).map(([k,v])=>`<i style="width:${v/x.tot*100}%;background:${EXK[k][1]}"></i>`).join('')}</div><b class="num">${fN(x.tot)}</b></div>`:'—'}</td>
@@ -2653,7 +2655,7 @@ I('acts','a_perf','施策ごとの成績',12,[],(T,d)=>{const ks=upKeys(),srt=S.
 SRC_USE.a_perf=[6,'N',3,5,4,1];
 (function(){const g=id=>ITEMS.find(x=>x.id===id),mv=(id,after)=>{const it=ITEMS.splice(ITEMS.findIndex(x=>x.id===id),1)[0];ITEMS.splice(ITEMS.findIndex(x=>x.id===after)+1,0,it)};
   ['a_expo','a_rank','a_roi'].forEach(id=>g(id).hide=()=>true);mv('a_perf','a_log');g('a_ch').w=6;mv('a_ch','a_seg');
-  Object.keys(ALIAS).forEach(k=>{if(['a_expo','a_rank','a_roi'].includes(ALIAS[k]))ALIAS[k]='a_perf'})})();
+  Object.keys(ALIAS).forEach(k=>{if(['a_expo','a_rank','a_roi'].includes(ALIAS[k]))ALIAS[k]='a_log'});g('a_perf').hide=()=>true;SRC_USE.a_log=[...new Set([...(SRC_USE.a_log||[]),...SRC_USE.a_perf])]})();
 
 /* ================= 広告・公式SNSのページ：最低限の確認（詳しいレポートは別ダッシュボード） ================= */
 const chkRow=(no,q,val,sub,tone,tl)=>`<div class="ck-r"><span class="ck-no num">${no}</span><div class="ck-q"><b>${q}</b><small>${sub}</small></div><div class="ck-v">${val}</div><span class="tone ${tone}">${tl}</span></div>`;
