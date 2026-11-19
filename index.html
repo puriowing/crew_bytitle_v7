@@ -979,6 +979,7 @@ body.rp-on #rpt{display:block;position:fixed;inset:0;z-index:60;background:rgba(
 .rp-sec{margin-bottom:16px;break-inside:avoid}.rp-sec h2{font-size:14px;border-left:4px solid var(--accent);padding-left:8px;margin-bottom:8px}
 .rp-sec p{margin:4px 0}.rp-big b{font-size:24px;color:var(--accent2)}
 .rp-warn{color:var(--badtx);font-weight:700}
+.rp-ev .rp-body{break-inside:auto}.rp-ev .rp-body>*{break-inside:avoid}.rp-ev .kpis{margin-bottom:4px}
 .rp-sec ul{margin:0;padding-left:18px}
 .rp-sec .todo{grid-template-columns:1fr 1fr}
 .rp-foot{border-top:1px solid var(--rule);padding-top:8px;font-size:10.5px;color:var(--sub)}
@@ -1373,7 +1374,7 @@ function evDetail0(T,e,d){const c=CH[e.ch],done=e.d<=d,ks=LAYER_KEYS.filter(k=>h
 function openEvent(id){const T=cur(),e=T.ev.find(x=>x.id===id),c=CH[e.ch];
   $('#panel').innerHTML=`<button class="pn-x" aria-label="閉じる">×</button>
     <span class="chip" style="background:#fff;border-color:${c.c};color:${c.c}">${c.n}</span> <span class="chip neu">${md(dateOf(T,e.d))}｜${relLbl(e.d)}</span>
-    <h2>${e.label}</h2>${evDetail(T,e,S.day)}<div class="fm-b" style="margin-top:14px"><button class="btn" data-evedit="${e.id}">${isAd(e)?'この広告を編集':'この施策を編集'}</button><button class="btn" data-evrm="${e.id}">一覧から外す</button>${e.src==='both'?`<button class="btn" data-evsplit="${e.id}">自動取得の分を別の施策に分ける</button>`:''}</div>`;
+    <h2>${e.label}</h2><div style="margin:-2px 0 10px"><button class="btn" data-evrpt="${e.id}">この施策を報告書にする</button></div>${evDetail(T,e,S.day)}<div class="fm-b" style="margin-top:14px"><button class="btn pri" data-evrpt="${e.id}">報告書にする</button><button class="btn" data-evedit="${e.id}">${isAd(e)?'この広告を編集':'この施策を編集'}</button><button class="btn" data-evrm="${e.id}">一覧から外す</button>${e.src==='both'?`<button class="btn" data-evsplit="${e.id}">自動取得の分を別の施策に分ける</button>`:''}</div>`;
   $('#panel').scrollTop=0;document.body.classList.add('pn');$('.pn-x').onclick=closePanel}
 function closePanel(){document.body.classList.remove('pn');if(S.openEv!=null){S.openEv=null;document.querySelectorAll('.jl-card.on,.hd.on').forEach(x=>x.classList.remove('on'))}}
 </script>
@@ -2869,6 +2870,16 @@ function openReport(){const T=cur(),d=S.day;let el=$('#rpt');if(!el){el=document
   el.innerHTML=`<div class="rp-bar"><b>週の報告書</b><span>このまま印刷するか、印刷の画面で「PDFに保存」を選ぶと、社内の報告にそのまま使えます。</span><button class="btn pri" id="rpPrint">印刷・PDFにする</button><button class="btn" id="rpClose">閉じる</button></div>${reportHTML(T,d)}`;
   document.body.classList.add('rp-on');$('#rpPrint').onclick=()=>window.print();$('#rpClose').onclick=()=>document.body.classList.remove('rp-on')}
 $('#btnRpt').onclick=openReport;
+/* 施策ごとの報告書：サイドのパネルと同じ中身を、1枚の資料にする */
+function openEvReport(id){const T=cur(),d=S.day,e=T.ev.find(x=>x.id===id);if(!e)return;const c=CH[e.ch],done=e.d<=d,k=magKeys()[0],o=done&&!isAd(e)&&k?absUp(T,e,k,d):null,j=o?fxJudge(o,peerFx(e.ty,k)):null,ef=!isAd(e)&&e.d+2<=d?evEff(T,e,d):null;
+  let el=$('#rpt');if(!el){el=document.createElement('div');el.id='rpt';document.body.appendChild(el)}
+  el.innerHTML=`<div class="rp-bar"><b>施策の報告書</b><span>このまま印刷するか、印刷の画面で「PDFに保存」を選ぶと、社内の共有にそのまま使えます。</span><button class="btn pri" id="rpPrint">印刷・PDFにする</button><button class="btn" id="rpClose">閉じる</button></div>
+   <div class="rp-page rp-ev"><div class="rp-head"><span class="rp-po">${poster(T,{fit:'slice'})}</span><div><small>施策の報告｜${T.name}</small><h1>${esc(e.label)}</h1><p>${c.n}・${e.ty}｜${md(dateOf(T,e.d))}${(e.len||1)>1?'〜'+md(dateOf(T,eEnd(e)))+'（'+e.len+'日間）':''}（${relLbl(e.d)}）${e.cost?`｜費用 ${fN(e.cost*1e4)}円`:''}</p></div></div>
+   <div class="rp-sec"><h2>まとめ</h2>${!done?'<p>これから実施する施策です。実施の3日後から、反応の前後比較が出ます。</p>':`<div class="kpis">${o?kpi('実施から3日間の'+M[k].n,absTx(o.tot,k),'',`ふだんの3日分 ${fN(o.base)}${M[k].u}`):''}${j?kpi('類似作と比べて',JDG[j.c][0]+' '+{g:'伸びが大きい',m:'同じくらい',b:'伸びが小さい'}[j.c],'',`ふだんの${fxX(j.x)}／類似作は${fxX(j.px)}`):''}${ef!=null?kpi('効き具合',ef,'','類似作の同じ種類の中の位置（0〜100）'):''}</div>${isAd(e)?'<p>広告は出稿量で結果が変わるため、ほかの施策と同じ3日間の比較はしていません。期間中の反応は、下の「くわしい内容」にあります。</p>':!o?'<p>実施から3日たっていないため、集計中です。</p>':''}`}</div>
+   <div class="rp-sec rp-body"><h2>くわしい内容</h2>${evDetail(T,e,d)}</div>
+   <div class="rp-foot">${md(dateOf(T,d))} 6:00 時点｜類似作 ${PEERS.length}本（1本ずつの数字は出していません）</div></div>`;
+  el.querySelectorAll('details').forEach(x=>x.open=true);closePanel();document.body.classList.add('rp-on');el.scrollTop=0;$('#rpPrint').onclick=()=>window.print();$('#rpClose').onclick=()=>document.body.classList.remove('rp-on')}
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-evrpt]');if(!t)return;ev.stopPropagation();openEvReport(+t.dataset.evrpt)},true);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('rp-on'))document.body.classList.remove('rp-on')});
 
 /* スマホ幅で表をカードにするため、各セルに列名を持たせる */
