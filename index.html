@@ -179,6 +179,7 @@ tr.click{cursor:pointer}tr.click:hover td{background:#fbfaf7}
 .stack span{display:grid;place-items:center;overflow:hidden;white-space:nowrap}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
 .kpi{border:1px solid var(--rule);border-radius:12px;padding:10px 12px}
+@supports (grid-template-rows:subgrid){.kpis>.kpi{display:grid;grid-template-rows:subgrid;grid-row:span 3;row-gap:0;align-content:start}}
 .kpi .k{font-size:11.5px;color:var(--sub)}
 .kpi .v{font-size:21px}
 .kpi .v small{font-size:11.5px;color:var(--sub);margin-left:2px}
