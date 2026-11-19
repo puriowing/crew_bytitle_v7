@@ -295,6 +295,7 @@ body.pn #panel{transform:none}
 .btn.pri:hover{background:var(--accent2);color:#fff}
 body.client .int-only{display:none}
 .pe-ts{display:flex;flex-wrap:wrap;gap:6px}.pe-t{font-size:12.5px;border:1px solid var(--rule2);border-radius:8px;padding:4px 9px;background:#fff}.pe-t i{font-style:normal;font-size:10.5px;color:var(--sub);margin-left:6px}.pe-t button{border:0;background:none;color:var(--sub);cursor:pointer;margin-left:6px;font-size:12px;padding:0 2px;font-family:inherit}.pe-t button:disabled{opacity:.3;cursor:default}.pe-t.alt{border-style:dashed;background:none}.pe-t.alt button{color:var(--accent2);font-weight:700}
+.pe-q{width:100%;border:1px solid var(--rule2);border-radius:10px;padding:8px 11px;font-size:14px;background:#fff;font-family:inherit}
 .pe-t.own{border-color:var(--accent);color:var(--accent2);font-weight:700}
 .jl-src{font-style:normal;font-weight:500;font-size:10.5px;color:var(--sub);border:1px solid var(--rule2);border-radius:999px;padding:0 8px;white-space:nowrap}
 .jl-src.m{color:var(--accent2);border-color:var(--accent-line);background:var(--accent-soft)}
@@ -1192,10 +1193,14 @@ const SIMILAR=['春を待つ手紙','あの日の約束','君と見た海','夜�
 PEERS.forEach((p,i)=>{p.ttl=i<12?SIMILAR[i]:PAST[i-12].name;p.own=i>=12;p.yr=2023+(i*2)%3});
 const PEER_DEF=[...PEERS],PEER_MIN=10;
 const PEER_ADD=[['白い自転車','公開が4年前',2022],['約束の丘','公開規模が条件より大きい',2024],['海辺の郵便局','ジャンルが少し違う',2025],['十七歳の地図帳','公開規模が条件より小さい',2024],['月曜日のパレード','ジャンルが少し違う',2023],['坂の上の写真館','公開が4年前',2022]].map((x,i)=>{const q=build({k:'x'+i,name:'',today:37,seed:300+i*17,power:.6+i*.13,q:.25+i*.11});q.full=true;q.ttl=x[0];q.why=x[1];q.yr=x[2];q.add=true;return q});
+const PEER_CAT=[['夏の終わりのオーケストラ','恋愛・青春',2024,260],['真夜中の観覧車','サスペンス',2023,310],['わたしたちの放課後戦争','青春',2025,180],['北極星のレシピ','ヒューマンドラマ',2024,220],['東京ロストナンバー','サスペンス',2022,350],['ちいさな魔法使いと冬の森','ファミリー',2024,330],['銀色のバトン','青春',2023,240],['さよならの練習','恋愛・青春',2025,290],['探偵は三度うなずく','ミステリー',2024,270],['ぼくの宇宙ステーション','ファミリー',2023,300],['春風タクシー','ヒューマンドラマ',2022,200],['最終列車は海へ','サスペンス',2025,255]].map((x,i)=>{const q=build({k:'c'+i,name:'',today:37,seed:500+i*19,power:.55+(i%5)*.2,q:.2+(i%4)*.2});q.full=true;q.ttl=x[0];q.why=x[1]+'・'+x[3]+'スクリーン';q.yr=x[2];q.add=true;return q}),PEER_POOL=[...PEER_ADD,...PEER_CAT];
+function peerRes(){const q=(S.peerQ||'').trim(),o=peerSel();if(!q)return '';const L=PEER_CAT.filter(p=>p.ttl.includes(q)&&!o.add.includes(p.k)).slice(0,8);
+  return L.length?L.map(p=>`<span class="pe-t alt">${p.ttl}<i>${p.yr}年｜${p.why}</i><button data-peera="${p.k}">＋追加</button></span>`).join(''):'<span class="note" style="margin:0">この名前の作品は見つかりません。データがまだない作品は、ここに出ません。</span>'}
+document.addEventListener('input',ev=>{if(ev.target.id!=='peerQ')return;S.peerQ=ev.target.value;const el=document.getElementById('peerRes');if(el)el.innerHTML=peerRes()});
 let PEER_KEY=PEER_DEF.map(p=>p.k).join();
 function peerSel(){const o=(S.peerSel||{})[S.title]||{};return {off:(o.off||[]).slice(),add:(o.add||[]).slice()}}
 const peerChanged=()=>{const o=peerSel();return o.off.length+o.add.length>0};
-function syncPeers(){const o=peerSel(),L=[...PEER_DEF.filter(p=>!o.off.includes(p.k)),...PEER_ADD.filter(p=>o.add.includes(p.k))],key=L.map(p=>p.k).join();if(key===PEER_KEY)return;PEER_KEY=key;PEERS.length=0;PEERS.push(...L);
+function syncPeers(){const o=peerSel(),L=[...PEER_DEF.filter(p=>!o.off.includes(p.k)),...PEER_POOL.filter(p=>o.add.includes(p.k))],key=L.map(p=>p.k).join();if(key===PEER_KEY)return;PEER_KEY=key;PEERS.length=0;PEERS.push(...L);
   [_ar,_cal,_cr,_cx,_mb,_mg,_pa,_pc,_pe,_rp,_sp,_tg].forEach(c=>Object.keys(c).forEach(k=>delete c[k]))}
 const cur=()=>TT[S.title];
 
@@ -2287,8 +2292,13 @@ const CR_MAP={
   '口コミ訴求の広告':[['mov','口コミ版 15秒',{dur:'0:15'}],['ban','口コミ訴求のバナー',{sz:'rect'}]],
   '入場者特典の告知':[['post','入場者特典 第2弾の告知画像',{band:'入場者特典 第2弾'}]]
 };
-function crList(T){const out=[];let n=0;T.ev.forEach(e=>(CR_MAP[e.ty]||[]).forEach((c,j)=>{out.push({id:e.id+'_'+j,e,k:c[0],n:c[1],o:c[2]||{},d:e.d,i:n++})}));return out.sort((a,b)=>a.d-b.d||a.i-b.i)}
+/* 登録した素材：作品ごとに MATS_U[作品] に持ち、必ずどれかの施策に結びつける */
+const LSM='crew_v7_mat_1';let MATS_U={};try{MATS_U=JSON.parse(localStorage.getItem(LSM)||'{}')||{}}catch(e){}
+const matSave=()=>{try{localStorage.setItem(LSM,JSON.stringify(MATS_U))}catch(e){}};
+function crList(T){const out=[];let n=0;T.ev.forEach(e=>(CR_MAP[e.ty]||[]).forEach((c,j)=>{out.push({id:e.id+'_'+j,e,k:c[0],n:c[1],o:c[2]||{},d:e.d,i:n++})}));
+  (MATS_U[T.k]||[]).forEach(m=>{const e=T.ev.find(x=>x.id===m.eid);if(e)out.push({id:m.id,e,k:m.k,n:m.n,o:{dur:'0:30',sz:'rect'},d:e.d,i:n++,img:m.img,user:true})});return out.sort((a,b)=>a.d-b.d||a.i-b.i)}
 function crArt(T,c){const o=c.o,cta=c.d<0?'前売券 発売中':'大ヒット上映中';
+  if(c.img)return `<img src="${c.img}" alt="" style="width:100%;height:100%;object-fit:cover;display:block">`;
   return c.k==='vis'?poster(T,{teaser:o.tz}):c.k==='mov'?movThumb(T,c.i,c.n,o.dur):c.k==='still'?still(T,c.i):c.k==='photo'?stagePic(T,c.i):c.k==='ban'?banner(T,c.i,o.sz,cta):sqImg(T,c.i,o.band)}
 function crStats(T,c,d){if(c.d>d)return null;const r=rng(T.seed*29+c.i*13),g=1-Math.exp(-(d-c.d+1)/4),pw=T.power*(c.e.str||1),ad=isAd(c.e);
   if(c.k==='mov'){const v=(ad?260000:140000)*pw*(0.6+r()*0.8)*g,cr=22+r()*38;return {a:['再生',fN(v),'回'],b:['最後まで見た割合',f1(cr),'%'],eng:v*(0.03+cr/1500)}}
@@ -2296,7 +2306,7 @@ function crStats(T,c,d){if(c.d>d)return null;const r=rng(T.seed*29+c.i*13),g=1-M
   const v=95000*pw*(0.5+r())*g*(c.k==='photo'?1.25:1),er=2.2+r()*5.5;return {a:['投稿の表示',fN(v),'回'],b:['反応率',f1(er),'%'],eng:v*er/100}}
 function crCard(T,c,d,rank,lite){const st=lite?null:crStats(T,c,d),th=thOf(T),pl=c.d>d,ef=lite&&!pl&&!isAd(c.e)&&c.e.d+2<=d?evEff(T,c.e,d):null;
   return `<button class="cr ${pl?'plan':''}" data-cr="${c.id}"><span class="cr-th k-${c.k}" style="background:${th.g[0]}">${crArt(T,c)}<i class="cr-k">${CR_K[c.k]}</i>${rank?`<i class="cr-rank num">${rank}</i>`:''}${pl?'<i class="cr-plan">公開予定</i>':''}</span>
-    <span class="cr-n">${c.n}</span><span class="cr-m"><span>${md(dateOf(T,c.d))}｜${relLbl(c.d)}</span>${st?`<span>${st.a[0]} <b>${st.a[1]}</b>${st.a[2]}</span><span>${st.b[0]} <b>${st.b[1]}</b>${st.b[2]}</span>`:''}${lite&&!pl?`<span class="cr-ev"><i class="cdot" style="background:${CH[c.e.ch].c}"></i>${ef!=null?`効き具合 <b>${ef}</b>｜`:isAd(c.e)?'広告｜':''}${esc(c.e.label)}</span>`:''}</span></button>`}
+    <span class="cr-n">${c.n}${c.user?'<i class="jl-src m" style="margin-left:6px">登録</i>':''}</span><span class="cr-m"><span>${md(dateOf(T,c.d))}｜${relLbl(c.d)}</span>${st?`<span>${st.a[0]} <b>${st.a[1]}</b>${st.a[2]}</span><span>${st.b[0]} <b>${st.b[1]}</b>${st.b[2]}</span>`:''}${lite&&!pl?`<span class="cr-ev"><i class="cdot" style="background:${CH[c.e.ch].c}"></i>${ef!=null?`効き具合 <b>${ef}</b>｜`:isAd(c.e)?'広告｜':''}${esc(c.e.label)}</span>`:''}</span></button>`}
 const crTop=(T,d)=>crList(T).filter(c=>c.d<=d).map(c=>({c,s:crStats(T,c,d)})).sort((a,b)=>b.s.eng-a.s.eng);
 
 /* ---------- SNSの投稿（公式アカウント） ---------- */
@@ -2330,13 +2340,34 @@ I('creative','cr_wall','素材の一覧',12,[6],(T,d)=>{const all=crList(T),f=S.
   let L=all.filter(c=>c.d<=d&&(f==='all'||(f==='ph'?['still','photo'].includes(c.k):c.k===f)));
   const efv=c=>!isAd(c.e)&&c.e.d+2<=d?(evEff(T,c.e,d)??-1):-2;L=srt==='eff'?L.sort((a,b)=>efv(b)-efv(a)):L.reverse();
   const cnt=k=>all.filter(c=>c.d<=d&&(k==='all'||(k==='ph'?['still','photo'].includes(c.k):c.k===k))).length;
-  return {d:`${all.filter(c=>c.d<=d).length}点`,h:`<div class="cr-bar"><span class="seg">${CR_F.map(([k,n])=>`<button class="${f===k?'on':''}" data-crf="${k}">${n}<small class="num">${cnt(k)}</small></button>`).join('')}</span><span class="sp"></span><span class="seg">${[['new','新しい順'],['eff','施策の効き具合順']].map(([k,n])=>`<button class="${srt===k?'on':''}" data-crs="${k}">${n}</button>`).join('')}</span></div>
+  return {d:`${all.filter(c=>c.d<=d).length}点`,h:`<div class="cr-bar"><span class="seg">${CR_F.map(([k,n])=>`<button class="${f===k?'on':''}" data-crf="${k}">${n}<small class="num">${cnt(k)}</small></button>`).join('')}</span><span class="sp"></span><button class="btn pri" data-matadd>＋ 素材を登録</button><span class="seg">${[['new','新しい順'],['eff','施策の効き具合順']].map(([k,n])=>`<button class="${srt===k?'on':''}" data-crs="${k}">${n}</button>`).join('')}</span></div>
     ${L.length?`<div class="cr-grid">${L.map(c=>crCard(T,c,d,0,true)).join('')}</div><div class="note">各素材の下は、その素材を出した施策と、施策の効き具合（同じ種類の過去の施策の中での位置）。素材ごとの細かい数字は、素材を押すと開きます。</div>`:'<div class="empty">この種類の素材は、まだありません。</div>'}`}});
 I('creative','cr_posts','公式SNSの投稿',12,[6],(T,d)=>{const f=S.spf||'all',all=spFeed(T).filter(p=>p.d<=d),so=S.sps||'new',F=all.filter(p=>f==='all'||p.pf===f),L=so==='new'?F.slice(-12).reverse():F.filter(p=>p.d>d-(so==='eng7'?7:999)).sort((a,b)=>b.eng-a.eng).slice(0,12);
   return {d:{new:'新しい順・直近12件',eng7:'直近7日間・反応の大きい順',eng:'これまでの全投稿・反応の大きい順（上位12件）'}[so],h:`<div class="cr-bar"><span class="seg">${[['new','新しい順'],['eng7','反応の大きい順（直近7日）'],['eng','反応の大きい順（全期間）']].map(x=>`<button class="${so===x[0]?'on':''}" data-sps="${x[0]}">${x[1]}</button>`).join('')}</span></div><div class="cr-bar"><span class="seg">${['all','X','Instagram','TikTok','YouTube'].map(k=>`<button class="${f===k?'on':''}" data-spf="${k}">${k==='all'?'すべて':k}<small class="num">${k==='all'?all.length:all.filter(p=>p.pf===k).length}</small></button>`).join('')}</span></div>
     ${L.length?`<div class="sp-grid">${L.map(p=>spCard(T,p)).join('')}</div>`:'<div class="empty">この条件に合う投稿は、まだありません。</div>'}<div class="note">公式アカウントの投稿を、そのままの見た目で並べています。数字は投稿ごとの表示回数と反応です。</div>`}});
 I('creative','cr_next','これから出す素材',12,[6],(T,d)=>{const L=crList(T).filter(c=>c.d>d);
-  return {d:'施策の予定にあわせて',h:`<div class="cr-grid">${L.map(c=>crCard(T,c,d)).join('')}</div>`}},{hide:d=>!crList(cur()).some(c=>c.d>d)});
+  return {d:'施策の予定にあわせて',h:`<div class="cr-bar"><span class="note" style="margin:0">これから出す素材は、世に出る前で自動では取れないため、登録が必要です。予定している施策に結びつけて登録します。</span><span class="sp"></span><button class="btn pri" data-matadd="next">＋ 素材を登録</button></div>
+    ${L.length?`<div class="cr-grid">${L.map(c=>crCard(T,c,d)).join('')}</div>`:'<div class="empty">これから出す素材は、まだ登録されていません。</div>'}`}});
+function matForm(next){const T=cur(),d=S.day,ev=T.ev.slice().sort((x,y)=>x.d-y.d),pre=next?ev.find(e=>e.d>d):null;
+  $('#panel').innerHTML=`<button class="pn-x" aria-label="閉じる">×</button><h2>素材を登録</h2>
+   <p class="note">登録すると、素材の一覧に入ります。出したあとの数字は、結びつけた施策の日から自動で出ます。</p>
+   <div class="fm"><label>素材の名前<em class="req">必ず入れてください</em><input id="mtN" placeholder="例）劇場用チラシ（表面）" maxlength="40"></label>
+   <label>種類<select id="mtK">${Object.entries(CR_K).map(([k,n])=>`<option value="${k}">${n}</option>`).join('')}</select></label>
+   <label>結びつける施策<em class="req">必ず選んでください</em><small>この素材を出す（出した）施策を選びます。素材を出す日は、その施策の日になります。</small><select id="mtE">${ev.map(e=>`<option value="${e.id}" ${pre&&pre.id===e.id?'selected':''}>${md(dateOf(T,e.d))}${e.d>d?'（予定）':''}　${esc(e.label)}</option>`).join('')}</select></label>
+   <label>画像（入れなくてもよい）<small>入れない場合は、仮の絵で並びます。映像は、代表の1コマを入れてください。</small><input id="mtF" type="file" accept="image/*"></label>
+   <div class="fm-e" id="mtErr" role="alert"></div>
+   <div class="fm-b"><button class="btn pri" data-matsave>登録する</button><button class="btn" data-evadd>先に施策を追加する</button></div></div>`;
+  document.body.classList.add('pn');$('.pn-x').onclick=closePanel;$('#mtN').focus()}
+function matSubmit(){const T=cur(),nm=esc($('#mtN').value.trim()),err=$('#mtErr'),eid=+$('#mtE').value,f=$('#mtF').files[0];
+  if(!nm){err.textContent='素材の名前を入れてください。';$('#mtN').focus();return}
+  if(!T.ev.some(e=>e.id===eid)){err.textContent='結びつける施策を選んでください。';return}
+  const done=img=>{const L=MATS_U[T.k]=MATS_U[T.k]||[],id='u'+(Math.max(0,...L.map(m=>+m.id.slice(1)))+1);L.push({id,eid,k:$('#mtK').value,n:nm,img});matSave();closePanel();S.page='creative';render();const el=document.querySelector('[data-cr="'+id+'"]');if(el)el.scrollIntoView({block:'center'})};
+  if(!f)return done(null);
+  const rd=new FileReader();rd.onerror=()=>{err.textContent='画像を読み込めませんでした。'};rd.onload=()=>{const im=new Image();im.onerror=()=>{err.textContent='画像を読み込めませんでした。'};im.onload=()=>{const sc=Math.min(1,480/Math.max(im.width,im.height)),cv=document.createElement('canvas');cv.width=Math.round(im.width*sc);cv.height=Math.round(im.height*sc);cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);done(cv.toDataURL('image/jpeg',.72))};im.src=rd.result};rd.readAsDataURL(f)}
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-matadd],[data-matsave],[data-matrm],[data-evreset]');if(!t)return;const D=t.dataset;
+  if(D.evreset!=null){MATS_U={};matSave();return}ev.stopPropagation();
+  if(D.matadd!=null)matForm(D.matadd==='next');else if(D.matsave!=null)matSubmit();else{const T=cur();MATS_U[T.k]=(MATS_U[T.k]||[]).filter(m=>m.id!==D.matrm);matSave();closePanel();render()}},true);
+
 
 function crStrip(T,e){const L=crList(T).filter(c=>c.e.id===e.id);if(!L.length)return '';
   return `<div class="cr-strip">${L.map(c=>`<button class="cr-s" data-cr="${c.id}" title="${c.n}"><span class="cr-th k-${c.k}" style="background:${thOf(T).g[0]}">${crArt(T,c)}</span><small>${c.n}</small></button>`).join('')}</div>`}
@@ -2346,7 +2377,7 @@ function openCreative(cid){const T=cur(),d=S.day,c=crList(T).find(x=>x.id===cid)
     <span class="chip neu">${CR_K[c.k]}</span> <span class="chip neu">${md(dateOf(T,c.d))}｜${relLbl(c.d)}</span><h2>${c.n}</h2>
     <div class="cr-big k-${c.k}" style="background:${thOf(T).g[0]}">${crArt(T,c)}</div>
     ${st?`<div class="kpis" style="margin:12px 0">${kpi(st.a[0],st.a[1],st.a[2])}${kpi(st.b[0],st.b[1],st.b[2])}${eff!=null?kpi('施策の効き具合',eff,'／100',`同じ種類の過去の施策の中で ${TIERS[tierOf(eff)]}`):''}</div>`:'<div class="empty" style="margin:12px 0">公開予定の素材です。出したあとに数字が入ります。</div>'}
-    <div class="sub-h">この素材を出した施策</div><button class="btn" data-ev="${e.id}"><i class="cdot" style="background:${ch.c}"></i>${esc(e.label)}（${ch.n}）</button>
+    ${c.user?`<div style="margin:0 0 10px"><button class="btn" data-matrm="${c.id}">この素材の登録を取り消す</button></div>`:''}<div class="sub-h">この素材を出した施策</div><button class="btn" data-ev="${e.id}"><i class="cdot" style="background:${ch.c}"></i>${esc(e.label)}（${ch.n}）</button>
     ${has(2)&&d>=0&&e.d<=d?castLine(T,e,d):''}
     ${others.length?`<div class="sub-h">ほかの作品の、同じ素材</div><div class="cr-cmp">${others.map(o=>{const s2=crStats(o.X,o.c,evMax(o.X));return `<div><span class="cr-th k-${o.c.k}" style="background:${thOf(o.X).g[0]}">${crArt(o.X,o.c)}</span><b>${o.X.name}</b><small>${s2.a[0]} ${s2.a[1]}${s2.a[2]}｜${s2.b[0]} ${s2.b[1]}${s2.b[2]}</small></div>`}).join('')}</div>`:''}`;
   document.body.classList.add('pn');$('.pn-x').onclick=closePanel}
@@ -2719,7 +2750,7 @@ I('creative','cr_recall','観客の記憶に残った素材',12,[],(T,d)=>{const
 SRC_USE.cr_recall=[2,1];
 /* 並び：記憶に残った素材 → 一覧 → これから出す素材 → くわしく（反応の大きかった素材・公式SNSの投稿） */
 (function(){const ids=['cr_recall','cr_wall','cr_next','cr_top','cr_posts'],its=ids.map(id=>ITEMS.splice(ITEMS.findIndex(x=>x.id===id),1)[0]),j=ITEMS.findIndex(x=>x.page==='creative');
-  ITEMS.splice(j<0?ITEMS.length:j,0,...its);ITEMS.find(x=>x.id==='cr_top').deep=true;ITEMS.find(x=>x.id==='cr_posts').deep=true;
+  ITEMS.splice(j<0?ITEMS.length:j,0,...its);ITEMS.find(x=>x.id==='cr_top').deep=false;ITEMS.find(x=>x.id==='cr_posts').deep=true;
   const t=ITEMS.find(x=>x.id==='cr_top');t.t='反応が大きかった素材（媒体の数字）'})();
 /* 公式SNSの投稿は、素材ではなくメディア（公式SNS）の側に置く */
 (function(){const it=ITEMS.splice(ITEMS.findIndex(x=>x.id==='cr_posts'),1)[0];it.page='deliver';it.grp='sns';it.deep=false;ITEMS.find(x=>x.id==='d_posts').hide=()=>true;ITEMS.splice(ITEMS.findIndex(x=>x.id==='d_plat')+1,0,it)})();
@@ -2773,6 +2804,7 @@ function openPeers(){const T=cur(),lo=Math.round(T.screens*0.7/10)*10,hi=Math.ro
     <div class="note">×を押すと、その作品を比較から外します。画面の数字は、すぐに選び直した作品で計算し直します。${lock?`比較には${PEER_MIN}本以上が必要なため、これ以上は外せません。`:''}</div>
     ${offL.length?`<div class="sub-h">外した作品</div><div class="pe-ts">${offL.map(p=>`<span class="pe-t alt">${p.ttl}<i>${p.yr}年</i><button data-peera="${p.k}">戻す</button></span>`).join('')}</div>`:''}
     ${cand.length?`<div class="sub-h">追加できる候補</div><div class="pe-ts">${cand.map(p=>`<span class="pe-t alt">${p.ttl}<i>${p.yr}年｜${p.why}</i><button data-peera="${p.k}">＋追加</button></span>`).join('')}</div><div class="note">候補は、選んだ条件にあと少しで合わなかった作品です。</div>`:''}
+    <div class="sub-h">ほかの作品を探して追加</div><input id="peerQ" class="pe-q" placeholder="作品名の一部を入れてください" value="${esc(S.peerQ||'')}" autocomplete="off"><div class="pe-ts" id="peerRes" style="margin-top:8px">${peerRes()}</div><div class="note">条件から離れた作品も足せます。ただし、離れているほど比べる意味は薄れます。足した作品には「追加」の印が付きます。</div>
     ${peerChanged()?'<div style="margin-top:10px"><button class="btn" data-peerreset>はじめの選び方に戻す</button></div>':''}
     <div class="sub-h">守っている決まり</div><ul class="pe-ul"><li>作品名は、上の一覧のとおりお見せします。</li><li>ほかの会社の作品の数字は、公開されている興収をのぞき、個別には出しません。使うのは、類似作全体の真ん中（中央値）と幅だけです。</li><li>4社以上・10本以上そろわないときは、類似作との比較を出しません。</li><li>条件はどの作品にも同じ決まりで当てはめ、特定の会社や作品に有利な選び方はしません。</li><li>自社の過去作は、作品名を出して比べられます。</li></ul>`;
   document.body.classList.add('pn');$('.pn-x').onclick=closePanel}
