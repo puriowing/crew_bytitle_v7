@@ -288,6 +288,7 @@ body.pn #panel{transform:none}
 .btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
 .btn.pri:hover{background:var(--accent2);color:#fff}
 body.client .int-only{display:none}
+.pe-ts{display:flex;flex-wrap:wrap;gap:6px}.pe-t{font-size:12.5px;border:1px solid var(--rule2);border-radius:8px;padding:4px 9px;background:#fff}.pe-t i{font-style:normal;font-size:10.5px;color:var(--sub);margin-left:6px}.pe-t.own{border-color:var(--accent);color:var(--accent2);font-weight:700}
 .jl-src{font-style:normal;font-weight:500;font-size:10.5px;color:var(--sub);border:1px solid var(--rule2);border-radius:999px;padding:0 8px;white-space:nowrap}
 .jl-src.m{color:var(--accent2);border-color:var(--accent-line);background:var(--accent-soft)}
 .cand{border:1px dashed var(--accent-line);background:#fbfdfc;border-radius:12px;padding:10px 14px;margin:0 0 12px;display:grid;gap:6px}
@@ -2731,7 +2732,8 @@ function openPeers(){const T=cur(),lo=Math.round(T.screens*0.7/10)*10,hi=Math.ro
   $('#panel').innerHTML=`<button class="pn-x" aria-label="閉じる">×</button><span class="chip neu">比べている類似作</span><h2>類似作 ${PEERS.length}本の選び方</h2>
     <div class="kpis" style="margin:12px 0">${kpi('類似作',PEERS.length,'本',`うち自社の過去作 ${own}本`)}${kpi('配給会社',5,'社','自社を含む')}</div>
     <div class="sub-h">選んだ条件</div><table class="ex-t"><tr><td>作品の種類</td><td>${T.kind}</td></tr><tr><td>ジャンル</td><td>${T.genre}</td></tr><tr><td>公開規模</td><td>${lo}〜${hi}スクリーン（この作品の±30%）</td></tr><tr><td>公開時期</td><td>直近3年</td></tr></table>
-    <div class="sub-h">守っている決まり</div><ul class="pe-ul"><li>ほかの会社の作品は、作品名も数字も個別には出しません。使うのは、類似作全体の真ん中（中央値）と幅だけです。</li><li>4社以上・10本以上そろわないときは、類似作との比較を出しません。</li><li>条件はどの作品にも同じ決まりで当てはめ、特定の会社や作品に有利な選び方はしません。</li><li>自社の過去作は、作品名を出して比べられます。</li></ul>`;
+    <div class="sub-h">比べている作品（${PEERS.length}本）</div><div class="pe-ts">${[...PAST.map(p=>[p.name,1]),...SIMILAR.slice(0,PEERS.length-own).map(n=>[n,0])].map((x,i)=>`<span class="pe-t${x[1]?' own':''}">${x[0]}<i>${2023+(i*2+T.screens)%3}年${x[1]?'・自社':''}</i></span>`).join('')}</div>
+    <div class="sub-h">守っている決まり</div><ul class="pe-ul"><li>作品名は、上の一覧のとおりお見せします。</li><li>ほかの会社の作品の数字は、公開されている興収をのぞき、個別には出しません。使うのは、類似作全体の真ん中（中央値）と幅だけです。</li><li>4社以上・10本以上そろわないときは、類似作との比較を出しません。</li><li>条件はどの作品にも同じ決まりで当てはめ、特定の会社や作品に有利な選び方はしません。</li><li>自社の過去作は、作品名を出して比べられます。</li></ul>`;
   document.body.classList.add('pn');$('.pn-x').onclick=closePanel}
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-peers]');if(!t)return;ev.stopPropagation();openPeers()},true);
 
