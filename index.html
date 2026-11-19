@@ -1373,9 +1373,9 @@ function evDetail0(T,e,d){const c=CH[e.ch],done=e.d<=d,ks=LAYER_KEYS.filter(k=>h
 function openEvent(id){const T=cur(),e=T.ev.find(x=>x.id===id),c=CH[e.ch];
   $('#panel').innerHTML=`<button class="pn-x" aria-label="閉じる">×</button>
     <span class="chip" style="background:#fff;border-color:${c.c};color:${c.c}">${c.n}</span> <span class="chip neu">${md(dateOf(T,e.d))}｜${relLbl(e.d)}</span>
-    <h2>${e.label}</h2>${evDetail(T,e,S.day)}`;
-  document.body.classList.add('pn');$('.pn-x').onclick=closePanel}
-function closePanel(){document.body.classList.remove('pn')}
+    <h2>${e.label}</h2>${evDetail(T,e,S.day)}<div class="fm-b" style="margin-top:14px"><button class="btn" data-evedit="${e.id}">${isAd(e)?'この広告を編集':'この施策を編集'}</button><button class="btn" data-evrm="${e.id}">一覧から外す</button>${e.src==='both'?`<button class="btn" data-evsplit="${e.id}">自動取得の分を別の施策に分ける</button>`:''}</div>`;
+  $('#panel').scrollTop=0;document.body.classList.add('pn');$('.pn-x').onclick=closePanel}
+function closePanel(){document.body.classList.remove('pn');if(S.openEv!=null){S.openEv=null;document.querySelectorAll('.jl-card.on,.hd.on').forEach(x=>x.classList.remove('on'))}}
 </script>
 <script>
 /* ================= ページと項目 ================= */
@@ -1472,7 +1472,7 @@ function journal(T,d){if(S.jw!=='mag'&&!mAvail(S.jw,d))S.jw='mag';S.cmp='none';
       return `<span class="jl-v ${o.base&&o.tot/o.base>=1.5?'hot':''}" data-l="${M[k].n}"><b class="num">${fN(o.tot)}<small>${M[k].u}</small></b><small>ふだん ${fN(o.base)}</small></span>`}).join('')};
   const adp=e=>{const ks=adKeys(d),o0=ks.length&&adPer(T,e,ks[0],d);if(!o0)return '';return `<span class="jl-adp"><em>期間中の反応（参考）${o0.ongoing?`・ここまで${o0.w}日間`:`・${o0.w}日間`}</em>${ks.map(k=>{const o=adPer(T,e,k,d);return `<span>${M[k].n} <b class="num">${fN(o.tot)}${M[k].u}</b><small>ふだん ${fN(o.base)}</small></span>`}).join('')}</span>`};
   const card=e=>{const c=CH[e.ch],op=S.openEv===e.id,ad=isAd(e),per=(e.len||1)>1?`<i class="jl-src p">${md(dateOf(T,e.d))}〜${md(dateOf(T,eEnd(e)))}（${e.len}日間）${e.d<=d&&eEnd(e)>d?`・実施中 ${d-e.d+1}日目`:''}</i>`:'';
-    const body=op?`<div class="jl-b"><div class="jl-bh"><span>${ad?'この広告のくわしい内容':'この施策のくわしい内容'}</span><button class="btn" data-jev="${e.id}">閉じる ×</button></div>${evDetail(T,e,d)}<div class="fm-b jl-bf"><button class="btn" data-jev="${e.id}">閉じる</button><button class="btn" data-evedit="${e.id}">${ad?'この広告を編集':'この施策を編集'}</button><button class="btn" data-evrm="${e.id}">一覧から外す</button>${e.src==='both'?`<button class="btn" data-evsplit="${e.id}">自動取得の分を別の施策に分ける</button>`:''}</div></div>`:'';
+    const body='';
     if(ad){const tg=T.ev.find(q=>q.id===e.boost);return `<div class="jl-card ad ${op?'on':''}" id="jl-${e.id}"><button class="jl-h adh" data-jev="${e.id}" aria-expanded="${op}"><span class="jl-n"><i class="jl-tag" style="background:${c.c}">${c.n}</i>${e.label}${per}${e.cost?`<i class="jl-src p">費用 ${fN(e.cost*1e4)}円</i>`:''}</span><span class="jl-adr">${tg?`「${tg.label}」を後押し`:'単独の広告'}</span>${tg?'':adp(e)}</button>${body}</div>`}
     const ao=adsOnX(T,e),ex=ao.some(q=>q.boost===e.id);
     return `<div class="jl-card ${op?'on':''}" id="jl-${e.id}"><button class="jl-h" data-jev="${e.id}" aria-expanded="${op}"><span class="jl-n">${no[e.id]?`<i class="jl-no" style="background:${c.c}">${no[e.id]}</i>`:''}<i class="jl-tag" style="background:${c.c}">${c.n}</i>${e.label}${newTag(e)}${srcTag(e)}${per}${ao.length?`<i class="jl-src b" title="${esc(ao.map(q=>q.label).join('、'))}">${ex?'広告で後押し':'広告の期間中'}</i>`:''}</span>${cells(e)}</button>${body}</div>`};
@@ -1561,7 +1561,7 @@ document.addEventListener('click',ev=>{const t=ev.target.closest('[data-evadd],[
   if(D.evadd!=null)evForm(null);else if(D.evedit!=null)evForm(+D.evedit);else if(D.evsave!=null)evSubmit(D.evsave,D.mode);
   else if(D.evrm!=null){const e=T.ev.find(x=>x.id===+D.evrm);if(e){T.ev=T.ev.filter(x=>x!==e);e.isNew=false;T.removed.push(e);if(S.openEv===e.id)S.openEv=null;evSave();closePanel();render()}}
   else if(D.evback!=null){const e=T.removed.find(x=>x.id===+D.evback);if(e){T.removed=T.removed.filter(x=>x!==e);T.ev.push(e);S.openEv=e.id;evSave();render()}}
-  else if(D.evsplit!=null){const e=T.ev.find(x=>x.id===+D.evsplit);if(e&&e.mg){const g=e.mg;T.ev.push({id:nextId(T),d:g.d,ch:g.ch,ty:g.ty,label:g.label,str:1,cost:0,src:'auto',art:g.art,isNew:false});Object.assign(e,{src:'manual',art:0,isNew:false});delete e.mg;evSave();render()}}
+  else if(D.evsplit!=null){const e=T.ev.find(x=>x.id===+D.evsplit);if(e&&e.mg){const g=e.mg;T.ev.push({id:nextId(T),d:g.d,ch:g.ch,ty:g.ty,label:g.label,str:1,cost:0,src:'auto',art:g.art,isNew:false});Object.assign(e,{src:'manual',art:0,isNew:false});delete e.mg;evSave();closePanel();render()}}
   else if(D.evseen!=null){T.ev.forEach(e=>e.isNew=false);evSave();render()}
   else if(D.evsim!=null)evSim();
   else if(D.evreset!=null)evReset()});
@@ -1611,7 +1611,7 @@ I('acts','a_log','施策の日誌',12,[],(T,d)=>{const ks=JL_KEYS.filter(k=>mAva
   if(S.jv==='perf'){const o=ITEMS.find(x=>x.id==='a_perf').fn(T,d);return {d:'同じ施策を、反応・露出量・費用対効果の順に並べ替えて見ます',h:tabs+o.h}}
   if(S.jv!=='log'){const sel=S.cmpSet.map(ownGet).filter(X=>X&&X.k!==T.k),full=sel.length>=OWN_MAX;if(!fxKeys().includes(S.fk))S.fk=fxKeys()[0];
     return {d:S.jv==='fx'?'同じ種類の施策どうしを、時期に関係なく並べます':'公開までの週をそろえて、施策の組み立てを並べます',h:`${tabs}<div class="ctl"><span style="font-size:11.5px;color:var(--sub)">比べる相手</span><button class="lchip on" data-peers><i style="background:#8a929a"></i>類似作 ${PEERS.length}本の中央値${peerChanged()?'（選び直し済み）':''}｜選び直す</button>${sel.map(X=>`<button class="lchip on" data-cs="${X.k}" aria-label="${X.name}を外す"><i style="background:var(--accent)"></i>${X.name} ×</button>`).join('')}${ownSel(T,full)}</div><div class="ctl"><span style="font-size:11.5px;color:var(--sub)">比べる数字</span>${fxKeys().map(k=>`<button class="lchip ${S.fk===k?'on':''}" data-fk="${k}"><i style="background:${M[k].c}"></i>${M[k].n}</button>`).join('')}</div>${S.jv==='fx'?fxTable(T,d,sel):seqTable(T,d,sel)}`}}
-  return {d:'上が新しい日。施策を押すとくわしく開きます',h:`${tabs}<div class="jl-top"><details class="jl-opt" ${S.jopt?'open':''}><summary><b>表示の設定</b><span>${{all:'全期間',w8:'直近8週',w4:'直近4週'}[S.tlRange]}｜${S.jw==='mag'?'反応の大きさ（総合）':M[S.jw].n}｜${S.jc==='cum'&&!RATE.has(S.jw)?'累計':'1日ごと'}${S.jp?'｜類似作の中央値と比べる':''}</span></summary><div class="ctl"><span style="font-size:11.5px;color:var(--sub)">期間</span><span class="seg">${[['all','全期間'],['w8','直近8週'],['w4','直近4週']].map(x=>`<button data-rg="${x[0]}" class="${S.tlRange===x[0]?'on':''}">${x[1]}</button>`).join('')}</span></div>
+  return {d:'上が新しい日。施策を押すと、くわしい内容が横に開きます',h:`${tabs}<div class="jl-top"><details class="jl-opt" ${S.jopt?'open':''}><summary><b>表示の設定</b><span>${{all:'全期間',w8:'直近8週',w4:'直近4週'}[S.tlRange]}｜${S.jw==='mag'?'反応の大きさ（総合）':M[S.jw].n}｜${S.jc==='cum'&&!RATE.has(S.jw)?'累計':'1日ごと'}${S.jp?'｜類似作の中央値と比べる':''}</span></summary><div class="ctl"><span style="font-size:11.5px;color:var(--sub)">期間</span><span class="seg">${[['all','全期間'],['w8','直近8週'],['w4','直近4週']].map(x=>`<button data-rg="${x[0]}" class="${S.tlRange===x[0]?'on':''}">${x[1]}</button>`).join('')}</span></div>
     <div class="ctl pc-only"><span style="font-size:11.5px;color:var(--sub)">グラフに出すもの</span><button class="lchip ${S.jw==='mag'?'on':''}" data-jw="mag"><i style="background:#4e8780"></i>反応の大きさ（総合）</button>${ks.map(k=>`<button class="lchip ${S.jw===k?'on':''}" data-jw="${k}"><i style="background:${M[k].c}"></i>${M[k].n}</button>`).join('')}</div>
     <div class="ctl"><span style="font-size:11.5px;color:var(--sub)">グラフの出し方</span><span class="seg">${[['day','1日ごと'],['cum','累計']].map(x=>`<button data-jc="${x[0]}" class="${(S.jc||'day')===x[0]&&!(x[0]==='cum'&&RATE.has(S.jw))?'on':''}" ${x[0]==='cum'&&RATE.has(S.jw)?'disabled title="率の指標は、累計にできません"':''}>${x[1]}</button>`).join('')}</span><button class="lchip ${S.jp?'on':''}" data-jp="1"><i style="background:#6f7780"></i>類似作の中央値と比べる</button></div>
     <div class="note pc-only" style="margin:0 0 10px">反応の大きさは、${mk.map(k=>M[k].n).join('・')}を「類似作のふだんの1日＝100」にそろえて平均した指数です。内訳の数字は、下の施策カードに出ます。</div></details><span class="jl-act"><button class="btn pri" data-evadd>＋ 施策を追加</button><button class="btn int-only" data-evsim>自動取得を試す</button><button class="btn int-only" data-evreset>入力を初期状態に戻す</button></span></div>
@@ -2188,7 +2188,7 @@ I('acts','a_answer','施策の答え合わせ',12,[2],(T,d)=>{const c=castRoutes
    <div class="sub-h">どの宣伝素材を覚えていて、どれで観たいと思ったか</div>
    <div class="tw"><table class="ans"><tr><th>宣伝素材</th><th>対応する施策</th><th>見た覚えがある<small>（あてはまるものすべて）</small></th><th>いちばん観たいと思わせた<small>（1つだけ）</small></th></tr>
     ${mats.map(m=>{const ev=evOf(m);return `<tr><td><span class="tthumb">${matArt(T,m.n)}</span>${m.n}</td><td>${ev.length?ev.slice(0,2).map(e=>`<button class="sq" data-jev="${e.id}" style="border-color:${CH[e.ch].c}"><i class="cdot" style="background:${CH[e.ch].c}"></i>${e.ty}</button>`).join(''):'<span class="fx-n">—</span>'}</td>${bar(m.seen,'#d9b48a',mm)}${bar(m.best,'#8a4b12',mm)}</tr>`}).join('')}</table></div>
-   <div class="note">素材は、施策の種類とそのまま対応します。施策を押すと、日誌のその施策が開きます。</div>
+   <div class="note">素材は、施策の種類とそのまま対応します。施策を押すと、その施策のくわしい内容が横に開きます。</div>
    ${c.W>=1?`<div class="sub-h">いちばんのきっかけの移り変わり</div>${heat(ROUTES2.map(x=>x.n),wk.map(w=>`公開${w+1}週目`),(i,j)=>castWeek(T,j).one[i])}<div class="note">週を追って、入口がどこへ移っているかを見ます。口コミが増えていれば、感想を広げる施策が効く時期です。</div>`:'<div class="note">2週目に入ると、週ごとの移り変わりが出ます。</div>'}
    <div class="note">回答した人に偏りがあるため、数字は目安です。回答の少ない週は集計から外します。</div>`}},{when:'post'});
 function castLine(T,e,d){const c=castRoutes(T,d),x=c.rows.find(r=>r.ch&&r.ch.includes(e.ch)),m=castMats(T).find(q=>q.ty.includes(e.ty));
@@ -2906,7 +2906,7 @@ document.addEventListener('click',ev=>{const t=ev.target.closest('[data-page],[d
   if(t.dataset.jw){S.jw=t.dataset.jw;render();return}
   if(t.dataset.jm){S.jlMode=t.dataset.jm;render();return}
   if(t.dataset.jsec){S.jlOpen[t.dataset.jsec]=!S.jlOpen[t.dataset.jsec];render();return}
-  if(t.dataset.jev!=null){const id=+t.dataset.jev;S.openEv=S.openEv===id?null:id;render();const el=$('#jl-'+id);if(el&&S.openEv===id)el.scrollIntoView({block:t.classList.contains('hd')?'center':'nearest'});return}
+  if(t.dataset.jev!=null){const id=+t.dataset.jev;if(!cur().ev.some(x=>x.id===id))return;S.openEv=id;render();const el=$('#jl-'+id);if(el&&t.classList.contains('hd'))el.scrollIntoView({block:'center'});openEvent(id);return}
   if(t.dataset.sim!=null){S.sim=+t.dataset.sim||null;render();return}
   if(t.dataset.page)setPage(t.dataset.page);
   else if(t.dataset.go)setPage(t.dataset.go,t.dataset.hit);
