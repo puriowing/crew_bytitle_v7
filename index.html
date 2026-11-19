@@ -1374,7 +1374,7 @@ const POST_TXT=['本予告を公開しました','キャストからのメッセ
 function posts(T,d,n){const r=R(T,d+500),a=[];for(let i=0;i<8;i++){const dd=d-Math.floor(r()*7),imp=at(T,'oimp',dd)*(0.15+r()*0.5);
   a.push({d:dd,t:POST_TXT[(i+T.seed+d+200)%POST_TXT.length],pf:['X','Instagram','TikTok','YouTube'][Math.floor(r()*4)],imp,eng:imp*(0.02+r()*0.05)})}
   return a.sort((x,y)=>y.eng-x.eng).slice(0,n)}
-I('home','h_posts','反応が大きかった公式の投稿',6,[6],(T,d)=>({d:'直近7日間',h:`<div class="spl">${posts(T,d,3).map((p,i)=>`<button class="spl-r" data-go="creative" data-hit="cr_posts"><span class="spl-i">${sqImg(T,T.seed*43+i+d,'')}</span><span class="spl-t"><b>${p.t}</b><small><i class="sp-pf" style="background:${PF_C[p.pf]}">${p.pf}</i>${md(dateOf(T,p.d))}</small></span><span class="spl-n"><span>表示<b class="num">${fN(p.imp)}</b></span><span>反応<b class="num">${fN(p.eng)}</b></span></span></button>`).join('')}</div>`}));
+I('home','h_posts','反応が大きかった公式の投稿',6,[6],(T,d)=>({d:'直近7日間',h:`<div class="spl">${posts(T,d,3).map((p,i)=>`<button class="spl-r" data-go="deliver" data-hit="cr_posts"><span class="spl-i">${sqImg(T,T.seed*43+i+d,'')}</span><span class="spl-t"><b>${p.t}</b><small><i class="sp-pf" style="background:${PF_C[p.pf]}">${p.pf}</i>${md(dateOf(T,p.d))}</small></span><span class="spl-n"><span>表示<b class="num">${fN(p.imp)}</b></span><span>反応<b class="num">${fN(p.eng)}</b></span></span></button>`).join('')}</div>`}));
 const V_PRE=[['p','予告だけで泣きそう。公開日に観に行く'],['p','主題歌が流れた瞬間に鳥肌が立った'],['p','このキャストなら間違いない'],['n','予告で話を見せすぎている気がする'],['p','原作が好きなので楽しみにしている']];
 const V_POST=[['p','後半はずっと泣いていた。もう一度観たい'],['p','家族を誘ってまた行くつもり'],['p','映画館で観てよかったと思える音だった'],['n','中盤が少し長く感じた'],['n','予告の印象とは違う話だった'],['p','エンドロールで誰も席を立たなかった']];
 I('home','h_voice','生の声',6,[3],(T,d)=>{const v=(d<0?V_PRE:V_POST).map(x=>[...x,'SNSの投稿']);
@@ -2612,8 +2612,8 @@ I('deliver','k_sns','公式SNS：ここだけ確認',12,[6],(T,d)=>{const o=snsC
     ${chkRow(1,'フォロワーと表示は伸びているか',`<b class="num">${o.ir==null?'—':Math.round(o.ir)+'%'}</b>`,`表示 ${fN(o.imp)}回（類似作比）。フォロワー ${fN(o.fol)}人（類似作の${o.fr==null?'—':Math.round(o.fr)+'%'}）`,t1,l1)}
     ${chkRow(2,'投稿は反応されているか',`<b class="num">${f2(o.er)}%</b>`,`表示のうち反応された割合（類似作の中央値 ${f2(o.per)}%、${o.err==null?'—':Math.round(o.err)+'%'}）`,t2,l2)}
     ${chkRow(3,'公式の投稿が、一般の話題を生んでいるか',o.wom?`<b class="num">${o.wom.p}</b><small>／100</small>`:'<span class="fx-n">—</span>',o.wom?`公式の投稿のあとに、話題の量が平均 ${o.wom.v>=0?'+':''}${f1(o.wom.v)}% 増えた（類似作の公式の投稿の中での位置。50が真ん中）`:'公式の投稿から3日たつと出ます',t3,l3)}
-    <div class="ck-r ck-top"><span class="ck-no num">4</span><div class="ck-q"><b>効いた投稿（直近7日間の上位3件）</b><small>くわしくは「素材」ページの公式SNSの投稿へ</small></div>
-      <div class="spl">${tp.map((p,i)=>`<button class="spl-r" data-go="creative" data-hit="cr_posts"><span class="spl-i">${sqImg(T,T.seed*43+i+d,'')}</span><span class="spl-t"><b>${p.t}</b><small><i class="sp-pf" style="background:${PF_C[p.pf]}">${p.pf}</i>${md(dateOf(T,p.d))}</small></span><span class="spl-n"><span>表示<b class="num">${fN(p.imp)}</b></span><span>反応<b class="num">${fN(p.eng)}</b></span></span></button>`).join('')}</div></div>
+    <div class="ck-r ck-top"><span class="ck-no num">4</span><div class="ck-q"><b>効いた投稿（直近7日間の上位3件）</b><small>くわしくは、下の「公式SNSの投稿」へ</small></div>
+      <div class="spl">${tp.map((p,i)=>`<button class="spl-r" data-go="deliver" data-hit="cr_posts"><span class="spl-i">${sqImg(T,T.seed*43+i+d,'')}</span><span class="spl-t"><b>${p.t}</b><small><i class="sp-pf" style="background:${PF_C[p.pf]}">${p.pf}</i>${md(dateOf(T,p.d))}</small></span><span class="spl-n"><span>表示<b class="num">${fN(p.imp)}</b></span><span>反応<b class="num">${fN(p.eng)}</b></span></span></button>`).join('')}</div></div>
     </div><div class="note">投稿ごとの詳しい数字は、SNSのレポート（別のダッシュボード）で確認します。</div>`}});
 (function(){const nw=['k_ad','k_sns'].map(id=>ITEMS.splice(ITEMS.findIndex(x=>x.id===id),1)[0]),j=ITEMS.findIndex(x=>x.page==='deliver');ITEMS.splice(j,0,...nw);
   ITEMS.forEach(it=>{if(it.page==='deliver'&&!['k_ad','k_sns'].includes(it.id))it.deep=true})})();
@@ -2686,6 +2686,8 @@ SRC_USE.cr_recall=[2,1];
 (function(){const ids=['cr_recall','cr_wall','cr_next','cr_top','cr_posts'],its=ids.map(id=>ITEMS.splice(ITEMS.findIndex(x=>x.id===id),1)[0]),j=ITEMS.findIndex(x=>x.page==='creative');
   ITEMS.splice(j<0?ITEMS.length:j,0,...its);ITEMS.find(x=>x.id==='cr_top').deep=true;ITEMS.find(x=>x.id==='cr_posts').deep=true;
   const t=ITEMS.find(x=>x.id==='cr_top');t.t='反応が大きかった素材（媒体の数字）'})();
+/* 公式SNSの投稿は、素材ではなくメディア（公式SNS）の側に置く */
+(function(){const it=ITEMS.splice(ITEMS.findIndex(x=>x.id==='cr_posts'),1)[0];it.page='deliver';it.grp='sns';it.deep=false;ITEMS.splice(ITEMS.findIndex(x=>x.id==='d_plat')+1,0,it)})();
 (function(){const p=PAGES.find(x=>x.k==='creative');if(p)p.q='どんな素材を出し、どれが観客の記憶と来場に残ったか'})();
 
 /* 関心と評判：上に「ここだけ確認」、主要なグラフ3つ、残りは「くわしく見る」 */
