@@ -1199,6 +1199,7 @@ const PEER_ADD=[['白い自転車','公開が4年前',2022],['約束の丘','公
 const PEER_CAT=[['夏の終わりのオーケストラ','恋愛・青春',2024,260],['真夜中の観覧車','サスペンス',2023,310],['わたしたちの放課後戦争','青春',2025,180],['北極星のレシピ','ヒューマンドラマ',2024,220],['東京ロストナンバー','サスペンス',2022,350],['ちいさな魔法使いと冬の森','ファミリー',2024,330],['銀色のバトン','青春',2023,240],['さよならの練習','恋愛・青春',2025,290],['探偵は三度うなずく','ミステリー',2024,270],['ぼくの宇宙ステーション','ファミリー',2023,300],['春風タクシー','ヒューマンドラマ',2022,200],['最終列車は海へ','サスペンス',2025,255]].map((x,i)=>{const q=build({k:'c'+i,name:'',today:37,seed:500+i*19,power:.55+(i%5)*.2,q:.2+(i%4)*.2});q.full=true;q.ttl=x[0];q.why=x[1]+'・'+x[3]+'スクリーン';q.yr=x[2];q.add=true;return q}),PEER_POOL=[...PEER_ADD,...PEER_CAT];
 function peerRes(){const q=(S.peerQ||'').trim(),o=peerSel();if(!q)return '';const L=PEER_CAT.filter(p=>p.ttl.includes(q)&&!o.add.includes(p.k)).slice(0,8);
   return L.length?L.map(p=>`<span class="pe-t alt">${p.ttl}<i>${p.yr}年｜${p.why}</i><button data-peera="${p.k}">＋追加</button></span>`).join(''):'<span class="note" style="margin:0">この名前の作品は見つかりません。データがまだない作品は、ここに出ません。</span>'}
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-crw]');if(!t)return;ev.stopPropagation();S.crw=t.dataset.crw;render()},true);
 document.addEventListener('toggle',ev=>{if(ev.target.classList&&ev.target.classList.contains('jl-opt'))S.jopt=ev.target.open},true);
 document.addEventListener('input',ev=>{if(ev.target.id!=='peerQ')return;S.peerQ=ev.target.value;const el=document.getElementById('peerRes');if(el)el.innerHTML=peerRes()});
 let PEER_KEY=PEER_DEF.map(p=>p.k).join();
@@ -2341,12 +2342,13 @@ function spCard(T,p){const th=thOf(T),pf=p.pf,dt=md(dateOf(T,p.d)),av=`<span cla
 PAGES.splice(1,0,{k:'creative',n:'素材',q:'どんな素材を出し、どれが反応を取ったか'});
 I('creative','cr_top','反応が大きかった素材',12,[6],(T,d)=>{const tp=crTop(T,d).slice(0,3);
   return {d:`${relLbl(d)}までに出した素材から`,h:tp.length?`<div class="cr-tops">${tp.map((x,i)=>crCard(T,x.c,d,i+1)).join('')}</div><div class="note">「反応」は、再生・クリック・いいね等を同じ物差しにそろえた数です。素材を押すと、くわしい数字と、その素材を出した施策が開きます。</div>`:'<div class="empty">まだ素材を出していません。</div>'}},{hide:d=>!crList(cur()).some(c=>c.d<=d)});
-I('creative','cr_wall','素材の一覧',12,[6],(T,d)=>{const all=crList(T),f=S.crf||'all',srt=S.crs||'new';
-  let L=all.filter(c=>c.d<=d&&(f==='all'||(f==='ph'?['still','photo'].includes(c.k):c.k===f)));
-  const efv=c=>!isAd(c.e)&&c.e.d+2<=d?(evEff(T,c.e,d)??-1):-2;L=srt==='eff'?L.sort((a,b)=>efv(b)-efv(a)):L.reverse();
-  const cnt=k=>all.filter(c=>c.d<=d&&(k==='all'||(k==='ph'?['still','photo'].includes(c.k):c.k===k))).length;
-  return {d:`${all.filter(c=>c.d<=d).length}点`,h:`<div class="cr-bar"><span class="seg">${CR_F.map(([k,n])=>`<button class="${f===k?'on':''}" data-crf="${k}">${n}<small class="num">${cnt(k)}</small></button>`).join('')}</span><span class="sp"></span><button class="btn pri" data-matadd>＋ 素材を登録</button><span class="seg">${[['new','新しい順'],['eff','施策の効き具合順']].map(([k,n])=>`<button class="${srt===k?'on':''}" data-crs="${k}">${n}</button>`).join('')}</span></div>
-    ${L.length?`<div class="cr-grid">${L.map(c=>crCard(T,c,d,0,true)).join('')}</div><div class="note">各素材の下は、その素材を出した施策と、施策の効き具合（同じ種類の過去の施策の中での位置）。素材ごとの細かい数字は、素材を押すと開きます。</div>`:'<div class="empty">この種類の素材は、まだありません。</div>'}`}});
+I('creative','cr_wall','素材の一覧',12,[6],(T,d)=>{const all=crList(T),f=S.crf||'all',srt=S.crs||'new',nx=S.crw==='next',inT=c=>nx?c.d>d:c.d<=d,fk=(c,k)=>k==='all'||(k==='ph'?['still','photo'].includes(c.k):c.k===k);
+  let L=all.filter(c=>inT(c)&&fk(c,f));const efv=c=>!isAd(c.e)&&c.e.d+2<=d?(evEff(T,c.e,d)??-1):-2;if(!nx)L=srt==='eff'?L.sort((a,b)=>efv(b)-efv(a)):L.reverse();
+  const cnt=k=>all.filter(c=>inT(c)&&fk(c,k)).length,nD=all.filter(c=>c.d<=d).length,nN=all.length-nD;
+  return {d:`出した素材 ${nD}点・これから出す素材 ${nN}点`,h:`<div class="cr-bar"><span class="seg big">${[['done','出した素材',nD],['next','これから出す素材',nN]].map(([k,n,c])=>`<button class="${(nx?'next':'done')===k?'on':''}" data-crw="${k}">${n}<small class="num">${c}</small></button>`).join('')}</span><span class="sp"></span><button class="btn pri" data-matadd="${nx?'next':''}">＋ 素材を登録</button></div>
+    <div class="cr-bar"><span class="seg">${CR_F.map(([k,n])=>`<button class="${f===k?'on':''}" data-crf="${k}">${n}<small class="num">${cnt(k)}</small></button>`).join('')}</span><span class="sp"></span>${nx?'':`<span class="seg">${[['new','新しい順'],['eff','施策の効き具合順']].map(([k,n])=>`<button class="${srt===k?'on':''}" data-crs="${k}">${n}</button>`).join('')}</span>`}</div>
+    ${L.length?`<div class="cr-grid">${L.map(c=>crCard(T,c,d,0,true)).join('')}</div>`:`<div class="empty">${nx?(f==='all'?'これから出す素材は、まだ登録されていません。':'この種類の、これから出す素材はありません。'):'この種類の素材は、まだありません。'}</div>`}
+    <div class="note">${nx?'出す日の近い順に並べています。これから出す素材は、世に出る前で自動では取れないため、登録が必要です。予定している施策に結びつけて登録します。':'各素材の下は、その素材を出した施策と、施策の効き具合（同じ種類の過去の施策の中での位置）。素材ごとの細かい数字は、素材を押すと開きます。'}</div>`}});
 I('creative','cr_posts','公式SNSの投稿',12,[6],(T,d)=>{const f=S.spf||'all',all=spFeed(T).filter(p=>p.d<=d),so=S.sps||'new',F=all.filter(p=>f==='all'||p.pf===f),L=so==='new'?F.slice(-12).reverse():F.filter(p=>p.d>d-(so==='eng7'?7:999)).sort((a,b)=>b.eng-a.eng).slice(0,12);
   return {d:{new:'新しい順・直近12件',eng7:'直近7日間・反応の大きい順',eng:'これまでの全投稿・反応の大きい順（上位12件）'}[so],h:`<div class="cr-bar"><span class="seg">${[['new','新しい順'],['eng7','反応の大きい順（直近7日）'],['eng','反応の大きい順（全期間）']].map(x=>`<button class="${so===x[0]?'on':''}" data-sps="${x[0]}">${x[1]}</button>`).join('')}</span></div><div class="cr-bar"><span class="seg">${['all','X','Instagram','TikTok','YouTube'].map(k=>`<button class="${f===k?'on':''}" data-spf="${k}">${k==='all'?'すべて':k}<small class="num">${k==='all'?all.length:all.filter(p=>p.pf===k).length}</small></button>`).join('')}</span></div>
     ${L.length?`<div class="sp-grid">${L.map(p=>spCard(T,p)).join('')}</div>`:'<div class="empty">この条件に合う投稿は、まだありません。</div>'}<div class="note">公式アカウントの投稿を、そのままの見た目で並べています。数字は投稿ごとの表示回数と反応です。</div>`}});
@@ -2366,7 +2368,7 @@ function matForm(next){const T=cur(),d=S.day,ev=T.ev.slice().sort((x,y)=>x.d-y.d
 function matSubmit(){const T=cur(),nm=esc($('#mtN').value.trim()),err=$('#mtErr'),eid=+$('#mtE').value,f=$('#mtF').files[0];
   if(!nm){err.textContent='素材の名前を入れてください。';$('#mtN').focus();return}
   if(!T.ev.some(e=>e.id===eid)){err.textContent='結びつける施策を選んでください。';return}
-  const done=img=>{const L=MATS_U[T.k]=MATS_U[T.k]||[],id='u'+(Math.max(0,...L.map(m=>+m.id.slice(1)))+1);L.push({id,eid,k:$('#mtK').value,n:nm,img});matSave();closePanel();S.page='creative';render();const el=document.querySelector('[data-cr="'+id+'"]');if(el)el.scrollIntoView({block:'center'})};
+  const done=img=>{const L=MATS_U[T.k]=MATS_U[T.k]||[],id='u'+(Math.max(0,...L.map(m=>+m.id.slice(1)))+1);L.push({id,eid,k:$('#mtK').value,n:nm,img});matSave();closePanel();S.page='creative';S.crf='all';S.crw=cur().ev.find(e=>e.id===eid).d>S.day?'next':'done';render();const el=document.querySelector('[data-cr="'+id+'"]');if(el)el.scrollIntoView({block:'center'})};
   if(!f)return done(null);
   const rd=new FileReader();rd.onerror=()=>{err.textContent='画像を読み込めませんでした。'};rd.onload=()=>{const im=new Image();im.onerror=()=>{err.textContent='画像を読み込めませんでした。'};im.onload=()=>{const sc=Math.min(1,480/Math.max(im.width,im.height)),cv=document.createElement('canvas');cv.width=Math.round(im.width*sc);cv.height=Math.round(im.height*sc);cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);done(cv.toDataURL('image/jpeg',.72))};im.src=rd.result};rd.readAsDataURL(f)}
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-matadd],[data-matsave],[data-matrm],[data-evreset]');if(!t)return;const D=t.dataset;
@@ -2755,7 +2757,7 @@ I('creative','cr_recall','観客の記憶に残った素材',12,[],(T,d)=>{const
 SRC_USE.cr_recall=[2,1];
 /* 並び：記憶に残った素材 → 一覧 → これから出す素材 → くわしく（反応の大きかった素材・公式SNSの投稿） */
 (function(){const ids=['cr_recall','cr_wall','cr_next','cr_top','cr_posts'],its=ids.map(id=>ITEMS.splice(ITEMS.findIndex(x=>x.id===id),1)[0]),j=ITEMS.findIndex(x=>x.page==='creative');
-  ITEMS.splice(j<0?ITEMS.length:j,0,...its);ITEMS.find(x=>x.id==='cr_top').deep=false;ITEMS.find(x=>x.id==='cr_posts').deep=true;
+  ITEMS.splice(j<0?ITEMS.length:j,0,...its);ITEMS.find(x=>x.id==='cr_top').deep=false;ITEMS.find(x=>x.id==='cr_next').hide=()=>true;ITEMS.find(x=>x.id==='cr_posts').deep=true;
   const t=ITEMS.find(x=>x.id==='cr_top');t.t='反応が大きかった素材（媒体の数字）'})();
 /* 公式SNSの投稿は、素材ではなくメディア（公式SNS）の側に置く */
 (function(){const it=ITEMS.splice(ITEMS.findIndex(x=>x.id==='cr_posts'),1)[0];it.page='deliver';it.grp='sns';it.deep=false;ITEMS.find(x=>x.id==='d_posts').hide=()=>true;ITEMS.splice(ITEMS.findIndex(x=>x.id==='d_plat')+1,0,it)})();
