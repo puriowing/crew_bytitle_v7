@@ -1057,7 +1057,11 @@ tr.tg-few td{color:var(--sub)}
 .pl-basis .pe-ts{margin:10px 0 6px}.pl-basis .btn{flex:none}
 #it-p_map,#it-p_ch2,#it-p_ch3{background:#fff8e8;border:1.5px solid #e2c27c;box-shadow:0 2px 12px rgba(160,120,30,.14)}
 #it-p_map .card-h h2::before,#it-p_ch2 .card-h h2::before,#it-p_ch3 .card-h h2::before{content:'方針を選ぶ';display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;background:#4a3a10;color:#f3dfae;border-radius:999px;padding:2px 10px;margin-right:10px;vertical-align:3px}
-#it-p_map .note,#it-p_ch2 .note,#it-p_ch3 .note{background:none}.pc-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}.pc-k{display:grid;gap:6px;align-content:start}.pc-k>b{font-family:'Zen Maru Gothic',sans-serif;font-size:14px}.pc-k>small{font-size:11.5px;color:var(--sub)}
+#it-p_map .note,#it-p_ch2 .note,#it-p_ch3 .note{background:none}
+#it-p_map{border-bottom:1px dashed #e2c27c;border-bottom-left-radius:0;border-bottom-right-radius:0;box-shadow:none}
+#it-p_pick{margin-top:-16px;background:#fff8e8;border:1.5px solid #e2c27c;border-top:0;border-top-left-radius:0;border-top-right-radius:0;box-shadow:0 6px 12px rgba(160,120,30,.14)}
+#it-p_pick .card-h h2::before{content:'選んだ結果';display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;background:#fff;color:#4a3a10;border:1.5px solid #4a3a10;border-radius:999px;padding:1px 10px;margin-right:10px;vertical-align:3px}
+#it-p_pick .ins-b{background:#fff}.pc-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}.pc-k{display:grid;gap:6px;align-content:start}.pc-k>b{font-family:'Zen Maru Gothic',sans-serif;font-size:14px}.pc-k>small{font-size:11.5px;color:var(--sub)}
 .pc-os{display:grid;gap:5px}.pc-o{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(40px,1fr) 52px;gap:8px;align-items:center;text-align:left;border:1.5px solid var(--rule);border-radius:10px;padding:7px 10px;background:#fff;font-size:13px;width:100%}
 .pc-o:hover{border-color:var(--accent-line)}.pc-o.on{border-color:var(--ink);background:#f3f8f7;font-weight:700}.pc-o.on .pc-l::before{content:'✓ '}.pc-o:disabled{opacity:.4;cursor:default}.pc-o b{text-align:right}
 .pc-b{height:8px;border-radius:4px;background:#f1ede5;overflow:hidden}.pc-b i{display:block;height:100%;background:var(--accent);opacity:.7}
@@ -2082,7 +2086,7 @@ I('plan','p_map','性別×年代で分けて、狙う層を選ぶ',12,[2],(T,d)=
    ${SEX.map((x,g)=>`<div class="tgm-row"><div class="tgm-l">${x}</div><div class="tgm-g">${D.segs.filter(s=>s.g===g).map(tile).join('')}</div></div>`).join('')}
    ${sm?`<div class="tg-bar"><b>口コミの起点にする層：${sd.length}つ</b><span>${sd.length?sd.map(i=>D.segs[i].n).join('・'):'まだ選んでいません'}</span><button class="btn" data-tga="seedp">CREWの案に戻す</button><button class="btn" data-tga="seednone">すべて外す</button></div>`:`<div class="tg-bar"><b>メインターゲット：${sel.length}つ</b><span>類似作の観客の <b class="num">${f1(A.sh)}%</b> にあたります</span><button class="btn" data-tga="many">多い順に3つ（CREWの案）</button><button class="btn" data-tga="sat">満足が高い3つ</button><button class="btn" data-tga="nps">すすめてくれる3つ</button><button class="btn" data-tga="none">すべて外す</button></div>`}
    <div class="note">ここで選んだ内容は、「宣伝コンセプト」のページに入ります。</div>`}},{when:'pre'});
-I('plan','p_pick','選んだ層の内訳',12,[2],(T,d)=>{const D=tgData(T),sel=tgSel(T);if(!sel.length)return {d:'',h:'<div class="empty">上の地図で、狙う層を選んでください。</div>'};
+I('plan','p_pick','選んだ層（メインターゲット）の内訳',12,[2],(T,d)=>{const D=tgData(T),sel=tgSel(T);if(!sel.length)return {d:'',h:'<div class="empty">上の地図で、狙う層を選んでください。</div>'};
   const A=tgAgg(D,sel),W=tgAgg(D,D.segs.map(s=>s.i)),kd=A.know.map((v,i)=>v-W.know[i]),wd=A.why.map((v,i)=>v-W.why[i]),ki=iMax(kd),wi=iMax(wd),early=A.dec[0]+A.dec[1],earlyW=W.dec[0]+W.dec[1],wm=iMax(A.wth);
   const names=D.segs.filter(s=>sel.includes(s.i)).map(s=>s.n).join('・'),rows=(L,a,w,c,sort)=>{const x=L.map((l,i)=>({l,v:a[i],cmp:w[i]}));return bars(sort?x.sort((p,q)=>q.v-p.v):x,{fmt:f1,u:'%',c})};
   return {d:names,h:`<ul class="tg-pts"><li>観客全体と比べて多いきっかけは「${ROUTES2[ki].n}」（${pt(kd[ki])}）</li><li>観客全体と比べて多い理由は「${WHY[wi]}」（${pt(wd[wi])}）</li><li>公開の2週間以上前に観ると決めた人は ${f1(early)}%（全体 ${f1(earlyW)}%）。${early>earlyW+1.5?'早い時期から届ける意味が大きい層です。':early<earlyW-1.5?'公開の直前に決める人が多い層です。':'決める時期は全体とほぼ同じです。'}</li><li>いちばん多い観かたは「${WITH[wm]}」（${f1(A.wth[wm])}%）</li></ul>
