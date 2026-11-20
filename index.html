@@ -1055,6 +1055,13 @@ tr.tg-few td{color:var(--sub)}
 .pl-basis summary{list-style:none;cursor:pointer;display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;font-size:12.5px;color:var(--ink2);min-height:32px}.pl-basis summary::-webkit-details-marker{display:none}
 .pl-basis summary>b{font-family:'Zen Maru Gothic',sans-serif;font-size:13px;color:var(--ink)}.pl-basis summary span b{font-size:15px;color:var(--accent2)}.pl-basis summary i{font-style:normal;color:var(--accent2);font-weight:700;font-size:12px}.pl-basis summary i::after{content:' ＋'}.pl-basis details[open] summary i::after{content:' －'}
 .pl-basis .pe-ts{margin:10px 0 6px}.pl-basis .btn{flex:none}
+#it-p_ch2,#it-p_ch3{border:1.5px solid var(--accent-line)}.pc-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}.pc-k{display:grid;gap:6px;align-content:start}.pc-k>b{font-family:'Zen Maru Gothic',sans-serif;font-size:14px}.pc-k>small{font-size:11.5px;color:var(--sub)}
+.pc-os{display:grid;gap:5px}.pc-o{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(40px,1fr) 52px;gap:8px;align-items:center;text-align:left;border:1.5px solid var(--rule);border-radius:10px;padding:7px 10px;background:#fff;font-size:13px;width:100%}
+.pc-o:hover{border-color:var(--accent-line)}.pc-o.on{border-color:var(--ink);background:#f3f8f7;font-weight:700}.pc-o.on .pc-l::before{content:'✓ '}.pc-o:disabled{opacity:.4;cursor:default}.pc-o b{text-align:right}
+.pc-b{height:8px;border-radius:4px;background:#f1ede5;overflow:hidden}.pc-b i{display:block;height:100%;background:var(--accent);opacity:.7}
+i.crew,.tg .tags i.crew{font-style:normal;font-size:10px;font-weight:700;background:#fdeedd;border:1px solid #eec39a;color:#8a4b12;border-radius:999px;padding:0 6px;margin-left:6px;white-space:nowrap}.tg .tags i.crew{margin-left:0}
+.tg.sd{outline:2.5px dashed #c2603f;outline-offset:-5px}.tg.sd::before{content:'起点';position:absolute;right:30px;top:7px;font-size:10px;font-weight:700;color:#fff;background:#c2603f;border-radius:999px;padding:0 6px}
+.fc-cn{font-size:11.5px;color:var(--sub)}
 .pl-step{display:flex;justify-content:space-between;gap:10px;margin:18px 0 6px}
 .fin-stat{display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap}.fin-stat small{color:var(--sub)}.fc-s{margin:0 0 16px}.fc-s .fin-h{margin-bottom:8px}
 .fc-r{display:grid;grid-template-columns:150px minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:stretch;padding:8px 0;border-top:1px solid var(--rule)}.fc-n{font-weight:700;font-size:13px;padding-top:8px}
@@ -2059,12 +2066,14 @@ I('plan','u_sim','類似作を観た人たち',12,[2],(T,d)=>{const D=tgData(T),
    <div><div class="sub-h">ふだん映画館に行く頻度</div>${stack(GOF.map((l,i)=>({l,v:W.go[i],c:GOC[i]})))}
    <div class="kpis" style="margin-top:14px">${kpi('満足度',f1(W.sat),'%')}${kpi('すすめたい度',pt(W.nps),'')}${kpi('2回以上観た人',f1(W.rep),'%')}</div></div></div>
    ${simNote('この作品の観客はまだいないので、類似作を実際に観た人の姿を出しています。下のヒートマップで、性別×年代の層ごとに分けて見られます。')}`}},{when:'pre'});
-I('plan','p_map','性別×年代で分けて、狙う層を選ぶ',12,[2],(T,d)=>{const D=tgData(T),sel=tgSel(T),mx=Math.max(...D.segs.map(s=>s.sh)),A=tgAgg(D,sel);
-  const tile=s=>{const few=s.cnt<TG_MIN,tg=[D.tags.many.includes(s.i)?'<i>多い</i>':'',D.tags.sat.includes(s.i)?'<i>満足が高い</i>':'',D.tags.nps.includes(s.i)?'<i>すすめてくれる</i>':'',few?'<i class="few">参考</i>':''].join('');
-    return `<button class="tg ${sel.includes(s.i)?'on':''}" data-tg="${s.i}" aria-pressed="${sel.includes(s.i)}" style="background:rgba(78,135,128,${(.07+s.sh/mx*.5).toFixed(2)})" title="${s.n}｜回答 ${fN(s.cnt)}件"><span class="a">${AGES[s.a]}</span><span class="v num">${f1(s.sh)}<small>%</small></span><span class="m">満足 ${Math.round(s.sat)}%・すすめたい ${pt(s.nps)}</span><span class="tags">${tg}</span></button>`};
-  return {d:'ヒートマップ。色が濃いほど、観客に占める割合が大きい層',h:`<div class="tg-leg"><span>数字＝類似作の観客に占める割合</span><span>「多い」「満足が高い」「すすめてくれる」＝それぞれ上位3つの層</span><span>押すと、狙う層として選べます</span></div>
+I('plan','p_map','性別×年代で分けて、狙う層を選ぶ',12,[2],(T,d)=>{const D=tgData(T),sel=tgSel(T),mx=Math.max(...D.segs.map(s=>s.sh)),A=tgAgg(D,sel),X=pcData(T),sd=X.C.seed,sm=S.tgMode==='seed',cw=sm?X.P.seed:D.tags.many;
+  const tile=s=>{const few=s.cnt<TG_MIN,tg=[D.tags.many.includes(s.i)?'<i>多い</i>':'',D.tags.sat.includes(s.i)?'<i>満足が高い</i>':'',D.tags.nps.includes(s.i)?'<i>すすめてくれる</i>':'',few?'<i class="few">参考</i>':'',cw.includes(s.i)?'<i class="crew">CREWの案</i>':''].join('');
+    return `<button class="tg ${sel.includes(s.i)?'on':''} ${sd.includes(s.i)?'sd':''}" data-tg="${s.i}" aria-pressed="${(sm?sd:sel).includes(s.i)}" style="background:rgba(78,135,128,${(.07+s.sh/mx*.5).toFixed(2)})" title="${s.n}｜回答 ${fN(s.cnt)}件"><span class="a">${AGES[s.a]}</span><span class="v num">${f1(s.sh)}<small>%</small></span><span class="m">満足 ${Math.round(s.sat)}%・すすめたい ${pt(s.nps)}</span><span class="tags">${tg}</span></button>`};
+  return {d:'ヒートマップ。色が濃いほど、観客に占める割合が大きい層',h:`<div class="ctl mv-sw"><span style="font-size:11.5px;color:var(--sub)">いま選ぶもの</span><span class="seg big">${[['main','メインターゲット'],['seed','口コミの起点にする層']].map(x=>`<button data-tgm="${x[0]}" class="${(sm?'seed':'main')===x[0]?'on':''}">${x[1]}</button>`).join('')}</span><span class="mv-q">${sm?'観たあとに、まわりにすすめてくれる層。早めに届ける相手です（橙の印）':'宣伝の中心に据える層です（✓の印）'}</span></div>
+   <div class="tg-leg"><span>数字＝類似作の観客に占める割合</span><span>「多い」「満足が高い」「すすめてくれる」＝それぞれ上位3つの層</span><span>押すと、狙う層として選べます</span></div>
    ${SEX.map((x,g)=>`<div class="tgm-row"><div class="tgm-l">${x}</div><div class="tgm-g">${D.segs.filter(s=>s.g===g).map(tile).join('')}</div></div>`).join('')}
-   <div class="tg-bar"><b>選んでいる層：${sel.length}つ</b><span>類似作の観客の <b class="num">${f1(A.sh)}%</b> にあたります</span><button class="btn" data-tga="many">多い順に3つ</button><button class="btn" data-tga="sat">満足が高い3つ</button><button class="btn" data-tga="nps">すすめてくれる3つ</button><button class="btn" data-tga="none">すべて外す</button></div>`}},{when:'pre'});
+   ${sm?`<div class="tg-bar"><b>口コミの起点にする層：${sd.length}つ</b><span>${sd.length?sd.map(i=>D.segs[i].n).join('・'):'まだ選んでいません'}</span><button class="btn" data-tga="seedp">CREWの案に戻す</button><button class="btn" data-tga="seednone">すべて外す</button></div>`:`<div class="tg-bar"><b>メインターゲット：${sel.length}つ</b><span>類似作の観客の <b class="num">${f1(A.sh)}%</b> にあたります</span><button class="btn" data-tga="many">多い順に3つ（CREWの案）</button><button class="btn" data-tga="sat">満足が高い3つ</button><button class="btn" data-tga="nps">すすめてくれる3つ</button><button class="btn" data-tga="none">すべて外す</button></div>`}
+   <div class="note">ここで選んだ内容は、「宣伝コンセプト」のページに入ります。</div>`}},{when:'pre'});
 I('plan','p_pick','選んだ層の内訳',12,[2],(T,d)=>{const D=tgData(T),sel=tgSel(T);if(!sel.length)return {d:'',h:'<div class="empty">上の地図で、狙う層を選んでください。</div>'};
   const A=tgAgg(D,sel),W=tgAgg(D,D.segs.map(s=>s.i)),kd=A.know.map((v,i)=>v-W.know[i]),wd=A.why.map((v,i)=>v-W.why[i]),ki=iMax(kd),wi=iMax(wd),early=A.dec[0]+A.dec[1],earlyW=W.dec[0]+W.dec[1],wm=iMax(A.wth);
   const names=D.segs.filter(s=>sel.includes(s.i)).map(s=>s.n).join('・'),rows=(L,a,w,c,sort)=>{const x=L.map((l,i)=>({l,v:a[i],cmp:w[i]}));return bars(sort?x.sort((p,q)=>q.v-p.v):x,{fmt:f1,u:'%',c})};
@@ -2182,24 +2191,28 @@ ITEMS.filter(it=>it.page==='plan'&&PLI[it.id]).forEach(it=>{const f=it.fn;it.fn=
 const LSF='crew_v7_final_2';let FINAL={};try{FINAL=JSON.parse(localStorage.getItem(LSF)||'{}')||{}}catch(e){}
 const finSave=()=>{try{localStorage.setItem(LSF,JSON.stringify(FINAL))}catch(e){}},escT=t=>String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const FIN_SEC=[['who','誰に','p_sec1'],['when','いつ','p_sec2'],['what','どこで・何を','p_sec3']];
-function finFields(T,d){const D=tgData(T),sel=tgSel(T),all=D.segs.map(s=>s.i),on=sel.length>0,A=tgAgg(D,on?sel:all),W=tgAgg(D,all),t=D.tags,nm=i=>D.segs[i].n,who=on?'メインターゲット':'類似作の観客';
-  const ms=sumA(t.many.map(i=>D.segs[i].sh)),both=t.many.filter(i=>t.nps.includes(i)),small=t.nps.filter(i=>!t.many.includes(i)),seed=small.length?small:both.length?both:t.nps,sn=mean(seed.map(i=>D.segs[i].nps)),wi=iMax(A.wth);
-  const late=A.dec[3]+A.dec[4],early=A.dec[0]+A.dec[1];let cum=0,si=0;for(let i=0;i<A.dec.length;i++){cum+=A.dec[i];si=i;if(cum>=20)break}
-  const hi=ROUTES2.findIndex(r=>r.k==='H'),hs=A.know[hi],ko=A.know.map((v,i)=>i).sort((p,q)=>A.know[q]-A.know[p]),w1=iMax(A.why),X=areaData(T),df=X.u-X.ua,ty=df>=3?'都市型':df<=-3?'ローカル型':'全国型';
+function pcData(T){const D=tgData(T),sel=tgSel(T),all=D.segs.map(s=>s.i),on=sel.length>0,A=tgAgg(D,on?sel:all),W=tgAgg(D,all),t=D.tags,F=finOf(T);
+  const both=t.many.filter(i=>t.nps.includes(i)),small=t.nps.filter(i=>!t.many.includes(i));let cum=0;const cumA=A.dec.map(v=>cum+=v);let si=cumA.findIndex(v=>v>=20);if(si<0)si=0;
+  const ko=A.know.map((v,i)=>i).sort((p,q)=>A.know[q]-A.know[p]),P={seed:small.length?small:both.length?both:t.nps.slice(),start:si,peak:iMax(A.dec),m1:ko[0],m2:ko[1],msg:iMax(A.why)},C={};
+  Object.keys(P).forEach(k=>C[k]=F.c[k]!=null?F.c[k]:P[k]);if(C.m2===C.m1)C.m2=ko.find(i=>i!==C.m1);
+  return {D,sel,on,A,W,t,both,small,cumA,P,C,who:on?'メインターゲット':'類似作の観客'}}
+function finFields(T,d){const {D,sel,on,A,W,t,both,small,cumA,P,C,who}=pcData(T),nm=i=>D.segs[i].n,nms=a=>a.length?a.map(nm).join('・'):'（まだ選んでいません）',eq=(a,b)=>a.length===b.length&&a.every(i=>b.includes(i));
+  const ms=sumA(t.many.map(i=>D.segs[i].sh)),sn=mean(P.seed.map(i=>D.segs[i].nps)),wi=iMax(A.wth),hs=A.know[ROUTES2.findIndex(r=>r.k==='H')],X=areaData(T),df=X.u-X.ua,ty=df>=3?'都市型':df<=-3?'ローカル型':'全国型',RN=ROUTES2.map(r=>r.n);
+  const ch=(id,n,L,sec,why,cn)=>({id,n,ch:1,sec,p:L[P[id]],c:L[C[id]],why,cn:C[id]!==P[id]?cn(C[id]):''});
   return {who:[
-     {id:'main',n:'メインターゲット',tg:1,p:t.many.map(nm).join('・'),same:sel.length===t.many.length&&sel.every(i=>t.many.includes(i)),v:on?tgNames(D,sel):'（まだ選んでいません）',why:`人数の多い上位3層で、類似作の観客の${f1(ms)}%。${both.length?`うち「${both.map(nm).join('・')}」は、すすめたい度も上位です。`:''}`},
-     {id:'seed',n:'口コミの起点にする層',p:seed.map(nm).join('・'),why:`すすめたい度が ${pt(sn)}（観客全体は ${pt(W.nps)}）。${small.length?'人数は多くないものの、すすめてくれる度合いが高い層です。':'人数が多く、すすめてくれる度合いも高い層です。'}`},
+     {id:'main',n:'メインターゲット',tg:'main',p:nms(t.many),same:eq(sel,t.many),v:nms(sel),why:`人数の多い上位3層で、類似作の観客の${f1(ms)}%。${both.length?`うち「${both.map(nm).join('・')}」は、すすめたい度も上位です。`:''}`},
+     {id:'seed',n:'口コミの起点にする層',tg:'seed',p:nms(P.seed),same:eq(C.seed,P.seed),v:nms(C.seed),why:`すすめたい度が ${pt(sn)}（観客全体は ${pt(W.nps)}）。${small.length?'人数は多くないものの、すすめてくれる度合いが高い層です。':'人数が多く、すすめてくれる度合いも高い層です。'}`},
      {id:'with',n:'観に来る形',p:`「${WITH[wi]}」で観る人を中心に考える`,why:`${who}の${f1(A.wth[wi])}%が「${WITH[wi]}」。映画館に行くのが年1〜2回の人は${f1(A.go[0])}%。`}],
     when:[
-     {id:'start',n:'本格的に始める時期',p:DEC_WHEN[si],why:`${who}の${f1(cum)}%が、この時期までに観ると決めています。`},
-     {id:'peak',n:'告知の山を置く時期',p:late>=45?'公開の直前〜公開週':early>=38?'公開の2週間以上前':'山を1つにせず、公開まで続ける',why:`公開の直前〜当日に決めた人 ${f1(late)}%／2週間以上前に決めた人 ${f1(early)}%。`},
+     ch('start','本格的に始める時期',DEC_WHEN,'p_ch2',`${who}の${f1(cumA[P.start])}%が、この時期までに観ると決めています。`,i=>`選んだ時期までに決めた人は ${f1(cumA[i])}%。`),
+     ch('peak','告知の山を置く時期',DEC_WHEN,'p_ch2',`この時期に観ると決めた人が、いちばん多くなっています（${f1(A.dec[P.peak])}%）。`,i=>`選んだ時期に決めた人は ${f1(A.dec[i])}%。`),
      {id:'after',n:'公開後の進め方',p:hs>=15?'観た人の感想が広がる施策を用意する':'上映館・日時など、行動につながる情報を中心にする',why:`家族・友人から聞いて知った人は ${f1(hs)}%。`}],
     what:[
-     {id:'m1',n:'中心にするメディア',p:ROUTES2[ko[0]].n,why:`知ったきっかけの1位（${f1(A.know[ko[0]])}%${on?`、観客全体では ${f1(W.know[ko[0]])}%`:''}）。`},
-     {id:'m2',n:'補助にするメディア',p:ROUTES2[ko[1]].n,why:`知ったきっかけの2位（${f1(A.know[ko[1]])}%）。`},
-     {id:'msg',n:'訴求の軸（何を前に出すか）',p:WHY[w1],why:`観ると決めたいちばんの理由の1位（${f1(A.why[w1])}%）。`},
+     ch('m1','中心にするメディア',RN,'p_ch3',`知ったきっかけの1位（${f1(A.know[P.m1])}%${on?`、観客全体では ${f1(W.know[P.m1])}%`:''}）。`,i=>`選んだメディアで知った人は ${f1(A.know[i])}%。`),
+     ch('m2','補助にするメディア',RN,'p_ch3',`知ったきっかけの2位（${f1(A.know[P.m2])}%）。`,i=>`選んだメディアで知った人は ${f1(A.know[i])}%。`),
+     ch('msg','訴求の軸（何を前に出すか）',WHY,'p_ch3',`観ると決めたいちばんの理由の1位（${f1(A.why[P.msg])}%）。`,i=>`選んだ理由を挙げた人は ${f1(A.why[i])}%。`),
      {id:'area',n:'地域の配分',p:ty==='都市型'?'公開時は都市部に厚く、地方は公開後に広げる':ty==='ローカル型'?'全国に同じ厚みで届ける':'地域で差をつけない',why:`類似作は${ty}（3大都市圏で観た人 ${f1(X.u)}%、全作品の平均より ${pt(df)}）。`}]}}
-const finOf=T=>{const F=FINAL[T.k]||(FINAL[T.k]={});F.v=F.v||{};return F},finVal=(F,f)=>f.tg?f.v:F.v[f.id]!=null?F.v[f.id]:f.p,finSame=(F,f)=>f.tg?f.same:finVal(F,f)===f.p;
+const finOf=T=>{const F=FINAL[T.k]||(FINAL[T.k]={});F.v=F.v||{};F.c=F.c||{};return F},finVal=(F,f)=>f.tg?f.v:F.v[f.id]!=null?F.v[f.id]:f.ch?f.c:f.p,finSame=(F,f)=>f.tg?f.same:finVal(F,f)===f.p;
 const finChip=same=>same?'<span class="chip neu">CREWの案のまま</span>':'<span class="tone warn">調整済み</span>';
 const finAll=(T,d)=>{const X=finFields(T,d);return FIN_SEC.flatMap(x=>X[x[0]])};
 const finStat=(T,d)=>{const F=finOf(T),L=finAll(T,d),n=L.filter(f=>!finSame(F,f)).length;return `${F.done?`<span class="tone good">確定済み</span><small>${F.done} 確定</small>`:'<span class="tone warn">未確定</span>'}<span>${L.length}項目のうち <b class="num">${n}</b>項目を調整</span>`};
@@ -2207,16 +2220,27 @@ I('plan','p_sec4','宣伝コンセプトを決める',12,[2],()=>({d:'1〜3で�
 I('plan','p_final','宣伝コンセプト：CREWの案と、決定稿',12,[2],(T,d)=>{const X=finFields(T,d),F=finOf(T);
   const row=f=>{const same=finSame(F,f);return `<div class="fc-r"><div class="fc-n">${f.n}</div>
      <div class="fc-p"><small>CREWの案</small><b>${f.p}</b><span><i>根拠</i>${f.why}</span></div>
-     <div class="fc-d"><small>決定稿<span data-finchip="${f.id}">${finChip(same)}</span></small>${f.tg?`<b class="fc-tg">${f.v}</b><button class="fx-re" data-psec="p_map" style="display:inline;margin:0">「1 誰に」の地図で選び直す</button>`:`<input type="text" data-fin="${f.id}" data-p="${escT(f.p)}" value="${escT(finVal(F,f))}" aria-label="${f.n}の決定稿"><button class="fx-re" data-finback="${f.id}" style="margin:0;display:${same?'none':'inline'}">CREWの案に戻す</button>`}</div></div>`};
-  return {d:'設定する項目ごとに、CREWが案とデータの根拠を出します。決定稿の欄で調整して、確定します',h:`<div class="fin-top"><span class="fin-stat" data-finstat>${finStat(T,d)}</span><span><button class="btn pri" data-finok>この内容で確定する</button> <button class="btn" data-finrpt>決定稿を報告書にする</button></span></div>
+     <div class="fc-d"><small>決定稿<span data-finchip="${f.id}">${finChip(same)}</span></small>${f.tg?`<b class="fc-tg">${f.v}</b><button class="fx-re" data-psec="p_map" data-tgmset="${f.tg}" style="display:inline;margin:0">「1 誰に」の地図で選び直す</button>`:`<input type="text" data-fin="${f.id}" data-p="${escT(f.p)}" value="${escT(finVal(F,f))}" aria-label="${f.n}の決定稿">${f.ch?`${f.cn?`<span class="fc-cn">${f.cn}</span>`:''}<button class="fx-re" data-psec="${f.sec}" style="display:inline;margin:0">「${f.sec==='p_ch2'?'2 いつ':'3 どこで・何を'}」で選び直す</button>`:''}<button class="fx-re" data-finback="${f.id}" style="margin:0;display:${same?'none':'inline'}">CREWの案に戻す</button>`}</div></div>`};
+  return {d:'1〜3のページで選んだ内容が、決定稿に入ります。ここで言葉を調整して、確定します',h:`<div class="fin-top"><span class="fin-stat" data-finstat>${finStat(T,d)}</span><span><button class="btn pri" data-finok>この内容で確定する</button> <button class="btn" data-finrpt>決定稿を報告書にする</button></span></div>
    ${FIN_SEC.map(([k,n,sec],i)=>`<div class="fc-s"><div class="fin-h"><b class="num">${i+1}</b>${n}<button class="fx-re" data-psec="${sec}" style="display:inline;margin:0 0 0 10px">くわしいデータを見る</button></div>${X[k].map(row).join('')}</div>`).join('')}
    <div class="note">CREWの案と根拠は、類似作を観た人の回答から、決まった文で出しています。「いつ」「どこで・何を」の案は、決めたメインターゲットの回答をもとにしているので、ターゲットを選び直すと変わります。決定稿は、作品ごとにこの端末に保存されます。</div>`}},{when:'pre'});
+/* ①〜③のページで選ぶ項目（結果は宣伝コンセプトのページに入る） */
+const pcOpts=(id,L,vals,P,C,off)=>{const mx=Math.max(...vals,1);return `<div class="pc-os">${L.map((l,i)=>`<button class="pc-o ${C===i?'on':''}" data-pc="${id}" data-pcv="${i}" aria-pressed="${C===i}" ${off===i?'disabled':''}><span class="pc-l">${l}${P===i?'<i class="crew">CREWの案</i>':''}</span><span class="pc-b"><i style="width:${(vals[i]/mx*100).toFixed(1)}%"></i></span><b class="num">${f1(vals[i])}%</b></button>`).join('')}</div>`};
+const pcBlk=(t,sub,h)=>`<div class="pc-k"><b>${t}</b><small>${sub}</small>${h}</div>`,pcFoot='<div class="note">押して選びます。はじめは、CREWの案が選ばれています。選んだ内容は「宣伝コンセプト」のページに入ります。メインターゲットを選び直すと、数字とCREWの案も変わります。</div>';
+I('plan','p_ch2','ここで決める：始める時期と、山を置く時期',12,[2],(T,d)=>{const X=pcData(T);
+  return {d:`${X.who}が、いつ観ると決めたかをもとに選ぶ`,h:`<div class="pc-g">${pcBlk('本格的に始める時期','数字＝その時期までに、観ると決めた人の割合',pcOpts('start',DEC_WHEN,X.cumA,X.P.start,X.C.start))}${pcBlk('告知の山を置く時期','数字＝その時期に、観ると決めた人の割合',pcOpts('peak',DEC_WHEN,X.A.dec,X.P.peak,X.C.peak))}</div>${pcFoot}`}},{when:'pre'});
+I('plan','p_ch3','ここで決める：メディアと、訴求の軸',12,[2],(T,d)=>{const X=pcData(T),RN=ROUTES2.map(r=>r.n);
+  return {d:`${X.who}が、どこで知り、なぜ観ると決めたかをもとに選ぶ`,h:`<div class="pc-g">${pcBlk('中心にするメディア','数字＝そこで知った人の割合（あてはまるものすべて）',pcOpts('m1',RN,X.A.know,X.P.m1,X.C.m1))}${pcBlk('補助にするメディア','中心に選んだメディアは選べません',pcOpts('m2',RN,X.A.know,X.P.m2,X.C.m2,X.C.m1))}${pcBlk('訴求の軸（何を前に出すか）','数字＝観ると決めた、いちばんの理由',pcOpts('msg',WHY,X.A.why,X.P.msg,X.C.msg))}</div>${pcFoot}`}},{when:'pre'});
+(function(){[['p_ch2','p_sec3'],['p_ch3','p_sec4']].forEach(([id,bf])=>{const it=ITEMS.splice(ITEMS.findIndex(x=>x.id===id),1)[0];ITEMS.splice(ITEMS.findIndex(x=>x.id===bf),0,it)})})();
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-pc],[data-tgm]');if(!t)return;const T=cur(),F=finOf(T),y=window.scrollY;
+  if(t.dataset.tgm)S.tgMode=t.dataset.tgm;else{const k=t.dataset.pc,v=+t.dataset.pcv,X=pcData(T);if(k==='m2'&&v===X.C.m1)return;if(k==='m1'&&v===X.C.m2){F.c.m2=X.C.m1;delete F.v.m2}F.c[k]=v;delete F.v[k];delete F.done;finSave()}
+  render();window.scrollTo({top:y})});
 const finNow=()=>md(new Date());
 document.addEventListener('input',ev=>{const t=ev.target;if(!t.dataset||t.dataset.fin==null)return;const T=cur(),F=finOf(T),k=t.dataset.fin;F.v[k]=t.value;delete F.done;finSave();const same=t.value===t.dataset.p;
   const c=document.querySelector(`[data-finchip="${k}"]`);if(c)c.innerHTML=finChip(same);const bk=document.querySelector(`[data-finback="${k}"]`);if(bk)bk.style.display=same?'none':'inline';const st=document.querySelector('[data-finstat]');if(st)st.innerHTML=finStat(T,S.day)});
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-finback],[data-finrpt],[data-finok]');if(!t)return;ev.stopPropagation();const T=cur(),F=finOf(T),y=window.scrollY;
   if(t.dataset.finrpt!=null){openFinReport();return}
-  if(t.dataset.finok!=null){finAll(T,S.day).forEach(f=>{if(!f.tg)F.v[f.id]=finVal(F,f)});F.done=finNow()}else{delete F.v[t.dataset.finback];delete F.done}
+  if(t.dataset.finok!=null){finAll(T,S.day).forEach(f=>{if(!f.tg)F.v[f.id]=finVal(F,f)});F.done=finNow()}else{delete F.v[t.dataset.finback];delete F.c[t.dataset.finback];delete F.done}
   finSave();render();window.scrollTo({top:y})},true);
 function openFinReport(){const T=cur(),d=S.day,X=finFields(T,d),F=finOf(T);let el=$('#rpt');if(!el){el=document.createElement('div');el.id='rpt';document.body.appendChild(el)}
   el.innerHTML=`<div class="rp-bar"><b>宣伝コンセプトの決定稿</b><span>このまま印刷するか、印刷の画面で「PDFに保存」を選ぶと、社内の共有にそのまま使えます。</span><button class="btn pri" id="rpPrint">印刷・PDFにする</button><button class="btn" id="rpClose">閉じる</button></div>
@@ -2228,7 +2252,9 @@ function openFinReport(){const T=cur(),d=S.day,X=finFields(T,d),F=finOf(T);let e
 const SNS_N=['X','Instagram','YouTube','TikTok'];
 const snsOf=(D,idx)=>{const ss=D.segs.filter(s=>idx.includes(s.i)),w=sumA(ss.map(s=>s.sh))||1,f=s=>nrm([[.9,1.2,1.1,.9,.6,.4][s.a],[1.1,1.3,1.1,.8,.5,.3][s.a]*(s.g?.75:1.2),[1,.9,1,1.1,1.1,1][s.a]*(s.g?1.2:.9),[1.6,1.2,.7,.4,.25,.15][s.a]]);return SNS_N.map((_,k)=>sumA(ss.map(s=>s.sh*f(s)[k]))/w)};
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-tg],[data-tga]');if(!t)return;const T=cur(),D=tgData(T),sel=tgSel(T),y=window.scrollY;
-  if(t.dataset.tga)S.tg[T.k]=t.dataset.tga==='none'?[]:D.tags[t.dataset.tga].slice();
+  const F=finOf(T),seedT=t.dataset.tga?t.dataset.tga.startsWith('seed'):S.tgMode==='seed';delete F.done;
+  if(seedT){if(t.dataset.tga==='seedp')delete F.c.seed;else if(t.dataset.tga==='seednone')F.c.seed=[];else{const i=+t.dataset.tg,c=pcData(T).C.seed;F.c.seed=c.includes(i)?c.filter(x=>x!==i):c.concat(i).sort((p,q)=>p-q)}finSave();render();window.scrollTo({top:y});return}
+  finSave();if(t.dataset.tga)S.tg[T.k]=t.dataset.tga==='none'?[]:D.tags[t.dataset.tga].slice();
   else{const i=+t.dataset.tg;S.tg[T.k]=sel.includes(i)?sel.filter(x=>x!==i):sel.concat(i).sort((p,q)=>p-q)}
   render();window.scrollTo({top:y})});
 
@@ -2849,6 +2875,7 @@ $('#btnPlan').onclick=()=>{if(S.page==='plan'){setPage(S.prevPage||'home')}else{
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-psec],[data-planx],[data-plandays]');if(!t)return;ev.stopPropagation();
   if(t.dataset.planx!=null){setPage(S.prevPage&&S.prevPage!=='plan'?S.prevPage:'home');return}
   if(t.dataset.plandays){S.day=+t.dataset.plandays;render();return}
+  if(t.dataset.tgmset)S.tgMode=t.dataset.tgmset;
   const ps=t.dataset.psec;if(PLAN_SEC.some(x=>x[0]===ps)){S.psec=ps;render();window.scrollTo({top:0});return}
   S.psec=planSec(ps);render();const el=$('#it-'+ps);if(el){const y=el.getBoundingClientRect().top+scrollY-($('.top').offsetHeight+12);window.scrollTo(0,y)}},true);
 
