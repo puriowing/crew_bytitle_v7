@@ -1623,7 +1623,7 @@ I('acts','a_log','施策の日誌',12,[],(T,d)=>{const ks=JL_KEYS.filter(k=>mAva
     <div class="note pc-only" style="margin:0 0 10px">反応の大きさは、${mk.map(k=>M[k].n).join('・')}を「類似作のふだんの1日＝100」にそろえて平均した指数です。内訳の数字は、下の施策カードに出ます。</div></details><span class="jl-act"><button class="btn pri" data-evadd>＋ 施策を追加</button><button class="btn int-only" data-evsim>自動取得を試す</button><button class="btn int-only" data-evreset>入力を初期状態に戻す</button></span></div>
     ${evNotice(T)}
 ${journal(T,d)}`}},{any:[3,6]});
-I('acts','a_tl','横向きの年表',12,[],(T,d)=>{const L=tlLayers(d),rg={all:[D0,Math.min(D1,Math.max(d+7,0))],w8:[d-55,d+3],w4:[d-27,d+3]}[S.tlRange];
+I('acts','a_tl','施策と反応の推移',12,[],(T,d)=>{const L=tlLayers(d),rg={all:[D0,Math.min(D1,Math.max(d+7,0))],w8:[d-55,d+3],w4:[d-27,d+3]}[S.tlRange];
   return {d:'グラフの上にマウスを置くと、その日の数字が出ます',h:`<div class="ctl"><span class="seg">${[['all','全期間'],['w8','直近8週'],['w4','直近4週']].map(x=>`<button data-rg="${x[0]}" class="${S.tlRange===x[0]?'on':''}">${x[1]}</button>`).join('')}</span>
     ${L.av.filter(k=>!(M[k].post&&d<0)).map(k=>`<button class="lchip ${L.on.includes(k)?'on':''}" data-layer="${k}"><i style="background:${M[k].c}"></i>${M[k].n}</button>`).join('')}</div>
     ${timeline(T,Math.max(rg[0],D0),Math.min(rg[1],D1),L.on.filter(k=>!(M[k].post&&d<0)),'main')}`}},{any:[3,6],deep:true});
