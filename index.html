@@ -1308,8 +1308,8 @@ function chart(T,series,o){const a=o.a,b=o.b,n=b-a,fmt=fmtBy(o.u);
       g+=`<path d="${pathOf(s.vals,mn,mx)}" fill="none" stroke="${s.c}" stroke-width="${s.w||2}" ${s.dash?'stroke-dasharray="4 3"':''} stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`}}
   const lg=series.length>1||o.legend?`<div class="lg">${series.map(s=>`<span><i class="${s.band&&!s.vals&&!s.band.med?'band':''}" style="background:${s.c}"></i>${s.band&&s.band.med?'類似作の中央値'+refTx():s.n}</span>`).join('')}</div>`:'';
   return `<div class="ch" style="height:${o.h||150}px"><div class="ch-y"><span>${fmt(mx)}</span><span>${fmt((mx+mn)/2)}</span><span>${fmt(mn)}</span></div><div class="ch-plot"><svg viewBox="0 0 100 100" preserveAspectRatio="none">${g}</svg>${o.over||''}</div></div><div class="ch-x">${xTicks(T,a,b)}</div>${lg}`}
-function spark(vals,c){const v=vals.filter(x=>x!=null);if(v.length<2)return '';const mx=Math.max(...v),mn=Math.min(...v);
-  return `<svg class="spark" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="${pathOf(vals,mn-(mx-mn)*.1,mx+(mx-mn)*.1||1)}" fill="none" stroke="${c}" stroke-width="1.8" vector-effect="non-scaling-stroke"/></svg>`}
+function spark(vals,c,marks){const v=vals.filter(x=>x!=null);if(v.length<2)return '';const mx=Math.max(...v),mn=Math.min(...v);
+  return `<svg class="spark" viewBox="0 0 100 100" preserveAspectRatio="none">${(marks||[]).map(m=>`<line x1="${m.x.toFixed(1)}" x2="${m.x.toFixed(1)}" y1="0" y2="100" stroke="${m.c}" stroke-width="1" opacity=".45" vector-effect="non-scaling-stroke"/>`).join('')}<path d="${pathOf(vals,mn-(mx-mn)*.1,mx+(mx-mn)*.1||1)}" fill="none" stroke="${c}" stroke-width="1.8" vector-effect="non-scaling-stroke"/></svg>`}
 function bars(rows,o={}){const mx=o.max||Math.max(...rows.map(r=>Math.max(r.v,r.cmp||0)),1e-9);const fmt=o.fmt||fN;
   return `<div class="bars">${rows.map(r=>`<div class="br"><span class="br-l" title="${r.l}">${r.l}</span><span class="br-t"><i style="width:${clamp(r.v/mx*100,0,100)}%;background:${r.c||o.c||'var(--accent)'}"></i>${r.cmp!=null?`<b style="left:${clamp(r.cmp/mx*100,0,100)}%"></b>`:''}</span><span class="br-v">${fmt(r.v)}${o.u||''}</span></div>`).join('')}</div>${o.cmp?`<div class="note">黒い線＝${o.cmp}</div>`:''}`}
 function stack(parts){const t=sumA(parts.map(p=>p.v))||1;return `<div class="stack">${parts.map(p=>`<span style="width:${p.v/t*100}%;background:${p.c}" title="${p.l} ${f1(p.v/t*100)}%">${p.v/t>.09?p.l+' '+Math.round(p.v/t*100)+'%':''}</span>`).join('')}</div>`}
@@ -1325,7 +1325,7 @@ function ncard(T,k,d){const m=M[k],v=at(T,k,d),fmt=fmtBy(m.u);let delta='';
   const pos=RATE.has(k)&&(k==='score'||k==='sat'||k==='nps')?null:posOf(T,k,d);
   return `<button class="ncard" data-go="${m.pg}" data-hit="${k}"><div class="k">${m.n}${m.sub?`<span style="color:var(--sub-weak);font-weight:400">｜${m.sub}</span>`:''}</div>
     <div class="v num">${fmt(v)}<small>${m.u}</small></div><div class="m">${delta}</div>
-    ${spark(slice(T,k,d-27,d,d),m.c)}<div class="m">${pos!=null?`類似作の同じ時期で ${TIERS[tierOf(pos)]}`:'直近4週'}</div></button>`}
+    ${spark(slice(T,k,d-27,d,d),m.c,T.ev.filter(e=>e.d>=d-27&&e.d<=d).map(e=>({x:(e.d-d+27)/27*100,c:CH[e.ch].c})))}<div class="m">${pos!=null?`類似作の同じ時期で ${TIERS[tierOf(pos)]}`:'直近4週'}</div></button>`}
 
 /* ================= 年表 ================= */
 const LAYER_KEYS=['buzz','sent','oeng','aimp','search','clip','mark','aware','intent','sat'];
@@ -1417,7 +1417,7 @@ I('home','h_todo','今日の注意点とやること',5,[],(T,d)=>{const li=[];
   const w=scoreParts(T,d).sort((a,b)=>a.v-b.v)[0];if(w&&w.v<35)li.push(['warn',`${w.n}が類似作の同じ時期より弱い`,`位置は${w.v}（50が真ん中）。`]);
   if(has(4)&&d>=7){const dv=at(T,'score',d)-at(T,'score',d-7);if(dv<-0.05)li.push(['bad','スコアが下がり始めています',`前週より${f2(-dv)}点低下。`])}
   return {d:'数字の動きから自動で拾っています',h:`<ul class="todo">${li.slice(0,4).map(l=>`<li class="${l[0]}"><b>${l[1]}</b>${l[2]}</li>`).join('')}</ul>`}},{any:[3,6]});
-I('home','h_nums','毎日の数字',12,[],(T,d)=>({d:'押すとくわしいページへ',h:`<div class="nums">${Object.keys(M).filter(k=>k!=='oimp'&&mAvail(k,d)).map(k=>ncard(T,k,d)).join('')}</div>`}),{any:[3,6]});
+I('home','h_nums','毎日の数字',12,[],(T,d)=>({d:'押すとくわしいページへ｜折れ線は直近4週、縦の線は施策を行った日',h:`<div class="nums">${Object.keys(M).filter(k=>k!=='oimp'&&mAvail(k,d)).map(k=>ncard(T,k,d)).join('')}</div>`}),{any:[3,6]});
 const POST_TXT=['本予告を公開しました','キャストからのメッセージ動画','場面写真を解禁','公開までのカウントダウン','メイキング映像を少しだけ','主題歌入りの特別映像','感想投稿キャンペーンのお知らせ','舞台挨拶のレポート'];
 function posts(T,d,n){const r=R(T,d+500),a=[];for(let i=0;i<8;i++){const dd=d-Math.floor(r()*7),imp=at(T,'oimp',dd)*(0.15+r()*0.5);
   a.push({d:dd,t:POST_TXT[(i+T.seed+d+200)%POST_TXT.length],pf:['X','Instagram','TikTok','YouTube'][Math.floor(r()*4)],imp,eng:imp*(0.02+r()*0.05)})}
@@ -1432,7 +1432,7 @@ I('home','h_voice','生の声',6,[3],(T,d)=>{const v=(d<0?V_PRE:V_POST).map(x=>[
 I('home','h_alert','評価の急変アラート',12,[4],(T,d)=>{const s=at(T,'score',d),b=at(T,'score',Math.max(0,d-7)),low=4+(1-T.q)*9,neg=at(T,'neg',d);const bad=s-b<-0.05;
   return {d:'観た人の評価が悪い方向に動いていないか',h:`<div class="kpis">${kpi('スコアの平均',f2(s),'点',d>=7?`前週より ${s-b>=0?'+':''}${f2(s-b)}`:'公開1週目')}${kpi('低い点（2.4以下）の割合',f1(low),'%','類似作の中央値 4.1%')}${kpi('不満の言葉を含むレビュー',f1(neg*0.7),'%','類似作の中央値 8.5%')}
   <div class="kpi" style="display:grid;place-items:center"><span class="tone ${bad?'bad':'good'}">${bad?'下がり始めています':'急な悪化はありません'}</span></div></div>`}},{when:'post'});
-I('home','h_tl','直近2週間の施策と反応',12,[],(T,d)=>({d:'施策を行った日と、その前後の数字の動き',h:timeline(T,d-13,d+3,tlLayers(d).on.filter(k=>!(M[k].post&&d<0)),'home')}),{any:[3,6]});
+I('home','h_tl','直近2週間の施策と反応',12,[],(T,d)=>({d:'施策を行った日と、その前後の数字の動き',h:timeline(T,d-13,d+3,tlLayers(d).on.filter(k=>!(M[k].post&&d<0)),'home')}),{any:[3,6],deep:true});
 function funnel(T,d){const a=at(T,'aware',d),i=at(T,'intent',d),r=R(T,9);const cert=28+T.q*18+r()*4,th=58+T.q*20+r()*4;
   return [['知っている',a,a,52],['観たい',i,i/a*100,38],['必ず観る',i*cert/100,cert,36],['劇場で観る',i*cert/100*th/100,th,70]]}
 I('home','h_funnel','知ってから観るまで、どこで人が減っているか',12,[1],(T,d)=>{const f=funnel(T,d);let wi=1,wd=1e9;f.forEach((x,i)=>{if(i&&x[2]-x[3]<wd){wd=x[2]-x[3];wi=i}});
