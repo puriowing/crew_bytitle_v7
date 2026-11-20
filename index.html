@@ -2073,7 +2073,7 @@ I('plan','u_sim','類似作を観た人たち',12,[2],(T,d)=>{const D=tgData(T),
    <div><div class="sub-h">誰と観たか</div>${bars(WITH.map((l,i)=>({l,v:W.wth[i]})),{fmt:f1,u:'%',c:'#a06a86'})}</div>
    <div><div class="sub-h">ふだん映画館に行く頻度</div>${stack(GOF.map((l,i)=>({l,v:W.go[i],c:GOC[i]})))}
    <div class="kpis" style="margin-top:14px">${kpi('満足度',f1(W.sat),'%')}${kpi('すすめたい度',pt(W.nps),'')}${kpi('2回以上観た人',f1(W.rep),'%')}</div></div></div>
-   ${simNote('この作品の観客はまだいないので、類似作を実際に観た人の姿を出しています。下のヒートマップで、性別×年代の層ごとに分けて見られます。')}`}},{when:'pre'});
+   ${simNote('この作品の観客はまだいないので、類似作を実際に観た人の姿を出しています。このページの最後の地図で、性別×年代の層ごとに分けて見て、狙う層を選べます。')}`}},{when:'pre'});
 I('plan','p_map','性別×年代で分けて、狙う層を選ぶ',12,[2],(T,d)=>{const D=tgData(T),sel=tgSel(T),mx=Math.max(...D.segs.map(s=>s.sh)),A=tgAgg(D,sel),X=pcData(T),sd=X.C.seed,sm=S.tgMode==='seed',cw=sm?X.P.seed:D.tags.many;
   const tile=s=>{const few=s.cnt<TG_MIN,tg=[D.tags.many.includes(s.i)?'<i>多い</i>':'',D.tags.sat.includes(s.i)?'<i>満足が高い</i>':'',D.tags.nps.includes(s.i)?'<i>すすめてくれる</i>':'',few?'<i class="few">参考</i>':'',cw.includes(s.i)?'<i class="crew">CREWの案</i>':''].join('');
     return `<button class="tg ${sel.includes(s.i)?'on':''} ${sd.includes(s.i)?'sd':''}" data-tg="${s.i}" aria-pressed="${(sm?sd:sel).includes(s.i)}" style="background:rgba(78,135,128,${(.07+s.sh/mx*.5).toFixed(2)})" title="${s.n}｜回答 ${fN(s.cnt)}件"><span class="a">${AGES[s.a]}</span><span class="v num">${f1(s.sh)}<small>%</small></span><span class="m">満足 ${Math.round(s.sat)}%・すすめたい ${pt(s.nps)}</span><span class="tags">${tg}</span></button>`};
@@ -2118,7 +2118,7 @@ const tgNames=(D,sel)=>D.segs.filter(s=>sel.includes(s.i)).map(s=>s.n).join('・
 I('plan','a_simtime','類似作の観客は、いつ観ると決めたか',12,[2],(T,d)=>{const D=tgData(T),sel=tgSel(T),all=D.segs.map(s=>s.i),on=sel.length>0,A=tgAgg(D,on?sel:all),W=tgAgg(D,all),now=decNow(d),done=sumA(A.dec.slice(0,now)),doneW=sumA(W.dec.slice(0,now));
   return {d:on?`選んだ層（${tgNames(D,sel)}）。公開初週に観た人の回答`:`${SIMN()}。公開初週に観た人の回答`,h:`<div class="kpis" style="margin-bottom:14px">${kpi('いまの時期にあたるのは',DEC[now],'','に決めた人たち')}${kpi('ここまでに決めた人',f1(done),'%',on?`観客全体は ${f1(doneW)}%`:'類似作を初週に観た人のうち')}${kpi('これから決める人',f1(100-done),'%',on?`観客全体は ${f1(100-doneW)}%`:'まだ取りに行ける人')}</div>
    ${bars(DEC.map((l,i)=>({l:`${l}に決めた${i===now?'（いま）':''}`,v:A.dec[i],cmp:on?W.dec[i]:null,c:i===now?'#4e8780':i<now?'#b9bec4':'#8fb9b3'})),{fmt:f1,u:'%',cmp:on?'類似作の観客全体':null})}
-   ${simNote('アンケートでは「観に行くことを決めたのは、いつ頃ですか」と、観た日から数えて聞いています。公開初週に観た人に絞ると、おおよそ公開日から数えた時期（'+DEC_WHEN.join('／')+'）に読み替えられます。上の「誰に向けるか」で層を選び直すと、ここも変わります。')}`}},{when:'pre'});
+   ${simNote('アンケートでは「観に行くことを決めたのは、いつ頃ですか」と、観た日から数えて聞いています。公開初週に観た人に絞ると、おおよそ公開日から数えた時期（'+DEC_WHEN.join('／')+'）に読み替えられます。「1 誰に」のページで層を選び直すと、ここも変わります。')}`}},{when:'pre'});
 I('plan','p_segtime','客層ごとの、決める時期',12,[2],(T,d)=>{const D=tgData(T),sel=tgSel(T),now=decNow(d),left=s=>now?sumA(s.dec.slice(now)):s.dec[0];
   return {d:'ヒートマップ。色が濃いほど、その時期に決めた人が多い',h:`<div class="two"><div>${heat(D.segs.map(s=>(sel.includes(s.i)?'✓ ':'')+s.n),DEC,(i,j)=>D.segs[i].dec[j])}<div class="note">✓＝いま選んでいる層。左の列ほど早く、右の列ほど公開の直前です。</div></div>
    <div><div class="sub-h">${now?`これから決める人の割合（いま＝${relLbl(d)}）`:'公開の1か月より前に決める人の割合'}</div>${bars(D.segs.slice().sort((p,q)=>left(q)-left(p)).map(s=>({l:(sel.includes(s.i)?'✓ ':'')+s.n,v:left(s),c:sel.includes(s.i)?'#4e8780':'#b9bec4'})),{fmt:f1,u:'%',max:100})}<div class="note">${now?'割合が高い層ほど、いまから届けても間に合う人が多く残っています。':'割合が高い層ほど、早い時期の告知で決める人が多い層です。'}緑の棒＝いま選んでいる層。</div></div></div>${simNote('類似作を公開初週に観た人の回答です。')}`}},{when:'pre'});
@@ -2149,7 +2149,7 @@ I('plan','i_simroute','類似作の観客は、どこで知り、なぜ観ると
   return {d:on?`選んだ層（${tgNames(D,sel)}）`:SIMN(),h:`<div class="three"><div><div class="sub-h">この作品を知ったきっかけ<small style="font-weight:400;color:var(--sub)">（あてはまるものすべて）</small></div>${rows(ROUTES2.map(x=>x.n),A.know,W.know,'#1b3a5b')}</div>
    <div><div class="sub-h">観ようと決めた、いちばんの理由</div>${rows(WHY,A.why,W.why,'#2f6b52')}</div>
    <div><div class="sub-h">いちばんのきっかけ別の、すすめたい度</div><table>${['作品の公式サイト・公式SNS','テレビ（CM・番組）','映画館の予告編・ポスター','家族・友人・知人から聞いた'].map(l=>`<tr><td>${l}</td><td class="r">${f1(22+(r()-.5)*30)}pt</td></tr>`).join('')}</table><div class="note">高いきっかけから来た人ほど、観たあとに人にすすめてくれます。こちらは観客全体の数字です。</div></div></div>
-   ${on?'<div class="note">黒い線＝類似作の観客全体。上の「誰に向けるか」で層を選び直すと、ここも変わります。</div>':''}${simNote(routeNote)}`}},{when:'pre'});
+   ${on?'<div class="note">黒い線＝類似作の観客全体。「1 誰に」のページで層を選び直すと、ここも変わります。</div>':''}${simNote(routeNote)}`}},{when:'pre'});
 I('plan','p_segroute','客層ごとの、きっかけと理由',12,[2],(T,d)=>{const D=tgData(T),sel=tgSel(T),nm=D.segs.map(s=>(sel.includes(s.i)?'✓ ':'')+s.n);
   return {d:'ヒートマップ。色が濃いほど、その層で多い',h:`<div class="two"><div><div class="sub-h">知ったきっかけ<small style="font-weight:400;color:var(--sub)">（あてはまるものすべて）</small></div>${heat(nm,RT_S,(i,j)=>D.segs[i].know[j])}</div>
    <div><div class="sub-h">観ようと決めた、いちばんの理由</div>${heat(nm,WHY_S,(i,j)=>D.segs[i].why[j])}</div></div>
@@ -2248,7 +2248,8 @@ I('plan','p_ch3','訴求の軸と、メディアごとの役割',12,[2],(T,d)=>{
     <div class="pc-k"><b>メディアごとの役割と、訴求の軸</b><small>割合＝そこで知った人（あてはまるものすべて）｜軸の数字＝そのメディアで知った人の、決め手の割合｜下線＝CREWの案｜中心は2つまで</small>
      <div class="tw"><table class="pm-t"><tr><th>メディア</th><th>知った人</th><th>役割</th><th>訴求の軸</th></tr>${ko.map(row).join('')}</table></div>
      <div class="note" style="margin:0">「家族・友人・知人から聞いた」（${f1(A.know[ROUTES2.findIndex(r=>r.wom)])}%）は、宣伝側が選べるメディアではないため、ここには入れていません。口コミは「1 誰に」の口コミの起点にする層と、公開後の進め方で扱います。</div></div></div>${pcFoot}`}},{when:'pre'});
-(function(){[['p_ch2','p_sec3'],['p_ch3','p_sec4']].forEach(([id,bf])=>{const it=ITEMS.splice(ITEMS.findIndex(x=>x.id===id),1)[0];ITEMS.splice(ITEMS.findIndex(x=>x.id===bf),0,it)})})();
+/* 選ぶ枠は、参考データをすべて見せたあと、ページの最後に置く（①は地図→選んだ層の内訳の順） */
+(function(){[['p_map','p_sec2'],['p_pick','p_sec2'],['p_ch2','p_sec3'],['p_ch3','p_sec4']].forEach(([id,bf])=>{const it=ITEMS.splice(ITEMS.findIndex(x=>x.id===id),1)[0];ITEMS.splice(ITEMS.findIndex(x=>x.id===bf),0,it)})})();
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-pc],[data-tgm]');if(!t)return;const T=cur(),F=finOf(T),y=window.scrollY;
   if(t.dataset.tgm)S.tgMode=t.dataset.tgm;else{const k=t.dataset.pc,v=+t.dataset.pcv;F.c[k]=v;delete F.v[k];delete F.done;finSave()}
   render();window.scrollTo({top:y})});
