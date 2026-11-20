@@ -2142,16 +2142,16 @@ function calData(){if(_cal.d)return _cal.d;const rows=CAL_TY.map(ty=>{const i=EV
   CAL_W.forEach(w=>buzz[w]=med(PEERS.map(p=>sumR(p,'buzz',w*7,w*7+6))));return _cal.d={rows,buzz}}
 I('plan','p_cal','類似作は、公開までのどの週に何をしていたか',12,[2,3],(T,d)=>{const C=calData(),D=tgData(T),sel=tgSel(T),on=sel.length>0,A=tgAgg(D,on?sel:D.segs.map(s=>s.i)),cw=Math.floor(d/7),cc=w=>w===cw?'cur':'';
   const dm=Math.max(A.dec[0],A.dec[1],A.dec[2],A.dec[3]+A.dec[4]),bm=Math.max(...CAL_W.map(w=>C.buzz[w])),half=PEERS.length/2,pts=[];
-  C.rows.forEach(r=>{const e=T.ev.find(x=>x.ty===r.ty);if(!e){if(r.n>=half)pts.push(`「${r.ty}」は類似作${r.n}本が実施（いちばん多いのは${wkP(r.mode)}）。この作品には入っていません${r.mode<cw?'（すでに過ぎた時期）':''}`);return}
-    const tw=Math.floor(e.d/7);if(Math.abs(tw-r.mode)>=2)pts.push(`「${r.ty}」は、この作品が${wkP(tw)}、類似作は${wkP(r.mode)}がいちばん多い（${r.wk[r.mode]}本）`)});
+  const maj=C.rows.filter(r=>r.n>=half),ear=maj.slice().sort((p,q)=>p.mode-q.mode)[0],byW={};maj.forEach(r=>byW[r.mode]=(byW[r.mode]||0)+1);const tw=Object.keys(byW).map(Number).sort((p,q)=>byW[q]-byW[p]||p-q)[0];
+  if(maj.length){pts.push(`類似作の半分以上が実施した施策は ${maj.length}種類。いちばん早いのは「${ear.ty}」（${wkP(ear.mode)}がいちばん多い）です。`);pts.push(`施策がいちばん集まるのは${wkP(tw)}（${byW[tw]}種類）です。`)}
   const span=(n,v)=>`<td colspan="${n}" style="background:rgba(176,128,64,${v==null?0:(.1+v/dm*.5).toFixed(2)})">${v==null?'—':f1(v)+'%'}</td>`;
-  return {d:`${SIMN()}。左が古く、右が新しい`,h:`<ul class="tg-pts">${pts.length?pts.slice(0,5).map(x=>`<li>${x}</li>`).join(''):'<li>類似作と比べて、時期が2週間以上ずれている施策や、入っていない施策はありません。</li>'}</ul>
+  return {d:`${SIMN()}。左が古く、右が新しい`,h:`<ul class="tg-pts">${pts.length?pts.map(x=>`<li>${x}</li>`).join(''):'<li>類似作の半分以上が実施した施策はありません。</li>'}</ul>
    <div class="tw"><table class="cal"><tr><th></th>${CAL_W.map(w=>`<th class="${cc(w)}">${wkL(w)}${w===cw?'<small>いま</small>':''}</th>`).join('')}</tr>
    <tr><td><b>観ると決めた人</b><small>${on?'選んだ層':'類似作の観客全体'}・この時期に決めた割合</small></td>${span(8,A.dec[0])}${span(2,A.dec[1])}${span(2,A.dec[2])}${span(1,A.dec[3]+A.dec[4])}${span(3,null)}</tr>
    <tr><td><b>類似作の話題の量</b><small>1週間の投稿数・中央値</small></td>${CAL_W.map(w=>`<td class="num ${cc(w)}" style="background:rgba(91,111,156,${(.06+C.buzz[w]/bm*.5).toFixed(2)})">${fN(C.buzz[w])}</td>`).join('')}</tr>
-   <tr class="sep"><td colspan="${CAL_W.length+1}">類似作が施策を行った週（数字＝${PEERS.length}本のうち何本か）　●＝この作品で実施ずみ　○＝この作品の予定</td></tr>
-   ${C.rows.map(r=>{const ev=T.ev.filter(x=>x.ty===r.ty);return `<tr><td><b>${r.ty}</b><small>類似作 ${r.n}本が実施</small></td>${CAL_W.map(w=>{const n=r.wk[w]||0,m=ev.filter(x=>Math.floor(x.d/7)===w).map(x=>`<span class="mk" data-ev="${x.id}" title="${x.label}">${x.d<=d?'●':'○'}</span>`).join('');return `<td class="num ${cc(w)}" style="background:rgba(78,135,128,${n?(.1+n/PEERS.length*.6).toFixed(2):0})">${n||''}${m}</td>`}).join('')}</tr>`}).join('')}</table></div>
-   <div class="note">施策は、公開されている情報から拾えたものです。広告は、出稿量で結果が変わるため並べていません。決めた時期は、アンケートの選択肢をおおよその週に置き換えています。●○を押すと、その施策の中身が開きます。</div>`}},{when:'pre'});
+   <tr class="sep"><td colspan="${CAL_W.length+1}">類似作が施策を行った週（数字＝${PEERS.length}本のうち何本か。色が濃いほど多い）</td></tr>
+   ${C.rows.map(r=>`<tr><td><b>${r.ty}</b><small>類似作 ${r.n}本が実施</small></td>${CAL_W.map(w=>{const n=r.wk[w]||0;return `<td class="num ${cc(w)}" style="background:rgba(78,135,128,${n?(.1+n/PEERS.length*.6).toFixed(2):0})">${n||''}</td>`}).join('')}</tr>`).join('')}</table></div>
+   <div class="note">施策は、公開されている情報から拾えたものです。広告は、出稿量で結果が変わるため並べていません。決めた時期は、アンケートの選択肢をおおよその週に置き換えています。この作品の施策をどの週に置くかは、すぐ下の「仮のスケジュールを組む」で決めます。</div>`}},{when:'pre'});
 I('plan','p_sec3','3　どこで、何を伝えるか',12,[2],()=>({d:'類似作の観客が知ったきっかけと、観ると決めた理由から考える',h:''}),{when:'pre'});
 const RT_S=['公式','テレビ','記事','SNS','映画館','街の広告','口コミ'],WHY_S=['内容','出演者','話題','予告','原作','すすめ','音楽','特別上映'];
 const routeNote='きっかけは、観に来た人が覚えていたものです。来なかった人に届いていたかは、ここからはわかりません。「X・Instagram・YouTube・TikTok」は、公式の投稿・広告・ほかの人の投稿を区別していません。';
@@ -2196,9 +2196,9 @@ const PLI={
  p_segtime:(T,d)=>{const {D}=plCtx(T,d),now=decNow(d),left=s=>now?sumA(s.dec.slice(now)):s.dec[0],o=D.segs.slice().sort((p,q)=>left(q)-left(p)),hi=o[0],lo=o[o.length-1];
   return now?{a:[`これから決める人がいちばん多く残っているのは「${hi.n}」（${f1(left(hi))}%）、いちばん少ないのは「${lo.n}」（${f1(left(lo))}%）です。`],b:[`いまから告知を足すなら、「${o.slice(0,2).map(s=>s.n).join('・')}」に向けたものが間に合いやすい時期です。`,left(lo)>=60?`「${lo.n}」は、ほかの層より早く決める人が多い層です。この層に届けるなら、急ぐ必要があります。`:`「${lo.n}」は、すでに決めた人が多い層です。新しい告知より、上映館や日時の情報が役立つ段階です。`]}
    :{a:[`公開の1か月より前に決める人が多いのは「${hi.n}」（${f1(left(hi))}%）、少ないのは「${lo.n}」（${f1(left(lo))}%）です。`],b:[`「${hi.n}」には、早い時期の告知や前売りが合います。「${lo.n}」は直前に決める人が多いので、公開が近づいてからの告知が合います。`]}},
- p_cal:(T,d,o)=>{const C=calData(),cw=Math.floor(d/7),best=C.rows.slice().sort((p,q)=>(q.wk[cw]||0)-(p.wk[cw]||0))[0],ramp=CAL_W.find(w=>w<0&&C.buzz[w]>=C.buzz[0]*.3),nx=T.ev.filter(e=>!isAd(e)&&e.d>d&&e.d<=d+14),a=plLis(o.h);
+ p_cal:(T,d,o)=>{const C=calData(),cw=Math.floor(d/7),best=C.rows.slice().sort((p,q)=>(q.wk[cw]||0)-(p.wk[cw]||0))[0],ramp=CAL_W.find(w=>w<0&&C.buzz[w]>=C.buzz[0]*.3),a=plLis(o.h);
   if(best&&best.wk[cw])a.push(`いまの週（${wkP(cw)}）に、類似作でいちばん多く行われていたのは「${best.ty}」（${best.wk[cw]}本）です。`);
-  return {a,b:[ramp!=null?`類似作の話題は、${wkP(ramp)}ごろから大きく増えています。それまでに、予告と主な情報を出しそろえておくことが候補です。`:null,nx.length?`この先2週間に、この作品では${nx.length}件の施策が予定されています。類似作の多い週と重なっているかを、下の表で確かめられます。`:'この先2週間、この作品には広告以外の施策の予定がありません。類似作がこの時期に行っていた施策が、追加の候補になります。'].filter(Boolean)}},
+  return {a,b:[ramp!=null?`類似作の話題は、${wkP(ramp)}ごろから大きく増えています。それまでに、予告と主な情報を出しそろえておくことが候補です。`:null,'類似作で本数の多い週が、その施策を置く週の目安になります。'].filter(Boolean)}},
  i_simroute:(T,d)=>{const {A,W,on,who}=plCtx(T,d),ki=iMax(A.know),wi=iMax(A.why),kd=A.know.map((v,i)=>v-W.know[i]),kx=iMax(kd);
   return {a:[`${who}でいちばん多いきっかけは「${ROUTES2[ki].n}」（${f1(A.know[ki])}%）、いちばん多い理由は「${WHY[wi]}」（${f1(A.why[wi])}%）です。`,on?`観客全体と比べて多いきっかけは「${ROUTES2[kx].n}」（${pt(kd[kx])}）。`:null].filter(Boolean),b:[WHY_HINT[wi],RT_HINT[ROUTES2[ki].k]+(ROUTES2[ki].k==='F2'?(()=>{const c=plCtx(T,d),ix=c.on?c.sel:c.D.segs.map(s=>s.i),sn=snsOf(c.D,ix),m=iMax(sn);return ` SNSの中でいちばん多いのは${SNS_N[m]}（${f1(sn[m])}%）です。`})():'')]}},
  p_segroute:(T,d)=>{const {D}=plCtx(T,d),rg=ROUTES2.map((_,k)=>{const v=D.segs.map(s=>s.know[k]);return Math.max(...v)-Math.min(...v)}),k=iMax(rg),v=D.segs.map(s=>s.know[k]),mx=D.segs[iMax(v)],mn=D.segs[v.indexOf(Math.min(...v))],mk=iMax(mn.know);
