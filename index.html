@@ -1055,7 +1055,6 @@ tr.tg-few td{color:var(--sub)}
 .pl-basis summary{list-style:none;cursor:pointer;display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;font-size:12.5px;color:var(--ink2);min-height:32px}.pl-basis summary::-webkit-details-marker{display:none}
 .pl-basis summary>b{font-family:'Zen Maru Gothic',sans-serif;font-size:13px;color:var(--ink)}.pl-basis summary span b{font-size:15px;color:var(--accent2)}.pl-basis summary i{font-style:normal;color:var(--accent2);font-weight:700;font-size:12px}.pl-basis summary i::after{content:' ＋'}.pl-basis details[open] summary i::after{content:' －'}
 .pl-basis .pe-ts{margin:10px 0 6px}.pl-basis .btn{flex:none}
-.tab.concl .tl::before{content:'結論';display:block;font-size:10px;font-weight:700;opacity:.7;letter-spacing:.08em}
 .pl-step{display:flex;justify-content:space-between;gap:10px;margin:18px 0 6px}
 .fin-stat{display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap}.fin-stat small{color:var(--sub)}.fc-s{margin:0 0 16px}.fc-s .fin-h{margin-bottom:8px}
 .fc-r{display:grid;grid-template-columns:150px minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:stretch;padding:8px 0;border-top:1px solid var(--rule)}.fc-n{font-weight:700;font-size:13px;padding-top:8px}
@@ -2204,7 +2203,7 @@ const finOf=T=>{const F=FINAL[T.k]||(FINAL[T.k]={});F.v=F.v||{};return F},finVal
 const finChip=same=>same?'<span class="chip neu">CREWの案のまま</span>':'<span class="tone warn">調整済み</span>';
 const finAll=(T,d)=>{const X=finFields(T,d);return FIN_SEC.flatMap(x=>X[x[0]])};
 const finStat=(T,d)=>{const F=finOf(T),L=finAll(T,d),n=L.filter(f=>!finSame(F,f)).length;return `${F.done?`<span class="tone good">確定済み</span><small>${F.done} 確定</small>`:'<span class="tone warn">未確定</span>'}<span>${L.length}項目のうち <b class="num">${n}</b>項目を調整</span>`};
-I('plan','p_sec4','結論　宣伝コンセプトを決める',12,[2],()=>({d:'1〜3で見たデータをふまえた結論として、項目ごとにCREWの案を調整し、決定稿にする',h:''}),{when:'pre'});
+I('plan','p_sec4','宣伝コンセプトを決める',12,[2],()=>({d:'1〜3で見たデータをふまえて、項目ごとにCREWの案を調整し、決定稿にする',h:''}),{when:'pre'});
 I('plan','p_final','宣伝コンセプト：CREWの案と、決定稿',12,[2],(T,d)=>{const X=finFields(T,d),F=finOf(T);
   const row=f=>{const same=finSame(F,f);return `<div class="fc-r"><div class="fc-n">${f.n}</div>
      <div class="fc-p"><small>CREWの案</small><b>${f.p}</b><span><i>根拠</i>${f.why}</span></div>
@@ -2838,7 +2837,7 @@ const curSec=()=>PLAN_SEC.some(x=>x[0]===S.psec)?S.psec:PLAN_SEC[0][0],planSec=i
 function planBasis(T,d){const D=tgData(T),own=PEERS.filter(p=>p.own).length;
   return `<div class="pl-basis"><details ${S.pbOpen?'open':''}><summary><b>もとにしている類似作</b><span>類似作 <b class="num">${PEERS.length}</b>本${refTx()}${peerChanged()?'（選び直し済み）':''}（うち自社の過去作 ${own}本）</span><span>鑑賞後アンケートの回答 <b class="num">${fN(D.N)}</b>件</span><span>${T.genre}・${T.kind}・公開規模200〜400スクリーン・直近3年</span><i>作品名を見る</i></summary>
     <div class="pe-ts">${PEERS.map(p=>`<span class="pe-t${p.own?' own':''}">${p.ttl}<i>${p.yr}年${p.own?'・自社':''}${p.add?'・追加':''}</i></span>`).join('')}</div><div class="note">宣伝設計の4ページの数字は、すべてこの類似作を実際に観た人の回答から出しています。他社の作品の数字は、個別には出しません。回答が${TG_MIN}件に満たない層は「参考」と表示します。</div></details><button class="btn" data-peers>作品を選び直す</button></div>`}
-function planStep(){const i=PLAN_SEC.findIndex(x=>x[0]===curSec()),a=PLAN_SEC[i-1],b=PLAN_SEC[i+1];return `<div class="pl-step">${a?`<button class="btn" data-psec="${a[0]}">← ${a[2]} ${a[1]}</button>`:'<span></span>'}${b?`<button class="btn pri" data-psec="${b[0]}">${b[0]==='p_sec4'?'結論へ：宣伝コンセプトを決める':`次へ：${b[2]} ${b[1]}`} →</button>`:''}</div>`}
+function planStep(){const i=PLAN_SEC.findIndex(x=>x[0]===curSec()),a=PLAN_SEC[i-1],b=PLAN_SEC[i+1];return `<div class="pl-step">${a?`<button class="btn" data-psec="${a[0]}">← ${a[2]} ${a[1]}</button>`:'<span></span>'}${b?`<button class="btn pri" data-psec="${b[0]}">${b[0]==='p_sec4'?'宣伝コンセプトを決める':`次へ：${b[2]} ${b[1]}`} →</button>`:''}</div>`}
 function planNav(T,d){const ok=ITEMS.some(it=>it.page==='plan'&&avail(it,d));
   return ok?PLAN_SEC.map(([id,n,no])=>`<button class="tab ${curSec()===id?'on':''} ${id==='p_sec4'?'gsep concl':''}" data-psec="${id}"><span class="ti"><b class="num">${no}</b></span><span class="tl">${n}</span><span class="ts">${n}</span></button>`).join(''):''}
 function planEmpty(T,d){const pre=true,ph=S.phase>=3,pd=Math.min(T.today,-1)<0?Math.min(T.today,-1):-30;
