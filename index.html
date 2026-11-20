@@ -1212,7 +1212,7 @@ document.addEventListener('change',ev=>{if(ev.target.id!=='ownSel')return;const 
 const SIMILAR=['春を待つ手紙','あの日の約束','君と見た海','夜明けのランナー','ひだまりの食卓','最後の放課後','風の通り道','まちかどの奇跡','青のフォトグラフ','はじまりの歌','小さな灯台','雨上がりの二人','白い自転車','約束の丘'];
 /* 類似作：はじめの14本（PEER_DEF）から外す・候補（PEER_ADD）から足す。PEERS の中身を作品ごとの選び方に合わせて入れ替える */
 PEERS.forEach((p,i)=>{p.ttl=i<12?SIMILAR[i]:PAST[i-12].name;p.own=i>=12;p.yr=2023+(i*2)%3});
-const PEER_DEF=[...PEERS],PEER_MIN=3,PEER_BAND_MIN=8,PEER_REF_MIN=5,FX_MIN=3;
+const PEER_DEF=[...PEERS],PEER_MIN=5,PEER_BAND_MIN=8,PEER_REF_MIN=5,FX_MIN=3;
 const peerFew=()=>PEERS.length<PEER_REF_MIN?2:PEERS.length<PEER_BAND_MIN?1:0,refTx=()=>peerFew()===2?'（参考値）':'';
 function fewNote(){const f=peerFew();if(!f)return '';return `<div class="few-note"><b>類似作が${PEERS.length}本です</b><span>${f===2?`${PEER_REF_MIN}本未満のため、類似作との比較はすべて参考値です（1本の入れ替えで大きく変わります）。`:''}${PEER_BAND_MIN}本未満のため、グラフの「類似作の幅」は出さず、中央値の線だけにしています。</span><button class="fx-re" data-peers>作品を選び直す</button></div>`}
 const PEER_ADD=[['白い自転車','公開が4年前',2022],['約束の丘','公開規模が条件より大きい',2024],['海辺の郵便局','ジャンルが少し違う',2025],['十七歳の地図帳','公開規模が条件より小さい',2024],['月曜日のパレード','ジャンルが少し違う',2023],['坂の上の写真館','公開が4年前',2022]].map((x,i)=>{const q=build({k:'x'+i,name:'',today:37,seed:300+i*17,power:.6+i*.13,q:.25+i*.11});q.full=true;q.ttl=x[0];q.why=x[1];q.yr=x[2];q.add=true;return q});
@@ -2846,7 +2846,7 @@ function openPeers(){const T=cur(),lo=Math.round(T.screens*0.7/10)*10,hi=Math.ro
     <div class="sub-h">選んだ条件</div><table class="ex-t"><tr><td>作品の種類</td><td>${T.kind}</td></tr><tr><td>ジャンル</td><td>${T.genre}</td></tr><tr><td>公開規模</td><td>${lo}〜${hi}スクリーン（この作品の±30%）</td></tr><tr><td>公開時期</td><td>直近3年</td></tr></table>
     <div class="sub-h">比べている作品（${PEERS.length}本）</div><div class="pe-ts">${PEERS.map(p=>`<span class="pe-t${p.own?' own':''}">${p.ttl}<i>${p.yr}年${p.own?'・自社':''}${p.add?'・追加':''}</i><button data-peerx="${p.k}" aria-label="${p.ttl}を外す" ${lock?'disabled':''}>×</button></span>`).join('')}</div>
     <div class="note">×を押すと、その作品を比較から外します。画面の数字は、すぐに選び直した作品で計算し直します。${lock?`比較には${PEER_MIN}本以上が必要なため、これ以上は外せません。`:''}</div>
-    <div class="note"><b>本数の目安は${PEER_BAND_MIN}本以上です。</b>${PEER_BAND_MIN}本未満では、グラフの「類似作の幅」を出さず中央値の線だけにします。${PEER_REF_MIN}本未満では、類似作との比較をすべて参考値として扱います。施策ごとの比較は、類似作の実施が${FX_MIN}本未満の施策には数字と▲＝▼の判定を出しません。</div>
+    <div class="note"><b>本数の目安は${PEER_BAND_MIN}本以上です。</b>${PEER_BAND_MIN}本未満では、グラフの「類似作の幅」を出さず中央値の線だけにします。${PEER_MIN<PEER_REF_MIN?`${PEER_REF_MIN}本未満では、類似作との比較をすべて参考値として扱います。`:''}施策ごとの比較は、類似作の実施が${FX_MIN}本未満の施策には数字と▲＝▼の判定を出しません。</div>
     ${offL.length?`<div class="sub-h">外した作品</div><div class="pe-ts">${offL.map(p=>`<span class="pe-t alt">${p.ttl}<i>${p.yr}年</i><button data-peera="${p.k}">戻す</button></span>`).join('')}</div>`:''}
     ${cand.length?`<div class="sub-h">追加できる候補</div><div class="pe-ts">${cand.map(p=>`<span class="pe-t alt">${p.ttl}<i>${p.yr}年｜${p.why}</i><button data-peera="${p.k}">＋追加</button></span>`).join('')}</div><div class="note">候補は、選んだ条件にあと少しで合わなかった作品です。</div>`:''}
     <div class="sub-h">ほかの作品を探して追加</div><input id="peerQ" class="pe-q" placeholder="作品名の一部を入れてください" value="${esc(S.peerQ||'')}" autocomplete="off"><div class="pe-ts" id="peerRes" style="margin-top:8px">${peerRes()}</div><div class="note">条件から離れた作品も足せます。ただし、離れているほど比べる意味は薄れます。足した作品には「追加」の印が付きます。</div>
