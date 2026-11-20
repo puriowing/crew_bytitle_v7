@@ -963,6 +963,7 @@ body.plan-mode .mode-sw button.on{background:#f3dfae;color:#4a3a10}
 .pv-f{color:#5b4fa0;border-color:#d6d0f0;background:#f4f2fc}
 .pv-i{color:var(--accent2);border-color:var(--accent-line);background:var(--accent-soft)}
 .pv-t{margin-left:auto}
+.few-note{display:flex;gap:6px 10px;flex-wrap:wrap;align-items:center;margin:0 0 14px;padding:9px 12px;border-radius:8px;background:#fbf3e6;font-size:12.5px;color:var(--ink2)}.few-note span{flex:1 1 320px}.fx-few{color:var(--sub);font-style:normal}
 .peer-chip{cursor:pointer;background:#fff;border-color:var(--rule2);color:var(--ink2)}
 .peer-chip:hover{border-color:var(--accent-line);color:var(--accent2)}
 .pe-ul{margin:0;padding-left:18px;font-size:13px;line-height:1.7}
@@ -1211,7 +1212,9 @@ document.addEventListener('change',ev=>{if(ev.target.id!=='ownSel')return;const 
 const SIMILAR=['春を待つ手紙','あの日の約束','君と見た海','夜明けのランナー','ひだまりの食卓','最後の放課後','風の通り道','まちかどの奇跡','青のフォトグラフ','はじまりの歌','小さな灯台','雨上がりの二人','白い自転車','約束の丘'];
 /* 類似作：はじめの14本（PEER_DEF）から外す・候補（PEER_ADD）から足す。PEERS の中身を作品ごとの選び方に合わせて入れ替える */
 PEERS.forEach((p,i)=>{p.ttl=i<12?SIMILAR[i]:PAST[i-12].name;p.own=i>=12;p.yr=2023+(i*2)%3});
-const PEER_DEF=[...PEERS],PEER_MIN=10;
+const PEER_DEF=[...PEERS],PEER_MIN=3,PEER_BAND_MIN=8,PEER_REF_MIN=5,FX_MIN=3;
+const peerFew=()=>PEERS.length<PEER_REF_MIN?2:PEERS.length<PEER_BAND_MIN?1:0,refTx=()=>peerFew()===2?'（参考値）':'';
+function fewNote(){const f=peerFew();if(!f)return '';return `<div class="few-note"><b>類似作が${PEERS.length}本です</b><span>${f===2?`${PEER_REF_MIN}本未満のため、類似作との比較はすべて参考値です（1本の入れ替えで大きく変わります）。`:''}${PEER_BAND_MIN}本未満のため、グラフの「類似作の幅」は出さず、中央値の線だけにしています。</span><button class="fx-re" data-peers>作品を選び直す</button></div>`}
 const PEER_ADD=[['白い自転車','公開が4年前',2022],['約束の丘','公開規模が条件より大きい',2024],['海辺の郵便局','ジャンルが少し違う',2025],['十七歳の地図帳','公開規模が条件より小さい',2024],['月曜日のパレード','ジャンルが少し違う',2023],['坂の上の写真館','公開が4年前',2022]].map((x,i)=>{const q=build({k:'x'+i,name:'',today:37,seed:300+i*17,power:.6+i*.13,q:.25+i*.11});q.full=true;q.ttl=x[0];q.why=x[1];q.yr=x[2];q.add=true;return q});
 const PEER_CAT=[['夏の終わりのオーケストラ','恋愛・青春',2024,260],['真夜中の観覧車','サスペンス',2023,310],['わたしたちの放課後戦争','青春',2025,180],['北極星のレシピ','ヒューマンドラマ',2024,220],['東京ロストナンバー','サスペンス',2022,350],['ちいさな魔法使いと冬の森','ファミリー',2024,330],['銀色のバトン','青春',2023,240],['さよならの練習','恋愛・青春',2025,290],['探偵は三度うなずく','ミステリー',2024,270],['ぼくの宇宙ステーション','ファミリー',2023,300],['春風タクシー','ヒューマンドラマ',2022,200],['最終列車は海へ','サスペンス',2025,255]].map((x,i)=>{const q=build({k:'c'+i,name:'',today:37,seed:500+i*19,power:.55+(i%5)*.2,q:.2+(i%4)*.2});q.full=true;q.ttl=x[0];q.why=x[1]+'・'+x[3]+'スクリーン';q.yr=x[2];q.add=true;return q}),PEER_POOL=[...PEER_ADD,...PEER_CAT];
 function peerRes(){const q=(S.peerQ||'').trim(),o=peerSel();if(!q)return '';const L=PEER_CAT.filter(p=>p.ttl.includes(q)&&!o.add.includes(p.k)).slice(0,8);
@@ -1296,13 +1299,14 @@ function chart(T,series,o){const a=o.a,b=o.b,n=b-a,fmt=fmtBy(o.u);
   if(a<=0&&b>=0)g+=`<line x1="${-a/n*100}" x2="${-a/n*100}" y1="0" y2="100" stroke="#4e8780" stroke-width="1.2" stroke-dasharray="3 3" vector-effect="non-scaling-stroke"/>`;
   for(const m of (o.marks||[]))if(m.d>=a&&m.d<=b)g+=`<line x1="${(m.d-a)/n*100}" x2="${(m.d-a)/n*100}" y1="0" y2="100" stroke="${m.c}" stroke-width="1" opacity=".35" vector-effect="non-scaling-stroke"/>`;
   for(const s of series){
-    if(s.band){const lo=s.band[0],hi=s.band[1];let p='';hi.forEach((v,i)=>{if(v!=null)p+=(p?'L':'M')+(i/n*100).toFixed(2)+' '+(100-(v-mn)/(mx-mn)*100).toFixed(2)});
+    if(s.band&&s.band.med){g+=`<path d="${pathOf(s.band[0],mn,mx)}" fill="none" stroke="${s.c}" stroke-width="1.6" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"/>`}
+    else if(s.band){const lo=s.band[0],hi=s.band[1];let p='';hi.forEach((v,i)=>{if(v!=null)p+=(p?'L':'M')+(i/n*100).toFixed(2)+' '+(100-(v-mn)/(mx-mn)*100).toFixed(2)});
       for(let i=lo.length-1;i>=0;i--)if(lo[i]!=null)p+='L'+(i/n*100).toFixed(2)+' '+(100-(lo[i]-mn)/(mx-mn)*100).toFixed(2);
       g+=`<path d="${p}Z" fill="${s.c}" opacity=".16"/>`}
     if(s.vals){if(s.fill){const f=s.vals.map(v=>v);const pp=pathOf(f,mn,mx);const last=f.reduce((m,v,i)=>v!=null?i:m,-1),first=f.findIndex(v=>v!=null);
         if(last>first)g+=`<path d="${pp}L${(last/n*100).toFixed(2)} 100L${(first/n*100).toFixed(2)} 100Z" fill="${s.c}" opacity=".12"/>`}
       g+=`<path d="${pathOf(s.vals,mn,mx)}" fill="none" stroke="${s.c}" stroke-width="${s.w||2}" ${s.dash?'stroke-dasharray="4 3"':''} stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`}}
-  const lg=series.length>1||o.legend?`<div class="lg">${series.map(s=>`<span><i class="${s.band&&!s.vals?'band':''}" style="background:${s.c}"></i>${s.n}</span>`).join('')}</div>`:'';
+  const lg=series.length>1||o.legend?`<div class="lg">${series.map(s=>`<span><i class="${s.band&&!s.vals&&!s.band.med?'band':''}" style="background:${s.c}"></i>${s.band&&s.band.med?'類似作の中央値'+refTx():s.n}</span>`).join('')}</div>`:'';
   return `<div class="ch" style="height:${o.h||150}px"><div class="ch-y"><span>${fmt(mx)}</span><span>${fmt((mx+mn)/2)}</span><span>${fmt(mn)}</span></div><div class="ch-plot"><svg viewBox="0 0 100 100" preserveAspectRatio="none">${g}</svg>${o.over||''}</div></div><div class="ch-x">${xTicks(T,a,b)}</div>${lg}`}
 function spark(vals,c){const v=vals.filter(x=>x!=null);if(v.length<2)return '';const mx=Math.max(...v),mn=Math.min(...v);
   return `<svg class="spark" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="${pathOf(vals,mn-(mx-mn)*.1,mx+(mx-mn)*.1||1)}" fill="none" stroke="${c}" stroke-width="1.8" vector-effect="non-scaling-stroke"/></svg>`}
@@ -1361,7 +1365,7 @@ function evDetail0(T,e,d){const c=CH[e.ch],done=e.d<=d,ks=LAYER_KEYS.filter(k=>h
     return `<div><span>${m.n}</span><small>${rt?'実施前 '+f1(o.b)+m.u:'ふだんの'+o.w+'日分 '+fN(o.base)+m.u}</small><b class="num">${absTx(o.tot,k)}</b></div>`}).join('');
   const eff=evEff(T,e,d);
   const same=S.cmpSet.map(ownGet).filter(X=>X&&X.k!==T.k).map(X=>({X,pe:X.ev.filter(q=>q.ty===e.ty).sort((p,q)=>p.d-q.d)[0]})).filter(o=>o.pe&&o.pe.d<=evMax(o.X));
-  const pfk=magKeys().includes(S.fk)?S.fk:magKeys()[0],pf=isAd(e)?null:peerFx(e.ty,pfk),pfH=pf&&pf.m!=null?`<div><span>類似作 ${PEERS.length}本の中央値</span><small>${pf.n}本が実施｜${M[pfk].n}</small><b class="num">${absTx(pf.m,pfk)}</b></div>`:'';
+  const pfk=magKeys().includes(S.fk)?S.fk:magKeys()[0],pf=isAd(e)?null:peerFx(e.ty,pfk),pfH=pf&&pf.m!=null?`<div><span>類似作 ${PEERS.length}本の中央値${refTx()}</span><small>${pf.n}本が実施｜${M[pfk].n}</small><b class="num">${absTx(pf.m,pfk)}</b></div>`:'';
   const sameH=same.length||pfH?`<div class="sub-h">ほかの作品の、同じ種類の施策（${e.ty}）</div><div class="upl">${pfH}${same.map(o=>{const fk=magKeys().includes(S.fk)?S.fk:magKeys()[0],q=absUp(o.X,o.pe,fk,evMax(o.X));return `<div><span>${o.X.name}</span><small>${relLbl(o.pe.d)}｜${M[fk].n}</small><b class="num" style="color:${q?absCol(q):'inherit'}">${q?absTx(q.tot,fk):''}</b></div>`}).join('')}</div>`:'';
   const perH=L>1&&o0&&o0.per?`<div class="sub-h">実施期間 ${md(dateOf(T,e.d))}〜${md(dateOf(T,eEnd(e)))}（${L}日間）${o0.per.ongoing?`のうち、ここまでの${o0.per.w}日間`:''}の合計</div><div class="upl">${ks.filter(k=>!RATE.has(k)).map(k=>{const o=absUp(T,e,k,d);return o&&o.per?`<div><span>${M[k].n}</span><small>ふだんの${o.per.w}日分 ${fN(o.per.base)}${M[k].u}</small><b class="num">${absTx(o.per.tot,k)}</b></div>`:''}).join('')}</div>`:'';
   const castH=has(2)&&d>=0&&e.d<=d?castLine(T,e,d):'';
@@ -1580,20 +1584,20 @@ const absCol=o=>'var(--ink)';
 const _pa={};function peerAbs(ch,k){const key=ch+k;if(_pa[key]!=null)return _pa[key];const v=[];for(const p of PEERS)for(const e of p.ev)if(e.ch===ch){const o=absUp(p,e,k,D1);if(o)v.push(o.tot)}return _pa[key]=med(v)}
 const fxKeys=()=>magKeys();
 /* 比べる相手は、上の「比べている類似作」と同じ集まり。類似作は1本ずつ出さず、中央値と実施した本数にまとめる */
-const _pf={};function peerFx(ty,k){const key=PEER_KEY+'|'+S.phase+'|'+ty+'|'+k;if(key in _pf)return _pf[key];const v=[],xs=[],ds=[];for(const p of PEERS){const e=p.ev.filter(q=>q.ty===ty).sort((a,b)=>a.d-b.d)[0];if(!e)continue;ds.push(e.d);const o=absUp(p,e,k,D1);if(o){v.push(o.tot);if(o.base>0)xs.push(o.tot/o.base)}}return _pf[key]=ds.length?{n:ds.length,m:v.length?med(v):null,x:xs.length?med(xs):null,d:Math.round(med(ds))}:null}
+const _pf={};function peerFx(ty,k){const key=PEER_KEY+'|'+S.phase+'|'+ty+'|'+k;if(key in _pf)return _pf[key];const v=[],xs=[],ds=[];for(const p of PEERS){const e=p.ev.filter(q=>q.ty===ty).sort((a,b)=>a.d-b.d)[0];if(!e)continue;ds.push(e.d);const o=absUp(p,e,k,D1);if(o){v.push(o.tot);if(o.base>0)xs.push(o.tot/o.base)}}const ok=ds.length>=FX_MIN;return _pf[key]=ds.length?{n:ds.length,few:!ok,m:ok&&v.length?med(v):null,x:ok&&xs.length>=FX_MIN?med(xs):null,d:Math.round(med(ds))}:null}
 const JDG={g:['▲','類似作より伸びた'],m:['＝','類似作と同じくらい'],b:['▼','類似作より伸びが小さい']};
 function fxJudge(o,pf){if(!o||!pf||pf.x==null||!(o.base>0))return null;const x=o.tot/o.base,r=x/pf.x;return {c:r>=1.15?'g':r<=.85?'b':'m',x,px:pf.x}}
 const fxX=v=>(v>=10?Math.round(v):f1(v))+'倍';
 function fxSum(js){const n=c=>js.filter(j=>j&&j.c===c).length,t=js.filter(Boolean).length;if(!t)return '<div class="fx-sum"><b>類似作と比べると</b><span class="fx-j m">まだ比べられる施策がありません</span></div>';
-  return `<div class="fx-sum"><b>類似作と比べると</b><span class="fx-j g">▲ 類似作より伸びた ${n('g')}件</span><span class="fx-j m">＝ 同じくらい ${n('m')}件</span><span class="fx-j b">▼ 伸びが小さい ${n('b')}件</span><em>実施済みの${t}件を、施策の前の「ふだん」から何倍に増えたかで比べています（作品の規模の差をならすため）。</em></div>`}
+  return `<div class="fx-sum"><b>類似作と比べると</b><span class="fx-j g">▲ 類似作より伸びた ${n('g')}件</span><span class="fx-j m">＝ 同じくらい ${n('m')}件</span><span class="fx-j b">▼ 伸びが小さい ${n('b')}件</span><em>実施済みの${t}件を、施策の前の「ふだん」から何倍に増えたかで比べています（作品の規模の差をならすため）。類似作の実施が${FX_MIN}本未満の施策は、判定に含めていません。</em></div>`}
 
 function peerSeq(k){const W={};for(const p of PEERS){const seen={};for(const e of p.ev){const w=Math.floor(e.d/7),id=w+'|'+e.ty;if(seen[id])continue;seen[id]=1;const c=(W[w]=W[w]||{})[e.ty]=(W[w][e.ty]||{ty:e.ty,ch:e.ch,n:0,v:[]});c.n++;if(!isAd(e)){const o=absUp(p,e,k,D1);if(o)c.v.push(o.tot)}}}
-  const lim=Math.max(2,Math.ceil(PEERS.length*.2)),R={};Object.keys(W).forEach(w=>{const a=Object.values(W[w]).filter(c=>c.n>=lim).sort((x,y)=>y.n-x.n).slice(0,4);if(a.length)R[w]=a});return R}
-const peerTh=()=>`<th class="fx-pm">類似作 ${PEERS.length}本<span class="chip neu" style="margin-left:6px">中央値</span><button class="fx-re" data-peers>作品を選び直す</button></th>`;
+  const lim=Math.max(FX_MIN,Math.ceil(PEERS.length*.2)),R={};Object.keys(W).forEach(w=>{const a=Object.values(W[w]).filter(c=>c.n>=lim).sort((x,y)=>y.n-x.n).slice(0,4);if(a.length)R[w]=a});return R}
+const peerTh=()=>`<th class="fx-pm">類似作 ${PEERS.length}本<span class="chip neu" style="margin-left:6px">中央値${refTx()}</span><button class="fx-re" data-peers>作品を選び直す</button></th>`;
 /* 施策ごとに比べる：同じ種類の施策どうしを、時期に関係なく横に並べる */
 function fxTable(T,d,sel){const cols=[T,...sel],k=S.fk,u=M[k].u;
   const rows=ALL_TYPES.map(ty=>({ty,ch:TYPE_CH[ty],c:cols.map(X=>{const es=X.ev.filter(q=>q.ty===ty).sort((p,q)=>p.d-q.d),e=es[0];if(!e)return null;const dm=evMax(X),plan=e.d>dm;return {e,plan,n:es.length,ad:adsOnX(X,e).length>0,o:plan?null:absUp(X,e,k,dm)}}),pc:peerFx(ty,k)})).filter(r=>!TYPE_CH[r.ty].startsWith('PAID')&&(r.c.some(Boolean)||r.pc));
-  const N=PEERS.length,pcell=pc=>!pc?'<td class="fx-n fx-pm">—</td>':`<td class="fx-pm">${pc.m==null?'<span class="fx-p">—</span>':`<b class="num">${absTx(pc.m,k)}</b>`}<span class="fx-t">${N}本のうち${pc.n}本が実施｜多くは${relLbl(pc.d)}ごろ${pc.x!=null?`｜ふだんの${fxX(pc.x)}`:''}</span></td>`;
+  const N=PEERS.length,pcell=pc=>!pc?'<td class="fx-n fx-pm">—</td>':`<td class="fx-pm">${pc.m==null?'<span class="fx-p">—</span>':`<b class="num">${absTx(pc.m,k)}</b>`}<span class="fx-t">${N}本のうち${pc.n}本が実施${pc.few?'':`｜多くは${relLbl(pc.d)}ごろ`}${pc.x!=null?`｜ふだんの${fxX(pc.x)}`:''}</span>${pc.few?`<span class="fx-t fx-few">実施が${FX_MIN}本未満のため、数字と▲＝▼の判定は出しません</span>`:''}</td>`;
   rows.forEach(r=>r.j=r.c[0]?fxJudge(r.c[0].o,r.pc):null);
   const cell=(c,best,me,j)=>!c?`<td class="fx-n ${me?'fx-me':''}">—</td>`:`<td class="${me?'fx-me':''}">${c.plan?'<span class="fx-p">予定</span>':!c.o?'<span class="fx-p">計測中</span>':`<b class="num ${best?'best':''}" style="color:${absCol(c.o)}">${absTx(c.o.tot,k)}</b>`}${j?`<span class="fx-j ${j.c}">${JDG[j.c][0]} ${JDG[j.c][1]}</span><span class="fx-t"><b>ふだんの${fxX(j.x)}</b>（類似作は${fxX(j.px)}）</span>`:''}<span class="fx-t">${relLbl(c.e.d)}${(c.e.len||1)>1?`から${c.e.len}日間`:''}${c.o?`｜ふだんの${c.o.w}日分 ${fN(c.o.base)}${u}`:''}${c.n>1?`｜同じ種類がほか${c.n-1}件`:''}${c.ad?'<em class="fx-ad">広告で後押し</em>':''}</span></td>`;
   const only=rows.filter(r=>r.c[0]&&r.c.slice(1).every(x=>!x)&&(!r.pc||r.pc.n/N<.3)),miss=rows.filter(r=>!r.c[0]&&(r.c.slice(1).some(Boolean)||(r.pc&&r.pc.n/N>=.5)));
@@ -1607,7 +1611,7 @@ function seqTable(T,d,sel){const JS=[],cols=[T,...sel],k=S.fk,wk=x=>Math.floor(x
   const chip=(X,e)=>{const dm=evMax(X),plan=e.d>dm,o=plan||isAd(e)?null:absUp(X,e,k,dm),own=X.k===T.k,j=own?fxJudge(o,peerFx(e.ty,k)):null;if(j)JS.push(j);return `<${own?'button data-ev="'+e.id+'"':'span'} class="sq ${plan?'plan':''} ${j?'j'+j.c:''}" ${j?`title="${JDG[j.c][1]}（ふだんの${fxX(j.x)}／類似作は${fxX(j.px)}）"`:''} style="border-color:${CH[e.ch].c}"><i class="cdot" style="background:${CH[e.ch].c}"></i>${e.ty}${(e.len||1)>1?`<small>${e.len}日間</small>`:''}${plan?'<small>予定</small>':!o?'':`<b class="num" style="color:${absCol(o)}">${absTx(o.tot,k)}</b>`}${j?`<em class="fx-j ${j.c}">${JDG[j.c][0]}</em>`:''}</${own?'button':'span'}>`};
   let h='';for(let w=w0;w<=w1;w++)h+=`<tr class="${w===now&&!T.past?'cur':''}"><td style="white-space:nowrap">${lab(w)}${w===now&&!T.past?'<span class="chip" style="margin-left:6px">いま</span>':''}</td>${cols.map((X,ci)=>{const ev=X.ev.filter(e=>wk(e.d)===w).sort((p,q)=>p.d-q.d),ct=X.ev.filter(e=>(e.len||1)>1&&wk(e.d)<w&&wk(eEnd(e))>=w);return `<td class="${ci?'':'fx-me'}">${ev.length||ct.length?ev.map(e=>chip(X,e)).join('')+ct.map(e=>`<span class="sq cont" style="border-color:${CH[e.ch].c}">${e.ty}（続き）</span>`).join(''):'<span class="fx-n">（なし）</span>'}</td>${ci?'':pm(w)}`}).join('')}</tr>`;
   return `${fxSum(JS)}<div class="tw"><table class="fx sqt"><tr><th></th>${cols.map((X,i)=>`<th class="${i?'':'fx-me'}">${X.name}${i?'':'<span class="chip" style="margin-left:6px">この作品</span>'}</th>${i?'':peerTh()}`).join('')}</tr>${h}</table></div>
-   <div class="note">上から下へ、公開に向かって進みます。数字は、施策を実施した日からの3日間の${M[k].n}（合計）です。期間のある施策は開始からの3日間で、続いている週には「（続き）」と出ます。広告は、作品どうしでは比べないので、実施した時期だけを出します。点線の枠は、これから実施する施策。この作品の施策は、押すとくわしく開きます。この作品の施策に付く▲＝▼の印は、施策の前の「ふだん」から何倍に増えたかを、同じ種類の施策の類似作の中央値と比べたものです。類似作の列は、ページの上の「比べている類似作」と同じ作品をまとめたもので、その週に${Math.max(2,Math.ceil(PEERS.length*.2))}本以上が実施した施策を、本数の多い順に出しています（数字は中央値）。</div>`}
+   <div class="note">上から下へ、公開に向かって進みます。数字は、施策を実施した日からの3日間の${M[k].n}（合計）です。期間のある施策は開始からの3日間で、続いている週には「（続き）」と出ます。広告は、作品どうしでは比べないので、実施した時期だけを出します。点線の枠は、これから実施する施策。この作品の施策は、押すとくわしく開きます。この作品の施策に付く▲＝▼の印は、施策の前の「ふだん」から何倍に増えたかを、同じ種類の施策の類似作の中央値と比べたものです。類似作の列は、ページの上の「比べている類似作」と同じ作品をまとめたもので、その週に${Math.max(FX_MIN,Math.ceil(PEERS.length*.2))}本以上が実施した施策を、本数の多い順に出しています（数字は中央値）。</div>`}
 I('acts','a_log','施策の日誌',12,[],(T,d)=>{const ks=JL_KEYS.filter(k=>mAvail(k,d)),mk=magKeys();
   const tabs=`<div class="ctl"><span class="seg big">${[['log','日誌'],['perf','成績の表'],['fx','施策ごとに比べる'],['seq','進め方を比べる']].map(x=>`<button data-jv="${x[0]}" class="${S.jv===x[0]?'on':''}">${x[1]}</button>`).join('')}</span></div>`;
   if(S.jv==='perf'){const o=ITEMS.find(x=>x.id==='a_perf').fn(T,d);return {d:'同じ施策を、反応・露出量・費用対効果の順に並べ替えて見ます',h:tabs+o.h}}
@@ -1684,7 +1688,7 @@ I('deliver','d_exposed','広告を見た人と見ていない人の差',6,[1,6],
   return {d:'観たい率の比較',h:`${bars([{l:'広告を見た人',v:i+lift*0.7,c:'#6a9b8a'},{l:'見ていない人',v:Math.max(1,i-lift*0.3),c:'#b9bec4'}],{fmt:f1,u:'%'})}<div class="note">差は <b>+${f1(lift)}pt</b>。広告が観たい気持ちを押し上げている目安です。</div>`}});
 
 /* ---------- 関心と評判 ---------- */
-function peerBand(k,a,b,cum){const lo=[],hi=[];for(let d=a;d<=b;d++){const v=PEERS.map(p=>cum?sumR(p,k,D0,d):at(p,k,d));lo.push(qt(v,.25));hi.push(qt(v,.75))}return [lo,hi]}
+function peerBand(k,a,b,cum){const lo=[],hi=[],few=peerFew()>0;for(let d=a;d<=b;d++){const v=PEERS.map(p=>cum?sumR(p,k,D0,d):at(p,k,d));lo.push(few?med(v):qt(v,.25));hi.push(few?med(v):qt(v,.75))}const o=[lo,hi];o.med=few;return o}
 const evMarks=T=>T.ev.map(e=>({d:e.d,c:CH[e.ch].c}));
 I('interest','i_buzz','話題の量',7,[3],(T,d)=>{const b=Math.max(d,0);return {d:'1日ごとの投稿数と、施策のタイミング',h:chart(T,[{n:'類似作の幅（真ん中の半分）',band:peerBand('buzz',D0,b),c:'#8a929a'},{n:'この作品',vals:slice(T,'buzz',D0,b,d),c:M.buzz.c}],{a:D0,b,u:'件',h:190,marks:evMarks(T)})}},{hit:'buzz'});
 I('interest','i_sent','センチメントの推移',5,[3],(T,d)=>{const b=Math.max(d,0);return {d:'好意的な声と否定的な声の割合',h:chart(T,[{n:'好意的',vals:slice(T,'sent',D0,b,d),c:'#1f7a4d'},{n:'否定的',vals:slice(T,'neg',D0,b,d),c:'#a3413a'}],{a:D0,b,u:'%',h:190,max:100})}},{hit:'sent'});
@@ -1701,10 +1705,10 @@ I('interest','i_conv','待っていた人が観たか',6,[4],(T,d)=>{const c=con
   <div class="note">公開前のClip!が少なくMark!が多い作品は、公開後に知って観た人が多い型です。</div>`}},{when:'post'});
 function womOf(X,d){const w1=sumR(X,'mark',0,6);if(d>=20)return {v:sumR(X,'mark',7,20)/w1,l:'2〜3週目 ÷ 1週目'};if(d>=13)return {v:sumR(X,'mark',7,13)/w1,l:'2週目 ÷ 1週目'};return null}
 I('interest','i_mark','Mark!（観た記録）の伸び方',6,[4],(T,d)=>{const base=sumR(T,'mark',0,6)/7||1,nrm=(X,x)=>at(X,'mark',x)/(sumR(X,'mark',0,6)/7);const b=Math.max(d,7),lo=[],hi=[];
-  for(let x=0;x<=b;x++){const v=PEERS.map(p=>nrm(p,x));lo.push(qt(v,.25));hi.push(qt(v,.75))}
+  for(let x=0;x<=b;x++){const v=PEERS.map(p=>nrm(p,x)),few=peerFew()>0;lo.push(few?med(v):qt(v,.25));hi.push(few?med(v):qt(v,.75))}
   const w=womOf(T,d),pw=w?PEERS.map(p=>womOf(p,d).v):[];
   return {d:'1週目の1日平均を1とした値',h:`${w?`<div class="kpis" style="margin-bottom:12px">${kpi('口コミの伸び倍率',f2(w.v),'倍',w.l)}${kpi('類似作の中での位置',TIERS[tierOf(pctOf(w.v,pw))],'',`中央値 ${f2(med(pw))}倍`)}</div>`:'<div class="note" style="margin:0 0 10px">口コミの伸び倍率は、公開2週目が終わると出ます。</div>'}
-   ${chart(T,[{n:'類似作の幅（真ん中の半分）',band:[lo,hi],c:'#8a929a'},{n:'この作品',vals:slice(T,'mark',0,b,d).map(v=>v==null?null:v/base),c:M.mark.c}],{a:0,b,u:'倍',h:150})}`}},{when:'post',hit:'mark'});
+   ${chart(T,[{n:'類似作の幅（真ん中の半分）',band:Object.assign([lo,hi],{med:peerFew()>0}),c:'#8a929a'},{n:'この作品',vals:slice(T,'mark',0,b,d).map(v=>v==null?null:v/base),c:M.mark.c}],{a:0,b,u:'倍',h:150})}`}},{when:'post',hit:'mark'});
 const SB=['1.0〜1.4','1.5〜1.9','2.0〜2.4','2.5〜2.9','3.0〜3.4','3.5〜3.9','4.0〜4.4','4.5〜5.0'];
 function scoreDist(T,d){const m=at(T,'score',d),w=SB.map((_,i)=>Math.exp(-Math.pow((1.2+i*0.5)-m,2)/0.55));const s=sumA(w);return w.map(v=>v/s*100)}
 I('interest','i_score','スコアの分布',6,[4],(T,d)=>{const ds=scoreDist(T,d),m=at(T,'score',d);return {d:'観た人が付けた点',h:`<div class="kpis" style="margin-bottom:12px">${kpi('平均',f2(m),'点',`類似作の中央値 ${f2(med(PEERS.map(p=>at(p,'score',d))))}点`)}${kpi('4.5以上の割合',f1(ds[7]),'%')}${kpi('2.4以下の割合',f1(ds[0]+ds[1]+ds[2]),'%')}</div>${bars(SB.map((l,i)=>({l,v:ds[i]})).reverse(),{fmt:f1,u:'%',c:'#9c4f3e'})}`}},{when:'post',hit:'score'});
@@ -2842,6 +2846,7 @@ function openPeers(){const T=cur(),lo=Math.round(T.screens*0.7/10)*10,hi=Math.ro
     <div class="sub-h">選んだ条件</div><table class="ex-t"><tr><td>作品の種類</td><td>${T.kind}</td></tr><tr><td>ジャンル</td><td>${T.genre}</td></tr><tr><td>公開規模</td><td>${lo}〜${hi}スクリーン（この作品の±30%）</td></tr><tr><td>公開時期</td><td>直近3年</td></tr></table>
     <div class="sub-h">比べている作品（${PEERS.length}本）</div><div class="pe-ts">${PEERS.map(p=>`<span class="pe-t${p.own?' own':''}">${p.ttl}<i>${p.yr}年${p.own?'・自社':''}${p.add?'・追加':''}</i><button data-peerx="${p.k}" aria-label="${p.ttl}を外す" ${lock?'disabled':''}>×</button></span>`).join('')}</div>
     <div class="note">×を押すと、その作品を比較から外します。画面の数字は、すぐに選び直した作品で計算し直します。${lock?`比較には${PEER_MIN}本以上が必要なため、これ以上は外せません。`:''}</div>
+    <div class="note"><b>本数の目安は${PEER_BAND_MIN}本以上です。</b>${PEER_BAND_MIN}本未満では、グラフの「類似作の幅」を出さず中央値の線だけにします。${PEER_REF_MIN}本未満では、類似作との比較をすべて参考値として扱います。施策ごとの比較は、類似作の実施が${FX_MIN}本未満の施策には数字と▲＝▼の判定を出しません。</div>
     ${offL.length?`<div class="sub-h">外した作品</div><div class="pe-ts">${offL.map(p=>`<span class="pe-t alt">${p.ttl}<i>${p.yr}年</i><button data-peera="${p.k}">戻す</button></span>`).join('')}</div>`:''}
     ${cand.length?`<div class="sub-h">追加できる候補</div><div class="pe-ts">${cand.map(p=>`<span class="pe-t alt">${p.ttl}<i>${p.yr}年｜${p.why}</i><button data-peera="${p.k}">＋追加</button></span>`).join('')}</div><div class="note">候補は、選んだ条件にあと少しで合わなかった作品です。</div>`:''}
     <div class="sub-h">ほかの作品を探して追加</div><input id="peerQ" class="pe-q" placeholder="作品名の一部を入れてください" value="${esc(S.peerQ||'')}" autocomplete="off"><div class="pe-ts" id="peerRes" style="margin-top:8px">${peerRes()}</div><div class="note">条件から離れた作品も足せます。ただし、離れているほど比べる意味は薄れます。足した作品には「追加」の印が付きます。</div>
@@ -2866,7 +2871,7 @@ function reportHTML(T,d){const a=d-6,b=d,pv=d-7,sc=scoreOf(T,d),[tc,tl]=toneOf(s
     <div class="rp-sec"><h2>3　今週の施策</h2>${evs.length?`<table class="ex-t"><tr><th>日付</th><th>施策</th><th class="r">効き具合</th><th class="r">露出（推定を含む）</th>${has(3)?'<th>炎上リスク</th>':''}</tr>${evs.map(e=>{const ef=!isAd(e)&&e.d+2<=d?evEff(T,e,d):null,x=expoOf(T,e,d),r=has(3)?rxOf(T,e,d):null;return `<tr><td>${md(dateOf(T,e.d))}</td><td>${esc(e.label)}<small>${CH[e.ch].n}</small></td><td class="r num">${ef??(isAd(e)?'広告':'集計中')}</td><td class="r num">${x?fN(x.tot)+'回':'—'}</td>${has(3)?`<td>${r?r.risk.lv:'—'}</td>`:''}</tr>`}).join('')}</table>`:'<p>今週実施した施策はありません。</p>'}</div>
     <div class="rp-sec"><h2>4　注意点とやること</h2>${rk.length?`<p class="rp-warn">炎上リスク：${rk.map(x=>`「${esc(x.e.label)}」${x.o.risk.lv}（${x.o.risk.score}）${x.o.risk.sc?'　'+x.o.risk.sc.topic:''}`).join('、')}</p>`:''}${tdh}</div>
     <div class="rp-sec"><h2>5　来週の予定</h2>${nx.length?`<ul>${nx.map(e=>`<li>${md(dateOf(T,e.d))}　${esc(e.label)}（${CH[e.ch].n}${e.cost?`・費用 ${fN(e.cost*1e4)}円`:''}）</li>`).join('')}</ul>`:'<p>来週の施策の予定はありません。</p>'}</div>
-    <div class="rp-foot">データ：${[...new Set(ITEMS.flatMap(x=>SRC_USE[x.id]||x.need))].filter(k=>srcPhase(k)<=S.phase&&(typeof k!=='number'||has(k))).map(k=>provName(k)).join('／')}｜${md(dateOf(T,d))} 6:00 時点｜類似作 ${PEERS.length}本（作品名・個別の数字は出していません）</div></div>`}
+    <div class="rp-foot">データ：${[...new Set(ITEMS.flatMap(x=>SRC_USE[x.id]||x.need))].filter(k=>srcPhase(k)<=S.phase&&(typeof k!=='number'||has(k))).map(k=>provName(k)).join('／')}｜${md(dateOf(T,d))} 6:00 時点｜類似作 ${PEERS.length}本${refTx()}（作品名・個別の数字は出していません）</div></div>`}
 function openReport(){const T=cur(),d=S.day;let el=$('#rpt');if(!el){el=document.createElement('div');el.id='rpt';document.body.appendChild(el)}
   el.innerHTML=`<div class="rp-bar"><b>週の報告書</b><span>このまま印刷するか、印刷の画面で「PDFに保存」を選ぶと、社内の報告にそのまま使えます。</span><button class="btn pri" id="rpPrint">印刷・PDFにする</button><button class="btn" id="rpClose">閉じる</button></div>${reportHTML(T,d)}`;
   document.body.classList.add('rp-on');$('#rpPrint').onclick=()=>window.print();$('#rpClose').onclick=()=>document.body.classList.remove('rp-on')}
@@ -2878,7 +2883,7 @@ function openEvReport(id){const T=cur(),d=S.day,e=T.ev.find(x=>x.id===id);if(!e)
    <div class="rp-page rp-ev"><div class="rp-head"><span class="rp-po">${poster(T,{fit:'slice'})}</span><div><small>施策の報告｜${T.name}</small><h1>${esc(e.label)}</h1><p>${c.n}・${e.ty}｜${md(dateOf(T,e.d))}${(e.len||1)>1?'〜'+md(dateOf(T,eEnd(e)))+'（'+e.len+'日間）':''}（${relLbl(e.d)}）${e.cost?`｜費用 ${fN(e.cost*1e4)}円`:''}</p></div></div>
    <div class="rp-sec"><h2>まとめ</h2>${!done?'<p>これから実施する施策です。実施の3日後から、反応の前後比較が出ます。</p>':`<div class="kpis">${o?kpi('実施から3日間の'+M[k].n,absTx(o.tot,k),'',`ふだんの3日分 ${fN(o.base)}${M[k].u}`):''}${j?kpi('類似作と比べて',JDG[j.c][0]+' '+{g:'伸びが大きい',m:'同じくらい',b:'伸びが小さい'}[j.c],'',`ふだんの${fxX(j.x)}／類似作は${fxX(j.px)}`):''}${ef!=null?kpi('効き具合',ef,'','類似作の同じ種類の中の位置（0〜100）'):''}</div>${isAd(e)?'<p>広告は出稿量で結果が変わるため、ほかの施策と同じ3日間の比較はしていません。期間中の反応は、下の「くわしい内容」にあります。</p>':!o?'<p>実施から3日たっていないため、集計中です。</p>':''}`}</div>
    <div class="rp-sec rp-body"><h2>くわしい内容</h2>${evDetail(T,e,d)}</div>
-   <div class="rp-foot">${md(dateOf(T,d))} 6:00 時点｜類似作 ${PEERS.length}本（1本ずつの数字は出していません）</div></div>`;
+   <div class="rp-foot">${md(dateOf(T,d))} 6:00 時点｜類似作 ${PEERS.length}本${refTx()}（1本ずつの数字は出していません）</div></div>`;
   el.querySelectorAll('details').forEach(x=>x.open=true);closePanel();document.body.classList.add('rp-on');el.scrollTop=0;$('#rpPrint').onclick=()=>window.print();$('#rpClose').onclick=()=>document.body.classList.remove('rp-on')}
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-evrpt]');if(!t)return;ev.stopPropagation();openEvReport(+t.dataset.evrpt)},true);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('rp-on'))document.body.classList.remove('rp-on')});
@@ -2899,7 +2904,7 @@ function render(){syncPeers();const T=cur(),d=S.day;
   $('#mDate').textContent=`${md(dateOf(T,d))}｜${relLbl(d)}`;appSave();
   const pg=PAGES.find(p=>p.k===S.page),list=ITEMS.filter(it=>it.page===S.page&&avail(it,d)&&(!it.grp||S.mv==='all'||it.grp===S.mv)),dl=list.filter(it=>it.deep);
   const card=it=>{const o=it.fn(T,d);return `<section class="card c${it.w}" id="it-${it.id}" data-need="${it.need.join(',')}"><div class="card-h"><h2>${it.t}</h2><span class="d">${o.d||''}</span></div>${srcChips(it)}${o.h}${provHTML(it,T,d)}</section>`};
-  $('#page').innerHTML=`${S.page==='home'?heroHTML(T,d):''}<div class="pg-head">${S.page==='home'?'':`<span class="pg-po">${poster(T,{fit:'slice'})}</span>`}<h1>${pg.n}</h1><span class="pg-q">${pg.q}</span><span class="chip neu">${T.name}｜${md(dateOf(T,d))}時点</span><button class="chip peer-chip" data-peers>比べている類似作 ${PEERS.length}本${peerChanged()?'（選び直し済み）':''} ⓘ</button><span class="srcs int-only" style="margin:0"><span class="sc-l">社内表示：各項目に、使っているデータを出しています</span><span class="sc">番号つき＝6分類</span><span class="sc c">共通のデータ</span><span class="sc l">点線＝上のPhaseで加わる</span></span></div>${castGuide(T,d)}${S.page==='deliver'?mvSw():''}<div class="grid">${list.filter(it=>!it.deep).map(card).join('')}</div>${dl.length?`<details class="deep" ${S.deepOpen[S.page]?'open':''}><summary>くわしく見る<span>${dl.length}項目</span></summary><div class="grid">${dl.map(card).join('')}</div></details>`:''}`;
+  $('#page').innerHTML=`${S.page==='home'?heroHTML(T,d):''}<div class="pg-head">${S.page==='home'?'':`<span class="pg-po">${poster(T,{fit:'slice'})}</span>`}<h1>${pg.n}</h1><span class="pg-q">${pg.q}</span><span class="chip neu">${T.name}｜${md(dateOf(T,d))}時点</span><button class="chip peer-chip" data-peers>比べている類似作 ${PEERS.length}本${refTx()}${peerChanged()?'（選び直し済み）':''} ⓘ</button><span class="srcs int-only" style="margin:0"><span class="sc-l">社内表示：各項目に、使っているデータを出しています</span><span class="sc">番号つき＝6分類</span><span class="sc c">共通のデータ</span><span class="sc l">点線＝上のPhaseで加わる</span></span></div>${fewNote()}${castGuide(T,d)}${S.page==='deliver'?mvSw():''}<div class="grid">${list.filter(it=>!it.deep).map(card).join('')}</div>${dl.length?`<details class="deep" ${S.deepOpen[S.page]?'open':''}><summary>くわしく見る<span>${dl.length}項目</span></summary><div class="grid">${dl.map(card).join('')}</div></details>`:''}`;
   if(PM&&!list.length){const g=$('#page .grid');if(g)g.outerHTML=planEmpty(T,d)}
   const dt=$('details.deep');if(dt)dt.addEventListener('toggle',()=>{S.deepOpen[S.page]=dt.open});
   const cgd=$('details.castg');if(cgd)cgd.addEventListener('toggle',()=>{S.castOpen=cgd.open});
