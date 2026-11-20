@@ -2625,7 +2625,7 @@ function cumVals(X,d){const key=X.k+'|'+d+'|'+(X.k===S.title?X.ev.length:'');if(
   CUM_K.forEach(k=>o[k]=sumR(X,k,D0,d));CUM_R.forEach(k=>o[k]=at(X,k,d));return _cx[key]=o}
 function cumRank(v,arr){return arr.filter(x=>x>v).length+1}
 function ratioBar(r){const w=clamp(r,50,150)-50;return `<div class="rb"><i class="c"></i><i class="f ${r>=100?'up':'dn'}" style="${r>=100?`left:50%;width:${w-50}%`:`left:${w}%;width:${50-w}%`}"></i></div>`}
-I('acts','a_cum','ここまでの積み上げ',12,[],(T,d)=>{const me=cumVals(T,d),P=cumPeers().map(X=>cumVals(X,d)),N=P.length,pm=k=>med(P.map(p=>p[k]).filter(x=>x!=null));
+I('acts','a_cum','宣伝の量と反応の累計',12,[],(T,d)=>{const me=cumVals(T,d),P=cumPeers().map(X=>cumVals(X,d)),N=P.length,pm=k=>med(P.map(p=>p[k]).filter(x=>x!=null));
   const row=(n,u,v,k,fmt)=>{const m=pm(k),r=m?v/m*100:null,rk=cumRank(v,P.map(p=>p[k]));return `<tr class="${cmCls(r)}"><td>${n}</td><td class="r"><b class="num">${fmt?fmt(v):fN(v)}</b><small class="ex-u">${u}</small></td><td class="r num">${fmt?fmt(m):fN(m)}${u}</td><td class="cm-r"><b class="num" style="color:${r>=100?'var(--goodtx)':'var(--badtx)'}">${r==null?'—':Math.round(r)+'%'}</b>${r==null?'':ratioBar(r)}</td><td class="r"><small>${N+1}本中</small> <b class="num">${rk}</b>位</td></tr>`};
   const rows=[];if(has(6)){rows.push(row('費用の合計','円',me.cost,'cost'));rows.push(row('露出の合計（推定を含む）','回',me.ex,'ex'))}
   CUM_K.filter(k=>mAvail(k,d)).forEach(k=>rows.push(row(M[k].n+(M[k].sub?`<small>${M[k].sub}</small>`:''),M[k].u,me[k],k)));
