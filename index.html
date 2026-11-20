@@ -2098,14 +2098,13 @@ I('plan','u_sim','類似作を観た人たち',12,[2],(T,d)=>{const D=tgData(T),
    <div><div class="sub-h">ふだん映画館に行く頻度</div>${stack(GOF.map((l,i)=>({l,v:W.go[i],c:GOC[i]})))}
    <div class="kpis" style="margin-top:14px">${kpi('満足度',f1(W.sat),'%')}${kpi('すすめたい度',pt(W.nps),'')}${kpi('2回以上観た人',f1(W.rep),'%')}</div></div></div>
    ${simNote('類似作を実際に観た人の姿を出しています。このページの最後の地図で、性別×年代の層ごとに分けて見て、狙う層を選べます。')}`}},{when:'pre'});
-I('plan','p_map','性別×年代で分けて、狙う層を選ぶ',12,[2],(T,d)=>{const D=tgData(T),sel=tgSel(T),mx=Math.max(...D.segs.map(s=>s.sh)),A=tgAgg(D,sel),X=pcData(T),sd=X.C.seed,sm=S.tgMode==='seed',cw=sm?X.P.seed:D.tags.many;
+I('plan','p_map','性別×年代で分けて、狙う層を選ぶ',12,[2],(T,d)=>{const D=tgData(T),sel=tgSel(T),mx=Math.max(...D.segs.map(s=>s.sh)),A=tgAgg(D,sel),cw=D.tags.many;
   const tile=s=>{const few=s.cnt<TG_MIN,tg=[D.tags.many.includes(s.i)?'<i>多い</i>':'',D.tags.sat.includes(s.i)?'<i>満足が高い</i>':'',D.tags.nps.includes(s.i)?'<i>すすめてくれる</i>':'',few?'<i class="few">参考</i>':'',cw.includes(s.i)?'<i class="crew">CREWの案</i>':''].join('');
-    return `<button class="tg ${sel.includes(s.i)?'on':''} ${sd.includes(s.i)?'sd':''}" data-tg="${s.i}" aria-pressed="${(sm?sd:sel).includes(s.i)}" style="background:rgba(78,135,128,${(.07+s.sh/mx*.5).toFixed(2)})" title="${s.n}｜回答 ${fN(s.cnt)}件"><span class="a">${AGES[s.a]}</span><span class="v num">${f1(s.sh)}<small>%</small></span><span class="m">満足 ${Math.round(s.sat)}%・すすめたい ${pt(s.nps)}</span><span class="tags">${tg}</span></button>`};
-  return {d:'ヒートマップ。色が濃いほど、観客に占める割合が大きい層',h:`<div class="ctl mv-sw"><span style="font-size:11.5px;color:var(--sub)">いま選ぶもの</span><span class="seg big">${[['main','メインターゲット'],['seed','口コミの起点にする層']].map(x=>`<button data-tgm="${x[0]}" class="${(sm?'seed':'main')===x[0]?'on':''}">${x[1]}</button>`).join('')}</span><span class="mv-q">${sm?'観たあとに、まわりにすすめてくれる層。早めに届ける相手です（橙の印）':'宣伝の中心に据える層です（✓の印）'}</span></div>
-   <div class="tg-leg"><span>数字＝類似作の観客に占める割合</span><span>「多い」「満足が高い」「すすめてくれる」＝それぞれ上位3つの層</span><span>押すと、狙う層として選べます</span></div>
+    return `<button class="tg ${sel.includes(s.i)?'on':''}" data-tg="${s.i}" aria-pressed="${sel.includes(s.i)}" style="background:rgba(78,135,128,${(.07+s.sh/mx*.5).toFixed(2)})" title="${s.n}｜回答 ${fN(s.cnt)}件"><span class="a">${AGES[s.a]}</span><span class="v num">${f1(s.sh)}<small>%</small></span><span class="m">満足 ${Math.round(s.sat)}%・すすめたい ${pt(s.nps)}</span><span class="tags">${tg}</span></button>`};
+  return {d:'ヒートマップ。色が濃いほど、観客に占める割合が大きい層',h:`<div class="tg-leg"><span>数字＝類似作の観客に占める割合</span><span>「多い」「満足が高い」「すすめてくれる」＝それぞれ上位3つの層</span><span>押すと、狙う層として選べます</span></div>
    ${SEX.map((x,g)=>`<div class="tgm-row"><div class="tgm-l">${x}</div><div class="tgm-g">${D.segs.filter(s=>s.g===g).map(tile).join('')}</div></div>`).join('')}
-   ${sm?`<div class="tg-bar"><b>口コミの起点にする層：${sd.length}つ</b><span>${sd.length?sd.map(i=>D.segs[i].n).join('・'):'まだ選んでいません'}</span><button class="btn" data-tga="seedp">CREWの案に戻す</button><button class="btn" data-tga="seednone">すべて外す</button></div>`:`<div class="tg-bar"><b>メインターゲット：${sel.length}つ</b><span>類似作の観客の <b class="num">${f1(A.sh)}%</b> にあたります</span><button class="btn" data-tga="many">多い順に3つ（CREWの案）</button><button class="btn" data-tga="sat">満足が高い3つ</button><button class="btn" data-tga="nps">すすめてくれる3つ</button><button class="btn" data-tga="none">すべて外す</button></div>`}
-   <div class="note">ここで選んだ内容は、「宣伝コンセプト」のページに入ります。</div>`}},{when:'pre'});
+   <div class="tg-bar"><b>メインターゲット：${sel.length}つ</b><span>類似作の観客の <b class="num">${f1(A.sh)}%</b> にあたります</span><button class="btn" data-tga="many">多い順に3つ（CREWの案）</button><button class="btn" data-tga="sat">満足が高い3つ</button><button class="btn" data-tga="nps">すすめてくれる3つ</button><button class="btn" data-tga="none">すべて外す</button></div>
+   <div class="note">ここで選んだ層が、メインターゲットとして「宣伝コンセプト」のページに入ります。「すすめてくれる」の印は、観たあとにまわりへすすめる度合いが高い層です（選ぶときの参考）。</div>`}},{when:'pre'});
 I('plan','p_pick','選んだ層（メインターゲット）の内訳',12,[2],(T,d)=>{const D=tgData(T),sel=tgSel(T);if(!sel.length)return {d:'',h:'<div class="empty">上の地図で、狙う層を選んでください。</div>'};
   const A=tgAgg(D,sel),W=tgAgg(D,D.segs.map(s=>s.i)),kd=A.know.map((v,i)=>v-W.know[i]),wd=A.why.map((v,i)=>v-W.why[i]),ki=iMax(kd),wi=iMax(wd),early=A.dec[0]+A.dec[1],earlyW=W.dec[0]+W.dec[1],wm=iMax(A.wth);
   const names=D.segs.filter(s=>sel.includes(s.i)).map(s=>s.n).join('・'),rows=(L,a,w,c,sort)=>{const x=L.map((l,i)=>({l,v:a[i],cmp:w[i]}));return bars(sort?x.sort((p,q)=>q.v-p.v):x,{fmt:f1,u:'%',c})};
@@ -2258,13 +2257,12 @@ const finStat=(T,d)=>{const F=finOf(T),L=finAll(T,d),n=L.filter(f=>!finSame(F,f)
 I('plan','p_sec4','宣伝コンセプトを決める',12,[2],()=>({d:'1〜3で選んだ内容を、1枚の資料にまとめる',h:''}),{when:'pre'});
 /* 宣伝コンセプトの資料：①〜③で選んだ内容を、グラフつきの1枚にまとめる（CREWの案は載せない）。そのまま印刷・ファイル保存できる */
 function conceptDoc(T){const X=pcData(T),{D,sel,A,C,MI,ko}=X,F=finOf(T),nm=i=>D.segs[i].n,names=a=>a.length?a.map(nm).join('・'):'（まだ選んでいません）',mx=Math.max(...D.segs.map(s=>s.sh)),TY=SCH_TY().filter(ty=>C.sch[ty].length),st=schStat(C.sch),dm=Math.max(...schBK(A).map(x=>x[2])),kmx=Math.max(...MI.map(r=>A.know[r]),1),used=ko.filter(r=>C.role[r]!=='n').sort((p,q)=>(C.role[p]==='c'?0:1)-(C.role[q]==='c'?0:1));
-  const tile=s=>`<div class="tg cp-tg ${sel.includes(s.i)?'on':''} ${C.seed.includes(s.i)?'sd':''}" style="background:rgba(78,135,128,${(.07+s.sh/mx*.5).toFixed(2)})"><span class="a">${AGES[s.a]}</span><span class="v num">${f1(s.sh)}<small>%</small></span></div>`;
+  const tile=s=>`<div class="tg cp-tg ${sel.includes(s.i)?'on':''}" style="background:rgba(78,135,128,${(.07+s.sh/mx*.5).toFixed(2)})"><span class="a">${AGES[s.a]}</span><span class="v num">${f1(s.sh)}<small>%</small></span></div>`;
   const span=(n,v)=>`<td colspan="${n}" style="background:rgba(176,128,64,${v==null?0:(.1+v/dm*.5).toFixed(2)})">${v==null?'':f1(v)+'%'}</td>`;
   return `<div class="cp-doc"><div class="cp-head"><span class="rp-po">${poster(T,{fit:'slice'})}</span><div><small>宣伝コンセプト</small><h1>${T.name}</h1><p>${F.done?`${F.done} 確定`:'下書き（未確定）'}</p></div></div>
    <section class="cp-sec"><h2><b class="num">1</b>誰に</h2><div class="cp-two"><div>
-       <div class="cp-k"><small>メインターゲット</small><b>${names(sel)}</b><span>類似作の観客の ${f1(A.sh)}%｜満足度 ${f1(A.sat)}%｜すすめたい度 ${pt(A.nps)}</span></div>
-       <div class="cp-k sd"><small>口コミの起点にする層</small><b>${names(C.seed)}</b><span>観たあとに、まわりにすすめてくれる度合いが高い層。早めに届ける相手</span></div></div>
-     <div>${SEX.map((x,g)=>`<div class="tgm-row"><div class="tgm-l">${x}</div><div class="tgm-g">${D.segs.filter(s=>s.g===g).map(tile).join('')}</div></div>`).join('')}<div class="cp-lg"><span><i class="m"></i>メインターゲット</span><span><i class="s"></i>口コミの起点</span><span>数字＝類似作の観客に占める割合</span></div></div></div></section>
+       <div class="cp-k"><small>メインターゲット</small><b>${names(sel)}</b><span>類似作の観客の ${f1(A.sh)}%｜満足度 ${f1(A.sat)}%｜すすめたい度 ${pt(A.nps)}</span></div></div>
+     <div>${SEX.map((x,g)=>`<div class="tgm-row"><div class="tgm-l">${x}</div><div class="tgm-g">${D.segs.filter(s=>s.g===g).map(tile).join('')}</div></div>`).join('')}<div class="cp-lg"><span><i class="m"></i>メインターゲット</span><span>数字＝類似作の観客に占める割合</span></div></div></div></section>
    <section class="cp-sec"><h2><b class="num">2</b>いつ</h2><div class="cp-k"><small>スケジュール</small><b>${st.n?`${wkP(st.first)}に開始。いちばん厚いのは${wkP(st.peakW)}`:'（まだ置いていません）'}</b><span>施策 ${st.n}件</span></div>
      ${st.n?`<div class="tw"><table class="cal cp-cal"><tr><th></th>${CAL_W.map(w=>`<th>${wkL(w)}</th>`).join('')}</tr><tr><td><b>観ると決める人</b><small>メインターゲットの割合</small></td>${span(8,A.dec[0])}${span(2,A.dec[1])}${span(2,A.dec[2])}${span(1,A.dec[3]+A.dec[4])}${span(3,null)}</tr>
        ${TY.map(ty=>`<tr><td><b>${ty}</b><small>${CH[TYPE_CH[ty]].n}</small></td>${CAL_W.map(w=>`<td>${C.sch[ty].includes(w)?`<i class="cp-dot" style="background:${CH[TYPE_CH[ty]].c}"></i>`:''}</td>`).join('')}</tr>`).join('')}</table></div>`:''}</section>
@@ -2341,7 +2339,7 @@ function openFinReport(){const T=cur();let el=$('#rpt');if(!el){el=document.crea
 const SNS_N=['X','Instagram','YouTube','TikTok'];
 const snsOf=(D,idx)=>{const ss=D.segs.filter(s=>idx.includes(s.i)),w=sumA(ss.map(s=>s.sh))||1,f=s=>nrm([[.9,1.2,1.1,.9,.6,.4][s.a],[1.1,1.3,1.1,.8,.5,.3][s.a]*(s.g?.75:1.2),[1,.9,1,1.1,1.1,1][s.a]*(s.g?1.2:.9),[1.6,1.2,.7,.4,.25,.15][s.a]]);return SNS_N.map((_,k)=>sumA(ss.map(s=>s.sh*f(s)[k]))/w)};
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-tg],[data-tga]');if(!t)return;const T=cur(),D=tgData(T),sel=tgSel(T),y=window.scrollY;
-  const F=finOf(T),seedT=t.dataset.tga?t.dataset.tga.startsWith('seed'):S.tgMode==='seed';delete F.done;
+  const F=finOf(T),seedT=false;delete F.done;
   if(seedT){if(t.dataset.tga==='seedp')delete F.c.seed;else if(t.dataset.tga==='seednone')F.c.seed=[];else{const i=+t.dataset.tg,c=pcData(T).C.seed;F.c.seed=c.includes(i)?c.filter(x=>x!==i):c.concat(i).sort((p,q)=>p-q)}finSave();render();window.scrollTo({top:y});return}
   finSave();if(t.dataset.tga)S.tg[T.k]=t.dataset.tga==='none'?[]:D.tags[t.dataset.tga].slice();
   else{const i=+t.dataset.tg;S.tg[T.k]=sel.includes(i)?sel.filter(x=>x!==i):sel.concat(i).sort((p,q)=>p-q)}
