@@ -1051,6 +1051,7 @@ tr.tg-few td{color:var(--sub)}
 .fin-b textarea{width:100%;min-height:92px;resize:vertical;border:1px solid var(--rule2);border-radius:8px;padding:8px 10px;font:inherit;font-size:13px;line-height:1.6;background:#fcfdfc}.fin-b textarea:focus{outline:2px solid var(--accent-line)}.fin-b .btn{justify-self:start}
 .fin-rp{display:grid;grid-template-columns:1fr 1fr;gap:14px}.fin-rp>div:first-child{border:1.5px solid var(--accent-line);border-radius:8px;padding:8px 12px}.fin-rp>div:last-child{color:var(--ink2)}.fin-rp b{display:block;font-size:11.5px;color:var(--sub);margin-bottom:3px}
 @media(max-width:760px){.fin-r,.fin-rp{grid-template-columns:1fr}}
+.pl-step{display:flex;justify-content:space-between;gap:10px;margin:18px 0 6px}
 .fin-stat{display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap}.fin-stat small{color:var(--sub)}.fc-s{margin:0 0 16px}.fc-s .fin-h{margin-bottom:8px}
 .fc-r{display:grid;grid-template-columns:150px minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:stretch;padding:8px 0;border-top:1px solid var(--rule)}.fc-n{font-weight:700;font-size:13px;padding-top:8px}
 .fc-p,.fc-d{border-radius:10px;padding:8px 12px;font-size:13px;display:grid;gap:4px;align-content:start;min-width:0}.fc-p{background:#fffaf0;border:1px dashed var(--warnln)}.fc-d{background:#fff;border:1.5px solid var(--accent-line)}
@@ -2202,7 +2203,7 @@ I('plan','p_sec4','4　宣伝コンセプトを決める',12,[2],()=>({d:'1〜3�
 I('plan','p_final','宣伝コンセプト：CREWの案と、決定稿',12,[2],(T,d)=>{const X=finFields(T,d),F=finOf(T);
   const row=f=>{const same=finSame(F,f);return `<div class="fc-r"><div class="fc-n">${f.n}</div>
      <div class="fc-p"><small>CREWの案</small><b>${f.p}</b><span><i>根拠</i>${f.why}</span></div>
-     <div class="fc-d"><small>決定稿<span data-finchip="${f.id}">${finChip(same)}</span></small>${f.tg?`<b class="fc-tg">${f.v}</b><button class="fx-re" data-psec="p_map" style="display:inline;margin:0">上の地図で選び直す</button>`:`<input type="text" data-fin="${f.id}" data-p="${escT(f.p)}" value="${escT(finVal(F,f))}" aria-label="${f.n}の決定稿"><button class="fx-re" data-finback="${f.id}" style="margin:0;display:${same?'none':'inline'}">CREWの案に戻す</button>`}</div></div>`};
+     <div class="fc-d"><small>決定稿<span data-finchip="${f.id}">${finChip(same)}</span></small>${f.tg?`<b class="fc-tg">${f.v}</b><button class="fx-re" data-psec="p_map" style="display:inline;margin:0">「1 誰に」の地図で選び直す</button>`:`<input type="text" data-fin="${f.id}" data-p="${escT(f.p)}" value="${escT(finVal(F,f))}" aria-label="${f.n}の決定稿"><button class="fx-re" data-finback="${f.id}" style="margin:0;display:${same?'none':'inline'}">CREWの案に戻す</button>`}</div></div>`};
   return {d:'設定する項目ごとに、CREWが案とデータの根拠を出します。決定稿の欄で調整して、確定します',h:`<div class="fin-top"><span class="fin-stat" data-finstat>${finStat(T,d)}</span><span><button class="btn pri" data-finok>この内容で確定する</button> <button class="btn" data-finrpt>決定稿を報告書にする</button></span></div>
    ${FIN_SEC.map(([k,n,sec],i)=>`<div class="fc-s"><div class="fin-h"><b class="num">${i+1}</b>${n}<button class="fx-re" data-psec="${sec}" style="display:inline;margin:0 0 0 10px">くわしいデータを見る</button></div>${X[k].map(row).join('')}</div>`).join('')}
    <div class="note">CREWの案と根拠は、類似作を観た人の回答から、決まった文で出しています。「いつ」「どこで・何を」の案は、決めたメインターゲットの回答をもとにしているので、ターゲットを選び直すと変わります。決定稿は、作品ごとにこの端末に保存されます。</div>`}},{when:'pre'});
@@ -2828,8 +2829,10 @@ function mvSw(){const c=MV.find(x=>x[0]===S.mv)||MV[0];return `<div class="ctl m
 
 /* 宣伝設計は、ふだんのタブとは分けて、ヘッダーの入口から入る画面にする */
 const PLAN_SEC=[['p_sec1','誰に','1'],['p_sec2','いつ','2'],['p_sec3','どこで・何を','3'],['p_sec4','宣伝コンセプト','4']];
+const curSec=()=>PLAN_SEC.some(x=>x[0]===S.psec)?S.psec:PLAN_SEC[0][0],planSec=id=>{let c=PLAN_SEC[0][0];for(const it of ITEMS){if(it.page!=='plan')continue;if(PLAN_SEC.some(x=>x[0]===it.id))c=it.id;if(it.id===id)return c}return PLAN_SEC[0][0]};
+function planStep(){const i=PLAN_SEC.findIndex(x=>x[0]===curSec()),a=PLAN_SEC[i-1],b=PLAN_SEC[i+1];return `<div class="pl-step">${a?`<button class="btn" data-psec="${a[0]}">← ${a[2]} ${a[1]}</button>`:'<span></span>'}${b?`<button class="btn pri" data-psec="${b[0]}">次へ：${b[2]} ${b[1]} →</button>`:''}</div>`}
 function planNav(T,d){const ok=ITEMS.some(it=>it.page==='plan'&&avail(it,d));
-  return ok?PLAN_SEC.map(([id,n,no])=>`<button class="tab" data-psec="${id}"><span class="ti"><b class="num">${no}</b></span><span class="tl">${n}</span><span class="ts">${n}</span></button>`).join(''):''}
+  return ok?PLAN_SEC.map(([id,n,no])=>`<button class="tab ${curSec()===id?'on':''}" data-psec="${id}"><span class="ti"><b class="num">${no}</b></span><span class="tl">${n}</span><span class="ts">${n}</span></button>`).join(''):''}
 function planEmpty(T,d){const pre=true,ph=S.phase>=3,pd=Math.min(T.today,-1)<0?Math.min(T.today,-1):-30;
   return `<div class="card plan-empty"><h2>この条件では、宣伝設計は表示できません</h2><ul>
     ${ph?'':S.client?'<li>宣伝設計は、いまご利用のデータの範囲では表示できません。</li>':'<li>宣伝設計は、類似作を劇場で観た人の回答（CAST）を使うため、Phase 3 から使えます。</li>'}
@@ -2839,7 +2842,8 @@ $('#btnPlan').onclick=()=>{if(S.page==='plan'){setPage(S.prevPage||'home')}else{
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-psec],[data-planx],[data-plandays]');if(!t)return;ev.stopPropagation();
   if(t.dataset.planx!=null){setPage(S.prevPage&&S.prevPage!=='plan'?S.prevPage:'home');return}
   if(t.dataset.plandays){S.day=+t.dataset.plandays;render();return}
-  const el=$('#it-'+t.dataset.psec);if(el){const y=el.getBoundingClientRect().top+scrollY-($('.top').offsetHeight+12);window.scrollTo(0,y)}},true);
+  const ps=t.dataset.psec;if(PLAN_SEC.some(x=>x[0]===ps)){S.psec=ps;render();window.scrollTo({top:0});return}
+  S.psec=planSec(ps);render();const el=$('#it-'+ps);if(el){const y=el.getBoundingClientRect().top+scrollY-($('.top').offsetHeight+12);window.scrollTo(0,y)}},true);
 
 /* 並び：今どうか・何をしたか → 何を出し、どう届けたか → どう受け止められ、誰が来たか → どこまで伸びるか */
 const PG_ORDER=['home','acts','creative','deliver','interest','audience','outlook','plan'],PG_GSEP=['creative','interest','outlook'];
@@ -2973,16 +2977,16 @@ function render(){syncPeers();const T=cur(),d=S.day;
   document.body.classList.toggle('client',S.client);$('#btnClient').textContent=S.client?'社内表示に戻す':'配給会社の表示にする';
   $('#modeSwM').innerHTML=modeSw(PM);$('#tabs').innerHTML=modeSw(PM,'d')+(PM?planNav(T,d):visiblePages(d).filter(p=>p.k!=='plan').map(p=>`<button class="tab ${p.k===S.page?'on':''} ${PG_GSEP.includes(p.k)?'gsep':''}" data-page="${p.k}"><span class="ti">${TAB_IC[p.k]||''}${tabDot(T,d,p.k)}</span><span class="tl">${p.n}</span><span class="ts">${TAB_SHORT[p.k]}</span></button>`).join(''));
   $('#mDate').textContent=`${md(dateOf(T,d))}｜${relLbl(d)}`;appSave();
-  const pg=PAGES.find(p=>p.k===S.page),list=ITEMS.filter(it=>it.page===S.page&&avail(it,d)&&(!it.grp||S.mv==='all'||it.grp===S.mv)),dl=list.filter(it=>it.deep);
+  const pg=PAGES.find(p=>p.k===S.page),psI=S.page==='plan'&&S.psec!=='all'?ITEMS.find(x=>x.id===curSec()):null,list=ITEMS.filter(it=>it.page===S.page&&avail(it,d)&&(!it.grp||S.mv==='all'||it.grp===S.mv)&&(!psI||(it!==psI&&planSec(it.id)===psI.id))),dl=list.filter(it=>it.deep);
   const card=it=>{const o=it.fn(T,d);return `<section class="card c${it.w}" id="it-${it.id}" data-need="${it.need.join(',')}"><div class="card-h"><h2>${it.t}</h2><span class="d">${o.d||''}</span></div>${srcChips(it)}${o.h}${provHTML(it,T,d)}</section>`};
-  $('#page').innerHTML=`${S.page==='home'?heroHTML(T,d):''}<div class="pg-head">${S.page==='home'?'':`<span class="pg-po">${poster(T,{fit:'slice'})}</span>`}<h1>${pg.n}</h1><span class="pg-q">${pg.q}</span><span class="chip neu">${T.name}｜${md(dateOf(T,d))}時点</span><button class="chip peer-chip" data-peers>比べている類似作 ${PEERS.length}本${refTx()}${peerChanged()?'（選び直し済み）':''} ⓘ</button><span class="srcs int-only" style="margin:0"><span class="sc-l">社内表示：各項目に、使っているデータを出しています</span><span class="sc">番号つき＝6分類</span><span class="sc c">共通のデータ</span><span class="sc l">点線＝上のPhaseで加わる</span></span></div>${fewNote()}${PM&&d>=0&&list.length?'<div class="few-note"><b>基準日は公開後です</b><span>宣伝設計は、類似作の観客の回答から、公開前の宣伝を組み立てるための画面です。公開後は、組み立てのふり返りや、次の作品の参考としてお使いください。</span></div>':''}${castGuide(T,d)}${S.page==='deliver'?mvSw():''}<div class="grid">${list.filter(it=>!it.deep).map(card).join('')}</div>${dl.length?`<details class="deep" ${S.deepOpen[S.page]?'open':''}><summary>くわしく見る<span>${dl.length}項目</span></summary><div class="grid">${dl.map(card).join('')}</div></details>`:''}`;
+  $('#page').innerHTML=`${S.page==='home'?heroHTML(T,d):''}<div class="pg-head">${S.page==='home'?'':`<span class="pg-po">${poster(T,{fit:'slice'})}</span>`}<h1>${psI?psI.t:pg.n}</h1><span class="pg-q">${psI?psI.fn(T,d).d:pg.q}</span><span class="chip neu">${T.name}｜${md(dateOf(T,d))}時点</span><button class="chip peer-chip" data-peers>比べている類似作 ${PEERS.length}本${refTx()}${peerChanged()?'（選び直し済み）':''} ⓘ</button><span class="srcs int-only" style="margin:0"><span class="sc-l">社内表示：各項目に、使っているデータを出しています</span><span class="sc">番号つき＝6分類</span><span class="sc c">共通のデータ</span><span class="sc l">点線＝上のPhaseで加わる</span></span></div>${fewNote()}${PM&&d>=0&&list.length?'<div class="few-note"><b>基準日は公開後です</b><span>宣伝設計は、類似作の観客の回答から、公開前の宣伝を組み立てるための画面です。公開後は、組み立てのふり返りや、次の作品の参考としてお使いください。</span></div>':''}${castGuide(T,d)}${S.page==='deliver'?mvSw():''}<div class="grid">${list.filter(it=>!it.deep).map(card).join('')}</div>${dl.length?`<details class="deep" ${S.deepOpen[S.page]?'open':''}><summary>くわしく見る<span>${dl.length}項目</span></summary><div class="grid">${dl.map(card).join('')}</div></details>`:''}${psI&&list.length?planStep():''}`;
   if(PM&&!list.length){const g=$('#page .grid');if(g)g.outerHTML=planEmpty(T,d)}
   const dt=$('details.deep');if(dt)dt.addEventListener('toggle',()=>{S.deepOpen[S.page]=dt.open});
   const cgd=$('details.castg');if(cgd)cgd.addEventListener('toggle',()=>{S.castOpen=cgd.open});
   bindTimeline($('#page'));tblLabels($('#page'));
   document.documentElement.style.setProperty('--toph',$('.top').offsetHeight+'px');
 }
-function setPage(p,hit){closePanel();S.page=p;if(hit){const h=ITEMS.find(x=>x.id===hit||x.hit===hit&&x.page===p);if(h&&h.deep)S.deepOpen[p]=true;if(h&&h.grp)S.mv=h.grp}render();window.scrollTo({top:0});
+function setPage(p,hit){closePanel();S.page=p;if(hit){const h=ITEMS.find(x=>x.id===hit||x.hit===hit&&x.page===p);if(h&&h.deep)S.deepOpen[p]=true;if(h&&h.grp)S.mv=h.grp;if(h&&p==='plan')S.psec=planSec(h.id)}render();window.scrollTo({top:0});
   if(hit){const it=ITEMS.find(x=>x.id===hit||x.hit===hit&&x.page===p),el=it&&$('#it-'+it.id);if(el){el.scrollIntoView({block:'center'});el.classList.add('hit');setTimeout(()=>el.classList.remove('hit'),1800)}}}
 function setTitle(k){S.openEv=null;S.title=k;S.day=TT[k].today;render()}
 
@@ -3028,10 +3032,10 @@ document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLower
   if(e.key==='Escape'){if($('#cmdk').classList.contains('on'))closeCk();else closePanel()}});
 
 /* 総点検：Phase×作品×基準日×ページ */
-function aliasCheck(){const keep={...S},miss=[];S.phase=3;S.mv='all';for(const [t,id] of Object.entries(ALIAS)){const it=ITEMS.find(x=>x.id===id);if(!it){miss.push([t,id,'項目なし']);continue}
+function aliasCheck(){const keep={...S},miss=[];S.phase=3;S.mv='all';S.psec='all';for(const [t,id] of Object.entries(ALIAS)){const it=ITEMS.find(x=>x.id===id);if(!it){miss.push([t,id,'項目なし']);continue}
   const ok=[['t1',-12],['t3',23]].some(([k,d])=>{S.title=k;S.day=d;S.page=it.page;S.deepOpen[it.page]=true;if(!avail(it,d))return false;render();return !!$('#it-'+id)});if(!ok)miss.push([t,id,'表示されない'])}
   Object.assign(S,keep);render();return {total:Object.keys(ALIAS).length,miss}}
-function selfCheck(){const keep={...S,deepOpen:{...S.deepOpen}},bad=[];let n=0;S.client=true;S.mv='all';PAGES.forEach(p=>S.deepOpen[p.k]=true);
+function selfCheck(){const keep={...S,deepOpen:{...S.deepOpen}},bad=[];let n=0;S.client=true;S.mv='all';S.psec='all';PAGES.forEach(p=>S.deepOpen[p.k]=true);
   const NG={1:/Mark!|Clip!|検索|認知率|観たい率|満足度|NPS|レビュー|アンケート|宣伝効果指数/,2:/認知率|観たい率|満足度|NPS|アンケート|宣伝効果指数/,3:/反応スコア/};
   for(const ph of [1,2,3])for(const t of TITLE_DEFS){const T=TT[t.k];for(const d of [-60,-30,-12,-1,0,1,2,5,13,20,27].filter(x=>x<=T.today)){S.phase=ph;S.title=t.k;S.day=d;
     for(const p of visiblePages(d)){S.page=p.k;try{render()}catch(e){bad.push([ph,t.k,d,p.k,'ERR '+e.message]);continue}n++;const tx=$('#page').innerText;
