@@ -410,6 +410,8 @@ button.sq:hover{background:#fbfaf7}
 .jl-now{position:absolute;left:-5px;right:0;top:50%;border-top:2px solid var(--accent)}
 .jl-row.now .jl-w{border-left:1px solid var(--rule2)}
 .jl-nowt{font-size:12px;font-weight:700;color:var(--accent2)}
+.st3w{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}.st3{text-align:left;border:1px solid var(--rule);border-radius:12px;padding:10px 14px;background:#fff;display:grid;gap:3px;align-content:start;width:100%}
+.st3 small{font-size:11.5px;color:var(--sub);font-weight:600}.st3>b{font-size:14.5px}.st3>span{font-size:12.5px;color:var(--ink2)}button.st3:hover{border-color:var(--accent-line);background:#fcfdfc}
 .strip{display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap}
 .strip-s{font-size:30px;line-height:1;color:var(--accent2)}
 .strip-t{flex:1;min-width:200px;font-size:13px}
@@ -1505,8 +1507,13 @@ function journal(T,d){if(S.jw!=='mag'&&!mAvail(S.jw,d))S.jw='mag';S.cmp='none';
    ${frows.length?sec('fut','これから',oF,oF?'予定している施策。数字は、同じ種類の過去の施策での3日間の目安':`予定 ${nF}件｜次は ${nx.d-d}日後「${nx.label}」${nwT(nwF)}`):''}${(oF?frows:[]).map(r=>r.ev?row('plan ev',`<b class="num">${md(dateOf(T,r.hi))}</b><span>${r.hi-d}日後${r.hi===0?'｜<em>公開日</em>':''}</span>`,r.ev.map(card).join('')):row('plan gap',`<span>${md(dateOf(T,r.lo))}〜</span>`,`<span class="jl-g">${fgap(r)}</span>`)).join('')}
    ${row('now',`<b class="jl-nowp">${d===T.today?'今日':'基準日'}</b>`,`<span class="jl-nowt">${md(dateOf(T,d))}｜${relLbl(d)}</span><i class="jl-nl"></i><button class="jl-sec in" data-jsec="past" aria-expanded="${oP}"><i>${oP?'－':'＋'}</i>これまでの施策 ${nP}件${oP?'':nwT(nwP)}</button>`)}
    ${(oP?rows:[]).map(r=>r.ev?row('ev',`<b class="num">${md(dateOf(T,r.hi))}</b><span>${r.hi===0?'<em>公開日</em>':relLbl(r.hi)}</span>`,r.ev.map(card).join('')):row('gap',`<span>${md(dateOf(T,r.lo))}〜</span>`,`<span class="jl-g">${gapTx(r)}</span>`)).join('')}</div>`}
-I('acts','a_today','いまの状況',12,[],(T,d)=>{const sc=scoreOf(T,d),[tc,tl]=toneOf(sc),nx=T.ev.filter(e=>e.d>d).sort((p,q)=>p.d-q.d)[0];
-  return {d:'',h:`<div class="strip"><span class="strip-s num">${sc}</span><span><span class="tone ${tc}">${tl}</span> <span style="color:var(--sub);font-size:12px">${scoreName()}｜${dp(sc-scoreOf(T,d-7),'','前週比')}</span></span><span class="strip-t">${nx?`次の施策は ${nx.d-d}日後「${nx.label}」`:'この先の施策の予定はありません'}</span><button class="btn" data-page="home">今日のくわしい状況</button></div>`}},{any:[3,6]});
+I('acts','a_today','施策の要点',12,[],(T,d)=>{const k=magKeys()[0],dn=T.ev.filter(e=>e.d<=d&&!isAd(e)).sort((p,q)=>q.d-p.d),nx=T.ev.filter(e=>e.d>d).sort((p,q)=>p.d-q.d)[0];
+  const X=e=>{const o=k?absUp(T,e,k,d):null;return {e,o,x:o&&o.base>0?o.tot/o.base:null,j:o?fxJudge(o,peerFx(e.ty,k)):null}},jt=j=>j?` <em class="fx-j ${j.c}">${JDG[j.c][0]} ${JDG[j.c][1]}</em>`:'';
+  const last=dn[0]&&X(dn[0]),best=dn.map(X).filter(r=>r.x!=null).sort((a,b)=>b.x-a.x)[0];
+  const cell=(h,e,body)=>e?`<button class="st3" data-ev="${e.id}"><small>${h}</small><b>${esc(e.label)}</b><span>${body}</span></button>`:`<div class="st3"><small>${h}</small><b>—</b><span>${body}</span></div>`;
+  return {d:'',h:`<div class="st3w">${cell('いちばん新しい施策',last&&last.e,last?`${d===last.e.d?'今日':(d-last.e.d)+'日前'}｜${last.o?`${M[k].n} ${absTx(last.o.tot,k)}${jt(last.j)}`:'反応は実施から3日後に出ます'}`:'まだ実施した施策がありません')}
+    ${cell('ここまでで、いちばん反応が大きかった施策',best&&best.e,best?`${M[k].n}がふだんの${fxX(best.x)}${jt(best.j)}`:'反応が出そろうと表示されます')}
+    ${cell('次の施策',nx,nx?`${nx.d-d}日後｜${md(dateOf(T,nx.d))}`:'この先の施策の予定はありません')}</div>`}},{any:[3,6]});
 const evMax=X=>X.k===S.title?S.day:X.full?D1:X.today;
 /* 施策の登録：記事などから自動で取得したものは、そのまま登録する。宣伝担当は自分でも入力でき、どれも一覧から外せる */
 const ALL_TYPES=EV_TYPES.concat(['メディア露出','タイアップ','その他']),TYPE_CH={};EV_TYPES.forEach((t,i)=>TYPE_CH[t]=EV_TPL[i][1]);Object.assign(TYPE_CH,{'メディア露出':'PR','タイアップ':'PR','その他':'OWNED'});
