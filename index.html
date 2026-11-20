@@ -1432,11 +1432,11 @@ I('home','h_voice','生の声',6,[3],(T,d)=>{const v=(d<0?V_PRE:V_POST).map(x=>[
 I('home','h_alert','評価の急変アラート',12,[4],(T,d)=>{const s=at(T,'score',d),b=at(T,'score',Math.max(0,d-7)),low=4+(1-T.q)*9,neg=at(T,'neg',d);const bad=s-b<-0.05;
   return {d:'観た人の評価が悪い方向に動いていないか',h:`<div class="kpis">${kpi('スコアの平均',f2(s),'点',d>=7?`前週より ${s-b>=0?'+':''}${f2(s-b)}`:'公開1週目')}${kpi('低い点（2.4以下）の割合',f1(low),'%','類似作の中央値 4.1%')}${kpi('不満の言葉を含むレビュー',f1(neg*0.7),'%','類似作の中央値 8.5%')}
   <div class="kpi" style="display:grid;place-items:center"><span class="tone ${bad?'bad':'good'}">${bad?'下がり始めています':'急な悪化はありません'}</span></div></div>`}},{when:'post'});
-I('home','h_tl','直近2週間の年表',12,[],(T,d)=>({d:'施策と、その日の反応',h:timeline(T,d-13,d+3,tlLayers(d).on.filter(k=>!(M[k].post&&d<0)),'home')}),{any:[3,6]});
+I('home','h_tl','直近2週間の施策と反応',12,[],(T,d)=>({d:'施策を行った日と、その前後の数字の動き',h:timeline(T,d-13,d+3,tlLayers(d).on.filter(k=>!(M[k].post&&d<0)),'home')}),{any:[3,6]});
 function funnel(T,d){const a=at(T,'aware',d),i=at(T,'intent',d),r=R(T,9);const cert=28+T.q*18+r()*4,th=58+T.q*20+r()*4;
   return [['知っている',a,a,52],['観たい',i,i/a*100,38],['必ず観る',i*cert/100,cert,36],['劇場で観る',i*cert/100*th/100,th,70]]}
-I('home','h_funnel','どの段で落ちているか',12,[1],(T,d)=>{const f=funnel(T,d);let wi=1,wd=1e9;f.forEach((x,i)=>{if(i&&x[2]-x[3]<wd){wd=x[2]-x[3];wi=i}});
-  return {d:'知っている → 観たい → 必ず観る → 劇場で観る',h:`<div class="kpis">${f.map((x,i)=>kpi(x[0],f1(x[1]),'%',i?`前の段からの通過 ${f1(x[2])}%（平均 ${x[3]}%）${i===wi&&wd<0?' <b style="color:var(--badtx)">ここが弱い</b>':''}`:'全体に占める割合')).join('')}</div>`}});
+I('home','h_funnel','知ってから観るまで、どこで人が減っているか',12,[1],(T,d)=>{const f=funnel(T,d);let wi=1,wd=1e9;f.forEach((x,i)=>{if(i&&x[2]-x[3]<wd){wd=x[2]-x[3];wi=i}});
+  return {d:'知っている → 観たい → 必ず観る → 劇場で観る　の順に、次へ進む人の割合を見ます',h:`<div class="kpis">${f.map((x,i)=>kpi(x[0],f1(x[1]),'%',i?`「${f[i-1][0]}」人のうち ${f1(x[2])}%（平均 ${x[3]}%）${i===wi&&wd<0?' <b style="color:var(--badtx)">平均をいちばん下回っています</b>':''}`:'調査に答えた人全体のうち')).join('')}</div>`}});
 
 /* ---------- 施策と反応 ---------- */
 /* 施策の日誌：時間は上から下へ。波は「反応の大きさ」1本（または個別の指標1つ）。過去作・類似作を点線で重ねる */
