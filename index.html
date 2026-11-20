@@ -1025,10 +1025,10 @@ tr.tg-few td{color:var(--sub)}
 [id^=it-ux_]::before{content:'';position:absolute;left:0;top:13px;bottom:3px;width:4px;border-radius:2px;background:var(--accent)}
 .grid>[id^=it-ux_]:first-child{margin-top:0}
 [id^=it-ux_] .srcs{display:none}[id^=it-ux_] h2{font-size:19px}
-#it-p_sec1,#it-p_sec2,#it-p_sec3{background:none;border:0;box-shadow:none;padding:8px 4px 0;margin-bottom:-8px}
-#it-p_sec2,#it-p_sec3{margin-top:14px}
-#it-p_sec1 .srcs,#it-p_sec2 .srcs,#it-p_sec3 .srcs{display:none}
-#it-p_sec1 h2,#it-p_sec2 h2,#it-p_sec3 h2{font-size:19px}
+#it-p_sec1,#it-p_sec2,#it-p_sec3,#it-p_sec4{background:none;border:0;box-shadow:none;padding:8px 4px 0;margin-bottom:-8px}
+#it-p_sec2,#it-p_sec3,#it-p_sec4{margin-top:14px}
+#it-p_sec1 .srcs,#it-p_sec2 .srcs,#it-p_sec3 .srcs,#it-p_sec4 .srcs{display:none}
+#it-p_sec1 h2,#it-p_sec2 h2,#it-p_sec3 h2,#it-p_sec4 h2{font-size:19px}
 #it-p_segtime .two>div,#it-p_segroute .two>div,#it-p_area .two>div{min-width:0}
 #it-p_segtime td:first-child,#it-p_segroute td:first-child{white-space:nowrap}
 .cal{border-collapse:separate;border-spacing:2px;width:100%}
@@ -2198,14 +2198,14 @@ const finOf=T=>{const F=FINAL[T.k]||(FINAL[T.k]={});F.v=F.v||{};return F},finVal
 const finChip=same=>same?'<span class="chip neu">CREWの案のまま</span>':'<span class="tone warn">調整済み</span>';
 const finAll=(T,d)=>{const X=finFields(T,d);return FIN_SEC.flatMap(x=>X[x[0]])};
 const finStat=(T,d)=>{const F=finOf(T),L=finAll(T,d),n=L.filter(f=>!finSame(F,f)).length;return `${F.done?`<span class="tone good">確定済み</span><small>${F.done} 確定</small>`:'<span class="tone warn">未確定</span>'}<span>${L.length}項目のうち <b class="num">${n}</b>項目を調整</span>`};
+I('plan','p_sec4','4　宣伝コンセプトを決める',12,[2],()=>({d:'1〜3をふまえて、項目ごとにCREWの案を調整し、決定稿にする',h:''}),{when:'pre'});
 I('plan','p_final','宣伝コンセプト：CREWの案と、決定稿',12,[2],(T,d)=>{const X=finFields(T,d),F=finOf(T);
   const row=f=>{const same=finSame(F,f);return `<div class="fc-r"><div class="fc-n">${f.n}</div>
      <div class="fc-p"><small>CREWの案</small><b>${f.p}</b><span><i>根拠</i>${f.why}</span></div>
-     <div class="fc-d"><small>決定稿<span data-finchip="${f.id}">${finChip(same)}</span></small>${f.tg?`<b class="fc-tg">${f.v}</b><button class="fx-re" data-psec="p_map" style="display:inline;margin:0">下の地図で選び直す</button>`:`<input type="text" data-fin="${f.id}" data-p="${escT(f.p)}" value="${escT(finVal(F,f))}" aria-label="${f.n}の決定稿"><button class="fx-re" data-finback="${f.id}" style="margin:0;display:${same?'none':'inline'}">CREWの案に戻す</button>`}</div></div>`};
+     <div class="fc-d"><small>決定稿<span data-finchip="${f.id}">${finChip(same)}</span></small>${f.tg?`<b class="fc-tg">${f.v}</b><button class="fx-re" data-psec="p_map" style="display:inline;margin:0">上の地図で選び直す</button>`:`<input type="text" data-fin="${f.id}" data-p="${escT(f.p)}" value="${escT(finVal(F,f))}" aria-label="${f.n}の決定稿"><button class="fx-re" data-finback="${f.id}" style="margin:0;display:${same?'none':'inline'}">CREWの案に戻す</button>`}</div></div>`};
   return {d:'設定する項目ごとに、CREWが案とデータの根拠を出します。決定稿の欄で調整して、確定します',h:`<div class="fin-top"><span class="fin-stat" data-finstat>${finStat(T,d)}</span><span><button class="btn pri" data-finok>この内容で確定する</button> <button class="btn" data-finrpt>決定稿を報告書にする</button></span></div>
    ${FIN_SEC.map(([k,n,sec],i)=>`<div class="fc-s"><div class="fin-h"><b class="num">${i+1}</b>${n}<button class="fx-re" data-psec="${sec}" style="display:inline;margin:0 0 0 10px">くわしいデータを見る</button></div>${X[k].map(row).join('')}</div>`).join('')}
    <div class="note">CREWの案と根拠は、類似作を観た人の回答から、決まった文で出しています。「いつ」「どこで・何を」の案は、決めたメインターゲットの回答をもとにしているので、ターゲットを選び直すと変わります。決定稿は、作品ごとにこの端末に保存されます。</div>`}},{when:'pre'});
-(function(){const i=ITEMS.findIndex(x=>x.id==='p_final'),it=ITEMS.splice(i,1)[0],j=ITEMS.findIndex(x=>x.id==='p_sec1');ITEMS.splice(j,0,it)})();
 const finNow=()=>md(new Date());
 document.addEventListener('input',ev=>{const t=ev.target;if(!t.dataset||t.dataset.fin==null)return;const T=cur(),F=finOf(T),k=t.dataset.fin;F.v[k]=t.value;delete F.done;finSave();const same=t.value===t.dataset.p;
   const c=document.querySelector(`[data-finchip="${k}"]`);if(c)c.innerHTML=finChip(same);const bk=document.querySelector(`[data-finback="${k}"]`);if(bk)bk.style.display=same?'none':'inline';const st=document.querySelector('[data-finstat]');if(st)st.innerHTML=finStat(T,S.day)});
@@ -2827,7 +2827,7 @@ const MV=[['sns','公式SNS','自分たちの発信と、その反応'],['ad','�
 function mvSw(){const c=MV.find(x=>x[0]===S.mv)||MV[0];return `<div class="ctl mv-sw"><span class="seg big" role="tablist" aria-label="広告と公式SNSの切り替え">${MV.map(x=>`<button role="tab" data-mv="${x[0]}" class="${c[0]===x[0]?'on':''}" aria-selected="${c[0]===x[0]}">${x[1]}</button>`).join('')}</span><span class="mv-q">${c[2]}</span></div>`}
 
 /* 宣伝設計は、ふだんのタブとは分けて、ヘッダーの入口から入る画面にする */
-const PLAN_SEC=[['p_sec1','誰に','1'],['p_sec2','いつ','2'],['p_sec3','どこで・何を','3']];
+const PLAN_SEC=[['p_sec1','誰に','1'],['p_sec2','いつ','2'],['p_sec3','どこで・何を','3'],['p_sec4','宣伝コンセプト','4']];
 function planNav(T,d){const ok=ITEMS.some(it=>it.page==='plan'&&avail(it,d));
   return ok?PLAN_SEC.map(([id,n,no])=>`<button class="tab" data-psec="${id}"><span class="ti"><b class="num">${no}</b></span><span class="tl">${n}</span><span class="ts">${n}</span></button>`).join(''):''}
 function planEmpty(T,d){const pre=true,ph=S.phase>=3,pd=Math.min(T.today,-1)<0?Math.min(T.today,-1):-30;
