@@ -1051,6 +1051,14 @@ tr.tg-few td{color:var(--sub)}
 .fin-b textarea{width:100%;min-height:92px;resize:vertical;border:1px solid var(--rule2);border-radius:8px;padding:8px 10px;font:inherit;font-size:13px;line-height:1.6;background:#fcfdfc}.fin-b textarea:focus{outline:2px solid var(--accent-line)}.fin-b .btn{justify-self:start}
 .fin-rp{display:grid;grid-template-columns:1fr 1fr;gap:14px}.fin-rp>div:first-child{border:1.5px solid var(--accent-line);border-radius:8px;padding:8px 12px}.fin-rp>div:last-child{color:var(--ink2)}.fin-rp b{display:block;font-size:11.5px;color:var(--sub);margin-bottom:3px}
 @media(max-width:760px){.fin-r,.fin-rp{grid-template-columns:1fr}}
+.fin-stat{display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap}.fin-stat small{color:var(--sub)}.fc-s{margin:0 0 16px}.fc-s .fin-h{margin-bottom:8px}
+.fc-r{display:grid;grid-template-columns:150px minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:stretch;padding:8px 0;border-top:1px solid var(--rule)}.fc-n{font-weight:700;font-size:13px;padding-top:8px}
+.fc-p,.fc-d{border-radius:10px;padding:8px 12px;font-size:13px;display:grid;gap:4px;align-content:start;min-width:0}.fc-p{background:#fffaf0;border:1px dashed var(--warnln)}.fc-d{background:#fff;border:1.5px solid var(--accent-line)}
+.fc-p>small,.fc-d>small{font-family:'Zen Maru Gothic',sans-serif;font-weight:700;font-size:11.5px;display:flex;gap:8px;align-items:center}.fc-p>small{color:var(--warntx)}.fc-d>small{color:var(--accent2)}
+.fc-p>b{font-size:14px}.fc-p>span{font-size:12px;color:var(--ink2)}.fc-p>span i{font-style:normal;font-size:10.5px;border:1px solid var(--warnln);border-radius:4px;padding:0 4px;margin-right:6px;color:var(--warntx)}
+.fc-d input{width:100%;border:1px solid var(--rule2);border-radius:8px;padding:7px 10px;font:inherit;font-size:14px;font-weight:700;background:#fcfdfc}.fc-d input:focus{outline:2px solid var(--accent-line)}.fc-tg{font-size:14px;padding:6px 0}.fc-d .fx-re{justify-self:start}
+.fc-t{width:100%;border-collapse:collapse;font-size:12px}.fc-t th,.fc-t td{border:1px solid var(--rule2);padding:5px 8px;text-align:left;vertical-align:top}.fc-t th{background:#f6f3ec;font-size:11px}.fc-t td:first-child{white-space:nowrap}
+@media(max-width:760px){.fc-r{grid-template-columns:1fr}.fc-n{padding-top:0}}
 .ins{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 14px}
 .ins>div{border-radius:12px;padding:10px 14px;font-size:13px;min-width:0}
 .ins b,.sum-b b{display:block;font-family:'Zen Maru Gothic',sans-serif;font-size:12px;margin-bottom:3px}
@@ -2165,32 +2173,51 @@ const PLI={
    b:[`同じ告知でも、層によって届く場所が違います。「${mx.n}」と「${mn.n}」では、知らせる場所を分けて考える材料になります。`,'決めた理由も層で違います。場所だけでなく、何を前に出すか（内容・出演者・話題など）も、層ごとに変える余地があります。']}}
 };
 ITEMS.filter(it=>it.page==='plan'&&PLI[it.id]).forEach(it=>{const f=it.fn;it.fn=(T,d)=>{const o=f(T,d),x=PLI[it.id](T,d,o);return x&&x.a.length?{...o,h:pliH(x)+o.h.replace(/<ul class="tg-pts">[\s\S]*?<\/ul>/,'')}:o}});
-/* 宣伝設計：データからの示唆と、それを受けた決定稿を並べる。決定稿は宣伝担当が書く（作品ごとに保存） */
-const LSF='crew_v7_final_1';let FINAL={};try{FINAL=JSON.parse(localStorage.getItem(LSF)||'{}')||{}}catch(e){}
-const finSave=()=>{try{localStorage.setItem(LSF,JSON.stringify(FINAL))}catch(e){}},escT=t=>String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'),noTag=t=>String(t).replace(/<[^>]+>/g,'');
-const FIN_SEC=[['who','誰に向けるか','p_sec1'],['when','いつ強めるか','p_sec2'],['what','どこで、何を伝えるか','p_sec3']];
-function finHints(T,d){const sel=tgSel(T),D=tgData(T),o={who:[],when:[],what:[]},b=id=>{try{const x=PLI[id](T,d);return x?x.b.slice(0,2):[]}catch(e){return []}};
-  if(sel.length)o.who.push(`いま選んでいる層は「${tgNames(D,sel)}」です。`);o.who.push(...b('p_map'));o.when.push(...b('a_simtime'));o.what.push(...b('i_simroute'));return o}
-const finOf=T=>FINAL[T.k]||(FINAL[T.k]={}),finHas=v=>!!(v&&v.t&&v.t.trim()),finN=T=>FIN_SEC.filter(x=>finHas(finOf(T)[x[0]])).length;
-const finSt=v=>finHas(v)?`<span class="tone good">記入済み</span><small>${v.at||''} 更新</small>`:'<span class="tone warn">未記入</span>';
-I('plan','p_final','データからの示唆と、決定稿',12,[2],(T,d)=>{const H=finHints(T,d),F=finOf(T);
-  return {d:'左＝数字から出した示唆（自動）｜右＝それを受けて決めた内容（宣伝担当が記入）',h:`<div class="fin-top"><span>決定稿 <b class="num" data-fincnt>${finN(T)}</b>／3 記入済み</span><button class="btn" data-finrpt>決定稿を報告書にする</button></div>
-   <div class="fin">${FIN_SEC.map(([k,n,sec],i)=>`<div class="fin-r"><div class="fin-h"><b class="num">${i+1}</b>${n}<button class="fx-re" data-psec="${sec}" style="display:inline;margin:0 0 0 10px">根拠のデータを見る</button></div>
-     <div class="fin-a"><b>データからの示唆</b><ul>${H[k].map(t=>`<li>${t}</li>`).join('')}</ul></div>
-     <div class="fin-b"><b>決定稿<span class="fin-st" data-finst="${k}">${finSt(F[k])}</span></b><textarea data-fin="${k}" rows="4" aria-label="${n}の決定稿" placeholder="示唆を受けて、決めた内容を書きます">${escT(F[k]&&F[k].t)}</textarea><button class="btn" data-findraft="${k}">示唆を下書きに入れる</button></div></div>`).join('')}</div>
-   <div class="note">示唆は、類似作の観客の回答から、決まった文で出しています（下の各項目の「宣伝への示唆」から、要点を抜き出したものです）。決定稿は、作品ごとにこの端末に保存されます。</div>`}},{when:'pre'});
+/* 宣伝コンセプト：設定する項目ごとに、CREWの案（＋データの根拠）と、利用者が微調整して決める決定稿を並べる（作品ごとに保存） */
+const LSF='crew_v7_final_2';let FINAL={};try{FINAL=JSON.parse(localStorage.getItem(LSF)||'{}')||{}}catch(e){}
+const finSave=()=>{try{localStorage.setItem(LSF,JSON.stringify(FINAL))}catch(e){}},escT=t=>String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const FIN_SEC=[['who','誰に','p_sec1'],['when','いつ','p_sec2'],['what','どこで・何を','p_sec3']];
+function finFields(T,d){const D=tgData(T),sel=tgSel(T),all=D.segs.map(s=>s.i),on=sel.length>0,A=tgAgg(D,on?sel:all),W=tgAgg(D,all),t=D.tags,nm=i=>D.segs[i].n,who=on?'メインターゲット':'類似作の観客';
+  const ms=sumA(t.many.map(i=>D.segs[i].sh)),both=t.many.filter(i=>t.nps.includes(i)),small=t.nps.filter(i=>!t.many.includes(i)),seed=small.length?small:both.length?both:t.nps,sn=mean(seed.map(i=>D.segs[i].nps)),wi=iMax(A.wth);
+  const late=A.dec[3]+A.dec[4],early=A.dec[0]+A.dec[1];let cum=0,si=0;for(let i=0;i<A.dec.length;i++){cum+=A.dec[i];si=i;if(cum>=20)break}
+  const hi=ROUTES2.findIndex(r=>r.k==='H'),hs=A.know[hi],ko=A.know.map((v,i)=>i).sort((p,q)=>A.know[q]-A.know[p]),w1=iMax(A.why),X=areaData(T),df=X.u-X.ua,ty=df>=3?'都市型':df<=-3?'ローカル型':'全国型';
+  return {who:[
+     {id:'main',n:'メインターゲット',tg:1,p:t.many.map(nm).join('・'),same:sel.length===t.many.length&&sel.every(i=>t.many.includes(i)),v:on?tgNames(D,sel):'（まだ選んでいません）',why:`人数の多い上位3層で、類似作の観客の${f1(ms)}%。${both.length?`うち「${both.map(nm).join('・')}」は、すすめたい度も上位です。`:''}`},
+     {id:'seed',n:'口コミの起点にする層',p:seed.map(nm).join('・'),why:`すすめたい度が ${pt(sn)}（観客全体は ${pt(W.nps)}）。${small.length?'人数は多くないものの、すすめてくれる度合いが高い層です。':'人数が多く、すすめてくれる度合いも高い層です。'}`},
+     {id:'with',n:'観に来る形',p:`「${WITH[wi]}」で観る人を中心に考える`,why:`${who}の${f1(A.wth[wi])}%が「${WITH[wi]}」。映画館に行くのが年1〜2回の人は${f1(A.go[0])}%。`}],
+    when:[
+     {id:'start',n:'本格的に始める時期',p:DEC_WHEN[si],why:`${who}の${f1(cum)}%が、この時期までに観ると決めています。`},
+     {id:'peak',n:'告知の山を置く時期',p:late>=45?'公開の直前〜公開週':early>=38?'公開の2週間以上前':'山を1つにせず、公開まで続ける',why:`公開の直前〜当日に決めた人 ${f1(late)}%／2週間以上前に決めた人 ${f1(early)}%。`},
+     {id:'after',n:'公開後の進め方',p:hs>=15?'観た人の感想が広がる施策を用意する':'上映館・日時など、行動につながる情報を中心にする',why:`家族・友人から聞いて知った人は ${f1(hs)}%。`}],
+    what:[
+     {id:'m1',n:'中心にするメディア',p:ROUTES2[ko[0]].n,why:`知ったきっかけの1位（${f1(A.know[ko[0]])}%${on?`、観客全体では ${f1(W.know[ko[0]])}%`:''}）。`},
+     {id:'m2',n:'補助にするメディア',p:ROUTES2[ko[1]].n,why:`知ったきっかけの2位（${f1(A.know[ko[1]])}%）。`},
+     {id:'msg',n:'訴求の軸（何を前に出すか）',p:WHY[w1],why:`観ると決めたいちばんの理由の1位（${f1(A.why[w1])}%）。`},
+     {id:'area',n:'地域の配分',p:ty==='都市型'?'公開時は都市部に厚く、地方は公開後に広げる':ty==='ローカル型'?'全国に同じ厚みで届ける':'地域で差をつけない',why:`類似作は${ty}（3大都市圏で観た人 ${f1(X.u)}%、全作品の平均より ${pt(df)}）。`}]}}
+const finOf=T=>{const F=FINAL[T.k]||(FINAL[T.k]={});F.v=F.v||{};return F},finVal=(F,f)=>f.tg?f.v:F.v[f.id]!=null?F.v[f.id]:f.p,finSame=(F,f)=>f.tg?f.same:finVal(F,f)===f.p;
+const finChip=same=>same?'<span class="chip neu">CREWの案のまま</span>':'<span class="tone warn">調整済み</span>';
+const finAll=(T,d)=>{const X=finFields(T,d);return FIN_SEC.flatMap(x=>X[x[0]])};
+const finStat=(T,d)=>{const F=finOf(T),L=finAll(T,d),n=L.filter(f=>!finSame(F,f)).length;return `${F.done?`<span class="tone good">確定済み</span><small>${F.done} 確定</small>`:'<span class="tone warn">未確定</span>'}<span>${L.length}項目のうち <b class="num">${n}</b>項目を調整</span>`};
+I('plan','p_final','宣伝コンセプト：CREWの案と、決定稿',12,[2],(T,d)=>{const X=finFields(T,d),F=finOf(T);
+  const row=f=>{const same=finSame(F,f);return `<div class="fc-r"><div class="fc-n">${f.n}</div>
+     <div class="fc-p"><small>CREWの案</small><b>${f.p}</b><span><i>根拠</i>${f.why}</span></div>
+     <div class="fc-d"><small>決定稿<span data-finchip="${f.id}">${finChip(same)}</span></small>${f.tg?`<b class="fc-tg">${f.v}</b><button class="fx-re" data-psec="p_map" style="display:inline;margin:0">下の地図で選び直す</button>`:`<input type="text" data-fin="${f.id}" data-p="${escT(f.p)}" value="${escT(finVal(F,f))}" aria-label="${f.n}の決定稿"><button class="fx-re" data-finback="${f.id}" style="margin:0;display:${same?'none':'inline'}">CREWの案に戻す</button>`}</div></div>`};
+  return {d:'設定する項目ごとに、CREWが案とデータの根拠を出します。決定稿の欄で調整して、確定します',h:`<div class="fin-top"><span class="fin-stat" data-finstat>${finStat(T,d)}</span><span><button class="btn pri" data-finok>この内容で確定する</button> <button class="btn" data-finrpt>決定稿を報告書にする</button></span></div>
+   ${FIN_SEC.map(([k,n,sec],i)=>`<div class="fc-s"><div class="fin-h"><b class="num">${i+1}</b>${n}<button class="fx-re" data-psec="${sec}" style="display:inline;margin:0 0 0 10px">くわしいデータを見る</button></div>${X[k].map(row).join('')}</div>`).join('')}
+   <div class="note">CREWの案と根拠は、類似作を観た人の回答から、決まった文で出しています。「いつ」「どこで・何を」の案は、決めたメインターゲットの回答をもとにしているので、ターゲットを選び直すと変わります。決定稿は、作品ごとにこの端末に保存されます。</div>`}},{when:'pre'});
 (function(){const i=ITEMS.findIndex(x=>x.id==='p_final'),it=ITEMS.splice(i,1)[0],j=ITEMS.findIndex(x=>x.id==='p_sec1');ITEMS.splice(j,0,it)})();
-const finNow=()=>{const n=new Date();return md(n)};
-document.addEventListener('input',ev=>{const t=ev.target;if(!t.dataset||t.dataset.fin==null)return;const T=cur(),k=t.dataset.fin;finOf(T)[k]={t:t.value,at:finNow()};finSave();
-  const st=document.querySelector(`[data-finst="${k}"]`);if(st)st.innerHTML=finSt(finOf(T)[k]);const c=document.querySelector('[data-fincnt]');if(c)c.textContent=finN(T)});
-document.addEventListener('click',ev=>{const t=ev.target.closest('[data-findraft],[data-finrpt]');if(!t)return;ev.stopPropagation();const T=cur();
+const finNow=()=>md(new Date());
+document.addEventListener('input',ev=>{const t=ev.target;if(!t.dataset||t.dataset.fin==null)return;const T=cur(),F=finOf(T),k=t.dataset.fin;F.v[k]=t.value;delete F.done;finSave();const same=t.value===t.dataset.p;
+  const c=document.querySelector(`[data-finchip="${k}"]`);if(c)c.innerHTML=finChip(same);const bk=document.querySelector(`[data-finback="${k}"]`);if(bk)bk.style.display=same?'none':'inline';const st=document.querySelector('[data-finstat]');if(st)st.innerHTML=finStat(T,S.day)});
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-finback],[data-finrpt],[data-finok]');if(!t)return;ev.stopPropagation();const T=cur(),F=finOf(T),y=window.scrollY;
   if(t.dataset.finrpt!=null){openFinReport();return}
-  const k=t.dataset.findraft,F=finOf(T),h=finHints(T,S.day)[k].map(x=>'・'+noTag(x)).join('\n'),y=window.scrollY;F[k]={t:(finHas(F[k])?F[k].t.replace(/\s+$/,'')+'\n':'')+h,at:finNow()};finSave();render();window.scrollTo({top:y})},true);
-function openFinReport(){const T=cur(),d=S.day,H=finHints(T,d),F=finOf(T);let el=$('#rpt');if(!el){el=document.createElement('div');el.id='rpt';document.body.appendChild(el)}
-  el.innerHTML=`<div class="rp-bar"><b>宣伝設計の決定稿</b><span>このまま印刷するか、印刷の画面で「PDFに保存」を選ぶと、社内の共有にそのまま使えます。</span><button class="btn pri" id="rpPrint">印刷・PDFにする</button><button class="btn" id="rpClose">閉じる</button></div>
-   <div class="rp-page"><div class="rp-head"><span class="rp-po">${poster(T,{fit:'slice'})}</span><div><small>宣伝設計の決定稿</small><h1>${T.name}</h1><p>${md(dateOf(T,d))}時点｜${relLbl(d)}</p></div></div>
-   ${FIN_SEC.map(([k,n],i)=>`<div class="rp-sec"><h2>${i+1}　${n}</h2><div class="fin-rp"><div><b>決定稿</b><p>${finHas(F[k])?escT(F[k].t).replace(/\n/g,'<br>'):'（未記入）'}</p></div><div><b>もとにした、データからの示唆</b><ul>${H[k].map(t=>`<li>${t}</li>`).join('')}</ul></div></div></div>`).join('')}
-   <div class="rp-foot">${md(dateOf(T,d))} 6:00 時点｜示唆は類似作 ${PEERS.length}本${refTx()}の観客の回答から（1本ずつの数字は出していません）</div></div>`;
+  if(t.dataset.finok!=null){finAll(T,S.day).forEach(f=>{if(!f.tg)F.v[f.id]=finVal(F,f)});F.done=finNow()}else{delete F.v[t.dataset.finback];delete F.done}
+  finSave();render();window.scrollTo({top:y})},true);
+function openFinReport(){const T=cur(),d=S.day,X=finFields(T,d),F=finOf(T);let el=$('#rpt');if(!el){el=document.createElement('div');el.id='rpt';document.body.appendChild(el)}
+  el.innerHTML=`<div class="rp-bar"><b>宣伝コンセプトの決定稿</b><span>このまま印刷するか、印刷の画面で「PDFに保存」を選ぶと、社内の共有にそのまま使えます。</span><button class="btn pri" id="rpPrint">印刷・PDFにする</button><button class="btn" id="rpClose">閉じる</button></div>
+   <div class="rp-page"><div class="rp-head"><span class="rp-po">${poster(T,{fit:'slice'})}</span><div><small>宣伝コンセプトの決定稿${F.done?`（${F.done} 確定）`:'（未確定）'}</small><h1>${T.name}</h1><p>${md(dateOf(T,d))}時点｜${relLbl(d)}</p></div></div>
+   ${FIN_SEC.map(([k,n],i)=>`<div class="rp-sec"><h2>${i+1}　${n}</h2><table class="fc-t"><tr><th>項目</th><th>決定稿</th><th>CREWの案</th><th>データの根拠</th></tr>${X[k].map(f=>`<tr><td>${f.n}</td><td><b>${escT(finVal(F,f))}</b></td><td>${finSame(F,f)?'同じ':f.p}</td><td>${f.why}</td></tr>`).join('')}</table></div>`).join('')}
+   <div class="rp-foot">${md(dateOf(T,d))} 6:00 時点｜根拠は類似作 ${PEERS.length}本${refTx()}を観た人の回答（1本ずつの数字は出していません）</div></div>`;
   document.body.classList.add('rp-on');el.scrollTop=0;$('#rpPrint').onclick=()=>window.print();$('#rpClose').onclick=()=>document.body.classList.remove('rp-on')}
 /* SNSの中で、どの媒体が多いか */
 const SNS_N=['X','Instagram','YouTube','TikTok'];
