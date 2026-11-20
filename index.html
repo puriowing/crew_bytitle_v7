@@ -1394,7 +1394,7 @@ const PAGES=[
 const ITEMS=[];
 /* need＝すべて必要／any＝どれか1つ／when＝pre・post／hide＝出さない条件 */
 const I=(page,id,t,w,need,fn,o={})=>ITEMS.push({page,id,t,w,need,fn,...o});
-const avail=(it,d)=>it.need.every(has)&&(!it.any||it.any.some(has))&&(!it.when||(it.when==='pre')===(d<0))&&!(it.hide&&it.hide(d));
+const avail=(it,d)=>it.need.every(has)&&(!it.any||it.any.some(has))&&(!it.when||it.page==='plan'||(it.when==='pre')===(d<0))&&!(it.hide&&it.hide(d));
 const R=(T,salt)=>rng(T.seed*131+salt);
 const AGES=['10代','20代','30代','40代','50代','60代以上'];
 function dist(r,base,jit){const a=base.map(v=>Math.max(.5,v*(1+(r()-.5)*jit)));const s=sumA(a);return a.map(v=>v/s*100)}
@@ -2029,7 +2029,7 @@ const pt=v=>(v>=0?'+':'')+f1(v)+'pt',iMax=a=>a.indexOf(Math.max(...a));
 I('plan','p_sec1','1　誰に向けるか',12,[2],()=>({d:'類似作を実際に観た人から、狙う層を考える',h:''}),{when:'pre'});
 I('plan','p_basis','もとにしている類似作',12,[2],(T,d)=>{const D=tgData(T),own=PAST.filter(p=>p.k!==T.k);
   return {d:SIMN(),h:`<div class="kpis" style="margin-bottom:12px">${kpi('類似作',PEERS.length,'本',`うち自社の過去作 ${own.length}本`)}${kpi('鑑賞後アンケートの回答',fN(D.N),'件','類似作の合計')}${kpi('選び方',T.genre,'',`${T.kind}・公開規模200〜400スクリーン・直近3年`)}</div>
-   <div class="note" style="margin:0 0 10px">この作品の観客はまだいないので、近い作品を実際に観た人の回答から、誰に向けて宣伝を組み立てるかを考えます。回答が${TG_MIN}件に満たない層は「参考」と表示します。自社の過去作：${own.map(p=>p.name).join('／')}</div>
+   <div class="note" style="margin:0 0 10px">${d<0?'この作品の観客はまだいないので、':''}近い作品を実際に観た人の回答から、誰に向けて宣伝を組み立てるかを考えます。回答が${TG_MIN}件に満たない層は「参考」と表示します。自社の過去作：${own.map(p=>p.name).join('／')}</div>
    <div class="tg-bar"><span>あわせて見る</span><button class="btn" data-go="outlook" data-hit="o_simsat">満足度と公開後の伸び</button></div>`}},{when:'pre'});
 I('plan','u_sim','類似作を観た人たち',12,[2],(T,d)=>{const D=tgData(T),W=tgAgg(D,D.segs.map(s=>s.i)),ag=AGES.map((_,a)=>sumA(D.segs.filter(s=>s.a===a).map(s=>s.sh))),fem=sumA(D.segs.filter(s=>s.g===0).map(s=>s.sh));
   return {d:'観客全体の姿',h:`<div class="three"><div><div class="sub-h">年代</div>${bars(AGES.map((a,i)=>({l:a,v:ag[i]})),{fmt:f1,u:'%',c:'#5b6f9c'})}<div class="note">女性の割合は ${f1(fem)}%。</div></div>
@@ -2767,7 +2767,7 @@ function mvSw(){const c=MV.find(x=>x[0]===S.mv)||MV[0];return `<div class="ctl m
 const PLAN_SEC=[['p_sec1','誰に','1'],['p_sec2','いつ','2'],['p_sec3','どこで・何を','3']];
 function planNav(T,d){const ok=ITEMS.some(it=>it.page==='plan'&&avail(it,d));
   return ok?PLAN_SEC.map(([id,n,no])=>`<button class="tab" data-psec="${id}"><span class="ti"><b class="num">${no}</b></span><span class="tl">${n}</span><span class="ts">${n}</span></button>`).join(''):''}
-function planEmpty(T,d){const pre=d<0,ph=S.phase>=3,pd=Math.min(T.today,-1)<0?Math.min(T.today,-1):-30;
+function planEmpty(T,d){const pre=true,ph=S.phase>=3,pd=Math.min(T.today,-1)<0?Math.min(T.today,-1):-30;
   return `<div class="card plan-empty"><h2>この条件では、宣伝設計は表示できません</h2><ul>
     ${ph?'':S.client?'<li>宣伝設計は、いまご利用のデータの範囲では表示できません。</li>':'<li>宣伝設計は、類似作を劇場で観た人の回答（CAST）を使うため、Phase 3 から使えます。</li>'}
     ${pre?'':'<li>宣伝設計は、公開前に宣伝を組み立てるための画面です。いまの基準日は公開後です。</li>'}</ul>
@@ -2912,7 +2912,7 @@ function render(){syncPeers();const T=cur(),d=S.day;
   $('#mDate').textContent=`${md(dateOf(T,d))}｜${relLbl(d)}`;appSave();
   const pg=PAGES.find(p=>p.k===S.page),list=ITEMS.filter(it=>it.page===S.page&&avail(it,d)&&(!it.grp||S.mv==='all'||it.grp===S.mv)),dl=list.filter(it=>it.deep);
   const card=it=>{const o=it.fn(T,d);return `<section class="card c${it.w}" id="it-${it.id}" data-need="${it.need.join(',')}"><div class="card-h"><h2>${it.t}</h2><span class="d">${o.d||''}</span></div>${srcChips(it)}${o.h}${provHTML(it,T,d)}</section>`};
-  $('#page').innerHTML=`${S.page==='home'?heroHTML(T,d):''}<div class="pg-head">${S.page==='home'?'':`<span class="pg-po">${poster(T,{fit:'slice'})}</span>`}<h1>${pg.n}</h1><span class="pg-q">${pg.q}</span><span class="chip neu">${T.name}｜${md(dateOf(T,d))}時点</span><button class="chip peer-chip" data-peers>比べている類似作 ${PEERS.length}本${refTx()}${peerChanged()?'（選び直し済み）':''} ⓘ</button><span class="srcs int-only" style="margin:0"><span class="sc-l">社内表示：各項目に、使っているデータを出しています</span><span class="sc">番号つき＝6分類</span><span class="sc c">共通のデータ</span><span class="sc l">点線＝上のPhaseで加わる</span></span></div>${fewNote()}${castGuide(T,d)}${S.page==='deliver'?mvSw():''}<div class="grid">${list.filter(it=>!it.deep).map(card).join('')}</div>${dl.length?`<details class="deep" ${S.deepOpen[S.page]?'open':''}><summary>くわしく見る<span>${dl.length}項目</span></summary><div class="grid">${dl.map(card).join('')}</div></details>`:''}`;
+  $('#page').innerHTML=`${S.page==='home'?heroHTML(T,d):''}<div class="pg-head">${S.page==='home'?'':`<span class="pg-po">${poster(T,{fit:'slice'})}</span>`}<h1>${pg.n}</h1><span class="pg-q">${pg.q}</span><span class="chip neu">${T.name}｜${md(dateOf(T,d))}時点</span><button class="chip peer-chip" data-peers>比べている類似作 ${PEERS.length}本${refTx()}${peerChanged()?'（選び直し済み）':''} ⓘ</button><span class="srcs int-only" style="margin:0"><span class="sc-l">社内表示：各項目に、使っているデータを出しています</span><span class="sc">番号つき＝6分類</span><span class="sc c">共通のデータ</span><span class="sc l">点線＝上のPhaseで加わる</span></span></div>${fewNote()}${PM&&d>=0&&list.length?'<div class="few-note"><b>基準日は公開後です</b><span>宣伝設計は、類似作の観客の回答から、公開前の宣伝を組み立てるための画面です。公開後は、組み立てのふり返りや、次の作品の参考としてお使いください。</span></div>':''}${castGuide(T,d)}${S.page==='deliver'?mvSw():''}<div class="grid">${list.filter(it=>!it.deep).map(card).join('')}</div>${dl.length?`<details class="deep" ${S.deepOpen[S.page]?'open':''}><summary>くわしく見る<span>${dl.length}項目</span></summary><div class="grid">${dl.map(card).join('')}</div></details>`:''}`;
   if(PM&&!list.length){const g=$('#page .grid');if(g)g.outerHTML=planEmpty(T,d)}
   const dt=$('details.deep');if(dt)dt.addEventListener('toggle',()=>{S.deepOpen[S.page]=dt.open});
   const cgd=$('details.castg');if(cgd)cgd.addEventListener('toggle',()=>{S.castOpen=cgd.open});
