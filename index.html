@@ -968,6 +968,7 @@ body.plan-mode .mode-sw button.on{background:#f3dfae;color:#4a3a10}
 .few-note{display:flex;gap:6px 10px;flex-wrap:wrap;align-items:center;margin:0 0 14px;padding:9px 12px;border-radius:8px;background:#fbf3e6;font-size:12.5px;color:var(--ink2)}.few-note span{flex:1 1 320px}.fx-few{color:var(--sub);font-style:normal}
 .peer-chip{cursor:pointer;background:#fff;border-color:var(--rule2);color:var(--ink2)}
 .peer-chip:hover{border-color:var(--accent-line);color:var(--accent2)}
+.pe-rule{margin-top:20px;padding-top:10px;border-top:1px dashed var(--rule);font-size:11.5px;color:var(--sub)}.pe-rule b{font-weight:700}.pe-rule ul{margin:4px 0 0;padding-left:16px;line-height:1.65}
 .pe-ul{margin:0;padding-left:18px;font-size:13px;line-height:1.7}
 .sc-how{margin-top:10px}.sc-how summary{cursor:pointer;font-size:12.5px;font-weight:700;color:var(--accent2)}
 .sc-how table{margin-top:6px}
@@ -3048,7 +3049,7 @@ function openPeers(){const T=cur(),lo=Math.round(T.screens*0.7/10)*10,hi=Math.ro
     ${cand.length?`<div class="sub-h">追加できる候補</div><div class="pe-ts">${cand.map(p=>`<span class="pe-t alt">${p.ttl}<i>${p.yr}年｜${p.why}</i><button data-peera="${p.k}">＋追加</button></span>`).join('')}</div><div class="note">候補は、選んだ条件にあと少しで合わなかった作品です。</div>`:''}
     <div class="sub-h">ほかの作品を探して追加</div><input id="peerQ" class="pe-q" placeholder="作品名の一部を入れてください" value="${esc(S.peerQ||'')}" autocomplete="off"><div class="pe-ts" id="peerRes" style="margin-top:8px">${peerRes()}</div><div class="note">条件から離れた作品も足せます。ただし、離れているほど比べる意味は薄れます。足した作品には「追加」の印が付きます。</div>
     ${peerChanged()?'<div style="margin-top:10px"><button class="btn" data-peerreset>はじめの選び方に戻す</button></div>':''}
-    <div class="sub-h">守っている決まり</div><ul class="pe-ul"><li>作品名は、上の一覧のとおりお見せします。</li><li>ほかの会社の作品の数字は、公開されている興収をのぞき、個別には出しません。使うのは、類似作全体の真ん中（中央値）と幅だけです。</li><li>4社以上・10本以上そろわないときは、類似作との比較を出しません。</li><li>条件はどの作品にも同じ決まりで当てはめ、特定の会社や作品に有利な選び方はしません。</li><li>自社の過去作は、作品名を出して比べられます。</li></ul>`;
+    <div class="pe-rule"><b>守っている決まり</b><ul><li>作品名は、上の一覧のとおりお見せします。</li><li>ほかの会社の作品の数字は、公開されている興収をのぞき、個別には出しません。使うのは、類似作全体の真ん中（中央値）と幅だけです。</li><li>類似作は${PEER_MIN}本より少なくはできません。${PEER_BAND_MIN}本未満のときは、幅を出さず中央値だけにします。</li><li>条件はどの作品にも同じ決まりで当てはめ、特定の会社や作品に有利な選び方はしません。</li><li>自社の過去作は、作品名を出して比べられます。</li></ul></div>`;
   document.body.classList.add('pn');$('.pn-x').onclick=closePanel}
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-peerx],[data-peera],[data-peerreset]');if(!t)return;ev.stopPropagation();const D=t.dataset,o=peerSel();S.peerSel=S.peerSel||{};
   if('peerreset' in D)delete S.peerSel[S.title];else{if(D.peerx){if(PEERS.length<=PEER_MIN)return;if(o.add.includes(D.peerx))o.add=o.add.filter(k=>k!==D.peerx);else o.off.push(D.peerx)}else if(o.off.includes(D.peera))o.off=o.off.filter(k=>k!==D.peera);else o.add.push(D.peera);S.peerSel[S.title]=o}
