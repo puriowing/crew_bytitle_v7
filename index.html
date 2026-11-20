@@ -2029,7 +2029,8 @@ const pt=v=>(v>=0?'+':'')+f1(v)+'pt',iMax=a=>a.indexOf(Math.max(...a));
 I('plan','p_sec1','1　誰に向けるか',12,[2],()=>({d:'類似作を実際に観た人から、狙う層を考える',h:''}),{when:'pre'});
 I('plan','p_basis','もとにしている類似作',12,[2],(T,d)=>{const D=tgData(T),own=PAST.filter(p=>p.k!==T.k);
   return {d:SIMN(),h:`<div class="kpis" style="margin-bottom:12px">${kpi('類似作',PEERS.length,'本',`うち自社の過去作 ${own.length}本`)}${kpi('鑑賞後アンケートの回答',fN(D.N),'件','類似作の合計')}${kpi('選び方',T.genre,'',`${T.kind}・公開規模200〜400スクリーン・直近3年`)}</div>
-   <div class="note" style="margin:0 0 10px">${d<0?'この作品の観客はまだいないので、':''}近い作品を実際に観た人の回答から、誰に向けて宣伝を組み立てるかを考えます。回答が${TG_MIN}件に満たない層は「参考」と表示します。自社の過去作：${own.map(p=>p.name).join('／')}</div>`}},{when:'pre'});
+   <div class="note" style="margin:0 0 10px">${d<0?'この作品の観客はまだいないので、':''}近い作品を実際に観た人の回答から、誰に向けて宣伝を組み立てるかを考えます。回答が${TG_MIN}件に満たない層は「参考」と表示します。</div>
+   <div class="sub-h">もとにしている作品（${PEERS.length}本）<button class="fx-re" data-peers style="display:inline;margin:0 0 0 8px">作品を選び直す</button></div><div class="pe-ts">${PEERS.map(p=>`<span class="pe-t${p.own?' own':''}">${p.ttl}<i>${p.yr}年${p.own?'・自社':''}${p.add?'・追加':''}</i></span>`).join('')}</div>`}},{when:'pre'});
 I('plan','u_sim','類似作を観た人たち',12,[2],(T,d)=>{const D=tgData(T),W=tgAgg(D,D.segs.map(s=>s.i)),ag=AGES.map((_,a)=>sumA(D.segs.filter(s=>s.a===a).map(s=>s.sh))),fem=sumA(D.segs.filter(s=>s.g===0).map(s=>s.sh));
   return {d:'観客全体の姿',h:`<div class="three"><div><div class="sub-h">年代</div>${bars(AGES.map((a,i)=>({l:a,v:ag[i]})),{fmt:f1,u:'%',c:'#5b6f9c'})}<div class="note">女性の割合は ${f1(fem)}%。</div></div>
    <div><div class="sub-h">誰と観たか</div>${bars(WITH.map((l,i)=>({l,v:W.wth[i]})),{fmt:f1,u:'%',c:'#a06a86'})}</div>
