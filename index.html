@@ -1093,6 +1093,10 @@ body.plan-mode .top .datebox{opacity:.4;pointer-events:none}body.plan-mode .top 
 #it-p_table td:first-child,#it-p_table td.r{white-space:nowrap}
 @media(max-width:900px){#it-p_table th:nth-child(2){white-space:normal;min-width:64px;line-height:1.3}#it-p_table td{white-space:nowrap}}
 @media(min-width:901px){#it-p_table th:first-child,#it-p_table td:first-child{width:200px;min-width:200px}#it-p_table th:nth-child(2){white-space:normal;width:84px;min-width:84px;line-height:1.3}#it-p_table td:nth-child(2){width:84px}}
+/* スマホ幅：表の文字が1文字ずつ縦に折れないようにする（表は横にスライドして見る） */
+@media(max-width:900px){.tw>table:not([class]) td:first-child,.tw>table[class=""] td:first-child{min-width:92px}.tw>table:not([class]) td.r,.tw>table[class=""] td.r,.tw>table:not([class]) th,.tw>table[class=""] th{white-space:nowrap}
+#it-h_all .tw td,#it-h_all .tw th,#it-a_week .tw td,#it-a_week .tw th,#it-a_plan .tw td,#it-a_plan .tw th,#it-d_camp .tw td,#it-d_camp .tw th,#it-u_heat .tw td,#it-u_heat .tw th,#it-o_cmpaud .tw td,#it-o_cmpaud .tw th{white-space:nowrap}
+.cp-m{display:block;overflow-x:auto}.cp-m td,.cp-m th{white-space:nowrap}}
 .pl-step{display:flex;justify-content:space-between;gap:10px;margin:18px 0 6px}
 .fin-stat{display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap}.fin-stat small{color:var(--sub)}.fc-s{margin:0 0 16px}.fc-s .fin-h{margin-bottom:8px}
 .fc-r{display:grid;grid-template-columns:150px minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:stretch;padding:8px 0;border-top:1px solid var(--rule)}.fc-n{font-weight:700;font-size:13px;padding-top:8px}
