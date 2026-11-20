@@ -2256,6 +2256,8 @@ document.addEventListener('click',ev=>{const t=ev.target.closest('[data-pc],[dat
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-pr]');if(!t||t.disabled)return;const T=cur(),F=finOf(T),y=window.scrollY,X=pcData(T),r=+t.dataset.pr,v=t.dataset.prv;
   if(v==='c'&&X.C.role[r]!=='c'&&X.MI.filter(i=>X.C.role[i]==='c').length>=2)return;F.c.role={...X.C.role,[r]:v};delete F.done;finSave();render();window.scrollTo({top:y})});
 document.addEventListener('change',ev=>{const t=ev.target;if(!t.dataset||t.dataset.pax==null)return;const T=cur(),F=finOf(T),y=window.scrollY,X=pcData(T);F.c.ax={...X.C.ax,[+t.dataset.pax]:+t.value};delete F.done;finSave();render();window.scrollTo({top:y})});
+/* 「観たいと言っている人」と類似作の観客の差は、いまの状態を測る項目なので、効果測定の「観客」（公開前）に置く */
+(function(){const it=ITEMS.splice(ITEMS.findIndex(x=>x.id==='p_gap'),1)[0];it.page='audience';it.w=12;it.t='観たいと言っている人と、類似作の観客の差';ITEMS.splice(ITEMS.findIndex(x=>x.id==='u_pre')+1,0,it);ITEMS.find(x=>x.id==='p_hit').w=12})();
 const finNow=()=>md(new Date());
 document.addEventListener('input',ev=>{const t=ev.target;if(!t.dataset||t.dataset.fin==null)return;const T=cur(),F=finOf(T),k=t.dataset.fin;F.v[k]=t.value;delete F.done;finSave();const same=t.value===t.dataset.p;
   const c=document.querySelector(`[data-finchip="${k}"]`);if(c)c.innerHTML=finChip(same);const bk=document.querySelector(`[data-finback="${k}"]`);if(bk)bk.style.display=same?'none':'inline';const st=document.querySelector('[data-finstat]');if(st)st.innerHTML=finStat(T,S.day)});
