@@ -1042,6 +1042,15 @@ tr.tg-few td{color:var(--sub)}
 @media (max-width:900px){.cal th:first-child,.cal td:first-child{min-width:112px;white-space:normal}}
 
 /* 宣伝設計：わかること／宣伝への示唆（示唆は事実と見た目を変える） */
+.fin-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px;font-size:13px}.fin-top b{font-size:18px;color:var(--accent2)}
+.fin{display:grid;gap:14px}.fin-r{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px}.fin-h{grid-column:1/-1;font-family:'Zen Maru Gothic',sans-serif;font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px}
+.fin-h>b{width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:13px}
+.fin-a,.fin-b{border-radius:12px;padding:10px 14px;font-size:13px;min-width:0}.fin-a{background:#fffaf0;border:1px dashed var(--warnln)}.fin-b{background:#fff;border:1.5px solid var(--accent-line);display:grid;gap:6px;align-content:start}
+.fin-a>b,.fin-b>b{display:flex;align-items:center;gap:8px;font-family:'Zen Maru Gothic',sans-serif;font-size:12px;margin-bottom:3px}.fin-a>b{color:var(--warntx)}.fin-b>b{color:var(--accent2)}
+.fin-a ul{margin:0;padding-left:18px}.fin-a li{margin:2px 0}.fin-st{display:inline-flex;gap:6px;align-items:center;font-weight:400}.fin-st small{color:var(--sub)}
+.fin-b textarea{width:100%;min-height:92px;resize:vertical;border:1px solid var(--rule2);border-radius:8px;padding:8px 10px;font:inherit;font-size:13px;line-height:1.6;background:#fcfdfc}.fin-b textarea:focus{outline:2px solid var(--accent-line)}.fin-b .btn{justify-self:start}
+.fin-rp{display:grid;grid-template-columns:1fr 1fr;gap:14px}.fin-rp>div:first-child{border:1.5px solid var(--accent-line);border-radius:8px;padding:8px 12px}.fin-rp>div:last-child{color:var(--ink2)}.fin-rp b{display:block;font-size:11.5px;color:var(--sub);margin-bottom:3px}
+@media(max-width:760px){.fin-r,.fin-rp{grid-template-columns:1fr}}
 .ins{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 14px}
 .ins>div{border-radius:12px;padding:10px 14px;font-size:13px;min-width:0}
 .ins b,.sum-b b{display:block;font-family:'Zen Maru Gothic',sans-serif;font-size:12px;margin-bottom:3px}
@@ -2156,6 +2165,33 @@ const PLI={
    b:[`同じ告知でも、層によって届く場所が違います。「${mx.n}」と「${mn.n}」では、知らせる場所を分けて考える材料になります。`,'決めた理由も層で違います。場所だけでなく、何を前に出すか（内容・出演者・話題など）も、層ごとに変える余地があります。']}}
 };
 ITEMS.filter(it=>it.page==='plan'&&PLI[it.id]).forEach(it=>{const f=it.fn;it.fn=(T,d)=>{const o=f(T,d),x=PLI[it.id](T,d,o);return x&&x.a.length?{...o,h:pliH(x)+o.h.replace(/<ul class="tg-pts">[\s\S]*?<\/ul>/,'')}:o}});
+/* 宣伝設計：データからの示唆と、それを受けた決定稿を並べる。決定稿は宣伝担当が書く（作品ごとに保存） */
+const LSF='crew_v7_final_1';let FINAL={};try{FINAL=JSON.parse(localStorage.getItem(LSF)||'{}')||{}}catch(e){}
+const finSave=()=>{try{localStorage.setItem(LSF,JSON.stringify(FINAL))}catch(e){}},escT=t=>String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'),noTag=t=>String(t).replace(/<[^>]+>/g,'');
+const FIN_SEC=[['who','誰に向けるか','p_sec1'],['when','いつ強めるか','p_sec2'],['what','どこで、何を伝えるか','p_sec3']];
+function finHints(T,d){const sel=tgSel(T),D=tgData(T),o={who:[],when:[],what:[]},b=id=>{try{const x=PLI[id](T,d);return x?x.b.slice(0,2):[]}catch(e){return []}};
+  if(sel.length)o.who.push(`いま選んでいる層は「${tgNames(D,sel)}」です。`);o.who.push(...b('p_map'));o.when.push(...b('a_simtime'));o.what.push(...b('i_simroute'));return o}
+const finOf=T=>FINAL[T.k]||(FINAL[T.k]={}),finHas=v=>!!(v&&v.t&&v.t.trim()),finN=T=>FIN_SEC.filter(x=>finHas(finOf(T)[x[0]])).length;
+const finSt=v=>finHas(v)?`<span class="tone good">記入済み</span><small>${v.at||''} 更新</small>`:'<span class="tone warn">未記入</span>';
+I('plan','p_final','データからの示唆と、決定稿',12,[2],(T,d)=>{const H=finHints(T,d),F=finOf(T);
+  return {d:'左＝数字から出した示唆（自動）｜右＝それを受けて決めた内容（宣伝担当が記入）',h:`<div class="fin-top"><span>決定稿 <b class="num" data-fincnt>${finN(T)}</b>／3 記入済み</span><button class="btn" data-finrpt>決定稿を報告書にする</button></div>
+   <div class="fin">${FIN_SEC.map(([k,n,sec],i)=>`<div class="fin-r"><div class="fin-h"><b class="num">${i+1}</b>${n}<button class="fx-re" data-psec="${sec}" style="display:inline;margin:0 0 0 10px">根拠のデータを見る</button></div>
+     <div class="fin-a"><b>データからの示唆</b><ul>${H[k].map(t=>`<li>${t}</li>`).join('')}</ul></div>
+     <div class="fin-b"><b>決定稿<span class="fin-st" data-finst="${k}">${finSt(F[k])}</span></b><textarea data-fin="${k}" rows="4" aria-label="${n}の決定稿" placeholder="示唆を受けて、決めた内容を書きます">${escT(F[k]&&F[k].t)}</textarea><button class="btn" data-findraft="${k}">示唆を下書きに入れる</button></div></div>`).join('')}</div>
+   <div class="note">示唆は、類似作の観客の回答から、決まった文で出しています（下の各項目の「宣伝への示唆」から、要点を抜き出したものです）。決定稿は、作品ごとにこの端末に保存されます。</div>`}},{when:'pre'});
+(function(){const i=ITEMS.findIndex(x=>x.id==='p_final'),it=ITEMS.splice(i,1)[0],j=ITEMS.findIndex(x=>x.id==='p_sec1');ITEMS.splice(j,0,it)})();
+const finNow=()=>{const n=new Date();return md(n)};
+document.addEventListener('input',ev=>{const t=ev.target;if(!t.dataset||t.dataset.fin==null)return;const T=cur(),k=t.dataset.fin;finOf(T)[k]={t:t.value,at:finNow()};finSave();
+  const st=document.querySelector(`[data-finst="${k}"]`);if(st)st.innerHTML=finSt(finOf(T)[k]);const c=document.querySelector('[data-fincnt]');if(c)c.textContent=finN(T)});
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-findraft],[data-finrpt]');if(!t)return;ev.stopPropagation();const T=cur();
+  if(t.dataset.finrpt!=null){openFinReport();return}
+  const k=t.dataset.findraft,F=finOf(T),h=finHints(T,S.day)[k].map(x=>'・'+noTag(x)).join('\n'),y=window.scrollY;F[k]={t:(finHas(F[k])?F[k].t.replace(/\s+$/,'')+'\n':'')+h,at:finNow()};finSave();render();window.scrollTo({top:y})},true);
+function openFinReport(){const T=cur(),d=S.day,H=finHints(T,d),F=finOf(T);let el=$('#rpt');if(!el){el=document.createElement('div');el.id='rpt';document.body.appendChild(el)}
+  el.innerHTML=`<div class="rp-bar"><b>宣伝設計の決定稿</b><span>このまま印刷するか、印刷の画面で「PDFに保存」を選ぶと、社内の共有にそのまま使えます。</span><button class="btn pri" id="rpPrint">印刷・PDFにする</button><button class="btn" id="rpClose">閉じる</button></div>
+   <div class="rp-page"><div class="rp-head"><span class="rp-po">${poster(T,{fit:'slice'})}</span><div><small>宣伝設計の決定稿</small><h1>${T.name}</h1><p>${md(dateOf(T,d))}時点｜${relLbl(d)}</p></div></div>
+   ${FIN_SEC.map(([k,n],i)=>`<div class="rp-sec"><h2>${i+1}　${n}</h2><div class="fin-rp"><div><b>決定稿</b><p>${finHas(F[k])?escT(F[k].t).replace(/\n/g,'<br>'):'（未記入）'}</p></div><div><b>もとにした、データからの示唆</b><ul>${H[k].map(t=>`<li>${t}</li>`).join('')}</ul></div></div></div>`).join('')}
+   <div class="rp-foot">${md(dateOf(T,d))} 6:00 時点｜示唆は類似作 ${PEERS.length}本${refTx()}の観客の回答から（1本ずつの数字は出していません）</div></div>`;
+  document.body.classList.add('rp-on');el.scrollTop=0;$('#rpPrint').onclick=()=>window.print();$('#rpClose').onclick=()=>document.body.classList.remove('rp-on')}
 /* SNSの中で、どの媒体が多いか */
 const SNS_N=['X','Instagram','YouTube','TikTok'];
 const snsOf=(D,idx)=>{const ss=D.segs.filter(s=>idx.includes(s.i)),w=sumA(ss.map(s=>s.sh))||1,f=s=>nrm([[.9,1.2,1.1,.9,.6,.4][s.a],[1.1,1.3,1.1,.8,.5,.3][s.a]*(s.g?.75:1.2),[1,.9,1,1.1,1.1,1][s.a]*(s.g?1.2:.9),[1.6,1.2,.7,.4,.25,.15][s.a]]);return SNS_N.map((_,k)=>sumA(ss.map(s=>s.sh*f(s)[k]))/w)};
