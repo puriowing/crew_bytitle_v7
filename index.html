@@ -2291,6 +2291,14 @@ document.addEventListener('change',ev=>{const t=ev.target;if(!t.dataset||t.datas
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-sch],[data-schreset],[data-schclear]');if(!t)return;const T=cur(),F=finOf(T),y=window.scrollY,X=pcData(T);
   if(t.dataset.schreset!=null)delete F.c.sch;else if(t.dataset.schclear!=null){F.c.sch={};SCH_TY().forEach(ty=>F.c.sch[ty]=[])}else{const ty=t.dataset.sch,w=+t.dataset.schw,c=X.C.sch[ty];F.c.sch={...X.C.sch,[ty]:c.includes(w)?c.filter(x=>x!==w):c.concat(w).sort((a,b)=>a-b)}}
   delete F.done;finSave();render();window.scrollTo({top:y})});
+/* これから決める人がどのくらい残っているか：基準日に連動するので、効果測定の「観客」（公開前）に置く */
+I('audience','u_left','これから観ると決める人は、どのくらい残っているか',12,[2],(T,d)=>{const D=tgData(T),sel=tgSel(T),all=D.segs.map(s=>s.i),on=sel.length>0,A=tgAgg(D,on?sel:all),W=tgAgg(D,all),now=decNow(d),done=sumA(A.dec.slice(0,now)),doneW=sumA(W.dec.slice(0,now)),left=100-done,lf=s=>sumA(s.dec.slice(now)),o=D.segs.slice().sort((p,q)=>lf(q)-lf(p));
+  return {d:`類似作を公開初週に観た人が、いつ観ると決めたかから｜${on?`宣伝設計で選んだ層（${tgNames(D,sel)}）`:'類似作の観客全体'}`,h:`<ul class="todo" style="grid-template-columns:1fr;margin-bottom:12px"><li class="${left>=60?'good':left>=30?'':'warn'}"><b>${relLbl(d)}：これから決める人は ${f1(left)}%</b>${left>=60?'まだ大半の人がこれから決めます。いまからの告知でも間に合う時期です。':left>=30?'決めた人と、これから決める人が混ざる時期です。新しく知らせる告知と、観に行く日を決めてもらう情報の両方が要ります。':'すでに多くの人が決めています。上映館・日時・前売りなど、行動につながる情報が中心になります。'}</li></ul>
+   <div class="kpis" style="margin-bottom:14px">${kpi('いまの時期にあたるのは',DEC[now],'','に決めた人たち')}${kpi('ここまでに決めた人',f1(done),'%',on?`観客全体は ${f1(doneW)}%`:'類似作を初週に観た人のうち')}${kpi('これから決める人',f1(left),'%',on?`観客全体は ${f1(100-doneW)}%`:'まだ取りに行ける人')}</div>
+   <div class="two"><div><div class="sub-h">決めた時期</div>${bars(DEC.map((l,i)=>({l:`${l}に決めた${i===now?'（いま）':''}`,v:A.dec[i],c:i===now?'#4e8780':i<now?'#b9bec4':'#8fb9b3'})),{fmt:f1,u:'%'})}<div class="note">濃い緑＝いまの時期。灰色＝すでに過ぎた時期。</div></div>
+   <div><div class="sub-h">客層ごとの、これから決める人の割合</div>${bars(o.map(s=>({l:(sel.includes(s.i)?'✓ ':'')+s.n,v:lf(s),c:sel.includes(s.i)?'#4e8780':'#b9bec4'})),{fmt:f1,u:'%',max:100})}<div class="note">割合が高い層ほど、いまから届けても間に合う人が多く残っています。✓と緑の棒＝宣伝設計で選んだ層。</div></div></div>
+   ${simNote('類似作を公開初週に観た人の回答から出した目安で、この作品の数字ではありません。')}`}},{when:'pre'});
+(function(){const it=ITEMS.splice(ITEMS.findIndex(x=>x.id==='u_left'),1)[0];ITEMS.splice(ITEMS.findIndex(x=>x.id==='p_gap')+1,0,it)})();
 const finNow=()=>md(new Date());
 document.addEventListener('input',ev=>{const t=ev.target;if(!t.dataset||t.dataset.fin==null)return;const T=cur(),F=finOf(T),k=t.dataset.fin;F.v[k]=t.value;delete F.done;finSave();const same=t.value===t.dataset.p;
   const c=document.querySelector(`[data-finchip="${k}"]`);if(c)c.innerHTML=finChip(same);const bk=document.querySelector(`[data-finback="${k}"]`);if(bk)bk.style.display=same?'none':'inline';const st=document.querySelector('[data-finstat]');if(st)st.innerHTML=finStat(T,S.day)});
