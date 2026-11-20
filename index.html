@@ -511,8 +511,8 @@ details.deep>.grid{margin-top:16px}
   .datebox,.top #btnSearch,.internal{display:none}
   body.m-date .datebox{display:flex;width:100%;justify-content:space-between}
   body.m-date .datebox input[type=range]{flex:1;width:auto}
-  body.m-more .top #btnSearch,body.m-more .top #btnRpt{display:inline-flex}
-  .top #btnRpt{display:none}
+  body.m-more .top #btnSearch,body.m-more .top #btnRpt,body.m-more .top #btnPeers{display:inline-flex}
+  .top #btnRpt,.top #btnPeers{display:none}
   body.m-more .internal{display:flex;width:100%}
   .tabs{position:fixed;left:0;right:0;bottom:0;z-index:35;background:#fbfaf7;border-top:1px solid var(--rule);padding:0 4px env(safe-area-inset-bottom);gap:0;justify-content:space-around;overflow:visible}
   .tab{flex:1;justify-content:center;padding:11px 2px 10px;font-size:12.5px;border-bottom:0;border-top:3px solid transparent;margin-top:-1px}
@@ -1068,6 +1068,7 @@ i.crew,.tg .tags i.crew{font-style:normal;font-size:10px;font-weight:700;backgro
 .pm-v{white-space:nowrap}.pm-v .pc-b{display:inline-block;width:70px;vertical-align:middle;margin-right:8px}.pm-off td:first-child b,.pm-off .pm-v{opacity:.45}.pm-seg button.cw{text-decoration:underline;text-underline-offset:3px}.pm-seg button:disabled{opacity:.35;cursor:default}.pm-t select{max-width:230px;margin-right:6px}
 .pm-seg{white-space:nowrap}.pm-seg button{white-space:nowrap;padding:5px 11px}.pm-t td:nth-child(3){white-space:nowrap}.pm-t .fc-cn{display:block;margin-top:2px}.pm-t select{max-width:100%}
 @media(max-width:900px){.pm-g{grid-template-columns:1fr}}
+#btnPeers b{font-size:14px;margin:0 1px}#btnPeers small{margin-left:6px;font-size:10.5px;opacity:.8}
 .pl-step{display:flex;justify-content:space-between;gap:10px;margin:18px 0 6px}
 .fin-stat{display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap}.fin-stat small{color:var(--sub)}.fc-s{margin:0 0 16px}.fc-s .fin-h{margin-bottom:8px}
 .fc-r{display:grid;grid-template-columns:150px minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:stretch;padding:8px 0;border-top:1px solid var(--rule)}.fc-n{font-weight:700;font-size:13px;padding-top:8px}
@@ -1100,6 +1101,7 @@ i.crew,.tg .tags i.crew{font-style:normal;font-size:10px;font-weight:700;backgro
   <div class="top-in">
     <div class="brand">CREW<span>作品分析</span></div>
     <span id="selPo" class="sel-po"></span><select id="selTitle" class="sel" aria-label="作品"></select>
+    <button id="btnPeers" class="btn" data-peers title="比べている類似作の説明と、選び直し"></button>
     <div class="datebox">
       <span id="phaseChip" class="chip"></span>
       <input id="day" type="range" aria-label="基準日">
@@ -2880,7 +2882,7 @@ const PLAN_SEC=[['p_sec1','誰に','1'],['p_sec2','いつ','2'],['p_sec3','ど�
 const curSec=()=>PLAN_SEC.some(x=>x[0]===S.psec)?S.psec:PLAN_SEC[0][0],planSec=id=>{let c=PLAN_SEC[0][0];for(const it of ITEMS){if(it.page!=='plan')continue;if(PLAN_SEC.some(x=>x[0]===it.id))c=it.id;if(it.id===id)return c}return PLAN_SEC[0][0]};
 function planBasis(T,d){const D=tgData(T),own=PEERS.filter(p=>p.own).length;
   return `<div class="pl-basis"><details ${S.pbOpen?'open':''}><summary><b>もとにしている類似作</b><span>類似作 <b class="num">${PEERS.length}</b>本${refTx()}${peerChanged()?'（選び直し済み）':''}（うち自社の過去作 ${own}本）</span><span>鑑賞後アンケートの回答 <b class="num">${fN(D.N)}</b>件</span><span>${T.genre}・${T.kind}・公開規模200〜400スクリーン・直近3年</span><i>作品名を見る</i></summary>
-    <div class="pe-ts">${PEERS.map(p=>`<span class="pe-t${p.own?' own':''}">${p.ttl}<i>${p.yr}年${p.own?'・自社':''}${p.add?'・追加':''}</i></span>`).join('')}</div><div class="note">宣伝設計の4ページの数字は、すべてこの類似作を実際に観た人の回答から出しています。他社の作品の数字は、個別には出しません。回答が${TG_MIN}件に満たない層は「参考」と表示します。</div></details><button class="btn" data-peers>作品を選び直す</button></div>`}
+    <div class="pe-ts">${PEERS.map(p=>`<span class="pe-t${p.own?' own':''}">${p.ttl}<i>${p.yr}年${p.own?'・自社':''}${p.add?'・追加':''}</i></span>`).join('')}</div><div class="note">宣伝設計の4ページの数字は、すべてこの類似作を実際に観た人の回答から出しています。他社の作品の数字は、個別には出しません。回答が${TG_MIN}件に満たない層は「参考」と表示します。選び直すときは、画面上部の「比べる類似作」を押します。</div></details></div>`}
 function planStep(){const i=PLAN_SEC.findIndex(x=>x[0]===curSec()),a=PLAN_SEC[i-1],b=PLAN_SEC[i+1];return `<div class="pl-step">${a?`<button class="btn" data-psec="${a[0]}">← ${a[2]} ${a[1]}</button>`:'<span></span>'}${b?`<button class="btn pri" data-psec="${b[0]}">${b[0]==='p_sec4'?'宣伝コンセプトを決める':`次へ：${b[2]} ${b[1]}`} →</button>`:''}</div>`}
 function planNav(T,d){const ok=ITEMS.some(it=>it.page==='plan'&&avail(it,d));
   return ok?PLAN_SEC.map(([id,n,no])=>`<button class="tab ${curSec()===id?'on':''} ${id==='p_sec4'?'gsep concl':''}" data-psec="${id}"><span class="ti"><b class="num">${no}</b></span><span class="tl">${n}</span><span class="ts">${n}</span></button>`).join(''):''}
@@ -3023,6 +3025,7 @@ function visiblePages(d){return PAGES.filter(p=>ITEMS.some(it=>it.page===p.k&&av
 function render(){syncPeers();const T=cur(),d=S.day;
   if(S.page!=='plan'&&!visiblePages(d).some(p=>p.k===S.page))S.page='home';
   const PM=S.page==='plan';document.body.classList.toggle('plan-mode',PM);$('#btnPlan').innerHTML=PM?'← ダッシュボードに戻る':`${TAB_IC.plan}宣伝設計`;$('#btnPlan').setAttribute('aria-pressed',PM);
+  $('#btnPeers').innerHTML=`比べる類似作 <b class="num">${PEERS.length}</b>本${refTx()}${peerChanged()?'<small>選び直し済み</small>':''}`;
   $('#selTitle').value=S.title;$('#selPo').innerHTML=poster(T,{fit:'slice'});$('#phaseChip').textContent=relLbl(d);$('#dateLbl').innerHTML=md(dateOf(T,d))+(d>T.today?'<em class="fut">この先は見本の数字</em>':'');
   const dy=$('#day');dy.min=-70;dy.max=D1;dy.value=d;
   $$('#segPhase button').forEach(b=>b.classList.toggle('on',+b.dataset.p===S.phase));
@@ -3031,7 +3034,7 @@ function render(){syncPeers();const T=cur(),d=S.day;
   $('#mDate').textContent=`${md(dateOf(T,d))}｜${relLbl(d)}`;appSave();
   const pg=PAGES.find(p=>p.k===S.page),psI=S.page==='plan'&&S.psec!=='all'?ITEMS.find(x=>x.id===curSec()):null,list=ITEMS.filter(it=>it.page===S.page&&avail(it,d)&&(!it.grp||S.mv==='all'||it.grp===S.mv)&&(!psI||(it!==psI&&it.id!=='p_basis'&&planSec(it.id)===psI.id))),dl=list.filter(it=>it.deep);
   const card=it=>{const o=it.fn(T,d);return `<section class="card c${it.w}" id="it-${it.id}" data-need="${it.need.join(',')}"><div class="card-h"><h2>${it.t}</h2><span class="d">${o.d||''}</span></div>${srcChips(it)}${o.h}${provHTML(it,T,d)}</section>`};
-  $('#page').innerHTML=`${S.page==='home'?heroHTML(T,d):''}<div class="pg-head">${S.page==='home'?'':`<span class="pg-po">${poster(T,{fit:'slice'})}</span>`}<h1>${psI?psI.t:pg.n}</h1><span class="pg-q">${psI?psI.fn(T,d).d:pg.q}</span><span class="chip neu">${T.name}｜${md(dateOf(T,d))}時点</span>${psI?'':`<button class="chip peer-chip" data-peers>比べている類似作 ${PEERS.length}本${refTx()}${peerChanged()?'（選び直し済み）':''} ⓘ</button>`}<span class="srcs int-only" style="margin:0"><span class="sc-l">社内表示：各項目に、使っているデータを出しています</span><span class="sc">番号つき＝6分類</span><span class="sc c">共通のデータ</span><span class="sc l">点線＝上のPhaseで加わる</span></span></div>${fewNote()}${PM&&d>=0&&list.length?'<div class="few-note"><b>基準日は公開後です</b><span>宣伝設計は、類似作の観客の回答から、公開前の宣伝を組み立てるための画面です。公開後は、組み立てのふり返りや、次の作品の参考としてお使いください。</span></div>':''}${psI&&list.length?planBasis(T,d):''}${castGuide(T,d)}${S.page==='deliver'?mvSw():''}<div class="grid">${list.filter(it=>!it.deep).map(card).join('')}</div>${dl.length?`<details class="deep" ${S.deepOpen[S.page]?'open':''}><summary>くわしく見る<span>${dl.length}項目</span></summary><div class="grid">${dl.map(card).join('')}</div></details>`:''}${psI&&list.length?planStep():''}`;
+  $('#page').innerHTML=`${S.page==='home'?heroHTML(T,d):''}<div class="pg-head">${S.page==='home'?'':`<span class="pg-po">${poster(T,{fit:'slice'})}</span>`}<h1>${psI?psI.t:pg.n}</h1><span class="pg-q">${psI?psI.fn(T,d).d:pg.q}</span><span class="chip neu">${T.name}｜${md(dateOf(T,d))}時点</span><span class="srcs int-only" style="margin:0"><span class="sc-l">社内表示：各項目に、使っているデータを出しています</span><span class="sc">番号つき＝6分類</span><span class="sc c">共通のデータ</span><span class="sc l">点線＝上のPhaseで加わる</span></span></div>${fewNote()}${PM&&d>=0&&list.length?'<div class="few-note"><b>基準日は公開後です</b><span>宣伝設計は、類似作の観客の回答から、公開前の宣伝を組み立てるための画面です。公開後は、組み立てのふり返りや、次の作品の参考としてお使いください。</span></div>':''}${psI&&list.length?planBasis(T,d):''}${castGuide(T,d)}${S.page==='deliver'?mvSw():''}<div class="grid">${list.filter(it=>!it.deep).map(card).join('')}</div>${dl.length?`<details class="deep" ${S.deepOpen[S.page]?'open':''}><summary>くわしく見る<span>${dl.length}項目</span></summary><div class="grid">${dl.map(card).join('')}</div></details>`:''}${psI&&list.length?planStep():''}`;
   if(PM&&!list.length){const g=$('#page .grid');if(g)g.outerHTML=planEmpty(T,d)}
   const pb=$('.pl-basis details');if(pb)pb.addEventListener('toggle',()=>{S.pbOpen=pb.open});
   const dt=$('details.deep');if(dt)dt.addEventListener('toggle',()=>{S.deepOpen[S.page]=dt.open});
