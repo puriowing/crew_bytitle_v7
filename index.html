@@ -2170,12 +2170,9 @@ function tgData(T){if(_tg[T.k])return _tg[T.k];const r=R(T,301),j=(v,w)=>v*(1-w/
   return _tg[T.k]={segs,N,now,tags:{many:top(s=>s.sh),sat:top(s=>s.sat),nps:top(s=>s.nps)}}}
 function tgAgg(D,idx){const ss=D.segs.filter(s=>idx.includes(s.i)),w=sumA(ss.map(s=>s.sh))||1,av=f=>sumA(ss.map(s=>f(s)*s.sh))/w,arr=(k,n)=>Array.from({length:n},(_,x)=>av(s=>s[k][x]));
   return {sh:sumA(ss.map(s=>s.sh)),cnt:sumA(ss.map(s=>s.cnt)),sat:av(s=>s.sat),nps:av(s=>s.nps),rep:av(s=>s.rep),know:arr('know',ROUTES2.length),why:arr('why',WHY.length),dec:arr('dec',DEC.length),wth:arr('wth',WITH.length),go:arr('go',GOF.length)}}
-/* 売り（幹になる訴求の軸）を先に選び、そこから狙う層の案を出す：その理由で観ると決めた人が多い3つの層 */
-const sellW=T=>{const D=tgData(T);return D._W||(D._W=tgAgg(D,D.segs.map(s=>s.i)))},sellP=T=>iMaxN(sellW(T).why,WHY_AX),sellMsg=T=>{const c=finOf(T).c.msg;return c!=null?c:sellP(T)};
-function sellTop(T,m){const D=tgData(T);return D.segs.filter(s=>s.cnt>=TG_MIN).sort((p,q)=>q.sh*q.why[m]-p.sh*p.why[m]).slice(0,3).map(s=>s.i).sort((a,b)=>a-b)}
-const tgSel=T=>{S.tg=S.tg||{};S.tgA=S.tgA||{};if(S.tgA[T.k]!==false||!S.tg[T.k])S.tg[T.k]=sellTop(T,sellMsg(T));return S.tg[T.k]};
+const tgSel=T=>{S.tg=S.tg||{};if(!S.tg[T.k])S.tg[T.k]=tgData(T).tags.many.slice();return S.tg[T.k]};
 const pt=v=>(v>=0?'+':'')+f1(v)+'pt',iMax=a=>a.indexOf(Math.max(...a));
-I('plan','p_sec1','1　誰に向けるか',12,[2],()=>({d:'類似作を実際に観た人のデータを見てから、売りと狙う層を選ぶ',h:''}),{when:'pre'});
+I('plan','p_sec1','1　誰に向けるか',12,[2],()=>({d:'類似作を実際に観た人から、狙う層を考える',h:''}),{when:'pre'});
 I('plan','p_basis','もとにしている類似作',12,[2],(T,d)=>{const D=tgData(T),own=PAST.filter(p=>p.k!==T.k);
   return {d:SIMN(),h:`<div class="kpis" style="margin-bottom:12px">${kpi('類似作',PEERS.length,'本',`うち自社の過去作 ${own.length}本`)}${kpi('鑑賞後アンケートの回答',fN(D.N),'件','類似作の合計')}${kpi('選び方',T.genre,'',`${T.kind}・公開規模200〜400スクリーン・直近3年`)}</div>
    <div class="note" style="margin:0 0 10px">近い作品を実際に観た人の回答から、誰に向けて宣伝を組み立てるかを考えます。回答が${TG_MIN}件に満たない層は「参考」と表示します。</div>
@@ -2186,13 +2183,13 @@ I('plan','u_sim','類似作を観た人たち',12,[2],(T,d)=>{const D=tgData(T),
    <div><div class="sub-h">ふだん映画館に行く頻度</div>${stack(GOF.map((l,i)=>({l,v:W.go[i],c:GOC[i]})))}
    <div class="kpis" style="margin-top:14px">${kpi('満足度',f1(W.sat),'%')}${kpi('すすめたい度',pt(W.nps),'')}${kpi('2回以上観た人',f1(W.rep),'%')}</div></div></div>
    ${simNote('類似作を実際に観た人の姿を出しています。このページの最後の地図で、性別×年代の層ごとに分けて見て、狙う層を選べます。')}`}},{when:'pre'});
-I('plan','p_map','性別×年代で分けて、狙う層を選ぶ',12,[2],(T,d)=>{const D=tgData(T),sel=tgSel(T),mx=Math.max(...D.segs.map(s=>s.sh)),A=tgAgg(D,sel),cw=sellTop(T,sellMsg(T));
+I('plan','p_map','性別×年代で分けて、狙う層を選ぶ',12,[2],(T,d)=>{const D=tgData(T),sel=tgSel(T),mx=Math.max(...D.segs.map(s=>s.sh)),A=tgAgg(D,sel),cw=D.tags.many;
   const tile=s=>{const few=s.cnt<TG_MIN,tg=[D.tags.many.includes(s.i)?'<i>多い</i>':'',D.tags.sat.includes(s.i)?'<i>満足が高い</i>':'',D.tags.nps.includes(s.i)?'<i>すすめてくれる</i>':'',few?'<i class="few">参考</i>':'',cw.includes(s.i)?'<i class="crew">CREWの案</i>':''].join('');
     return `<button class="tg ${sel.includes(s.i)?'on':''}" data-tg="${s.i}" aria-pressed="${sel.includes(s.i)}" style="background:rgba(78,135,128,${(.07+s.sh/mx*.5).toFixed(2)})" title="${s.n}｜回答 ${fN(s.cnt)}件"><span class="a">${AGES[s.a]}</span><span class="v num">${f1(s.sh)}<small>%</small></span><span class="m">満足 ${Math.round(s.sat)}%・すすめたい ${pt(s.nps)}</span><span class="tags">${tg}</span></button>`};
   return {d:'ヒートマップ。色が濃いほど、観客に占める割合が大きい層',h:`<div class="tg-leg"><span>数字＝類似作の観客に占める割合</span><span>「多い」「満足が高い」「すすめてくれる」＝それぞれ上位3つの層</span><span>押すと、狙う層として選べます</span></div>
    ${SEX.map((x,g)=>`<div class="tgm-row"><div class="tgm-l">${x}</div><div class="tgm-g">${D.segs.filter(s=>s.g===g).map(tile).join('')}</div></div>`).join('')}
-   <div class="tg-bar"><b>メインターゲット：${sel.length}つ</b><span>類似作の観客の <b class="num">${f1(A.sh)}%</b> にあたります</span><button class="btn" data-tga="sell">売りに合う3つ（CREWの案）</button><button class="btn" data-tga="many">多い順に3つ</button><button class="btn" data-tga="sat">満足が高い3つ</button><button class="btn" data-tga="nps">すすめてくれる3つ</button><button class="btn" data-tga="none">すべて外す</button></div>
-   <div class="note">CREWの案は、上で選んだ売り（${WHY[sellMsg(T)]}）を理由に観ると決めた人が多い、3つの層です。ここで選んだ層が、メインターゲットとして「宣伝コンセプト」のページに入ります。「すすめてくれる」の印は、観たあとにまわりへすすめる度合いが高い層です（選ぶときの参考）。</div>`}},{when:'pre'});
+   <div class="tg-bar"><b>メインターゲット：${sel.length}つ</b><span>類似作の観客の <b class="num">${f1(A.sh)}%</b> にあたります</span><button class="btn" data-tga="many">多い順に3つ（CREWの案）</button><button class="btn" data-tga="sat">満足が高い3つ</button><button class="btn" data-tga="nps">すすめてくれる3つ</button><button class="btn" data-tga="none">すべて外す</button></div>
+   <div class="note">ここで選んだ層が、メインターゲットとして「宣伝コンセプト」のページに入ります。「すすめてくれる」の印は、観たあとにまわりへすすめる度合いが高い層です（選ぶときの参考）。</div>`}},{when:'pre'});
 I('plan','p_pick','選んだ層（メインターゲット）の内訳',12,[2],(T,d)=>{const D=tgData(T),sel=tgSel(T);if(!sel.length)return {d:'',h:'<div class="empty">上の地図で、狙う層を選んでください。</div>'};
   const A=tgAgg(D,sel),W=tgAgg(D,D.segs.map(s=>s.i)),kd=A.know.map((v,i)=>v-W.know[i]),wd=A.why.map((v,i)=>v-W.why[i]),ki=iMax(kd),wi=iMax(wd),early=A.dec[0]+A.dec[1],earlyW=W.dec[0]+W.dec[1],wm=iMax(A.wth);
   const names=D.segs.filter(s=>sel.includes(s.i)).map(s=>s.n).join('・'),rows=(L,a,w,c,sort)=>{const x=L.map((l,i)=>({l,v:a[i],cmp:w[i]}));return bars(sort?x.sort((p,q)=>q.v-p.v):x,{fmt:f1,u:'%',c})};
@@ -2326,8 +2323,8 @@ function arSel(T){const D=tgData(T),X=areaData(T),sel=tgSel(T),ix=sel.length?sel
 function pcData(T){const D=tgData(T),sel=tgSel(T),all=D.segs.map(s=>s.i),on=sel.length>0,A=tgAgg(D,on?sel:all),W=tgAgg(D,all),t=D.tags,F=finOf(T);
   const both=t.many.filter(i=>t.nps.includes(i)),small=t.nps.filter(i=>!t.many.includes(i));let cum=0;const cumA=A.dec.map(v=>cum+=v);let si=cumA.findIndex(v=>v>=20);if(si<0)si=0;
   const MI=ROUTES2.map((r,i)=>i).filter(i=>!ROUTES2[i].wom&&!ROUTES2[i].oth),ko=MI.slice().sort((p,q)=>A.know[q]-A.know[p]),whyBy=r=>{const b=WHY_BY[ROUTES2[r].k]||{},a=A.why.map((v,j)=>v*(1+(b[j]||0))),sm=sumA(a)||1;return a.map(v=>v/sm*100)};
-  const AR=arSel(T),KD=kwData(T),P={kw:KD.p,seed:small.length?small:both.length?both:t.nps.slice(),start:si,peak:iMax(A.dec),msg:iMaxN(W.why,WHY_AX),area:AR.p,role:{},ax:{}},C={};MI.forEach(r=>{P.role[r]=r===ko[0]?'c':r===ko[1]||r===ko[2]?'s':'n';P.ax[r]=iMaxN(whyBy(r),WHY_AX)});
-  ['seed','start','peak','msg','area'].forEach(k=>C[k]=F.c[k]!=null?F.c[k]:P[k]);C.kw=(F.c.kw||P.kw).filter(k=>KD.by[k]);C.role={};C.ax={};MI.forEach(r=>{C.role[r]=(F.c.role||{})[r]||P.role[r];C.ax[r]=(F.c.ax||{})[r]!=null?F.c.ax[r]:P.ax[r]});
+  const AR=arSel(T),KD=kwData(T),P={kw:KD.p,seed:small.length?small:both.length?both:t.nps.slice(),start:si,peak:iMax(A.dec),msg:iMaxN(A.why,WHY_AX),area:AR.p,role:{},ax:{}},C={};MI.forEach(r=>{P.role[r]=r===ko[0]?'c':r===ko[1]||r===ko[2]?'s':'n';P.ax[r]=iMaxN(whyBy(r),WHY_AX)});
+  ['seed','start','peak','msg','area'].forEach(k=>C[k]=F.c[k]!=null?F.c[k]:P[k]);C.kw=(F.c.kw||P.kw).filter(k=>KD.by[k]);C.role={};C.ax={};MI.forEach(r=>{C.role[r]=(F.c.role||{})[r]||P.role[r];C.ax[r]=(F.c.ax||{})[r]!=null?F.c.ax[r]:C.msg});
   const CD=calData();P.sch={};C.sch={};SCH_TY().forEach(ty=>{const r=CD.rows.find(x=>x.ty===ty);P.sch[ty]=r&&r.n>=PEERS.length/2?[r.mode]:[];C.sch[ty]=(F.c.sch||{})[ty]||P.sch[ty]});
   return {D,sel,on,A,W,t,both,small,cumA,P,C,MI,ko,whyBy,AR,KD,who:on?'メインターゲット':'類似作の観客'}}
 /* 仮のスケジュール：施策の種類×週。CREWの案＝類似作の半分以上が実施した施策を、いちばん多かった週に置く。広告は類似作のデータがないので案なし */
@@ -2339,18 +2336,18 @@ const schBK=A=>[[-12,-5,A.dec[0],'公開1か月より前'],[-4,-3,A.dec[1],'公�
 const WHY_BY={F1:{1:.5,3:.5},B:{1:.9,6:.5},E:{8:.6,0:.4},F2:{8:.9,9:.4},A:{7:1.2,0:.4,10:.6},D:{7:.7,1:.3},V:{0:.5,4:.4}};
 const mediaTx=(X,R,AX)=>{const g=c=>X.ko.filter(r=>R[r]===c).map(r=>`${ROUTES2[r].n}（${WHY[AX[r]]}）`).join('、');return `中心：${g('c')||'なし'}／補助：${g('s')||'なし'}`};
 function finFields(T,d){const PX=pcData(T),{D,sel,on,A,W,t,both,small,cumA,P,C,who}=PX,nm=i=>D.segs[i].n,nms=a=>a.length?a.map(nm).join('・'):'（まだ選んでいません）',eq=(a,b)=>a.length===b.length&&a.every(i=>b.includes(i));
-  const stp=sellTop(T,C.msg),ms=sumA(stp.map(i=>D.segs[i].sh)),sn=mean(P.seed.map(i=>D.segs[i].nps)),wi=iMax(A.wth),hs=A.know[ROUTES2.findIndex(r=>r.k==='H')],X=areaData(T),df=X.u-X.ua,ty=df>=3?'都市型':df<=-3?'ローカル型':'全国型',RN=ROUTES2.map(r=>r.n);
+  const ms=sumA(t.many.map(i=>D.segs[i].sh)),sn=mean(P.seed.map(i=>D.segs[i].nps)),wi=iMax(A.wth),hs=A.know[ROUTES2.findIndex(r=>r.k==='H')],X=areaData(T),df=X.u-X.ua,ty=df>=3?'都市型':df<=-3?'ローカル型':'全国型',RN=ROUTES2.map(r=>r.n),MSGA=Object.fromEntries(PX.MI.map(r=>[r,C.msg]));
   const ch=(id,n,L,sec,why,cn)=>({id,n,ch:1,sec,p:L[P[id]],c:L[C[id]],why,cn:C[id]!==P[id]?cn(C[id]):''});
   return {who:[
-     ch('msg','売り（幹になる訴求の軸）',WHY,'p_chsell',`類似作の観客が、観ると決めたいちばんの理由の1位（${f1(W.why[P.msg])}%）。`,i=>`選んだ理由を挙げた人は ${f1(W.why[i])}%。`),
-     {id:'main',n:'メインターゲット',tg:'main',sec:'p_map',lk:'「1 誰に」の地図で選び直す',p:nms(stp),same:eq(sel,stp),v:nms(sel),why:`売り「${WHY[C.msg]}」を理由に観ると決めた人が多い、3つの層。類似作の観客の${f1(ms)}%。`},
+     {id:'main',n:'メインターゲット',tg:'main',sec:'p_map',lk:'「1 誰に」の地図で選び直す',p:nms(t.many),same:eq(sel,t.many),v:nms(sel),why:`人数の多い上位3層で、類似作の観客の${f1(ms)}%。${both.length?`うち「${both.map(nm).join('・')}」は、すすめたい度も上位です。`:''}`},
      {id:'seed',n:'口コミの起点にする層',tg:'seed',sec:'p_map',lk:'「1 誰に」の地図で選び直す',p:nms(P.seed),same:eq(C.seed,P.seed),v:nms(C.seed),why:`すすめたい度が ${pt(sn)}（観客全体は ${pt(W.nps)}）。${small.length?'人数は多くないものの、すすめてくれる度合いが高い層です。':'人数が多く、すすめてくれる度合いも高い層です。'}`},
      {id:'with',n:'観に来る形',p:`「${WITH[wi]}」観る人を中心に考える`,why:`${who}の${f1(A.wth[wi])}%が「${WITH[wi]}」。映画館で観るのが年4本以下の人は${f1(A.go[0]+A.go[1])}%。`}],
     when:[
      (()=>{const bx=schBK(A).sort((p,q)=>q[2]-p[2])[0],m=Object.values(P.sch).filter(x=>x.length).length;return {id:'sch',n:'仮のスケジュール',tg:'sch',sec:'p_ch2',lk:'「2 いつ」で組み直す',back:1,p:schTx(P.sch),v:schTx(C.sch),same:schEq(C.sch,P.sch),why:`類似作の半分以上が実施した施策（${m}種類）を、類似作でいちばん多かった週に置いた案です。観ると決める人がいちばん多いのは「${bx[3]}」（${f1(bx[2])}%）。`}})(),
      {id:'after',n:'公開後の進め方',p:hs>=15?'観た人の感想が広がる施策を用意する':'上映館・日時など、行動につながる情報を中心にする',why:`家族・友人から聞いて知った人は ${f1(hs)}%。`}],
     what:[
-     {id:'media',n:'メディアごとの役割と、訴求の軸',tg:'media',sec:'p_ch3',lk:'「3 どこで・何を」で選び直す',back:1,p:mediaTx(PX,P.role,P.ax),v:mediaTx(PX,C.role,C.ax),same:PX.MI.every(r=>C.role[r]===P.role[r]&&(C.role[r]==='n'||C.ax[r]===P.ax[r])),why:`知ったきっかけの上位は ${PX.ko.slice(0,3).map(r=>`${ROUTES2[r].n} ${f1(A.know[r])}%`).join('、')}。軸は、そのメディアで知った人の決め手の1位です。`},
+     ch('msg','売り（幹になる訴求の軸）',WHY,'p_chsell',`${who}が、観ると決めたいちばんの理由の1位（${f1(A.why[P.msg])}%）。`,i=>`選んだ理由を挙げた人は ${f1(A.why[i])}%。`),
+     {id:'media',n:'どこで発信するか（メディアごとの役割）',tg:'media',sec:'p_ch3',lk:'「3 どこで・何を」で選び直す',back:1,p:mediaTx(PX,P.role,MSGA),v:mediaTx(PX,C.role,C.ax),same:PX.MI.every(r=>C.role[r]===P.role[r]&&(C.role[r]==='n'||C.ax[r]===C.msg)),why:`知ったきっかけの上位は ${PX.ko.slice(0,3).map(r=>`${ROUTES2[r].n} ${f1(A.know[r])}%`).join('、')}。訴求の軸は、はじめはすべて売りにそろえています。`},
      {id:'area',n:'地域の配分',p:ty==='都市型'?'公開時は都市部に厚く、地方は公開後に広げる':ty==='ローカル型'?'全国に同じ厚みで届ける':'地域で差をつけない',why:`類似作は${ty}（3大都市圏で観た人 ${f1(X.u)}%、全作品の平均より ${pt(df)}）。`}]}}
 const finOf=T=>{const F=FINAL[T.k]||(FINAL[T.k]={});F.v=F.v||{};F.c=F.c||{};return F},finVal=(F,f)=>f.tg?f.v:F.v[f.id]!=null?F.v[f.id]:f.ch?f.c:f.p,finSame=(F,f)=>f.tg?f.same:finVal(F,f)===f.p;
 const finChip=same=>same?'<span class="chip neu">CREWの案のまま</span>':'<span class="tone warn">調整済み</span>';
@@ -2363,7 +2360,6 @@ function conceptDoc(T){const X=pcData(T),{D,sel,A,C,MI,ko}=X,F=finOf(T),nm=i=>D.
   const span=(n,v)=>`<td colspan="${n}" style="background:rgba(176,128,64,${v==null?0:(.1+v/dm*.5).toFixed(2)})">${v==null?'':f1(v)+'%'}</td>`;
   return `<div class="cp-doc"><div class="cp-head"><span class="rp-po">${poster(T,{fit:'slice'})}</span><div><small>宣伝コンセプト</small><h1>${T.name}</h1><p>${F.done?`${F.done} 確定`:'下書き（未確定）'}</p></div></div>
    <section class="cp-sec"><h2><b class="num">1</b>誰に</h2><div class="cp-two"><div>
-       <div class="cp-k"><small>売り（幹になる訴求の軸）</small><b>${WHY[C.msg]}</b><span>類似作の観客の ${f1(X.W.why[C.msg])}% が、これを理由に観ると決めた</span></div>
        <div class="cp-k"><small>メインターゲット</small><b>${names(sel)}</b><span>類似作の観客の ${f1(A.sh)}%｜満足度 ${f1(A.sat)}%｜すすめたい度 ${pt(A.nps)}</span></div>
        <div class="cp-k"><small>キーワードで狙う層</small><b>${C.kw.length?C.kw.map(k=>X.KD.by[k].n).join('・'):'（選んでいません）'}</b><span>グラフ＝類似作を観た${X.who}に占める割合</span></div>${C.kw.length?`<div class="stk-w">${bars(C.kw.map(k=>({l:X.KD.by[k].n,v:X.KD.by[k].shT,cmp:X.KD.by[k].sh})),{fmt:f1,u:'%',c:'#4e8780',cmp:'類似作の観客全体'})}</div>`:''}
        <div class="cp-k"><small>宣伝を厚くする地域</small><b>${AR_OPT[C.area][0]}</b><span>3大都市圏で観た人 ${f1(X.AR.u)}%（全作品の平均 ${f1(X.AR.ua)}%）</span></div><div class="stk-w">${stack(AREA_S.map((l,i)=>({l,v:X.AR.mix[i],c:AREA_C[i]})))}</div></div>
@@ -2371,7 +2367,7 @@ function conceptDoc(T){const X=pcData(T),{D,sel,A,C,MI,ko}=X,F=finOf(T),nm=i=>D.
    <section class="cp-sec"><h2><b class="num">2</b>いつ</h2><div class="cp-k"><small>スケジュール</small><b>${st.n?`${wkP(st.first)}に開始。いちばん厚いのは${wkP(st.peakW)}`:'（まだ置いていません）'}</b><span>施策 ${st.n}件</span></div>
      ${st.n?`<div class="tw"><table class="cal cp-cal"><tr><th></th>${CAL_W.map(w=>`<th>${wkL(w)}</th>`).join('')}</tr><tr><td><b>観ると決める人</b><small>メインターゲットの割合</small></td>${span(8,A.dec[0])}${span(2,A.dec[1])}${span(2,A.dec[2])}${span(1,A.dec[3]+A.dec[4])}${span(3,null)}</tr>
        ${TY.map(ty=>`<tr><td><b>${ty}</b><small>${CH[TYPE_CH[ty]].n}</small></td>${CAL_W.map(w=>`<td>${C.sch[ty].includes(w)?`<i class="cp-dot" style="background:${CH[TYPE_CH[ty]].c}"></i>`:''}</td>`).join('')}</tr>`).join('')}</table></div>`:''}</section>
-   <section class="cp-sec"><h2><b class="num">3</b>どこで・何を</h2><div class="cp-two"><div><div class="cp-k"><small>幹になる訴求の軸</small><b>${WHY[C.msg]}</b><span>グラフ＝メインターゲットが、観ると決めたいちばんの理由</span></div>${bars(WHY.slice(0,WHY_AX).map((l,i)=>({l,v:A.why[i],c:i===C.msg?'#4e8780':'#c9cdd2'})),{fmt:f1,u:'%'})}</div>
+   <section class="cp-sec"><h2><b class="num">3</b>どこで・何を</h2><div class="cp-two"><div><div class="cp-k"><small>売り（幹になる訴求の軸）</small><b>${WHY[C.msg]}</b><span>グラフ＝メインターゲットが、観ると決めたいちばんの理由</span></div>${bars(WHY.slice(0,WHY_AX).map((l,i)=>({l,v:A.why[i],c:i===C.msg?'#4e8780':'#c9cdd2'})),{fmt:f1,u:'%'})}</div>
      <div><div class="cp-k"><small>メディアごとの役割と、訴求の軸</small><b>${used.filter(r=>C.role[r]==='c').map(r=>ROUTES2[r].n).join('、')||'（中心は未選択）'}</b><span>を中心に、${used.filter(r=>C.role[r]==='s').length}つのメディアで補う</span></div>
        <table class="cp-m"><tr><th>メディア</th><th>役割</th><th>そこで知った人</th><th>訴求の軸</th></tr>${used.map(r=>`<tr><td><b>${ROUTES2[r].n}</b></td><td><span class="cp-r ${C.role[r]}">${C.role[r]==='c'?'中心':'補助'}</span></td><td class="pm-v"><span class="pc-b"><i style="width:${(A.know[r]/kmx*100).toFixed(1)}%"></i></span><b class="num">${f1(A.know[r])}%</b></td><td>${WHY[C.ax[r]]}</td></tr>`).join('')||'<tr><td colspan="4">（まだ選んでいません）</td></tr>'}</table></div></div></section>
    <div class="cp-foot">数字は、類似作 ${PEERS.length}本を劇場で観た人のアンケート（回答 ${fN(D.N)}件）から出しています。類似作1本ずつの数字は出していません。</div></div>`}
@@ -2401,15 +2397,22 @@ I('plan','p_ch2','仮のスケジュールを組む',12,[2],(T,d)=>{const X=pcDa
    ${TY.map(ty=>{const r=CD.rows.find(x=>x.ty===ty);return `<tr><td><b>${ty}</b><small>${r?`類似作 ${r.n}本が実施`:'広告（類似作のデータはありません）'}</small></td>${CAL_W.map(w=>cell(ty,w)).join('')}</tr>`}).join('')}</table></div>
    <div class="tg-bar"><b>置いた施策：${st.n}件</b><span>${schEq(C.sch,P.sch)?'CREWの案のままです':'CREWの案から調整しています'}</span><button class="btn" data-schreset>CREWの案に戻す</button><button class="btn" data-schclear>すべて外す</button></div>
    <div class="note">CREWの案は、類似作の半分以上が実施した施策を、類似作でいちばん多かった週に置いたものです。広告は、類似作の出稿の時期がわからないため、案を出していません。ここで組んだスケジュールは「宣伝コンセプト」のページに入り、効果測定の「施策と反応」（進め方を比べる）で、実際の進み具合と並べて見られます。日付と施策名まで決まったら、「施策の日誌」に予定として登録します。</div>`}},{when:'pre'});
-I('plan','p_ch3','訴求の軸と、メディアごとの役割',12,[2],(T,d)=>{const X=pcData(T),{A,W,P,C,MI,ko,whyBy}=X,tw=iMaxN(A.why,WHY_AX),mx=Math.max(...MI.map(r=>A.know[r]),1),nc=MI.filter(r=>C.role[r]==='c').length,RL=[['c','中心'],['s','補助'],['n','使わない']];
-  const row=r=>{const w=whyBy(r),off=C.role[r]==='n';return `<tr class="${off?'pm-off':''}"><td><b>${ROUTES2[r].n}</b></td><td class="pm-v"><span class="pc-b"><i style="width:${(A.know[r]/mx*100).toFixed(1)}%"></i></span><b class="num">${f1(A.know[r])}%</b></td>
+I('plan','p_ch3','どこで発信するか',12,[2],(T,d)=>{const X=pcData(T),{A,P,C,MI,ko,whyBy}=X,mx=Math.max(...MI.map(r=>A.know[r]),1),nc=MI.filter(r=>C.role[r]==='c').length,RL=[['c','中心'],['s','補助'],['n','使わない']],nx=MI.filter(r=>C.role[r]!=='n'&&C.ax[r]!==C.msg).length;
+  const axc=r=>{const w=whyBy(r),sg=P.ax[r];if(C.role[r]==='n')return '<span class="fc-cn">—</span>';
+    if(C.ax[r]!==C.msg)return `<b>${WHY[C.ax[r]]}</b><span class="fc-cn">このメディアだけ、売りと別の軸にしています<button class="fx-re" data-paxclr="${r}" style="display:inline;margin:0 0 0 6px">売りにそろえる</button></span>`;
+    return `${WHY[C.msg]}${sg!==C.msg&&w[sg]-w[C.msg]>=2?`<span class="fc-cn">ここで知った人は「${WHY[sg]}」が決め手の人のほうが多い（${f1(w[sg])}%／売りは ${f1(w[C.msg])}%）<button class="fx-re" data-paxset="${r}" data-paxv="${sg}" style="display:inline;margin:0 0 0 6px">「${WHY[sg]}」に切り替える</button></span>`:''}`};
+  const row=r=>{const off=C.role[r]==='n';return `<tr class="${off?'pm-off':''}"><td><b>${ROUTES2[r].n}</b></td><td class="pm-v"><span class="pc-b"><i style="width:${(A.know[r]/mx*100).toFixed(1)}%"></i></span><b class="num">${f1(A.know[r])}%</b></td>
     <td><span class="seg pm-seg">${RL.map(x=>`<button data-pr="${r}" data-prv="${x[0]}" class="${C.role[r]===x[0]?'on':''} ${P.role[r]===x[0]?'cw':''}" ${x[0]==='c'&&nc>=2&&C.role[r]!=='c'?'disabled title="中心は2つまでです"':''}>${x[1]}</button>`).join('')}</span></td>
-    <td>${off?'<span class="fc-cn">—</span>':`<select data-pax="${r}" class="own-q" aria-label="${ROUTES2[r].n}の訴求の軸">${WHY.slice(0,WHY_AX).map((l,j)=>`<option value="${j}" ${C.ax[r]===j?'selected':''}>${l}　${f1(w[j])}%${P.ax[r]===j?'（CREWの案）':''}</option>`).join('')}</select>${C.ax[r]===C.msg?'':'<span class="fc-cn">幹と違う軸</span>'}`}</td></tr>`};
-  return {d:`${X.who}が、どこで知り、なぜ観ると決めたかをもとに選ぶ`,h:`<div class="pc-g pm-g"><div class="pc-k"><b>幹になる訴求の軸：${WHY[C.msg]}<button class="fx-re" data-psec="p_chsell" style="display:inline;margin:0 0 0 8px">選び直す</button></b><small>「1 誰に」で選んだ売りです。グラフ＝${X.who}が観ると決めた、いちばんの理由（色つき＝選んだ売り）</small>${bars(WHY.slice(0,WHY_AX).map((l,i)=>({l,v:A.why[i],cmp:W.why[i],c:i===C.msg?'#4e8780':'#c9cdd2'})),{fmt:f1,u:'%',cmp:'類似作の観客全体'})}<div class="note" style="margin:8px 0 0">${tw===C.msg?`${X.who}でも、いちばん多い理由は「${WHY[tw]}」です。売りと狙う層が合っています。`:`${X.who}でいちばん多い理由は「${WHY[tw]}」（${f1(A.why[tw])}%）で、売りの「${WHY[C.msg]}」は ${f1(A.why[C.msg])}% です。売りと狙う層が合っているかを確かめます。`}</div></div>
-    <div class="pc-k"><b>メディアごとの役割と、訴求の軸</b><small>割合＝そこで知った人（あてはまるものすべて）｜軸の数字＝そのメディアで知った人の、決め手の割合｜下線＝CREWの案｜中心は2つまで</small>
-     <div class="tw"><table class="pm-t"><tr><th>メディア</th><th>知った人</th><th>役割</th><th>訴求の軸</th></tr>${ko.map(row).join('')}</table></div>
+    <td>${axc(r)}</td></tr>`};
+  return {d:`${X.who}が、どこで作品を知ったかをもとに、メディアごとの役割を選ぶ`,h:`<div class="pc-k"><b>メディアごとの役割</b><small>割合＝そこで知った人（あてはまるものすべて）｜役割の下線＝CREWの案｜中心は2つまで</small>
+     <div class="tw"><table class="pm-t"><tr><th>メディア</th><th>知った人</th><th>役割</th><th>訴求の軸（売り：${WHY[C.msg]}）</th></tr>${ko.map(row).join('')}</table></div>
+     <div class="tg-bar"><b>訴求の軸</b><span>${nx?`${nx}つのメディアで、売りと別の軸にしています`:`すべてのメディアで、売りの「${WHY[C.msg]}」にそろえています`}</span><button class="btn" data-psec="p_chsell">売りを選び直す</button>${nx?'<button class="btn" data-paxclr="all">すべて売りにそろえる</button>':''}</div>
+     <div class="note" style="margin:0">ここで決めるのは、メディアごとの役割だけです。訴求の軸は、上で選んだ売りにそろえてあります。そのメディアで知った人に、売りとは別の決め手が目立つときだけ、切り替えの案を出します（決め手の割合が2pt以上高いとき）。</div>
      <div class="note" style="margin:0">「家族・友人・知人から聞いた」（${f1(A.know[ROUTES2.findIndex(r=>r.wom)])}%）は、宣伝側が選べるメディアではないため、ここには入れていません。口コミの広がりは、公開後に効果測定の「観客」で確かめます。</div>
-     <div class="note" style="margin:0">地域の方針は「<b>${AR_OPT[C.area][0]}</b>」です（「1 誰に」で選択）。${AR_OPT[C.area][2]}。<button class="fx-re" data-psec="p_charea" style="display:inline;margin:0 0 0 6px">選び直す</button></div></div></div>${pcFoot}`}},{when:'pre'});
+     <div class="note" style="margin:0">地域の方針は「<b>${AR_OPT[C.area][0]}</b>」です（「1 誰に」で選択）。${AR_OPT[C.area][2]}。<button class="fx-re" data-psec="p_charea" style="display:inline;margin:0 0 0 6px">選び直す</button></div></div>${pcFoot}`}},{when:'pre'});
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-paxset],[data-paxclr]');if(!t)return;const T=cur(),F=finOf(T),y=window.scrollY,ax={...(F.c.ax||{})};
+  if(t.dataset.paxset!=null)ax[+t.dataset.paxset]=+t.dataset.paxv;else if(t.dataset.paxclr==='all')Object.keys(ax).forEach(k=>delete ax[k]);else delete ax[+t.dataset.paxclr];
+  F.c.ax=ax;delete F.done;finSave();render();window.scrollTo({top:y})});
 I('plan','p_charea','宣伝を厚くする地域',12,[2],(T,d)=>{const X=pcData(T),{AR,P,C}=X;
   return {d:`${X.who}が、どの地域の映画館で観たかをもとに選ぶ`,h:`<div class="ar-g"><div class="pc-k"><b>どの地域に、宣伝を厚くするか</b><small>押して選びます。はじめは、CREWの案が選ばれています</small>
      <div class="pc-os">${AR_OPT.map((o,i)=>`<button class="pc-o ar-o ${C.area===i?'on':''}" data-pc="area" data-pcv="${i}" aria-pressed="${C.area===i}"><span class="pc-l">${o[0]}${P.area===i?'<i class="crew">CREWの案</i>':''}</span><small>${o[1]}。${o[2]}</small></button>`).join('')}</div></div>
@@ -2435,17 +2438,17 @@ I('plan','p_whyseg','類似作の観客は、何を理由に観ると決めた�
     <div class="pc-k"><b>「${WHY[m]}」で観ると決めたのは、どの層か</b><small>大きい数字＝その層のうち、「${WHY[m]}」を理由に挙げた人の割合（観客全体は ${f1(W.why[m])}%）｜色が濃いほど、全体より高い層｜「決めた人の○%」＝この理由で決めた人のうち、その層が占める割合｜枠つき＝いまのメインターゲット</small>
      ${SEX.map((x,g)=>`<div class="tgm-row"><div class="tgm-l">${x}</div><div class="tgm-g">${D.segs.filter(s=>s.g===g).map(tile).join('')}</div></div>`).join('')}
      <ul class="tg-pts" style="margin-top:10px"><li>この理由で決めた人が多い層：${tp.map(s=>`${s.n}（${f1(cp[s.i])}%）`).join('、')}</li><li>全体よりこの理由を挙げやすい層：${hi.n}（${pt(lf[hi.i])}）</li></ul></div></div>
-   ${simNote('左の理由を押しても、見る内容が切り替わるだけで、方針は変わりません。何を売りにするかは、このページの最後で選びます。')}`}},{when:'pre'});
+   ${simNote('左の理由を押しても、見る内容が切り替わるだけで、方針は変わりません。何を売りにするかは、「3 どこで・何を」で選びます。')}`}},{when:'pre'});
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-whyv]');if(!t)return;const y=window.scrollY;S.whyV=S.whyV||{};S.whyV[cur().k]=+t.dataset.whyv;render();window.scrollTo({top:y})});
-I('plan','p_chsell','何を売りにするか',12,[2],(T,d)=>{const X=pcData(T),{D,W,P,C,sel}=X,m=C.msg,st=sellTop(T,m),same=sel.length===st.length&&sel.every(i=>st.includes(i)),cp=nrm(D.segs.map(s=>s.sh*s.why[m]));
-  return {d:'作品のどこを前に出すかを選ぶ。選んだ売りから、狙う層の案が出ます',h:`<div class="ar-g sl-g"><div class="pc-k"><b>作品全体で、何を前に出すか</b><small>数字＝類似作の観客のうち、それを理由に観ると決めた人の割合。押して選びます。はじめは、CREWの案が選ばれています</small>${pcOpts('msg',WHY.slice(0,WHY_AX),W.why,P.msg,C.msg)}</div>
-    <div class="pc-k"><b>「${WHY[m]}」で観ると決めた人が多い層</b><small>数字＝この理由で決めた人のうち、その層が占める割合｜色つき＝売りに合う3つの層（次の地図の、CREWの案）</small>
-     ${bars(D.segs.slice().sort((p,q)=>cp[q.i]-cp[p.i]).slice(0,6).map(s=>({l:s.n,v:cp[s.i],c:st.includes(s.i)?'#4e8780':'#c9cdd2'})),{fmt:f1,u:'%'})}
-     <div class="tg-bar"><b>売りに合う層：${tgNames(D,st)}</b><span>${same?'メインターゲットは、この案になっています':`メインターゲットは「${tgNames(D,sel)||'選んでいません'}」です`}</span>${same?'':'<button class="btn" data-tga="sell">売りに合う3つにする</button>'}</div></div></div>
-   <div class="note">売りのCREWの案は、類似作の観客でいちばん多かった理由です。売りに合う層は、その理由で観ると決めた人が多い3つの層で、次の地図のCREWの案になります。売りを選び直すと、メインターゲットの案も変わります（地図で自分で選んだあとは、「売りに合う3つにする」を押すまで変わりません）。層ごとのくわしい数字は、上の「類似作の観客は、何を理由に観ると決めたか」にあります。メディアごとの訴求の軸は「3 どこで・何を」で選びます。選んだ売りは、効果測定の「観客」で、公開前は観たい理由、公開後は観ると決めた理由と並べて確かめられます。伝える言葉そのものは、ここでは決めません。</div>`}},{when:'pre'});
-/* 選ぶ枠は、参考データをすべて見せたあと、ページの最後に置く（①は売り→地図→選んだ層の内訳の順）。理由×層のデータは参考データとして「類似作を観た人たち」の次に置く */
+I('plan','p_chsell','何を売りにするか',12,[2],(T,d)=>{const X=pcData(T),{A,W,P,C}=X,m=C.msg,df=WHY.slice(0,WHY_AX).map((_,i)=>A.why[i]-W.why[i]),up=df.map((v,i)=>i).sort((a,b)=>df[b]-df[a]).slice(0,3);
+  return {d:`${X.who}が、なぜ観ると決めたかをもとに、作品全体で前に出すことを1つ選ぶ`,h:`<div class="ar-g sl-g"><div class="pc-k"><b>作品全体で、何を前に出すか</b><small>数字＝${X.who}のうち、それを理由に観ると決めた人の割合。押して選びます。はじめは、CREWの案が選ばれています</small>${pcOpts('msg',WHY.slice(0,WHY_AX),A.why,P.msg,C.msg)}</div>
+    <div class="pc-k"><b>類似作の観客全体との差</b><small>${X.on?'メインターゲットが、観客全体より多く挙げている理由ほど右に伸びます｜色つき＝選んだ売り':'「1 誰に」で層を選ぶと、観客全体との差が出ます'}</small>
+     ${X.on?dvBars(WHY.slice(0,WHY_AX).map((l,i)=>({l,v:df[i],hot:i===m}))).replace('← 予測より少ない','← 全体より少ない').replace('予測より多い →','全体より多い →'):''}
+     <ul class="tg-pts" style="margin-top:10px"><li>選んだ売り「${WHY[m]}」：${X.who}の ${f1(A.why[m])}%（観客全体は ${f1(W.why[m])}%）</li>${X.on?`<li>観客全体より多く挙げている理由：${up.filter(i=>df[i]>0).map(i=>`${WHY[i]}（${pt(df[i])}）`).join('、')||'目立つものはありません'}</li>`:''}</ul></div></div>
+   <div class="note">押して選びます。CREWの案は、${X.who}でいちばん多かった理由です。ここで選んだ売りが、すべてのメディアの訴求の軸になります（メディアごとに変えたいときは、次の「どこで発信するか」で切り替えます）。効果測定の「観客」で、公開前は観たい理由、公開後は観ると決めた理由と並べて確かめられます。伝える言葉そのものは、ここでは決めません。</div>`}},{when:'pre'});
+/* 選ぶ枠は、参考データをすべて見せたあと、ページの最後に置く（①は地図→選んだ層の内訳の順、③は売り→どこで発信するかの順）。理由×層のデータは参考データとして「類似作を観た人たち」の次に置く */
 (function(){const it=ITEMS.splice(ITEMS.findIndex(x=>x.id==='p_whyseg'),1)[0];ITEMS.splice(ITEMS.findIndex(x=>x.id==='u_sim')+1,0,it)})();
-(function(){[['p_chsell','p_sec2'],['p_map','p_sec2'],['p_pick','p_sec2'],['p_chkey','p_sec2'],['p_charea','p_sec2'],['p_ch2','p_sec3'],['p_ch3','p_sec4']].forEach(([id,bf])=>{const it=ITEMS.splice(ITEMS.findIndex(x=>x.id===id),1)[0];ITEMS.splice(ITEMS.findIndex(x=>x.id===bf),0,it)})})();
+(function(){[['p_map','p_sec2'],['p_pick','p_sec2'],['p_chkey','p_sec2'],['p_charea','p_sec2'],['p_ch2','p_sec3'],['p_chsell','p_sec4'],['p_ch3','p_sec4']].forEach(([id,bf])=>{const it=ITEMS.splice(ITEMS.findIndex(x=>x.id===id),1)[0];ITEMS.splice(ITEMS.findIndex(x=>x.id===bf),0,it)})})();
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-pc],[data-tgm]');if(!t)return;const T=cur(),F=finOf(T),y=window.scrollY;
   if(t.dataset.tgm)S.tgMode=t.dataset.tgm;else{const k=t.dataset.pc,v=+t.dataset.pcv;F.c[k]=v;delete F.v[k];delete F.done;finSave()}
   render();window.scrollTo({top:y})});
@@ -2485,12 +2488,12 @@ I('audience','u_sellpre','売りは、観たい理由になっているか',12,[
   const now=nrm(WHY.slice(0,WHY_AX).map((_,i)=>o.why[i]*(.7+r()*.6)*(i===m?.8+pg*.4:1))).map(v=>v*.95),df=now[m]-sim[m],j=kwJ(df),rk=now.slice().sort((a,b)=>b-a).indexOf(now[m])+1,top=iMax(now);
   return {d:'公開前の調査で「観たい」と答えた人に聞いた、いちばんの理由',h:`<ul class="todo" style="grid-template-columns:1fr;margin-bottom:12px"><li class="${j[0]||'good'}"><b>宣伝設計の売り「${WHY[m]}」：観たい人の ${f1(now[m])}% が理由に挙げています（${WHY_AX}の理由のうち ${rk}番目｜類似作の観客より ${pt(df)}）</b>${j[0]==='warn'?`類似作では、この理由で観ると決めた人がもっといました。売りが伝わっているかを、素材と出し方で確かめます。いま、いちばん多い理由は「${WHY[top]}」です。`:j[0]==='good'?'売りが、観たい理由として届いています。':'類似作の観客と同じくらいです。'}</li></ul>
    ${bars(WHY.slice(0,WHY_AX).map((l,i)=>({l,v:now[i],cmp:sim[i],c:i===m?'#4e8780':'#c9cdd2'})).sort((a,b)=>b.v-a.v),{fmt:f1,u:'%',cmp:'類似作の観客（観ると決めた、いちばんの理由）'})}
-   <div class="note">色つき＝宣伝設計の「1 誰に」で選んだ売り。${sellRe}　この作品は「観たい」と答えた人、類似作は実際に観た人に聞いているため、聞いている相手がちがいます。差は目安として読みます。</div>`}},{when:'pre'});
+   <div class="note">色つき＝宣伝設計の「3 どこで・何を」で選んだ売り。${sellRe}　この作品は「観たい」と答えた人、類似作は実際に観た人に聞いているため、聞いている相手がちがいます。差は目安として読みます。</div>`}},{when:'pre'});
 I('audience','u_sell','売りは、観ると決めた理由になったか',12,[2],(T,d)=>{const X=pcData(T),m=X.C.msg,o=cq(T,d),sim=i=>cqMed(x=>x.why[i],d),df=o.why[m]-sim(m),j=kwJ(df),ax=o.why.slice(0,WHY_AX),rk=ax.slice().sort((a,b)=>b-a).indexOf(ax[m])+1,top=iMax(ax),gk=GOOD_M.indexOf(m),hasG=gk>=0&&!(gk===4&&T.orig===false);
   return {d:'鑑賞後のアンケートから。観ようと決めた、いちばんの理由',h:`<ul class="todo" style="grid-template-columns:1fr;margin-bottom:12px"><li class="${j[0]||'good'}"><b>宣伝設計の売り「${WHY[m]}」：観客の ${f1(o.why[m])}% が、これを理由に観ると決めています（${WHY_AX}の理由のうち ${rk}番目｜類似作の中央値より ${pt(df)}）</b>${j[0]==='warn'?`類似作ほど、この理由では選ばれていません。実際にいちばん多かった理由は「${WHY[top]}」です。`:j[0]==='good'?'売りが、観ると決めた理由として効いています。':'類似作と同じくらいです。'}</li></ul>
    <div class="two"><div><div class="sub-h">観ようと決めた、いちばんの理由</div>${bars(WHY.slice(0,WHY_AX).map((l,i)=>({l,v:o.why[i],cmp:sim(i),c:i===m?'#4e8780':'#c9cdd2'})).sort((a,b)=>b.v-a.v),{fmt:f1,u:'%',cmp:'類似作の中央値'})}</div>
    <div><div class="sub-h">観たあと、売りは「良かったところ」になったか</div>${hasG?`<div class="kpis">${kpi(`「${GOOD[gk]}」を良かったところに選んだ人`,f1(o.good[gk]),'%',`類似作の中央値 ${f1(cqMed(y=>y.good[gk],d))}%`)}${kpi('この理由で来た人のうち、良かったところにも選んだ人',f1(o.kept[gk]),'%','売りの約束が守られたかの目安')}</div><div class="note">「良かったところ」は3つまで選べる設問です。売りを理由に来た人が、観たあとも同じところを良かったと答えていれば、宣伝で伝えたことと作品が合っています。</div>`:`<div class="empty">「${WHY[m]}」に対応する「良かったところ」の選択肢はありません。</div>`}</div></div>
-   <div class="note">色つき＝宣伝設計の「1 誰に」で選んだ売り。${sellRe}</div>`}},{when:'post'});
+   <div class="note">色つき＝宣伝設計の「3 どこで・何を」で選んだ売り。${sellRe}</div>`}},{when:'post'});
 (function(){const mv=(id,bf,after)=>{const it=ITEMS.splice(ITEMS.findIndex(x=>x.id===id),1)[0];ITEMS.splice(ITEMS.findIndex(x=>x.id===bf)+(after?1:0),0,it)};mv('u_sell','u_kw');mv('u_sellpre','p_gap',1)})();
 /* これから決める人がどのくらい残っているか：基準日に連動するので、効果測定の「観客」（公開前）に置く */
 I('audience','u_left','これから観ると決める人は、どのくらい残っているか',12,[2],(T,d)=>{const D=tgData(T),sel=tgSel(T),all=D.segs.map(s=>s.i),on=sel.length>0,A=tgAgg(D,on?sel:all),W=tgAgg(D,all),now=decNow(d),done=sumA(A.dec.slice(0,now)),doneW=sumA(W.dec.slice(0,now)),left=100-done,lf=s=>sumA(s.dec.slice(now)),o=D.segs.slice().sort((p,q)=>lf(q)-lf(p));
@@ -2516,8 +2519,8 @@ const snsOf=(D,idx)=>{const ss=D.segs.filter(s=>idx.includes(s.i)),w=sumA(ss.map
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-tg],[data-tga]');if(!t)return;const T=cur(),D=tgData(T),sel=tgSel(T),y=window.scrollY;
   const F=finOf(T),seedT=false;delete F.done;
   if(seedT){if(t.dataset.tga==='seedp')delete F.c.seed;else if(t.dataset.tga==='seednone')F.c.seed=[];else{const i=+t.dataset.tg,c=pcData(T).C.seed;F.c.seed=c.includes(i)?c.filter(x=>x!==i):c.concat(i).sort((p,q)=>p-q)}finSave();render();window.scrollTo({top:y});return}
-  finSave();if(t.dataset.tga==='sell'){S.tgA[T.k]=true;delete S.tg[T.k]}else if(t.dataset.tga){S.tgA[T.k]=false;S.tg[T.k]=t.dataset.tga==='none'?[]:D.tags[t.dataset.tga].slice()}
-  else{S.tgA[T.k]=false;const i=+t.dataset.tg;S.tg[T.k]=sel.includes(i)?sel.filter(x=>x!==i):sel.concat(i).sort((p,q)=>p-q)}
+  finSave();if(t.dataset.tga)S.tg[T.k]=t.dataset.tga==='none'?[]:D.tags[t.dataset.tga].slice();
+  else{const i=+t.dataset.tg;S.tg[T.k]=sel.includes(i)?sel.filter(x=>x!==i):sel.concat(i).sort((p,q)=>p-q)}
   render();window.scrollTo({top:y})});
 
 /* ================= 施策の答え合わせ：反応の先の「来場」を、鑑賞後アンケートでつなぐ =================
