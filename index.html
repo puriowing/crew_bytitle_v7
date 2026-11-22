@@ -1332,16 +1332,16 @@ function posOf(T,k,d,mode){const key=T.k+k+d+(mode||'');if(_pc[key]!=null)return
 const adCtr=(T,d)=>{const i=sumR(T,'aspD',D0,d)/T.cpmD*1000;return i?sumR(T,'aclk',D0,d)/i*100:null};
 function adPos(T,d){const v=adCtr(T,d);if(v==null)return null;return pctOf(v,PEERS.map(p=>adCtr(p,d)).filter(x=>x!=null))}
 
-/* 反応スコア（Phase 1・2）／宣伝効果指数（Phase 3） */
+/* 反応スコア：公開データの反応だけでつくる。アンケートの数字は混ぜない */
 function scoreParts(T,d){const p=[];
   if(has(3)){p.push({n:'話題の量',k:'buzz',v:posOf(T,'buzz',d)});p.push({n:'センチメント',k:'sent',v:posOf(T,'sent',d)})}
   if(has(6)){p.push({n:'公式SNSの反応',k:'oeng',v:posOf(T,'oeng',d)});const a=adPos(T,d);if(a!=null)p.push({n:'広告の効率',k:'ad',v:a})}
   if(has(5))p.push({n:'検索',k:'search',v:posOf(T,'search',d)});
   if(has(4))p.push({n:'Clip!',k:'clip',v:posOf(T,'clip',d)});
-  if(has(1)){p.push({n:'認知率',k:'aware',v:posOf(T,'aware',d),w:2});p.push({n:'観たい率',k:'intent',v:posOf(T,'intent',d),w:3})}
   return p;}
+const surveyPos=(T,d)=>has(1)?[{n:'認知率',k:'aware',v:posOf(T,'aware',d)},{n:'観たい率',k:'intent',v:posOf(T,'intent',d)}]:[];
 function scoreOf(T,d){const p=scoreParts(T,d);const w=p.reduce((s,x)=>s+(x.w||1),0);return Math.round(p.reduce((s,x)=>s+x.v*(x.w||1),0)/w)}
-const scoreName=()=>has(1)?'宣伝効果指数':'反応スコア';
+const scoreName=()=>'反応スコア';
 const toneOf=v=>v>=62?['good','好調']:v>=40?['warn','ふつう']:['bad','弱い'];
 
 /* 施策の押し上げ：実施後3日 ÷ 実施前7日 */
@@ -1475,7 +1475,7 @@ I('home','h_verdict','今日の結論',7,[],(T,d)=>{const sc=scoreOf(T,d),pv=sco
    <div style="flex:1;min-width:220px"><span class="tone ${tc}">${tl}</span> <span class="m" style="font-size:12px;color:var(--sub)">${dp(sc-pv,'','前週比')}</span>
    <h3>${worst.v<40?`${best.n}が強く、${worst.n}が弱い`:best.v>=60?`${best.n}が強い。大きく弱い点はありません`:'類似作とほぼ同じ水準です'}</h3>
    <div class="fac">${p.map(x=>`<span>${x.n}<b>${x.v}</b></span>`).join('')}</div>
-   <div class="note">${scoreName()}は、上の数字をならしたものです。50が類似作の真ん中にあたります。</div>${scoreHow(T,d)}</div></div>`}},{any:[3,6]});
+   <div class="note">${scoreName()}は、上の数字をならしたものです。50が類似作の真ん中にあたります。</div>${surveyPos(T,d).length?`<div class="fac" style="margin-top:8px">${surveyPos(T,d).map(x=>`<span>${x.n}<b>${f1(at(T,x.k,d))}%</b>類似作の中で${TIERS[tierOf(x.v)]}</span>`).join('')}</div><div class="note">認知率と観たい率は、点数に混ぜず、そのままの数字で見ます。</div>`:''}${scoreHow(T,d)}</div></div>`}},{any:[3,6]});
 I('home','h_todo','今日の注意点とやること',5,[],(T,d)=>{const li=[];
   if(has(3)){const rk=T.ev.filter(e=>e.d<=d&&e.d>=d-14).map(e=>({e,o:rxOf(T,e,d)})).filter(x=>x.o&&x.o.risk.lv!=='平常').sort((a,b)=>b.o.risk.score-a.o.risk.score)[0];if(rk)li.push([rk.o.risk.lv==='警戒'?'bad':'warn',`炎上リスク：${rk.o.risk.lv}（「${esc(rk.e.label)}」）`,rk.o.risk.sc?rk.o.risk.sc.act:'否定的な投稿の中身を確認してください。'])}
   if(has(2)&&d>=1){const df=cqDiff(cq(T,d)),dm=cqMed(cqDiff,d);if(df>=dm+3)li.push(['warn','宣伝と内容が「ちがった」と感じた人が、類似作より多い',`観た人の ${f1(df)}%（類似作の中央値 ${f1(dm)}%）。口コミが伸び悩む前に、予告や告知の見せ方が本編とずれていないかを確かめてください。`])}
@@ -1486,7 +1486,7 @@ I('home','h_todo','今日の注意点とやること',5,[],(T,d)=>{const li=[];
   const done=T.ev.filter(e=>e.d+2<=d&&!isAd(e)),by={};done.forEach(e=>{const v=evEff(T,e,d);if(v!=null)(by[e.ch]=by[e.ch]||[]).push(v)});
   const top=Object.entries(by).map(([c,v])=>[c,mean(v)]).sort((a,b)=>b[1]-a[1])[0];
   if(top)li.push(['good',`${CH[top[0]].n}の施策がいちばん反応を取れています`,`効き具合の平均は${Math.round(top[1])}。同じ種類の施策を足す候補です。`]);
-  const w=scoreParts(T,d).sort((a,b)=>a.v-b.v)[0];if(w&&w.v<35)li.push(['warn',`${w.n}が類似作の同じ時期より弱い`,`位置は${w.v}（50が真ん中）。`]);
+  const w=scoreParts(T,d).concat(surveyPos(T,d)).sort((a,b)=>a.v-b.v)[0];if(w&&w.v<35)li.push(['warn',`${w.n}が類似作の同じ時期より弱い`,`位置は${w.v}（50が真ん中）。`]);
   if(has(4)&&d>=7){const dv=at(T,'score',d)-at(T,'score',d-7);if(dv<-0.05)li.push(['bad','スコアが下がり始めています',`前週より${f2(-dv)}点低下。`])}
   return {d:'数字の動きから自動で拾っています',h:`<ul class="todo">${li.slice(0,4).map(l=>`<li class="${l[0]}"><b>${l[1]}</b>${l[2]}</li>`).join('')}</ul>`}},{any:[3,6]});
 I('home','h_nums','毎日の数字',12,[],(T,d)=>({d:'押すとくわしいページへ｜折れ線は直近4週、縦の線は施策を行った日',h:`<div class="nums">${Object.keys(M).filter(k=>k!=='oimp'&&mAvail(k,d)).map(k=>ncard(T,k,d)).join('')}</div>`}),{any:[3,6]});
@@ -2587,12 +2587,12 @@ const SRC_NAME={1:'KARTE',2:'CAST',3:'SNS計測',4:'レビュー',5:'検索',6:'
 const SRC_USE={
   h_verdict:[3,6,5,4,1],h_todo:[3,6,4,1,2,'N'],h_nums:[3,6,5,4,1,2],h_voice:[3,4,2],h_alert:[4,3],h_tl:[3,6,5,4,1,2],
   a_today:[3,6,5,4,1],a_log:[3,6,'N',5,4,1],a_tl:[3,6,5,4,1,2],a_rank:[3,6,'N',5,4,1],a_ch:[3,6,'N',5,4,1],a_plan:[6,'N'],a_week:[3,6,5,4,1],
-  a_score:[3,6,5,4,1],a_decomp:[3,6,5,4,1],a_axes:[3,6,5,4,1],a_flow:[6,3,1,'B',2],
+  a_score:[3,6,5,4],a_decomp:[3,6,5,4],a_axes:[3,6,5,4],a_flow:[6,3,1,'B',2],
   d_sum:[6,3],d_gloss:[],
   i_buzz:[3,6],i_search:[5,6],i_clip:[4,6],i_aware:[1,6],i_sat:[2,1],
   h_views:[3,6,4,1,'B'],h_moves:[3,6,5,4,1,2],h_goal:['B',1,2],h_all:[3,6,5,4,1,2],
   o_pos:[3,6,5,4],o_final:['B',4,2],o_legs:['B',2],o_similar:['B',1],o_supply:['S','B'],o_comp:['S'],o_check:['B'],
-  o_share:['B','S',1],o_winlose:[1,3,6,'S'],o_slate:['S'],o_cmpts:[3,6,5,4,1],o_mult:['B',4,2],o_how:[],
+  o_share:['B','S',1],o_winlose:[1,3,6,'S'],o_slate:['S'],o_cmpts:[3,6,5,4],o_mult:['B',4,2],o_how:[],
   o_simsat:[2,'B'],a_answer:[2,6],cr_top:[6],cr_wall:[6],cr_posts:[6],cr_next:[6],p_gap:[1,2],p_hit:[2,'B'],p_cal:['N',3,2,6],
   o_demand:[1,'S',2],o_sim:[1,'S',2],o_pressure:[1,'S'],o_upside:[1,6],o_curve:['B',1,2],o_demandix:[1,2,'S'],
   o_money:[1,2],o_supply:['S','B',2],o_type:[4,2],o_ovl:[4,2],o_cmpaud:[2,'B'],u_overlap:[4,2],u_next:[4,2],u_seg:[4,2],i_conv:[4,2],a_bonus:[2,6],h_cast:[2]
@@ -3219,7 +3219,7 @@ function provHTML(it,T,d){const use=(SRC_USE[it.id]||it.need).filter(k=>srcPhase
   return `<div class="prov"><span class="pv ${kind[0]}">${kind[1]}</span><span class="pv-s">${nm}</span><span class="pv-t">${d>T.today?'この先は見本の数字':md(dateOf(T,d))+' 6:00 更新'}</span></div>`}
 function scoreHow(T,d){const p=scoreParts(T,d),W=sumA(p.map(x=>x.w||1));
   return `<details class="sc-how"><summary>この点数の作り方</summary><table class="ex-t"><tr><th>数字</th><th class="r">類似作の中の位置</th><th class="r">重み</th></tr>${p.map(x=>`<tr><td>${x.n}</td><td class="r num">${x.v}</td><td class="r num">${x.w||1}／${W}</td></tr>`).join('')}<tr><td><b>${scoreName()}</b></td><td class="r num"><b>${scoreOf(T,d)}</b></td><td class="r">重みつき平均</td></tr></table>
-    <div class="note">「類似作の中の位置」は、類似作${PEERS.length}本の同じ時期（公開日を基準にそろえた日）の数字と比べて、何番目にあたるかを0〜100にしたものです。${has(1)?'認知率と観たい率は、来場にいちばん近い数字なので重みを大きくしています。':''}重みは全作品で共通で、作品ごとに変えていません。</div></details>`}
+    <div class="note">「類似作の中の位置」は、類似作${PEERS.length}本の同じ時期（公開日を基準にそろえた日）の数字と比べて、何番目にあたるかを0〜100にしたものです。どの数字も同じ重みで平均しています。${has(1)?'認知率と観たい率は、この点数には入れていません。':''}</div></details>`}
 function openPeers(){const T=cur(),lo=Math.round(T.screens*0.7/10)*10,hi=Math.round(T.screens*1.3/10)*10,own=PEERS.filter(p=>p.own).length,sel=peerSel(),offL=PEER_DEF.filter(p=>sel.off.includes(p.k)),cand=PEER_ADD.filter(p=>!sel.add.includes(p.k)),lock=PEERS.length<=PEER_MIN;
   $('#panel').innerHTML=`<button class="pn-x" aria-label="閉じる">×</button><span class="chip neu">比べている類似作</span><h2>類似作 ${PEERS.length}本の選び方</h2>
     <div class="kpis" style="margin:12px 0">${kpi('類似作',PEERS.length,'本',`うち自社の過去作 ${own}本`)}${kpi('配給会社',5,'社','自社を含む')}</div>
@@ -3343,7 +3343,7 @@ function aliasCheck(){const keep={...S},miss=[];S.phase=3;S.mv='all';S.psec='all
   const ok=[['t1',-12],['t3',23]].some(([k,d])=>{S.title=k;S.day=d;S.page=it.page;S.deepOpen[it.page]=true;if(!avail(it,d))return false;render();return !!$('#it-'+id)});if(!ok)miss.push([t,id,'表示されない'])}
   Object.assign(S,keep);render();return {total:Object.keys(ALIAS).length,miss}}
 function selfCheck(){const keep={...S,deepOpen:{...S.deepOpen}},bad=[];let n=0;S.client=true;S.mv='all';S.psec='all';PAGES.forEach(p=>S.deepOpen[p.k]=true);
-  const NG={1:/Mark!|Clip!|検索|認知率|観たい率|満足度|NPS|レビュー|アンケート|宣伝効果指数/,2:/認知率|観たい率|満足度|NPS|アンケート|宣伝効果指数/,3:/反応スコア/};
+  const NG={1:/Mark!|Clip!|検索|認知率|観たい率|満足度|NPS|レビュー|アンケート|宣伝効果指数/,2:/認知率|観たい率|満足度|NPS|アンケート|宣伝効果指数/,3:/宣伝効果指数/};
   for(const ph of [1,2,3])for(const t of TITLE_DEFS){const T=TT[t.k];for(const d of [-60,-30,-12,-1,0,1,2,5,13,20,27].filter(x=>x<=T.today)){S.phase=ph;S.title=t.k;S.day=d;
     for(const p of visiblePages(d)){S.page=p.k;try{render()}catch(e){bad.push([ph,t.k,d,p.k,'ERR '+e.message]);continue}n++;const tx=$('#page').innerText;
       if(/NaN|undefined|Infinity|null/.test(tx))bad.push([ph,t.k,d,p.k,(tx.match(/.{0,20}(NaN|undefined|Infinity|null).{0,10}/)||[''])[0]]);
