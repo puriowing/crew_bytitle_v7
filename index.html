@@ -1285,7 +1285,7 @@ function build(t){
 const TITLE_DEFS=[
   {k:'t1',name:'星降る夜のメロディ',genre:'恋愛・青春',kind:'実写邦画',screens:312,today:-12,seed:11,power:1.0,q:.8,skip:[2]},
   {k:'t2',name:'ラストトレイン・ブルース',genre:'サスペンス',kind:'実写邦画',screens:285,today:9,seed:23,power:.85,q:.45},
-  {k:'t3',name:'ぼくらの小さな大冒険',genre:'ファミリー',kind:'アニメ',screens:340,today:23,seed:37,power:1.2,q:.7}
+  {k:'t3',name:'ぼくらの小さな大冒険',genre:'ファミリー',kind:'アニメ',screens:340,today:23,seed:37,power:1.2,q:.7,series:true}
 ];
 const TT={};TITLE_DEFS.forEach(t=>TT[t.k]=build(t));
 const PEERS=(()=>{const r=rng(999),a=[];for(let i=0;i<14;i++)a.push(build({k:'p'+i,name:'',today:37,seed:100+i*13,power:0.5+r()*1.1,q:0.15+r()*0.8}));return a})();
