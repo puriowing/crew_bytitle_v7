@@ -2032,7 +2032,7 @@ I('deliver','d_gloss','広告の指標の読み方',6,[6],()=>({d:'早見表',h:
 
 /* ---------- 観客：公開前（週ごとの調査） ---------- */
 I('audience','u_pre2','観たい気持ちの中身',12,[1],(T,d)=>{const r=R(T,90),i=at(T,'intent',Math.min(d,-1)),a=at(T,'aware',Math.min(d,-1));
-  return {d:'週ごとの調査から',h:`<div class="three"><div><div class="sub-h">観たい気持ちの分布</div>${bars([{l:'ぜひ観たい',v:i*.38,c:'#2f6b52'},{l:'観たい',v:i*.62,c:'#6a9b8a'},{l:'どちらともいえない',v:(100-i)*.4,c:'#b9bec4'},{l:'あまり観たくない',v:(100-i)*.36,c:'#b9bec4'},{l:'まったく観たくない',v:(100-i)*.24,c:'#b9bec4'}],{fmt:f1,u:'%'})}<div class="note">作品を知っていて、まだ観ていない人の内訳。観たい率は「ぜひ観たい」と「観たい」の合計です。</div>
+  return {d:'週ごとの調査から',h:`<div class="three"><div><div class="sub-h">観たい気持ちの分布</div>${bars([{l:'ぜひ観たい',v:i*.38,c:'#2f6b52'},{l:'観たい',v:i*.62,c:'#6a9b8a'},{l:'どちらともいえない',v:(100-i)*.4,c:'#b9bec4'},{l:'観ない',v:(100-i)*.6,c:'#b9bec4'}],{fmt:f1,u:'%'})}<div class="note">作品を知っていて、まだ観ていない人の内訳（調査の選択肢どおり）。観たい率は「ぜひ観たい」と「観たい」の合計です。</div>
    <div class="sub-h">どこまで知っているか</div>${stack([{l:'内容まで',v:a*.34,c:'#1b3a5b'},{l:'名前だけ',v:a*.66,c:'#5b6f9c'},{l:'知らない',v:100-a,c:'#d9d4ca'}])}<div class="note">内容まで理解している人は、知っている人の34%。</div></div>
    <div><div class="sub-h">いつ観る予定か</div>${bars([['公開初日〜最初の週末',14+T.q*8],['公開1週目のうち',12+T.q*4],['公開2〜4週目',33],['1か月より後',16],['時期は決めていない',25-T.q*12]].map((x,k)=>({l:x[0],v:x[1],cmp:[18,14,33,16,19][k]})),{fmt:f1,u:'%',c:'#6a9b8a',cmp:'類似作の中央値'})}
    <div class="sub-h">性別の観たい率</div>${bars([{l:'女性',v:i*(0.9+r()*.35),cmp:pMed('intent',Math.min(d,-1),20)*1.07},{l:'男性',v:i*(0.75+r()*.35),cmp:pMed('intent',Math.min(d,-1),20)*.92}],{fmt:f1,u:'%',c:'#a06a86',cmp:'類似作の中央値'})}</div>
@@ -2043,7 +2043,7 @@ I('audience','u_pre3','観たい形式と単価',6,[1],(T,d)=>{const r=R(T,91),u
 I('audience','u_creative','記憶に残った宣伝素材',6,[1],(T,d)=>{const r=R(T,92),i=at(T,'intent',Math.min(d,-1));
   return {d:'見た覚えがある人の割合と、その人たちの観たい率',h:`<div class="tw"><table><tr><th>素材</th><th class="r">見た覚えがある</th><th class="r">見た人の観たい率</th><th class="r">全体との差</th></tr>${['本予告','特報','ポスター','TVスポット','主題歌の映像'].map(n=>{const l=2+r()*9;return `<tr><td><span class="tthumb">${matArt(T,n)}</span>${n}</td><td class="r">${f1(12+r()*30)}%</td><td class="r">${f1(i+l)}%</td><td class="r" style="color:var(--goodtx)">+${f1(l)}pt</td></tr>`}).join('')}</table></div>`}},DP);
 I('audience','u_rival','一緒に検討されている作品',6,[1],(T,d)=>{const r=R(T,93);return {d:'この作品を観たい人が、同じ時期にほかに観たい作品',h:bars(comps(T).map(c=>({l:c.n,v:8+r()*28,c:c.c})).sort((a,b)=>b.v-a.v),{fmt:f1,u:'%'})+'<div class="note">割合が高い作品とは、同じ客を取り合います。</div>'}},DP);
-I('audience','u_items','調査で取得している項目',6,[1],()=>({d:'週ごとの調査',h:`<div class="words">${['認知','認知の深さ','観たい気持ち','観たい理由','いちばんの理由','観たくない理由','観る確かさ','観る時期','同行者','劇場か配信か','観たい形式','追加で払える額','知ったきっかけ','この1週間に見聞きした場所','見た覚えのある宣伝','作品との関係','口コミの受け取り','ほかに観たい作品'].map(w=>`<span>${w}</span>`).join('')}</div>`}),DP);
+I('audience','u_items','調査で取得している項目',6,[1],()=>({d:'週ごとの調査',h:`<div class="words">${['認知','認知の深さ','知ったきっかけ','観たい気持ち','観たい理由','ほかに観たい作品','この1週間に見聞きした場所','見た覚えのある宣伝','作品との関係','いちばんの理由','観る時期','観る確かさ','劇場か配信か','同行者','観たい形式','追加で払える額','前売券','観たくない理由','口コミの受け取り'].map(w=>`<span>${w}</span>`).join('')}</div>`}),DP);
 
 /* ---------- 観客：公開後（鑑賞後のアンケート） ---------- */
 I('audience','u_post2','どこで知り、なぜ観たか',12,[2],(T,d)=>{const r=R(T,94),o=cq(T,d),c=castRoutes(T,d),dd=Math.min(d,36),km=ROUTES2.map((_,i)=>med(PEERS.map(p=>castRoutes(p,dd).rows[i].know))),top=c.rows.map((x,i)=>i).filter(i=>!ROUTES2[i].oth).sort((a,b)=>c.rows[b].one-c.rows[a].one).slice(0,5),pre=cqPreDec(o),preM=cqMed(cqPreDec,d);
