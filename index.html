@@ -2329,12 +2329,12 @@ const FIN_SEC=[['who','誰に','p_sec1'],['when','いつ','p_sec2'],['what','ど
 const AR_OPT=[['都市に寄せる','3大都市圏に、宣伝を厚くする','電車・駅・街なかの広告や、地域を絞った配信が合います'],['全国まんべんなく','地域で差をつけない','テレビや、全国一律の配信が合います'],['地方に厚く','3大都市圏の外に、宣伝を厚くする','地方のテレビ局や、地域を絞った配信が合います']],WITH_C=['#a06a86','#b08040','#4e8780','#5b6f9c'];
 /* キーワードで狙う層：数字で確かめられる層だけを札にする（誰と観るか＝同行者の設問、作品との関係＝原作・シリーズ・ファンの設問） */
 const KW=[{k:'w3',g:0,n:'子ども連れの家族',wi:1},{k:'w5',g:0,n:'大人だけの家族・親族',wi:2},{k:'w1',g:0,n:'友人・知人',wi:3},{k:'w2',g:0,n:'恋人・パートナー',wi:4},{k:'w0',g:0,n:'ひとり',wi:0},
-  {k:'f1',g:1,n:'原作を読んだ・遊んだ人',b:21,no:T=>T.orig===false,f:(a,g)=>1.3-.12*a},{k:'f2',g:1,n:'前作・シリーズを観た人',b:30,no:T=>!T.series,f:(a,g)=>1.1-.03*a},{k:'f3',g:1,n:'出演者のファン',b:19,f:(a,g)=>(g?.6:1.35)*(1.2-.07*a)},
+  {k:'f1',g:1,n:'原作を読んだ・遊んだ人',b:21,no:T=>T.orig===false,f:(a,g)=>1.3-.12*a},{k:'f2',g:1,n:'前作・シリーズを映画館で観た人',b:18,no:T=>!T.series,f:(a,g)=>1.1-.04*a},{k:'f7',g:1,n:'前作・シリーズをテレビ・配信で観た人',b:24,no:T=>!T.series,f:(a,g)=>1.25-.07*a},{k:'f3',g:1,n:'出演者のファン',b:19,f:(a,g)=>(g?.6:1.35)*(1.2-.07*a)},
   {k:'f4',g:1,n:'監督・スタッフのファン',b:6,f:(a,g)=>(g?1.3:.8)*(.7+.12*a)},{k:'f5',g:1,n:'主題歌のアーティストのファン',b:8,no:T=>!!T.nosong,f:(a,g)=>(g?.7:1.25)*(1.5-.2*a)},{k:'f6',g:1,n:'このジャンルの映画をよく観る人',b:27,f:(a,g)=>.8+.08*a}],KW_G=['誰と観るか','作品との関係'],KW_MAX=3;
 const _kw={};
 function kwData(T){const D=tgData(T),sel=tgSel(T),ix=sel.length?sel:D.segs.map(s=>s.i),key=T.k+'|'+ix.join(',')+'|'+PEERS.length;if(_kw[key])return _kw[key];const r=R(T,307),W=tgAgg(D,D.segs.map(s=>s.i)),ws=sumA(ix.map(i=>D.segs[i].sh))||1;
   const L=KW.filter(k=>!(k.no&&k.no(T))).map(k=>{const rate=D.segs.map(s=>k.g?clamp(k.b*k.f(s.a,s.g)*(.8+r()*.4),.5,80):s.wth[k.wi]),sh=sumA(D.segs.map(s=>s.sh*rate[s.i]))/100,shT=sumA(ix.map(i=>D.segs[i].sh*rate[i]))/ws,top=D.segs.slice().sort((p,q)=>q.sh*rate[q.i]-p.sh*rate[p.i]).slice(0,2).map(s=>s.n);
-    return {...k,sh,shT,top,sat:clamp(W.sat+(k.g?[4,5,3,2,1,-1][+k.k[1]-1]:[-2,2,1,1,0,0][k.wi])+(r()-.5)*3,55,97),nps:W.nps+(k.g?[9,12,7,4,3,-2][+k.k[1]-1]:[-5,5,2,4,1,0][k.wi])+(r()-.5)*5}});
+    return {...k,sh,shT,top,sat:clamp(W.sat+(k.g?[4,5,3,2,1,-1,3][+k.k[1]-1]:[-2,2,1,1,0,0][k.wi])+(r()-.5)*3,55,97),nps:W.nps+(k.g?[9,12,7,4,3,-2,8][+k.k[1]-1]:[-5,5,2,4,1,0][k.wi])+(r()-.5)*5}});
   const by=Object.fromEntries(L.map(x=>[x.k,x])),best=g=>L.filter(x=>x.g===g).sort((p,q)=>q.shT-p.shT)[0];
   return _kw[key]={L,by,p:[best(0),best(1)].filter(Boolean).map(x=>x.k)}}
 function arSel(T){const D=tgData(T),X=areaData(T),sel=tgSel(T),ix=sel.length?sel:D.segs.map(s=>s.i),ws=sumA(ix.map(i=>D.segs[i].sh))||1,mix=AREA.map((_,k)=>sumA(ix.map(i=>D.segs[i].sh*X.seg[i][k]))/ws),u=mix[0]+mix[1],df=u-X.ua;return {mix,u,df,ua:X.ua,p:df>=3?0:df<=-3?2:1}}
