@@ -1801,9 +1801,8 @@ I('interest','i_clip','Clip!（観たい登録）の積み上がり',6,[4],(T,d)
   return {d:`類似作の同じ時点と比べて ${TIERS[tierOf(pos)]}`,h:chart(T,[{n:'類似作の幅（真ん中の半分）',band:peerBand('clip',D0,b,true),c:'#8a929a'},{n:'この作品（累計）',vals:cum,c:M.clip.c}],{a:D0,b,u:'人',h:170,marks:evMarks(T)})}},{hit:'clip'});
 const clipPre=X=>sumR(X,'clip',D0,-1);
 function conv(X,d){const mk=sumR(X,'mark',0,d)||1,r=R(X,12);return {pre:clipPre(X)/mk,post:sumR(X,'clip',0,d)/mk,done:16+ (1-X.q)*14+r()*10}}
-I('interest','i_conv','待っていた人が観たか',6,[4],(T,d)=>{if(has(2)&&d>=0){const o=cq(T,d),pre=cqPreDec(o),preM=cqMed(cqPreDec,d),adv=o.buy[4],advM=cqMed(x=>x.buy[4],d),mv=o.tkt[6],mvM=cqMed(x=>x.tkt[6],d);
-    return {d:'鑑賞後のアンケートから。観ると決めた時期と、チケットを買った時期',h:`<div class="kpis">${kpi('公開前から観ると決めていた人',f1(pre),'%',`類似作の中央値 ${f1(preM)}%`)}${kpi('1週間以上前に買った人',f1(adv),'%',`前売券を含む｜類似作 ${f1(advM)}%`)}${kpi('ムビチケ・前売券を使った人',f1(mv),'%',`類似作の中央値 ${f1(mvM)}%`)}</div>
-    <div class="sub-h">チケットを買った時期</div>${bars(BUY.map((l,i)=>({l,v:o.buy[i],cmp:cqMed(x=>x.buy[i],d)})),{fmt:f1,u:'%',c:'#5b6f9c',cmp:'類似作の中央値'})}
+I('interest','i_conv','待っていた人が観たか',6,[4],(T,d)=>{if(has(2)&&d>=0){const o=cq(T,d),pre=cqPreDec(o),preM=cqMed(cqPreDec,d),mv=o.tkt[6],mvM=cqMed(x=>x.tkt[6],d);
+    return {d:'鑑賞後のアンケートから。観ると決めた時期と、前売券を使った人',h:`<div class="kpis">${kpi('公開前から観ると決めていた人',f1(pre),'%',`類似作の中央値 ${f1(preM)}%`)}${kpi('ムビチケ・前売券を使った人',f1(mv),'%',`類似作の中央値 ${f1(mvM)}%`)}</div>
     <div class="note">${pre>preM+3?'公開前から待っていた人が、類似作より多く来ています。':pre<preM-3?'公開後に知って、または決めて観た人が多い型です。':'待っていた人の割合は、類似作と同じくらいです。'}決めた時期は観た日から数えて聞き、観た日と公開日から「公開前から」を出しています。</div>`}}
   const c=conv(T,d),p=PEERS.map(x=>conv(x,d));
   return {d:'公開前にClip!していた人と、Mark!した人の関係',h:`<div class="kpis">${kpi('公開前のClip! ÷ Mark!',f2(c.pre),'倍',`類似作の中央値 ${f2(med(p.map(x=>x.pre)))}倍`)}${kpi('Mark!した人のうち公開前にClip!済み',f1(c.done),'%',`類似作の中央値 ${f1(med(p.map(x=>x.done)))}%`)}${kpi('公開後のClip! ÷ Mark!',f2(c.post),'倍',`類似作の中央値 ${f2(med(p.map(x=>x.post)))}倍`)}</div>
@@ -1850,10 +1849,8 @@ const MATCH=['思った以上だった','だいたい合っていた','少しち
 /* 券の種類（A4）。単価は券の種類×館の料金表×上映形式で計算する。TKT_P は通常上映の料金表の見本。無料とわからないは単価から除く */
 const TKT=['一般（大人）','大学生・専門学校生','高校生以下・子ども','シニア','サービスデー（映画の日など）','会員割引・会員デー','ムビチケ・前売券','クーポン・その他の割引','招待券・優待・ポイント（無料）','わからない'],TKT_P=[2000,1500,1000,1300,1200,1500,1600,1500],TKT_DISC=[4,5,6,7,8],PRICE0=1450,FMT_PX=[1,1.33,1.38,1.15,1.45,1.3,1.2,1.05];
 const WORTH=['十分見合っていた','見合っていた','どちらともいえない','あまり見合っていなかった','見合っていなかった'];
-const BUY=['観た当日に劇場で','観た当日にネット・アプリで','前日','2〜6日前','1週間以上前（前売券を含む）'];
 const SEAT=['希望どおり取れた','別の回にした','別の映画館にした','端や前方の席になった','特に希望はなかった'],SEAT_C=['#2f6b52','#d9ad4f','#9c4f3e','#c98a6b','#c9ccd0'];
-const STRM=['考えなかった（最初から映画館）','少し考えたが映画館にした','配信を待とうと思ったが映画館に来た'];
-const TALK=['もう書いた・話した','書くつもり','人に話すつもり','特に何もしない'],INV=['自分が誘った','相手に誘われた','どちらからともなく'];
+const TALK=['もう書いた・話した','書くつもり','人に話すつもり','特に何もしない'];
 const BONUS=['特典が目的で、この回に来た','特典は知っていたが、目的ではなかった','来てから特典があると知った','特典はなかった','わからない'];
 const GOOD=['ストーリー・脚本','出演者の演技・魅力','監督の演出','キャラクター・世界観','原作の再現度','映像・アクションの迫力','音楽・主題歌・音響','笑えた・泣けた・心が動いた','特にない'],GOOD_M=[0,1,2,4,3,10,6,null];
 /* 見本データ：作品×公開週ごとに乱数で作る。単一回答は合計100%、複数回答は選んだ人の割合 */
@@ -1869,8 +1866,8 @@ function cq(X,d){const w=clamp(Math.floor(Math.max(d,0)/7),0,5),key=X.k+'|'+w;if
     rpt:j([100-rp,rp*.65,rp*.22,rp*.13],.15),again:j([14+q*12,6+q*6,50-q*20,30]),rwhy:j([bon?20:8,14,16,22,20,6,4]),
     match:j([16+q*16,48,15-q*7,6-q*4,10],.3),tkt:j(fam?[14,5,30,8,11,11,12,4,3,2]:[21,9,9,12,13,13,12,5,3,3]),
     worth:FMT.map((_,k)=>j([22+q*10,38,22,12-q*4,6-q*2].map((v,m)=>k===0||k===7?v:v*(m<2?.8+r()*.35:1.1)),.3)),
-    buy:j([18,34,14,16,w===0?26:14]),seat:j(w===0?[60,13,5,10,12]:[72,7,2,6,13]),
-    strm:j([60+q*12,26,14-q*6]),talk:j([14+q*6,10+q*4,44,32-q*10]),inv:j([38,40,22]),
+    seat:j(w===0?[60,13,5,10,12]:[72,7,2,6,13]),
+    talk:j([14+q*6,10+q*4,44,32-q*10]),
     bonus:bon?j([7+q*6,20,18,30,8]):j([1,6,8,77,8]),
     good:GOOD.map((_,k)=>k===4&&!orig?0:clamp([52,44,18,30,28,35,26,48,4][k]*(.8+r()*.4)*(k<8?.85+q*.3:1),0,90)),
     kept:GOOD_M.slice(0,7).map(()=>clamp(52+q*30+(r()-.5)*24,25,95))}}
@@ -1916,9 +1913,8 @@ I('audience','u_pre','公開前の観たい人',12,[1],(T,d)=>{const r=R(T,47),i
   <div><div class="sub-h">どれくらい確実に観るか</div>${stack([{l:'必ず',v:28+T.q*18,c:'#2f6b52'},{l:'たぶん',v:40,c:'#6a9b8a'},{l:'迷い中',v:32-T.q*18,c:'#b9bec4'}])}<div class="sub-h">劇場か配信か</div>${stack([{l:'映画館',v:55+T.q*18,c:'#1b3a5b'},{l:'どちらでも',v:22,c:'#8a929a'},{l:'配信を待つ',v:23-T.q*18,c:'#c9ccd0'}])}</div>
   <div><div class="sub-h">どこで知ったか</div>${bars(ROUTES2.filter(x=>!x.oth).map(x=>({l:x.n,v:x.b*(x.wom?.7:1)*(0.7+r()*0.6),cmp:x.b*(x.wom?.7:1)})).sort((a,b)=>b.v-a.v).slice(0,6),{fmt:f1,u:'%',c:'#1b3a5b',cmp:'類似作の中央値'})}</div></div>`}});
 I('audience','u_post','実際の観客',12,[2],(T,d)=>{const o=cq(T,d),cm=(k,i)=>cqMed(x=>x[k][i],d),ppl=sumA(o.ppl.map((v,k)=>v*[2,3,4.5][k]))/100,wo=WITH.map((l,i)=>({l,v:o.with[i],cmp:cm('with',i)}));
-  return {d:'鑑賞後のアンケートから',h:`<div class="three"><div><div class="sub-h">誰と観たか</div>${bars(wo,{fmt:f1,u:'%',c:'#a06a86',cmp:'類似作の中央値'})}<div class="kpis" style="margin-top:10px">${kpi('子ども連れの家族',f1(o.with[1]),'%',`類似作の中央値 ${f1(cm('with',1))}%`)}${kpi('2人以上で来た人の人数',f1(ppl),'人','自分を含めた平均')}</div></div>
-  <div><div class="sub-h">観ようと決めた、いちばんの理由</div>${bars(WHY.map((l,i)=>({l,v:o.why[i],cmp:cm('why',i)})).sort((a,b)=>b.v-a.v),{fmt:f1,u:'%',c:'#2f6b52',cmp:'類似作の中央値'})}</div>
-  <div><div class="sub-h">配信で観ることも考えたか</div>${bars(STRM.map((l,i)=>({l,v:o.strm[i],cmp:cm('strm',i)})),{fmt:f1,u:'%',c:'#1b3a5b',cmp:'類似作の中央値'})}<div class="note">「配信を待とうと思ったが映画館に来た」人は、宣伝や評判で映画館に引き戻せた人です。</div></div></div>`}},{when:'post'});
+  return {d:'鑑賞後のアンケートから',h:`<div class="two"><div><div class="sub-h">誰と観たか</div>${bars(wo,{fmt:f1,u:'%',c:'#a06a86',cmp:'類似作の中央値'})}<div class="kpis" style="margin-top:10px">${kpi('子ども連れの家族',f1(o.with[1]),'%',`類似作の中央値 ${f1(cm('with',1))}%`)}${kpi('2人以上で来た人の人数',f1(ppl),'人','自分を含めた平均')}</div></div>
+  <div><div class="sub-h">観ようと決めた、いちばんの理由</div>${bars(WHY.map((l,i)=>({l,v:o.why[i],cmp:cm('why',i)})).sort((a,b)=>b.v-a.v),{fmt:f1,u:'%',c:'#2f6b52',cmp:'類似作の中央値'})}</div></div>`}},{when:'post'});
 
 /* ---------- 見通し ---------- */
 function posParts(T,d){const p=[];if(has(3))p.push(['話題の量','buzz']);if(has(6))p.push(['公式SNSの反応','oeng']);if(has(5))p.push(['検索','search']);if(has(4))p.push(['Clip!','clip']);
@@ -2063,9 +2059,8 @@ I('audience','u_format','上映の形式とチケット代',12,[2],(T,d)=>{const
     <div class="sub-h">特別な回で観た人</div><div class="big num">${f1(spc)}<small>%</small></div>${bars(SPC.slice(1).map((l,i)=>({l,v:o.spc[i+1]})),{fmt:f1,u:'%',c:'#b08040'})}
     ${o.sub?`<div class="sub-h">字幕版と吹替版</div>${stack(SUBDUB.map((l,i)=>({l,v:o.sub[i],c:CAT_C[i]})))}`:''}</div></div>`}},{when:'post',...DP});
 I('audience','u_wom','観たあと、どう広げているか',6,[2],(T,d)=>{const o=cq(T,d),cm=(k,i)=>cqMed(x=>x[k][i],d),sns=o.talk[0]+o.talk[1],snsM=cm('talk',0)+cm('talk',1),tk=o.talk[2],tkM=cm('talk',2),ty=sns>=snsM+3?'SNSで広がる型':tk>=tkM+3?'会話で広がる型':o.talk[3]>=cm('talk',3)+3?'広がりにくい型':'類似作と同じくらい';
-  return {d:'鑑賞後のアンケートから。観たあとの行動と、誰が誘ったか',h:`<div class="kpis" style="margin-bottom:12px">${kpi('口コミの型',ty,'',`書く・書いた ${f1(sns)}%（類似作 ${f1(snsM)}%）`)}${kpi('人に話すつもり',f1(tk),'%',`類似作の中央値 ${f1(tkM)}%`)}</div>
-   <div class="sub-h">観たあと、人に話したりSNSに書いたりするか</div>${bars(TALK.map((l,i)=>({l,v:o.talk[i],cmp:cm('talk',i)})),{fmt:f1,u:'%',c:'#2f6b52',cmp:'類似作の中央値'})}
-   <div class="sub-h">誰かと観た人：どちらが誘ったか</div>${bars(INV.map((l,i)=>({l,v:o.inv[i],cmp:cm('inv',i)})),{fmt:f1,u:'%',c:'#b08040',cmp:'類似作の中央値'})}<div class="note">「自分が誘った」人が多いほど、観た人が次の人を連れてくる作品です（1人で観た人は聞いていません）。</div>`}},{when:'post',...DP});
+  return {d:'鑑賞後のアンケートから。観たあとの行動',h:`<div class="kpis" style="margin-bottom:12px">${kpi('口コミの型',ty,'',`書く・書いた ${f1(sns)}%（類似作 ${f1(snsM)}%）`)}${kpi('人に話すつもり',f1(tk),'%',`類似作の中央値 ${f1(tkM)}%`)}</div>
+   <div class="sub-h">観たあと、人に話したりSNSに書いたりするか</div>${bars(TALK.map((l,i)=>({l,v:o.talk[i],cmp:cm('talk',i)})),{fmt:f1,u:'%',c:'#2f6b52',cmp:'類似作の中央値'})}`}},{when:'post',...DP});
 I('audience','u_answer','公開前の予測と、実際の観客',12,[2],(T,d)=>{const pk=has(1)?'karte':'sim',pred=pk==='karte'?audMix(T,'karte',d):tgData(T).segs.map(x=>x.sh),act=audMix(T,'cast',d),fp=freqMix(T,'karte'),fa=freqMix(T,'cast');
   const gap=SEG_N.map((_,i)=>i).sort((a,b)=>Math.abs(act[b]-pred[b])-Math.abs(act[a]-pred[a])).slice(0,3),dt=v=>`<span style="color:${v>=0?'var(--goodtx)':'var(--badtx)'}">${v>=0?'+':''}${f1(v)}pt</span>`;
   const fs=sumA(act.slice(0,NA))-sumA(pred.slice(0,NA));
