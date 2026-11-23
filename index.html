@@ -1499,7 +1499,7 @@ I('home','h_verdict','今日の結論',7,[],(T,d)=>{const sc=scoreOf(T,d),pv=sco
 I('home','h_todo','今日の注意点とやること',5,[],(T,d)=>{const li=[];
   if(has(3)){const rk=T.ev.filter(e=>e.d<=d&&e.d>=d-14).map(e=>({e,o:rxOf(T,e,d)})).filter(x=>x.o&&x.o.risk.lv!=='平常').sort((a,b)=>b.o.risk.score-a.o.risk.score)[0];if(rk)li.push([rk.o.risk.lv==='警戒'?'bad':'warn',`炎上リスク：${rk.o.risk.lv}（「${esc(rk.e.label)}」）`,rk.o.risk.sc?rk.o.risk.sc.act:'否定的な投稿の中身を確認してください。'])}
   if(has(2)&&d>=1){const df=cqDiff(cq(T,d)),dm=cqMed(cqDiff,d);if(df>=dm+3)li.push(['warn','宣伝と内容が「ちがった」と感じた人が、類似作より多い',`観た人の ${f1(df)}%（類似作の中央値 ${f1(dm)}%）。口コミが伸び悩む前に、予告や告知の見せ方が本編とずれていないかを確かめてください。`])}
-  if(has(2)&&d>=1){const o=cq(T,d),lm=cqMed(y=>y.low,d),b=BAD.map((l,k)=>({l,x:o.bad[k]-cqMed(y=>y.bad[k],d)})).filter((x,k)=>!(k===4&&T.orig===false)).sort((p,q)=>q.x-p.x)[0];if(o.low>=lm+3&&b.x>=5)li.push(['warn',`点の低い人が類似作より多く、理由は「${b.l}」が目立ちます`,`6点以下の人が ${f1(o.low)}%（類似作の中央値 ${f1(lm)}%）。その人たちが選んだ残念な点で、類似作より多いのは「${b.l}」（${pt(b.x)}）です。`])}
+  if(has(2)&&d>=1){const o=cq(T,d),lm=cqMed(y=>y.low,d),b=BAD.map((l,k)=>({l,x:o.bad[k]-cqMed(y=>y.bad[k],d)})).filter((x,k)=>k!==10&&!(k===4&&T.orig===false)).sort((p,q)=>q.x-p.x)[0];if(o.low>=lm+3&&b.x>=5)li.push(['warn',`点の低い人が類似作より多く、理由は「${b.l}」が目立ちます`,`6点以下の人が ${f1(o.low)}%（類似作の中央値 ${f1(lm)}%）。その人たちが選んだ残念な点で、類似作より多いのは「${b.l}」（${pt(b.x)}）です。`])}
   const nx=T.ev.filter(e=>e.d>d).sort((a,b)=>a.d-b.d)[0];
   if(nx&&nx.d-d<=7)li.push(['',`${nx.d-d}日後に「${nx.label}」`,`${CH[nx.ch].n}の施策です。実施の3日後から反応の前後比較が出ます。`]);
   else if(d<0)li.push(['warn','この先7日間、施策の予定がありません',`公開まであと${-d}日です。話題が途切れないよう、投稿や露出の追加を検討してください。`]);
@@ -1835,8 +1835,8 @@ I('interest','i_sat','満足度とすすめたい度',12,[2],(T,d)=>{const s=at(
   <div class="two" style="margin-top:14px"><div><div class="sub-h">期待したところは、良かったか</div>${bars(ex.map(x=>({l:GOOD[x.k],v:o.kept[x.k],cmp:cqMed(y=>y.kept[x.k],d)})),{fmt:f1,u:'%',max:100,c:'#4e8780',cmp:'類似作の中央値'})}
    <div class="note">観ようと決めたいちばんの理由に挙げたことを、「特に良かったところ」にも選んだ人の割合（例：出演者が理由の人のうち、出演者の演技・魅力を選んだ人）。類似作との差がいちばん小さいのは「${GOOD[low.k]}」（${pt(low.v-low.c)}）です。</div></div>
    <div><div class="sub-h">特に良かったところ（3つまで）</div>${bars(GOOD.map((l,k)=>({l,k,v:o.good[k],cmp:cqMed(y=>y.good[k],d)})).filter(x=>!(x.k===4&&T.orig===false)).sort((a,b)=>b.v-a.v),{fmt:f1,u:'%',c:'#2f6b52',cmp:'類似作の中央値'})}<div class="note">選んだ人の割合（3つまで選べるため、合計は100%になりません）。</div></div></div>
-  ${(()=>{const bl=BAD.map((l,k)=>({l,k,v:o.bad[k],c:cqMed(y=>y.bad[k],d)})).filter(x=>!(x.k===4&&T.orig===false)).sort((a,b)=>b.v-a.v),top=bl.slice().sort((a,b)=>(b.v-b.c)-(a.v-a.c))[0],lm=cqMed(y=>y.low,d);
-   return `<div class="two" style="margin-top:14px"><div><div class="sub-h">点が低かった人（6点以下）</div><div class="kpis" style="margin-bottom:10px">${kpi('6点以下の人',f1(o.low),'%',`類似作の中央値 ${f1(lm)}%`)}</div><div class="note">類似作より多く上回っている残念な点は「${top.l}」（${pt(top.v-top.c)}）です。${o.low>lm+3?'点の低い人が類似作より多いため、口コミで伸び悩むおそれがあります。':''}</div></div>
+  ${(()=>{const bl=BAD.map((l,k)=>({l,k,v:o.bad[k],c:cqMed(y=>y.bad[k],d)})).filter(x=>!(x.k===4&&T.orig===false)).sort((a,b)=>b.v-a.v),top=bl.filter(x=>x.k!==10).sort((a,b)=>(b.v-b.c)-(a.v-a.c))[0],lm=cqMed(y=>y.low,d);
+   return `<div class="two" style="margin-top:14px"><div><div class="sub-h">点が低かった人（6点以下）</div><div class="kpis" style="margin-bottom:10px">${kpi('6点以下の人',f1(o.low),'%',`類似作の中央値 ${f1(lm)}%`)}</div><div class="note">${top.v-top.c>=2?`類似作との差がいちばん大きい残念な点は「${top.l}」（${pt(top.v-top.c)}）です。`:'類似作と比べて、とくに目立つ残念な点はありません。'}${o.low>lm+3?'点の低い人が類似作より多いため、口コミで伸び悩むおそれがあります。':''}</div></div>
    <div><div class="sub-h">残念だったところ（6点以下の人・3つまで）</div>${bars(bl,{fmt:f1,u:'%',c:'#9c4f3e',cmp:'類似作の中央値'})}<div class="note">作品の満足度が6点以下だった人だけに聞いています。選んだ人の割合（3つまで選べるため、合計は100%になりません）。</div></div></div>`})()}`}},{when:'post',hit:'sat'});
 
 /* ---------- 観客 ---------- */
