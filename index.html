@@ -3186,7 +3186,7 @@ function planEmpty(T,d){const pre=true,ph=S.phase>=3,pd=Math.min(T.today,-1)<0?M
   const acN=S.phase===2?2:0,acT=5;
   if(!ph)return `<div class="card plan-empty stg-soon"><h2>宣伝設計と検証は、これから開きます</h2>
     <p>${S.client?'類似作を劇場で観た人のアンケートをもとに、宣伝を組み立てる画面です。類似作の回答が貯まると、自動で開きます。':'類似作を劇場で観た人の回答（CAST）が土台です。類似作の回答が貯まった作品から、自動で開きます（③蓄積後）。'}</p>
-    <div class="stg-bar"><span>アンケートが貯まった類似作</span><div class="stg-tr"><i style="width:${acN/acT*100}%"></i></div><b class="num">${acN}本</b><small>／${acT}本で開きます${S.client?'':'（本数は仮）'}</small></div>
+    <div class="stg-bar"><span>アンケートが貯まった類似作</span><div class="stg-tr"><i style="width:${acN/acT*100}%"></i></div><b class="num">${acN}本</b><small>／${acT}本で開きます</small></div>
     <div class="stg-h">開くと、できること</div>
     <ol class="stg-l"><li><b>誰に</b>類似作の観客から、狙う層を選ぶ</li><li><b>いつ</b>観ると決める時期に合わせて、宣伝を強める週を決める</li><li><b>どこで・何を</b>知ったきっかけと観た理由から、メディアと売りを決める</li><li><b>宣伝コンセプト</b>決めた内容を1枚にまとめる</li><li><b>検証</b>公開後、狙いが当たったかを実際の観客で確かめる</li></ol>
     <div class="fm-b">${S.client?'':'<button class="btn" data-p="3">「③蓄積後」の表示にする</button>'}<button class="btn" data-planx>効果測定に切り替える</button></div></div>`;
