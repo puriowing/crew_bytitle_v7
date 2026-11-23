@@ -76,6 +76,13 @@ body.client .internal{border-style:solid}
 .card{background:var(--card);border:1px solid var(--rule);border-radius:16px;box-shadow:var(--shadow);padding:18px 20px;min-width:0}
 .card.hit{outline:3px solid var(--accent-line);transition:outline .2s}
 .card-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.ck-tag{font-size:10.5px;font-weight:700;background:#f3dfae;color:#4a3a10;border-radius:99px;padding:1px 9px;white-space:nowrap;align-self:center}
+.ck-sec{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;margin:16px 0 8px}.ck-sec b{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#f3dfae;color:#4a3a10;font-size:12px}
+.ck-row{display:grid;grid-template-columns:minmax(0,1fr) 18px minmax(0,1.4fr) auto;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--rule);border-radius:10px;margin-bottom:8px;background:#fff}
+.ck-row small{display:block;font-size:11px;color:var(--sub);margin-bottom:2px}.ck-row .v{font-size:14px;font-weight:700}.ck-ar{color:var(--sub);text-align:center}.ck-res{font-size:12.5px;line-height:1.6}.ck-res .tone,.ck-res .chip{margin-right:6px}
+.ck-top{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:12.5px;color:var(--sub)}
+.ck-strip{margin-top:14px;padding:14px 16px;border:1px solid var(--rule);border-radius:10px;background:#fff}.ck-chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px}.ck-chips button{all:unset;cursor:pointer;display:inline-flex;gap:6px;align-items:center;font-size:12.5px;border:1px solid var(--rule);border-radius:99px;padding:3px 6px 3px 12px}
+@media(max-width:700px){.ck-row{grid-template-columns:1fr;gap:6px}.ck-ar{display:none}}
 .cad{font-size:10.5px;font-weight:700;padding:1px 8px;border-radius:99px;border:1px solid #d8d3c8;color:var(--sub);white-space:nowrap;align-self:center}.cad.w{border-color:#d9c79a;color:#8a6414;background:#fbf5e4}.cad i{font-style:normal;font-weight:400;margin-left:5px}
 .card-h h2{font-size:16px;font-weight:700}
 .card-h .d{font-size:12px;color:var(--sub)}
@@ -2384,7 +2391,7 @@ function conceptDoc(T){const X=pcData(T),{D,sel,A,C,MI,ko}=X,F=finOf(T),nm=i=>D.
    <div class="cp-foot">数字は、類似作 ${PEERS.length}本を劇場で観た人のアンケート（回答 ${fN(D.N)}件）から出しています。類似作1本ずつの数字は出していません。</div></div>`}
 I('plan','p_final','宣伝コンセプト',12,[2],(T,d)=>{const F=finOf(T);
   return {d:'1〜3で選んだ内容をまとめた資料です。この見た目のまま、PDFやファイルにして使えます',h:`<div class="fin-top"><span class="fin-stat">${F.done?`<span class="tone good">確定済み</span><small>${F.done} 確定</small>`:'<span class="tone warn">未確定</span><small>1〜3で選び直すと、未確定に戻ります</small>'}</span><span class="cp-btns"><button class="btn pri" data-finok>この内容で確定する</button><button class="btn" data-findl>ファイルをダウンロード</button><button class="btn" data-finrpt>印刷・PDFにする</button></span></div>
-   ${conceptDoc(T)}<div class="cp-edit"><span>内容を直すときは</span>${PLAN_SEC.slice(0,3).map(x=>`<button class="btn" data-psec="${x[0]}">${x[2]} ${x[1]}</button>`).join('')}</div>`}},{when:'pre'});
+   ${conceptDoc(T)}${ckStrip(T,d)}<div class="cp-edit"><span>内容を直すときは</span>${PLAN_SEC.slice(0,3).map(x=>`<button class="btn" data-psec="${x[0]}">${x[2]} ${x[1]}</button>`).join('')}</div>`}},{when:'pre'});
 function finDownload(){const T=cur(),css=[...document.querySelectorAll('style')].map(x=>x.textContent).join('\n'),links=[...document.querySelectorAll('link[rel=stylesheet],link[rel=preconnect]')].map(x=>x.outerHTML).join('');
   const html=`<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>宣伝コンセプト｜${T.name}</title>${links}<style>${css}\nbody{padding:28px 20px!important;margin:0!important;background:#f4f1ea!important}.cp-doc{max-width:1000px;margin:0 auto;box-shadow:0 6px 30px rgba(0,0,0,.12)}@media print{body{padding:0!important;background:#fff!important}.cp-doc{box-shadow:none;border:0}}</style></head><body>${conceptDoc(T)}</body></html>`;
   const a=document.createElement('a'),u=URL.createObjectURL(new Blob([html],{type:'text/html;charset=utf-8'}));a.href=u;a.download=`宣伝コンセプト_${T.name}.html`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),3000)}
@@ -3307,7 +3314,35 @@ function cadChip(it,d){if(it.page==='plan'||it.sec||CAD_NONE.includes(it.id))ret
   const wk=use.includes(1),oth=use.some(k=>k!==1);
   if(wk&&!oth&&d>=0&&CAD_PRE.includes(it.id))return '<span class="cad">公開前の記録</span>';
   return wk&&(!oth||CAD_W.includes(it.id)||d<0&&it.page==='audience')?'<span class="cad w">週1回</span>':wk&&CAD_MIX.includes(it.id)?'<span class="cad">毎日<i>一部は週1回</i></span>':'<span class="cad">毎日</span>'}
-function visiblePages(d){return PAGES.filter(p=>ITEMS.some(it=>it.page===p.k&&avail(it,d)))}
+/* ===== 宣伝コンセプトと答え合わせを、同じ並び・同じ言葉でつなぐ ===== */
+const CK_SEC=['誰に','いつ','どこで・何を'],CK_LB={good:'<span class="tone good">狙いどおり</span>',warn:'<span class="tone warn">ずれあり</span>','':'<span class="chip neu">差は小さい</span>',wait:'<span class="chip neu">これから</span>',ref:'<span class="chip neu">別のページで確認</span>',none:'<span class="chip neu">—</span>'};
+function ckHead(id,T,d){const it=ITEMS.find(x=>x.id===id);if(!it||!avail(it,d))return null;const m=/<li class="([^"]*)"><b>([\s\S]*?)<\/b>/.exec(it.fn(T,d).h||'');return m?{c:m[1]||'',tx:m[2].replace(/^宣伝設計の[^：]*：/,'')}:null}
+function ckRows(T,d){const X=pcData(T),{D,sel,on,C,ko}=X,post=d>=0,nm=i=>D.segs[i].n,st=schStat(C.sch),L=[],jd=df=>df>=1.5?'good':df<=-1.5?'warn':'';
+  const later={c:'wait',tx:'公開後に、実際の観客で確かめます'},none={c:'none',tx:'いまのデータでは確かめられません'};
+  let tg=none;
+  if(!on)tg={c:'wait',tx:'メインターゲットを選ぶと出ます'};
+  else if(post&&has(2)){const pred=has(1)?audMix(T,'karte',d):D.segs.map(x=>x.sh),act=audMix(T,'cast',d),a=sumA(sel.map(i=>act[i])),b=sumA(sel.map(i=>pred[i]));tg={c:jd(a-b),tx:`実際の観客の ${f1(a)}%（予測は ${f1(b)}%、${pt(a-b)}）`}}
+  else if(!post&&has(1)&&has(2)){const a=sumA(sel.map(i=>D.now[i])),b=sumA(sel.map(i=>D.segs[i].sh));tg={c:jd(a-b),tx:`観たいと言っている人の ${f1(a)}%（類似作の観客では ${f1(b)}%、${pt(a-b)}）`}}
+  L.push({s:0,k:'メインターゲット',v:on?sel.map(nm).join('・'):'（まだ選んでいません）',r:tg,hit:post?'u_answer':'p_gap'});
+  L.push({s:0,k:'キーワードで狙う層',v:C.kw.length?C.kw.map(k=>X.KD.by[k].n).join('・'):'（選んでいません）',r:!C.kw.length?{c:'wait',tx:'キーワードを選ぶと出ます'}:ckHead(post?'u_kw':'u_kwpre',T,d)||none,hit:post?'u_kw':'u_kwpre'});
+  L.push({s:0,k:'宣伝を厚くする地域',v:AR_OPT[C.area][0],r:post?ckHead('u_area',T,d)||none:later,hit:post?'u_area':null});
+  L.push({s:1,k:'スケジュール',v:st.n?`${wkP(st.first)}に開始。いちばん厚いのは${wkP(st.peakW)}（施策 ${st.n}件）`:'（まだ置いていません）',r:{c:'ref',tx:'施策ごとの反応は、効果測定の「施策と反応」で確かめます'},pg:'acts',gl:'施策と反応へ'});
+  L.push({s:2,k:'売り（幹になる訴求の軸）',v:WHY[C.msg],r:ckHead(post?'u_sell':'u_sellpre',T,d)||none,hit:post?'u_sell':'u_sellpre'});
+  const cen=ko.filter(r=>C.role[r]==='c');let mr=post?none:later;
+  if(post&&has(2)&&cen.length){const c=castRoutes(T,d),dd=Math.min(d,36),rw=cen.map(r=>{const now=c.rows[r].know,m=med(PEERS.map(q=>castRoutes(q,dd).rows[r].know));return {r,now,m}});
+    mr={c:rw.every(y=>y.now-y.m>-1.5)?(rw.some(y=>y.now-y.m>=1.5)?'good':''):'warn',tx:rw.map(y=>`${ROUTES2[y.r].n}で知った人 ${f1(y.now)}%（類似作の中央値 ${f1(y.m)}%）`).join('、')}}
+  L.push({s:2,k:'中心にするメディア',v:cen.length?cen.map(r=>ROUTES2[r].n).join('・'):'（選んでいません）',r:mr,pg:post&&has(2)?'audience':null,hit:post&&has(2)?'u_post2':null,gl:'知ったきっかけへ'});
+  return L}
+const ckOK=d=>ITEMS.some(it=>it.page==='check'&&it.id!=='c_map'&&avail(it,d));
+I('check','c_map','宣伝コンセプトと、その結果',12,[2],(T,d)=>{const L=ckRows(T,d),F=finOf(T);
+  const row=x=>`<div class="ck-row"><div><small>${x.k}</small><span class="v">${x.v}</span></div><div class="ck-ar">→</div><div class="ck-res"><small>いまの結果</small>${CK_LB[x.r.c]}${x.r.tx}</div>${x.pg?`<button class="btn" data-go="${x.pg}"${x.hit?` data-hit="${x.hit}"`:''}>${x.gl} ›</button>`:x.hit?`<button class="btn" data-go="check" data-hit="${x.hit}">くわしく ↓</button>`:'<span></span>'}</div>`;
+  return {d:d>=0?'宣伝コンセプトと同じ並びです。公開後は、実際に観た人で確かめます':'宣伝コンセプトと同じ並びです。公開前は、観たいと言っている人で確かめます',h:`<div class="ck-top"><span>宣伝コンセプト：${F.done?`<span class="tone good">確定済み</span> ${F.done} 確定`:'<span class="tone warn">未確定</span> いま選んでいる内容で確かめています'}</span><button class="btn" data-psec="p_sec4">宣伝コンセプトを見る</button></div>
+   ${CK_SEC.map((n,i)=>`<div class="ck-sec"><b class="num">${i+1}</b>${n}</div>${L.filter(x=>x.s===i).map(row).join('')}`).join('')}`}});
+function ckStrip(T,d){if(!visiblePages(d).some(p=>p.k==='check'))return '';const L=ckRows(T,d);
+  return `<div class="ck-strip"><div class="sub-h" style="margin-top:0">この内容の答え合わせ（${md(dateOf(T,d))}時点）</div><div class="ck-chips">${L.map(x=>`<button data-go="${x.pg||'check'}" data-hit="${x.pg?x.hit||'':'c_map'}">${x.k}${CK_LB[x.r.c]}</button>`).join('')}</div><button class="btn pri" data-page="check">答え合わせを見る →</button></div>`}
+(function(){const tag={p_gap:'1 誰に｜メインターゲット',u_left:'1 誰に｜メインターゲット',u_answer:'1 誰に｜メインターゲット',u_target:'1 誰に｜メインターゲット',u_kwpre:'1 誰に｜キーワード',u_kw:'1 誰に｜キーワード',u_area:'1 誰に｜地域',u_sellpre:'3 どこで・何を｜売り',u_sell:'3 どこで・何を｜売り'};
+  ['c_map','p_gap','u_left','u_kwpre','u_sellpre','u_answer','u_target','u_kw','u_area','u_sell'].forEach(id=>{const it=ITEMS.splice(ITEMS.findIndex(x=>x.id===id),1)[0];if(tag[id])it.ck=tag[id];ITEMS.splice(ITEMS.findIndex(x=>x.page==='outlook'),0,it)})})();
+function visiblePages(d){return PAGES.filter(p=>ITEMS.some(it=>it.page===p.k&&it.id!=='c_map'&&avail(it,d)))}
 function render(){syncPeers();const T=cur(),d=S.day;
   if(S.page!=='plan'&&!visiblePages(d).some(p=>p.k===S.page))S.page='home';
   const PM=S.page==='plan'||S.page==='check';document.body.classList.toggle('plan-mode',PM);document.body.classList.toggle('pg-check',S.page==='check');$('#btnPlan').innerHTML=PM?'← ダッシュボードに戻る':`${TAB_IC.plan}宣伝設計`;$('#btnPlan').setAttribute('aria-pressed',PM);
@@ -3319,7 +3354,7 @@ function render(){syncPeers();const T=cur(),d=S.day;
   $('#modeSwM').innerHTML=modeSw(PM);$('#tabs').innerHTML=modeSw(PM,'d')+(PM?planNav(T,d):visiblePages(d).filter(p=>p.k!=='plan'&&p.k!=='check').map(p=>`<button class="tab ${p.k===S.page?'on':''} ${PG_GSEP.includes(p.k)?'gsep':''}" data-page="${p.k}"><span class="ti">${TAB_IC[p.k]||''}${tabDot(T,d,p.k)}</span><span class="tl">${p.n}</span><span class="ts">${TAB_SHORT[p.k]}</span></button>`).join(''));
   $('#mDate').textContent=`${md(dateOf(T,d))}｜${relLbl(d)}`;appSave();
   const pg=PAGES.find(p=>p.k===S.page),psI=S.page==='plan'&&S.psec!=='all'?ITEMS.find(x=>x.id===curSec()):null,list=ITEMS.filter(it=>it.page===S.page&&avail(it,d)&&(!it.grp||S.mv==='all'||it.grp===S.mv)&&(!psI||(it!==psI&&it.id!=='p_basis'&&planSec(it.id)===psI.id))),dl=list.filter(it=>it.deep);
-  const dd=S.page==='plan'?T.today:d,card=it=>{const o=it.fn(T,dd);return `<section class="card c${it.w}" id="it-${it.id}" data-need="${it.need.join(',')}"><div class="card-h"><h2>${it.t}</h2>${cadChip(it,dd)}<span class="d">${o.d||''}</span></div>${srcChips(it)}${o.h}${provHTML(it,T,dd)}</section>`};
+  const dd=S.page==='plan'?T.today:d,card=it=>{const o=it.fn(T,dd);return `<section class="card c${it.w}" id="it-${it.id}" data-need="${it.need.join(',')}"><div class="card-h">${it.ck?`<span class="ck-tag">${it.ck}</span>`:''}<h2>${it.t}</h2>${cadChip(it,dd)}<span class="d">${o.d||''}</span></div>${srcChips(it)}${o.h}${provHTML(it,T,dd)}</section>`};
   $('#page').innerHTML=`${S.page==='home'?heroHTML(T,d):''}<div class="pg-head">${S.page==='home'?'':`<span class="pg-po">${poster(T,{fit:'slice'})}</span>`}<h1>${psI?psI.t:pg.n}</h1><span class="pg-q">${psI?psI.fn(T,d).d:pg.q}</span><span class="chip neu">${S.page==='plan'?T.name:`${T.name}｜${md(dateOf(T,d))}時点`}</span><span class="srcs int-only" style="margin:0"><span class="sc-l">社内表示：各項目に、使っているデータを出しています</span><span class="sc">番号つき＝6分類</span><span class="sc c">共通のデータ</span><span class="sc l">点線＝上のPhaseで加わる</span></span></div>${fewNote()}${psI&&psI.id==='p_sec4'&&list.length?planBasis(T,d):''}${S.page==='plan'?'':castGuide(T,d)}${S.page==='deliver'?mvSw():''}<div class="grid">${list.filter(it=>!it.deep).map(card).join('')}</div>${dl.length?`<details class="deep" ${S.deepOpen[S.page]?'open':''}><summary>くわしく見る<span>${dl.length}項目</span></summary><div class="grid">${dl.map(card).join('')}</div></details>`:''}${psI&&list.length?planStep():''}`;
   if(PM&&!list.length){const g=$('#page .grid');if(g)g.outerHTML=planEmpty(T,d)}
   const pb=$('.pl-basis details');if(pb)pb.addEventListener('toggle',()=>{S.pbOpen=pb.open});
