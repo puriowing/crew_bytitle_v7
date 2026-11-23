@@ -1499,6 +1499,7 @@ I('home','h_verdict','今日の結論',7,[],(T,d)=>{const sc=scoreOf(T,d),pv=sco
 I('home','h_todo','今日の注意点とやること',5,[],(T,d)=>{const li=[];
   if(has(3)){const rk=T.ev.filter(e=>e.d<=d&&e.d>=d-14).map(e=>({e,o:rxOf(T,e,d)})).filter(x=>x.o&&x.o.risk.lv!=='平常').sort((a,b)=>b.o.risk.score-a.o.risk.score)[0];if(rk)li.push([rk.o.risk.lv==='警戒'?'bad':'warn',`炎上リスク：${rk.o.risk.lv}（「${esc(rk.e.label)}」）`,rk.o.risk.sc?rk.o.risk.sc.act:'否定的な投稿の中身を確認してください。'])}
   if(has(2)&&d>=1){const df=cqDiff(cq(T,d)),dm=cqMed(cqDiff,d);if(df>=dm+3)li.push(['warn','宣伝と内容が「ちがった」と感じた人が、類似作より多い',`観た人の ${f1(df)}%（類似作の中央値 ${f1(dm)}%）。口コミが伸び悩む前に、予告や告知の見せ方が本編とずれていないかを確かめてください。`])}
+  if(has(2)&&d>=1){const o=cq(T,d),lm=cqMed(y=>y.low,d),b=BAD.map((l,k)=>({l,x:o.bad[k]-cqMed(y=>y.bad[k],d)})).filter((x,k)=>!(k===4&&T.orig===false)).sort((p,q)=>q.x-p.x)[0];if(o.low>=lm+3&&b.x>=5)li.push(['warn',`点の低い人が類似作より多く、理由は「${b.l}」が目立ちます`,`6点以下の人が ${f1(o.low)}%（類似作の中央値 ${f1(lm)}%）。その人たちが選んだ残念な点で、類似作より多いのは「${b.l}」（${pt(b.x)}）です。`])}
   const nx=T.ev.filter(e=>e.d>d).sort((a,b)=>a.d-b.d)[0];
   if(nx&&nx.d-d<=7)li.push(['',`${nx.d-d}日後に「${nx.label}」`,`${CH[nx.ch].n}の施策です。実施の3日後から反応の前後比較が出ます。`]);
   else if(d<0)li.push(['warn','この先7日間、施策の予定がありません',`公開まであと${-d}日です。話題が途切れないよう、投稿や露出の追加を検討してください。`]);
@@ -1833,7 +1834,10 @@ I('interest','i_sat','満足度とすすめたい度',12,[2],(T,d)=>{const s=at(
    <div class="note">期待との差＝「思った以上だった」から「少しちがった」「かなりちがった」を引いた差。宣伝を見ていない人（${f1(o.match[4])}%）を除いています。</div></div></div>
   <div class="two" style="margin-top:14px"><div><div class="sub-h">期待したところは、良かったか</div>${bars(ex.map(x=>({l:GOOD[x.k],v:o.kept[x.k],cmp:cqMed(y=>y.kept[x.k],d)})),{fmt:f1,u:'%',max:100,c:'#4e8780',cmp:'類似作の中央値'})}
    <div class="note">観ようと決めたいちばんの理由に挙げたことを、「特に良かったところ」にも選んだ人の割合（例：出演者が理由の人のうち、出演者の演技・魅力を選んだ人）。類似作との差がいちばん小さいのは「${GOOD[low.k]}」（${pt(low.v-low.c)}）です。</div></div>
-   <div><div class="sub-h">特に良かったところ（3つまで）</div>${bars(GOOD.map((l,k)=>({l,k,v:o.good[k],cmp:cqMed(y=>y.good[k],d)})).filter(x=>!(x.k===4&&T.orig===false)).sort((a,b)=>b.v-a.v),{fmt:f1,u:'%',c:'#2f6b52',cmp:'類似作の中央値'})}<div class="note">選んだ人の割合（3つまで選べるため、合計は100%になりません）。</div></div></div>`}},{when:'post',hit:'sat'});
+   <div><div class="sub-h">特に良かったところ（3つまで）</div>${bars(GOOD.map((l,k)=>({l,k,v:o.good[k],cmp:cqMed(y=>y.good[k],d)})).filter(x=>!(x.k===4&&T.orig===false)).sort((a,b)=>b.v-a.v),{fmt:f1,u:'%',c:'#2f6b52',cmp:'類似作の中央値'})}<div class="note">選んだ人の割合（3つまで選べるため、合計は100%になりません）。</div></div></div>
+  ${(()=>{const bl=BAD.map((l,k)=>({l,k,v:o.bad[k],c:cqMed(y=>y.bad[k],d)})).filter(x=>!(x.k===4&&T.orig===false)).sort((a,b)=>b.v-a.v),top=bl.slice().sort((a,b)=>(b.v-b.c)-(a.v-a.c))[0],lm=cqMed(y=>y.low,d);
+   return `<div class="two" style="margin-top:14px"><div><div class="sub-h">点が低かった人（6点以下）</div><div class="kpis" style="margin-bottom:10px">${kpi('6点以下の人',f1(o.low),'%',`類似作の中央値 ${f1(lm)}%`)}</div><div class="note">類似作より多く上回っている残念な点は「${top.l}」（${pt(top.v-top.c)}）です。${o.low>lm+3?'点の低い人が類似作より多いため、口コミで伸び悩むおそれがあります。':''}</div></div>
+   <div><div class="sub-h">残念だったところ（6点以下の人・3つまで）</div>${bars(bl,{fmt:f1,u:'%',c:'#9c4f3e',cmp:'類似作の中央値'})}<div class="note">作品の満足度が6点以下だった人だけに聞いています。選んだ人の割合（3つまで選べるため、合計は100%になりません）。</div></div></div>`})()}`}},{when:'post',hit:'sat'});
 
 /* ---------- 観客 ---------- */
 /* 観客の構成：データの優先順位
@@ -1851,6 +1855,7 @@ const TKT=['一般（大人）','大学生・専門学校生','高校生以下�
 const SEAT=['希望どおり取れた','別の回にした','別の映画館にした','端や前方の席になった','特に希望はなかった'],SEAT_C=['#2f6b52','#d9ad4f','#9c4f3e','#c98a6b','#c9ccd0'];
 const TALK=['もう書いた・話した','書くつもり','人に話すつもり','特に何もしない'];
 const BONUS=['特典が目的で、この回に来た','特典は知っていたが、目的ではなかった','来てから特典があると知った','特典はなかった','わからない'];
+const BAD=['ストーリー・脚本','出演者の演技・配役','監督の演出','キャラクター・世界観','原作との違い','映像・アクション','音楽・主題歌・音響','気持ちが動かなかった','長く感じた','わかりにくかった','その他'];
 const GOOD=['ストーリー・脚本','出演者の演技・魅力','監督の演出','キャラクター・世界観','原作の再現度','映像・アクションの迫力','音楽・主題歌・音響','笑えた・泣けた・心が動いた','特にない'],GOOD_M=[0,1,2,4,3,10,6,null];
 /* 見本データ：作品×公開週ごとに乱数で作る。単一回答は合計100%、複数回答は選んだ人の割合 */
 const _cq={};
@@ -1867,6 +1872,7 @@ function cq(X,d){const w=clamp(Math.floor(Math.max(d,0)/7),0,5),key=X.k+'|'+w;if
     seat:j(w===0?[60,13,5,10,12]:[72,7,2,6,13]),
     talk:j([14+q*6,10+q*4,44,32-q*10]),
     bonus:bon?j([7+q*6,20,18,30,8]):j([1,6,8,77,8]),
+    low:clamp(16-q*12+(r()-.5)*4,4,30),bad:BAD.map((_,k)=>k===4&&!orig?0:clamp([34,14,12,16,22,9,7,30,26,18,6][k]*(.7+r()*.6)*(k===0||k===7||k===8?1.25-q*.4:1),1,70)),
     good:GOOD.map((_,k)=>k===4&&!orig?0:clamp([52,44,18,30,28,35,26,48,4][k]*(.8+r()*.4)*(k<8?.85+q*.3:1),0,90)),
     kept:GOOD_M.slice(0,7).map(()=>clamp(52+q*30+(r()-.5)*24,25,95))}}
 const cqMed=(f,d)=>med(PEERS.map(p=>f(cq(p,d))));
