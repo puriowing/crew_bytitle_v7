@@ -498,6 +498,16 @@ body.m-more .more-box{display:flex}
 .pl2-b b{font-size:20px;line-height:1.3}.pl2-b em{font-style:normal;font-size:12px;margin-left:2px;font-weight:700}.pl2-b span{font-size:11.5px;color:var(--sub);line-height:1.6}
 .pl2-op{align-self:center;font-weight:700;font-size:17px;color:var(--sub)}
 @media(max-width:700px){.pl2{grid-template-columns:1fr}.pl2-op{justify-self:center;line-height:1}}
+.lr-v{display:grid;gap:4px;border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:13px;line-height:1.7;background:var(--neufill)}.lr-v>b{font-family:'Zen Maru Gothic',sans-serif;font-size:18px}
+.lr-v.good{background:var(--goodfill);color:var(--goodtx)}.lr-v.bad{background:var(--badfill);color:var(--badtx)}.lr-v span{color:var(--ink2)}
+.lr-ax{display:flex;justify-content:space-between;font-size:11px;color:var(--sub);margin:0 0 2px;padding:0 calc(112px + 150px + 20px) 0 calc(30% + 10px)}
+.lr{display:grid}.lr-r{display:grid;grid-template-columns:30% minmax(0,1fr) 150px 112px;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--rule)}
+.lr-n{display:grid;gap:1px;min-width:0}.lr-n b{font-size:13px}.lr-n small,.lr-x small{font-size:11px;color:var(--sub);line-height:1.5}
+.lr-b{position:relative;height:10px;border-radius:5px;background:linear-gradient(90deg,#f1d5d0,#f1eee8 45%,#f1eee8 55%,#d5ebdc)}
+.lr-b i{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--sub-weak)}.lr-b i.f{left:20%}.lr-b i.l{left:80%}
+.lr-b b{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:var(--accent2);box-shadow:0 0 0 2px #fff}
+.lr-x{display:grid;gap:1px;text-align:right}.lr-x b{font-size:14px}.lr-r .tone{justify-self:end;white-space:nowrap}
+@media(max-width:700px){.lr-ax{padding:0}.lr-r{grid-template-columns:minmax(0,1fr) auto;gap:6px 10px}.lr-b{grid-column:1/3;order:3}.lr-x{grid-column:1/3;order:4;text-align:left;grid-template-columns:auto 1fr;gap:8px;align-items:baseline}}
 .fc-t th,.fc-t td{white-space:nowrap}.fc-t .r{text-align:right}
 .smp-chip{background:#fbf3e6;border-color:#eec39a;color:#8a4b12}
 .fw-t{width:100%;border-collapse:collapse;font-size:12.5px}.fw-t th{text-align:left;font-size:11px;color:var(--sub);padding:5px 8px;border-bottom:1px solid var(--rule2)}.fw-t td{padding:7px 8px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.6}.fw-t tr.fw-no td{color:var(--sub-weak)}
@@ -2081,6 +2091,25 @@ I('outlook','o_final','最終興収の見通し',8,[],(T,d)=>{if(d<2)return {d:`
   return {d:`${relLbl(d)}の時点`,h:`${pillars([{k:'初週末の興収',tag:'実績',v:fN(o3),u:'円',s:'公開から3日間'},{k:'初動比率',tag:'見通し',v:f1(rt),u:'%',s:`類似作の中央値 ${f1(rm)}%｜${fwrType(rt,rm)}`},{k:'最終興収',tag:'見通し',v:fN(f.mid),u:'円前後',s:'幅 '+fN(f.lo)+'円〜'+fN(f.hi)+'円'}])}<div class="kpis" style="margin-bottom:16px">${kpi('いまの累計興収',fN(f.cum),'円',relLbl(d)+'まで')}${kpi('見通しに対する進み具合',f1(f.cum/f.mid*100),'%','残り '+fN(Math.max(0,f.mid-f.cum))+'円')}</div>${rangeBar(f.lo,f.mid,f.hi,f.cum)}
   <div class="note" style="margin-top:22px">幅は ${fN(f.lo)}円〜${fN(f.hi)}円（外れやすさを見込んで最低限の幅を取っています）。${f.basis}（${f.n}本）が、同じ時点からどれだけ伸びたかを当てはめています。${d>=9?`前の週の見通しとの差は ${finalFc(T,d).mid-finalFc(T,d-7).mid>=0?'+':''}${fN(finalFc(T,d).mid-finalFc(T,d-7).mid)}円。`:''}</div>
   <div class="sub-h">累計興収の動き</div>${(()=>{const c=[];let s=0;for(let x=0;x<=d;x++){s+=at(T,'gross',x)*1e4;c.push(s)}return chart(T,[{n:'累計',vals:c,c:'#4e8780',fill:true}],{a:0,b:Math.max(d,7),u:'円',h:130})})()}`}},{when:'post',any:[3,6]});
+/* ロングランになりそうか：初週末の興収が出た時点で、初動比率が小さかった類似作（ロングラン）と大きかった類似作（初動で終わった）の「同じ時点の数字」と比べる */
+function longSig(T,d){const L=[],add=(n,need,fn,fmt,note)=>{if(need.every(has))L.push({n,fn,fmt,note})};
+  add('満足度',[2],(p,x)=>at(p,'sat',x),v=>f1(v)+'%','観た人のうち、満足した人の割合');
+  add('すすめたい度（NPS）',[2],(p,x)=>at(p,'nps',x),v=>f1(v)+'pt','人にすすめたい人の多さ');
+  add('観た人の評価',[4],(p,x)=>at(p,'score',x),v=>f2(v)+'点','レビューの平均の点');
+  add('センチメント',[3],(p,x)=>at(p,'sent',x),v=>f1(v)+'%','好意的な声の割合');
+  add('話題の続き方',[3],(p,x)=>avgR(p,'buzz',1,x)/(at(p,'buzz',0)||1)*100,v=>f1(v)+'%','公開日の話題の量を100としたときの、その後の1日平均');
+  add(d>=3?'平日の残り方':'日曜の残り方',[],(p,x)=>x>=3?avgR(p,'gross',3,Math.min(x,6))/(at(p,'gross',2)||1)*100:at(p,'gross',2)/(at(p,'gross',1)||1)*100,v=>f1(v)+'%',d>=3?'日曜の興収を100としたときの、月曜からの1日平均':'土曜の興収を100としたときの、日曜の興収');
+  const P=(PEERS.length>=9?PEERS:PEER_DEF.concat(PEER_ADD)).filter(p=>p.final>0).sort((a,b)=>fwr(a)-fwr(b)),n3=Math.max(2,Math.floor(P.length/3)),LG=P.slice(0,n3),FR=P.slice(-n3),ok=v=>v!=null&&isFinite(v);
+  const rows=L.map(x=>{const v=x.fn(T,d),lg=med(LG.map(p=>x.fn(p,d)).filter(ok)),fr=med(FR.map(p=>x.fn(p,d)).filter(ok));if(!ok(v)||!ok(lg)||!ok(fr)||Math.abs(lg-fr)<1e-9)return null;const sc=(v-fr)/(lg-fr);return {...x,v,lg,fr,sc}}).filter(Boolean);
+  return {rows,n3,sc:rows.length?mean(rows.map(r=>clamp(r.sc,-.5,1.5))):null}}
+I('outlook','o_long','ロングランになりそうか',12,[],(T,d)=>{const o=longSig(T,d);if(!o.rows.length)return {d:'',h:'<div class="empty">比べられる材料が、まだそろっていません。</div>'};
+  const f=finalFc(T,d),rt=opn3(T)/f.mid*100,rm=med(fwrPeers()),lv=o.sc>=.6?2:o.sc<=.4?0:1,nL=o.rows.filter(r=>r.sc>=.6).length,nF=o.rows.filter(r=>r.sc<=.4).length;
+  const tone=['bad','neu','good'][lv],ttl=['ロングランの可能性は低め（初動寄り）','どちらとも言えません','ロングランの可能性は高め'][lv],act=['2週目からの落ち込みを見込み、追加の施策は早めに打つのが安全です。','2週目の週末の落ち方で、はっきりします。上映回数の維持を劇場に相談できるよう、材料をそろえておきます。','2週目以降も伸びる見込みです。上映回数の維持と、感想を広げる施策が効きます。'][lv];
+  const pos=sc=>clamp(20+sc*60,3,97),tg=sc=>sc>=.6?'<span class="tone good">ロングラン寄り</span>':sc<=.4?'<span class="tone bad">初動寄り</span>':'<span class="tone neu">中間</span>';
+  return {d:`${relLbl(d)}の時点`,h:`<div class="lr-v ${tone}"><b>${ttl}</b><span>${o.rows.length}つの材料のうち、ロングラン寄り <b class="num">${nL}</b>・中間 <b class="num">${o.rows.length-nL-nF}</b>・初動寄り <b class="num">${nF}</b>。初動比率の見通しは <b class="num">${f1(rt)}%</b>（類似作の中央値 ${f1(rm)}%）。${act}</span></div>
+    <div class="lr-ax"><span>初動で終わった類似作</span><span>ロングランだった類似作</span></div>
+    <div class="lr">${o.rows.map(r=>`<div class="lr-r"><div class="lr-n"><b>${r.n}</b><small>${r.note}</small></div><div class="lr-b"><i class="f"></i><i class="l"></i><b style="left:${pos(r.sc)}%"></b></div><div class="lr-x"><b class="num">${r.fmt(r.v)}</b><small>初動 ${r.fmt(r.fr)}｜ロングラン ${r.fmt(r.lg)}</small></div>${tg(r.sc)}</div>`).join('')}</div>
+    <div class="note">類似作を初動比率の小さい順に並べ、小さいほうの${o.n3}本を「ロングランだった作品」、大きいほうの${o.n3}本を「初動で終わった作品」として、同じ時点（${relLbl(d)}）の数字の中央値と比べています。丸い印がこの作品、2本の線が左＝初動、右＝ロングランの中央値です。日が進むと、数字は入れ替わります。</div>`}},{when:'post',hide:d=>d<2,any:[3,6]});
 I('outlook','o_legs','週末ごとの動き',4,[],(T,d)=>{const w=[];for(let i=0;i*7+2<=d;i++)w.push(sumR(T,'gross',i*7,i*7+2)*1e4);
   const a3=has(2)&&d>=0?`<div class="note" style="margin-top:8px">宣伝と内容が「ちがった」と感じた人 <b class="num">${f1(cqDiff(cq(T,d)))}%</b>（類似作の中央値 ${f1(cqMed(cqDiff,d))}%）。多いほど、2週目以降に落ちやすい傾向があります。</div>`:'';
   return {d:'金・土・日の3日間',h:(w.length?`<table><tr><th>週末</th><th class="r">興収</th><th class="r">前週比</th></tr>${w.map((v,i)=>`<tr><td>${i+1}週目</td><td class="r">${fN(v)}円</td><td class="r">${i?Math.round(v/w[i-1]*100)+'%':'—'}</td></tr>`).join('')}</table>`:'<div class="empty">初週末の後から出ます。</div>')+a3}},{when:'post',any:[3,6]});
@@ -2775,7 +2804,7 @@ const SRC_USE={
   d_sum:[6,3],d_gloss:[],
   i_buzz:[3,5,6],i_search:[5,6],i_clip:[4,6],i_aware:[1,6],i_sat:[2,1],
   h_views:[3,6,4,1,'B'],h_moves:[3,6,5,4,1,2],h_goal:['B',1,2],h_all:[3,6,5,4,1,2],
-  o_two:['B',3,6,5,4,1],o_pos:[3,6,5,4],o_final:['B',4,2],o_legs:['B',2],o_similar:['B',1],o_supply:['S','B'],o_comp:['S'],o_check:['B',3,6,5,4],
+  o_two:['B',3,6,5,4,1],o_long:['B',3,4,2],o_pos:[3,6,5,4],o_final:['B',4,2],o_legs:['B',2],o_similar:['B',1],o_supply:['S','B'],o_comp:['S'],o_check:['B',3,6,5,4],
   o_share:['B','S',1],o_winlose:[1,3,6,'S'],o_slate:['S'],o_cmpts:[3,6,5,4],o_mult:['B',4,2],o_how:[],
   o_simsat:[2,'B'],a_answer:[2,6],cr_top:[6],cr_wall:[6],cr_posts:[6],cr_next:[6],p_gap:[1,2],p_hit:[2,'B'],p_cal:['N',3,2,6],
   o_demand:[1,'S',2],o_sim:[1,'S',2],o_pressure:[1,'S'],o_upside:[1,6],o_curve:['B',1,2],o_demandix:[1,2,'S'],
