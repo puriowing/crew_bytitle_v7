@@ -469,6 +469,18 @@ body.quiet .note:not(.boost):not(.cast),body.quiet .prov,body.quiet .srcs,body.q
 body.m-more .top #btnPeers,body.m-more .top #btnRpt,body.m-more .top #btnSearch{display:inline-flex}
 body.m-more .top .internal{display:flex}
 .top #swNote{margin-left:auto}
+.spk-hit{position:absolute;inset:0;cursor:pointer}
+.spk-mk{position:absolute;top:-3px;transform:translateX(-50%);font-size:9px;font-style:normal;line-height:1;color:#8a4b12;pointer-events:none}
+.spk-cur{position:absolute;top:0;bottom:0;border-left:2px solid var(--ink2);transform:translateX(-1px);pointer-events:none}
+.spk-box{margin-top:12px;border:1px solid var(--rule);border-radius:12px;padding:10px 12px;background:#fbfaf7}
+.spk-box.hint{border-style:dashed;font-size:12px;color:var(--sub)}
+.spk-h{display:flex;gap:4px 10px;align-items:baseline;flex-wrap:wrap;font-size:13px}
+.spk-x{margin-left:auto;border:1px solid var(--rule2);background:#fff;border-radius:99px;width:26px;height:26px;font-size:13px;line-height:1}
+.spk-ev{display:flex;width:100%;gap:9px;align-items:center;text-align:left;border:1px solid var(--rule2);background:#fff;border-radius:10px;padding:8px 10px;margin-top:8px;font-size:13px}
+.spk-ev>span:first-of-type{min-width:0;display:grid;gap:2px}
+.spk-ev small{color:var(--sub);font-size:11.5px;font-weight:400}
+.spk-ev .go{margin-left:auto;color:var(--accent2);font-size:12px;font-weight:700;white-space:nowrap}
+.spk-ev:hover{background:var(--accent-soft)}
 details.castg{border:1px dashed #eec39a;background:#fffaf4;border-radius:14px;padding:10px 14px;margin:0 0 16px}
 details.castg>summary{cursor:pointer;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;font-size:12px;color:var(--sub)}
 details.castg>summary b{font-family:'Zen Maru Gothic',sans-serif;font-size:13.5px;color:#8a4b12}
@@ -1834,7 +1846,23 @@ I('deliver','d_exposed','広告を見た人と見ていない人の差',6,[1,6],
 /* ---------- 関心と評判 ---------- */
 function peerBand(k,a,b,cum){const lo=[],hi=[],few=peerFew()>0;for(let d=a;d<=b;d++){const v=PEERS.map(p=>cum?sumR(p,k,D0,d):at(p,k,d));lo.push(few?med(v):qt(v,.25));hi.push(few?med(v):qt(v,.75))}const o=[lo,hi];o.med=few;return o}
 const evMarks=T=>T.ev.map(e=>({d:e.d,c:CH[e.ch].c}));
-I('interest','i_buzz','話題の量',7,[3],(T,d)=>{const b=Math.max(d,0);return {d:'1日ごとの投稿数と、施策のタイミング',h:chart(T,[{n:'類似作の幅（真ん中の半分）',band:peerBand('buzz',D0,b),c:'#8a929a'},{n:'この作品',vals:slice(T,'buzz',D0,b,d),c:M.buzz.c}],{a:D0,b,u:'件',h:190,marks:evMarks(T)})}},{hit:'buzz'});
+/* 話題の量：山を押すと、その日に近い施策をグラフの下に出す */
+function spkDays(T,d){const out=[];for(let x=D0+7;x<=d;x++){const v=at(T,'buzz',x),b=avgR(T,'buzz',x-7,x-1);if(v==null||!b||v<b*1.5)continue;const p=at(T,'buzz',x-1),q=x<d?at(T,'buzz',x+1):null;if((p==null||v>=p)&&(q==null||v>=q))out.push(x)}return out}
+const spkEvs=(T,x)=>T.ev.filter(e=>e.d<=x&&x<=eEnd(e)+3).sort((a,b)=>b.d-a.d);
+function spkBox(T,d){const sp=S.spk&&S.spk.t===T.k&&S.spk.d<=d?S.spk.d:null;
+  if(sp==null)return `<div class="spk-box hint">グラフの山（▼の印）を押すと、その日に近い施策がここに出ます。</div>`;
+  const v=at(T,'buzz',sp),b=avgR(T,'buzz',sp-7,sp-1),L=spkEvs(T,sp);
+  return `<div class="spk-box"><div class="spk-h"><b>${md(dateOf(T,sp))}</b><span>${relLbl(sp)}</span><span>話題の量 <b class="num">${fN(v)}</b>件${b?`（その前7日間の平均の <b class="num">${f1(v/b)}</b>倍）`:''}</span><button class="spk-x" data-spkx aria-label="閉じる">×</button></div>
+    ${L.length?L.map(e=>{const o=isAd(e)?null:absUp(T,e,'buzz',d),g=sp-e.d;return `<button class="spk-ev" data-spkev="${e.id}"><i class="cdot" style="background:${CH[e.ch].c}"></i><span><b>${esc(e.label)}</b><small>${md(dateOf(T,e.d))}（${g===0?'この日':g+'日前'}）｜${CH[e.ch].n}${o&&o.add>0?`｜実施から3日間で話題 ＋${fN(o.add)}件`:''}</small></span><span class="go">くわしく ›</span></button>`}).join(''):'<div class="empty" style="margin:0">この日と、その前3日間に、施策はありません。施策以外のきっかけ（ニュースや、ほかの人の投稿など）の可能性があります。</div>'}
+    <div class="note">日付が近い施策を並べています。話題が増えた原因と決まったわけではありません。施策を押すと、「施策と反応」のページでくわしい内容が開きます。</div></div>`}
+I('interest','i_buzz','話題の量',7,[3],(T,d)=>{const b=Math.max(d,0),n=b-D0,sp=S.spk&&S.spk.t===T.k&&S.spk.d<=d?S.spk.d:null,pk=spkDays(T,d);
+  const over=`${pk.map(x=>`<i class="spk-mk" style="left:${(x-D0)/n*100}%">▼</i>`).join('')}${sp!=null?`<i class="spk-cur" style="left:${(sp-D0)/n*100}%"></i>`:''}<div class="spk-hit" data-spk data-a="${D0}" data-b="${b}" data-d="${d}" data-pk="${pk.join(',')}" role="button" aria-label="グラフの日を選ぶ"></div>`;
+  return {d:'1日ごとの投稿数と、施策のタイミング',h:chart(T,[{n:'類似作の幅（真ん中の半分）',band:peerBand('buzz',D0,b),c:'#8a929a'},{n:'この作品',vals:slice(T,'buzz',D0,b,d),c:M.buzz.c}],{a:D0,b,u:'件',h:190,marks:evMarks(T),over})+spkBox(T,d)}},{hit:'buzz'});
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-spk],[data-spkx],[data-spkev]');if(!t)return;ev.stopPropagation();const D=t.dataset,keepY=()=>{const y=scrollY;render();scrollTo(0,y)};
+  if(D.spkx!=null){S.spk=null;keepY();return}
+  if(D.spkev){const T=cur(),e=T.ev.find(x=>x.id===+D.spkev);if(!e)return;S.jv='log';S.page='acts';S.openEv=e.id;if(e.d>S.day)S.jlOpen.fut=true;else S.jlOpen.past=true;render();const el=document.getElementById('jl-'+e.id);if(el)el.scrollIntoView({block:'center'});else scrollTo(0,0);return}
+  const r=t.getBoundingClientRect(),a=+D.a,b=+D.b,pk=D.pk?D.pk.split(',').map(Number):[];let x=clamp(Math.round(a+(ev.clientX-r.left)/r.width*(b-a)),a,+D.d);
+  const near=pk.filter(q=>Math.abs(q-x)<=2).sort((m,k)=>Math.abs(m-x)-Math.abs(k-x))[0];if(near!=null)x=near;S.spk={t:cur().k,d:x};keepY()},true);
 I('interest','i_sent','センチメントの推移',5,[3],(T,d)=>{const b=Math.max(d,0);return {d:'好意的な声と否定的な声の割合',h:chart(T,[{n:'好意的',vals:slice(T,'sent',D0,b,d),c:'#1f7a4d'},{n:'否定的',vals:slice(T,'neg',D0,b,d),c:'#a3413a'}],{a:D0,b,u:'%',h:190,max:100})}},{hit:'sent'});
 const W_PRE=[['予告',18],['主題歌',14],['キャスト',13],['公開日',11],['原作',9],['泣ける',8],['楽しみ',8],['前売り',5],['舞台挨拶',5],['映像がきれい',4]];
 const W_POST=[['泣いた',22],['もう一回',12],['ラスト',11],['主題歌',10],['家族',9],['映画館で',8],['演技',8],['おすすめ',7],['長い',4],['思ってたのと違う',3]];
