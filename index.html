@@ -443,6 +443,11 @@ button.sq:hover{background:#fbfaf7}
 .stg-h{font-size:12px;color:var(--sub);margin-bottom:6px}
 .stg-l{margin:0 0 16px;padding-left:1.4em;font-size:13px;line-height:1.9}
 .stg-l b{display:inline-block;min-width:8.5em}
+.sw{display:inline-flex;align-items:center;gap:6px;background:none;border:0;color:#fff;font-size:11.5px;font-weight:700;padding:2px;cursor:pointer;white-space:nowrap}
+.sw i{width:26px;height:15px;border-radius:99px;background:rgba(255,255,255,.28);position:relative;transition:background .15s}
+.sw i::after{content:'';position:absolute;top:2px;left:2px;width:11px;height:11px;border-radius:50%;background:#fff;transition:left .15s}
+.sw[aria-checked=true] i{background:#7fbfae}.sw[aria-checked=true] i::after{left:13px}
+body.quiet .note:not(.boost):not(.cast),body.quiet .prov,body.quiet .srcs,body.quiet .card-h .d,body.quiet .cad,body.quiet .pg-q,body.quiet details.castg{display:none!important}
 details.castg{border:1px dashed #eec39a;background:#fffaf4;border-radius:14px;padding:10px 14px;margin:0 0 16px}
 details.castg>summary{cursor:pointer;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;font-size:12px;color:var(--sub)}
 details.castg>summary b{font-family:'Zen Maru Gothic',sans-serif;font-size:13.5px;color:#8a4b12}
@@ -530,7 +535,8 @@ details.deep>.grid{margin-top:16px}
   body.m-date .datebox{display:flex;width:100%;justify-content:space-between}
   body.m-date .datebox input[type=range]{flex:1;width:auto}
   body.m-more .top #btnSearch,body.m-more .top #btnRpt,body.m-more .top #btnPeers{display:inline-flex}
-  .top #btnRpt,.top #btnPeers{display:none}
+  .top #btnRpt,.top #btnPeers,.top #swNote{display:none}
+  body.m-more .top #swNote{display:inline-flex;padding:4px 6px}
   body.m-more .internal{display:flex;width:100%}
   .tabs{position:fixed;left:0;right:0;bottom:0;z-index:35;background:#fbfaf7;border-top:1px solid var(--rule);padding:0 4px env(safe-area-inset-bottom);gap:0;justify-content:space-around;overflow:visible}
   .tab{flex:1;justify-content:center;padding:11px 2px 10px;font-size:12.5px;border-bottom:0;border-top:3px solid transparent;margin-top:-1px}
@@ -1171,6 +1177,7 @@ body.plan-mode:not(.pg-check) .top .datebox{opacity:.4;pointer-events:none}body.
     <button id="btnPlan" class="btn plan-btn" aria-pressed="false"></button>
     <button id="btnRpt" class="btn">週の報告書</button>
     <button id="btnSearch" class="btn">指標を検索<kbd>⌘K</kbd></button>
+    <button id="swNote" class="sw" role="switch" aria-checked="true" title="小さな文字の説明と、使っているデータの表示を切り替えます"><i></i>説明</button>
     <button id="mDate" class="chip m-only" aria-expanded="false"></button>
     <button id="mMore" class="btn m-only" aria-label="その他の操作" aria-expanded="false">…</button>
     <div class="sp"></div>
@@ -3194,6 +3201,7 @@ function planEmpty(T,d){const pre=true,ph=S.phase>=3,pd=Math.min(T.today,-1)<0?M
     ${ph?'':S.client?'<li>宣伝設計は、いまご利用のデータの範囲では表示できません。</li>':'<li>宣伝設計は、類似作を劇場で観た人の回答（CAST）を使うため、Phase 3 から使えます。</li>'}
     ${pre?'':'<li>宣伝設計は、公開前に宣伝を組み立てるための画面です。いまの基準日は公開後です。</li>'}</ul>
     <div class="fm-b">${pre?'':`<button class="btn" data-plandays="${d<0?d:-30}">基準日を公開30日前にする</button>`}${ph||S.client?'':'<button class="btn" data-p="3">Phase 3 にする</button>'}<button class="btn" data-planx>効果測定に切り替える</button></div></div>`}
+$('#swNote').onclick=()=>{S.quiet=!S.quiet;render()};
 $('#segKarte').onclick=()=>{S.karte=!S.karte;render()};
 $('#btnPlan').onclick=()=>{if(S.page==='plan'||S.page==='check'){setPage(S.prevPage&&S.prevPage!=='check'?S.prevPage:'home')}else{S.prevPage=S.page;setPage('plan')}};
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-psec],[data-planx],[data-plandays]');if(!t)return;ev.stopPropagation();
@@ -3380,7 +3388,7 @@ function render(){syncPeers();const T=cur(),d=S.day;
   $('#btnPeers').innerHTML=`比べる類似作 <b class="num">${PEERS.length}</b>本${refTx()}${peerChanged()?'<small>選び直し済み</small>':''}`;
   $('#selTitle').value=S.title;$('#selPo').innerHTML=poster(T,{fit:'slice'});$('#phaseChip').textContent=relLbl(d);$('#dateLbl').innerHTML=md(dateOf(T,d))+(d>T.today?'<em class="fut">この先は見本の数字</em>':'');
   const dy=$('#day');dy.min=-70;dy.max=D1;dy.value=d;
-  $$('#segPhase button').forEach(b=>b.classList.toggle('on',+b.dataset.p===S.phase));$('#segKarte button').classList.toggle('on',!!S.karte);
+  document.body.classList.toggle('quiet',!!S.quiet);$('#swNote').setAttribute('aria-checked',!S.quiet);$$('#segPhase button').forEach(b=>b.classList.toggle('on',+b.dataset.p===S.phase));$('#segKarte button').classList.toggle('on',!!S.karte);
   document.body.classList.toggle('client',S.client);$('#btnClient').textContent=S.client?'社内表示に戻す':'配給会社の表示にする';
   $('#modeSwM').innerHTML=modeSw(PM);$('#tabs').innerHTML=modeSw(PM,'d')+(PM?planNav(T,d):visiblePages(d).filter(p=>p.k!=='plan'&&p.k!=='check').map(p=>`<button class="tab ${p.k===S.page?'on':''} ${PG_GSEP.includes(p.k)?'gsep':''}" data-page="${p.k}"><span class="ti">${TAB_IC[p.k]||''}${tabDot(T,d,p.k)}</span><span class="tl">${p.n}</span><span class="ts">${TAB_SHORT[p.k]}</span></button>`).join(''));
   $('#mDate').textContent=`${md(dateOf(T,d))}｜${relLbl(d)}`;appSave();
@@ -3443,7 +3451,7 @@ document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLower
 function aliasCheck(){const keep={...S},miss=[];S.phase=3;S.karte=true;S.mv='all';S.psec='all';for(const [t,id] of Object.entries(ALIAS)){const it=ITEMS.find(x=>x.id===id);if(!it){miss.push([t,id,'項目なし']);continue}
   const ok=[['t1',-12],['t3',23]].some(([k,d])=>{S.title=k;S.day=d;S.page=it.page;S.deepOpen[it.page]=true;if(!avail(it,d))return false;render();return !!$('#it-'+id)});if(!ok)miss.push([t,id,'表示されない'])}
   Object.assign(S,keep);render();return {total:Object.keys(ALIAS).length,miss}}
-function selfCheck(){const keep={...S,deepOpen:{...S.deepOpen}},bad=[];let n=0;S.client=true;S.mv='all';S.psec='all';PAGES.forEach(p=>S.deepOpen[p.k]=true);
+function selfCheck(){const keep={...S,deepOpen:{...S.deepOpen}},bad=[];let n=0;S.quiet=false;S.client=true;S.mv='all';S.psec='all';PAGES.forEach(p=>S.deepOpen[p.k]=true);
   const NGf=(ph,kt)=>new RegExp(['宣伝効果指数'].concat(kt?[]:['認知率','観たい率'],ph<2?['満足度','NPS']:[]).join('|'));
   for(const [ph,kt] of [[1,0],[1,1],[2,0],[2,1],[3,0],[3,1]])for(const t of TITLE_DEFS){const NG={[ph]:NGf(ph,kt)};S.karte=!!kt;const T=TT[t.k];for(const d of [-60,-30,-12,-1,0,1,2,5,13,20,27].filter(x=>x<=T.today)){S.phase=ph;S.karte=!!kt;S.title=t.k;S.day=d;
     for(const p of visiblePages(d)){S.page=p.k;try{render()}catch(e){bad.push([ph,t.k,d,p.k,'ERR '+e.message]);continue}n++;const tx=$('#page').innerText;
@@ -3471,9 +3479,9 @@ function tabDot(T,d,k){try{if(k==='home'&&has(3)&&T.ev.some(e=>e.d<=d&&e.d>=d-14
 const TAB_SHORT={creative:'素材',acts:'施策',plan:'設計',home:'今日',deliver:'メディア',interest:'関心',audience:'観客',check:'検証',outlook:'見通し'};
 const APPK='crew_v7_app_1';
 /* 前回の作品・ページ・表示を覚えておき、次に開いたときに戻す（基準日は毎回「今日」に戻す） */
-function appSave(){try{localStorage.setItem(APPK,JSON.stringify({title:S.title,page:S.page,phase:S.phase,karte:S.karte,client:S.client,jv:S.jv,jo:S.jo,mv:S.mv,jw:S.jw,fk:S.fk,tlRange:S.tlRange,cmpSet:S.cmpSet,castOpen:S.castOpen,peerSel:S.peerSel}))}catch(e){}}
+function appSave(){try{localStorage.setItem(APPK,JSON.stringify({title:S.title,page:S.page,phase:S.phase,karte:S.karte,quiet:!!S.quiet,client:S.client,jv:S.jv,jo:S.jo,mv:S.mv,jw:S.jw,fk:S.fk,tlRange:S.tlRange,cmpSet:S.cmpSet,castOpen:S.castOpen,peerSel:S.peerSel}))}catch(e){}}
 function appLoad(){try{const o=JSON.parse(localStorage.getItem(APPK)||'null');if(!o)return;if(TT[o.title])S.title=o.title;if(PAGES.some(p=>p.k===o.page))S.page=o.page;
-  if(!qs.get('phase')&&[1,2,3].includes(o.phase))S.phase=o.phase;if(!qs.get('karte')&&typeof o.karte==='boolean')S.karte=o.karte;if(!qs.get('view'))S.client=!!o.client;['jv','jw','fk','tlRange'].forEach(k=>{if(typeof o[k]==='string')S[k]=o[k]});
+  if(!qs.get('phase')&&[1,2,3].includes(o.phase))S.phase=o.phase;if(!qs.get('karte')&&typeof o.karte==='boolean')S.karte=o.karte;S.quiet=!!o.quiet;if(!qs.get('view'))S.client=!!o.client;['jv','jw','fk','tlRange'].forEach(k=>{if(typeof o[k]==='string')S[k]=o[k]});
   if(Array.isArray(o.cmpSet))S.cmpSet=o.cmpSet.filter(k=>ownGet(k)).slice(0,OWN_MAX);if(typeof o.castOpen==='boolean')S.castOpen=o.castOpen;if(o.peerSel&&typeof o.peerSel==='object')S.peerSel=o.peerSel;if(o.jo==='desc')S.jo='desc'}catch(e){}}
 $('#mDate').onclick=()=>{const on=document.body.classList.toggle('m-date');document.body.classList.remove('m-more');$('#mDate').setAttribute('aria-expanded',on);$('#mMore').setAttribute('aria-expanded',false)};
 $('#mMore').onclick=()=>{const on=document.body.classList.toggle('m-more');document.body.classList.remove('m-date');$('#mMore').setAttribute('aria-expanded',on);$('#mDate').setAttribute('aria-expanded',false)};
