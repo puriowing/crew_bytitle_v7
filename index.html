@@ -488,6 +488,10 @@ body.m-more .more-box{display:flex}
 .acct-chip{cursor:pointer;font-family:inherit}.top .acct-chip{background:rgba(255,217,138,.18);border-color:rgba(255,217,138,.55);color:#ffe7b0}
 .acct-sel{border:1px solid var(--rule2);border-radius:999px;padding:3px 8px;font-size:11.5px;background:#fff;color:var(--ink2);max-width:150px}
 .fc-acc{margin-top:10px;padding:9px 12px;border-radius:10px;background:var(--neufill);font-size:13px;line-height:1.7}.fc-acc>b:first-child{display:inline-block;margin-right:10px;font-family:'Zen Maru Gothic',sans-serif}
+.ov{display:grid;gap:2px}.ov-r{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 56px;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule)}.ov-r:last-child{border-bottom:0}
+.ov-n{display:grid;gap:1px;min-width:0}.ov-n b{font-size:13px;line-height:1.4}.ov-n small{font-size:11.5px;color:var(--sub)}
+.ov-b{display:block;height:10px;border-radius:5px;background:#eee9df;overflow:hidden}.ov-b i{display:block;height:100%;border-radius:5px}.ov-v{text-align:right;font-weight:700;font-size:13px}
+.cmp-pre{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}.cmp-pre li{display:flex;align-items:center;gap:8px;font-size:13px;padding:7px 10px;border:1px solid var(--rule);border-radius:10px}.cmp-pre small{margin-left:auto;color:var(--sub);font-size:11.5px;white-space:nowrap}
 .fc-t th,.fc-t td{white-space:nowrap}.fc-t .r{text-align:right}
 .smp-chip{background:#fbf3e6;border-color:#eec39a;color:#8a4b12}
 .fw-t{width:100%;border-collapse:collapse;font-size:12.5px}.fw-t th{text-align:left;font-size:11px;color:var(--sub);padding:5px 8px;border-bottom:1px solid var(--rule2)}.fw-t td{padding:7px 8px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.6}.fw-t tr.fw-no td{color:var(--sub-weak)}
@@ -2067,14 +2071,20 @@ I('outlook','o_type','ヒットの型',6,[4],(T,d)=>{const w=womOf(T,d),cs=has(2
   if(!w)return {d:'',h:(cs?'':'<div class="empty">公開2週目が終わると判定が出ます。</div>')+(cs?`<div class="empty" style="margin-bottom:10px">型の判定は、公開2週目が終わると出ます。</div>${lead}`:'')};const m=med(PEERS.map(p=>womOf(p,d).v)),ty=w.v>m*1.15?'口コミ型':w.v<m*0.85?'初動型':'標準型';
   return {d:'この先の落ち方の見当',h:`<div class="tier">${['初動型','標準型','口コミ型'].map(n=>`<span class="${n===ty?'on':''}">${n}</span>`).join('')}</div><div class="kpis">${kpi('口コミの伸び倍率',f2(w.v),'倍',`類似作の中央値 ${f2(m)}倍`)}${kpi('公開前のClip! ÷ Mark!',f2(conv(T,d).pre),'倍')}</div>
   <div class="note">${ty==='口コミ型'?'週を追っても落ちにくい型です。上映回数の維持と、感想を広げる施策が効きます。':ty==='初動型'?'公開直後に集中する型です。2週目以降の落ち込みを見込んでください。':'類似作と同じくらいの落ち方です。'}</div>${lead}`}},{when:'post'});
-I('outlook','o_similar','類似作の実績',6,[],(T,d)=>({d:'同じ系統・同じ規模の作品。この作品の予測ではありません',h:`<div class="tw"><table><tr><th>作品</th><th class="r">初週末</th><th class="r">最終</th><th class="r">最終÷初週末</th></tr>${PEERS.slice(0,8).map((p,i)=>{const o=sumR(p,'gross',0,2)*1e4;return `<tr><td>${p.ttl}</td><td class="r">${fN(o)}円</td><td class="r">${fN(p.final)}円</td><td class="r">${f1(p.final/o)}倍</td></tr>`}).join('')}</table></div><div class="note">中央値は 初週末 ${fN(med(PEERS.map(p=>sumR(p,'gross',0,2)*1e4)))}円・最終 ${fN(med(PEERS.map(p=>p.final)))}円。${d>=2||has(1)?`この作品の見通しは、最終の中央値の ${f2((d>=2?finalFc(T,d).mid:preFc(T,d).mid)/med(PEERS.map(p=>p.final)))}倍。`:''}</div>`}),{any:[3,6]});
+/* 類似作の初週のスクリーン数（見本：初週末の興収の大きさに合わせて作る） */
+const peerSc=p=>p.screens||(p._sc=p._sc||Math.round(clamp(150+sumR(p,'gross',0,2)*1e4/1.6e6,120,420)/5)*5);
+/* スクリーン数・上映回数は、上映スケジュールが出そろう公開3日前ごろに確定する */
+const scFixed=d=>d>=-3,scAbout=T=>Math.round(T.screens/10)*10;
+I('outlook','o_similar','類似作の実績',6,[],(T,d)=>({d:'同じ系統・同じ規模の作品。この作品の予測ではありません',h:`<div class="tw"><table><tr><th>作品</th><th class="r">初週のスクリーン数</th><th class="r">初週末</th><th class="r">最終</th><th class="r">最終÷初週末</th></tr>${PEERS.slice(0,8).map((p,i)=>{const o=sumR(p,'gross',0,2)*1e4;return `<tr><td>${p.ttl}</td><td class="r num">${peerSc(p)}</td><td class="r">${fN(o)}円</td><td class="r">${fN(p.final)}円</td><td class="r">${f1(p.final/o)}倍</td></tr>`}).join('')}</table></div><div class="note">中央値は 初週のスクリーン数 ${Math.round(med(PEERS.map(peerSc)))}（この作品は ${scFixed(d)?T.screens:'約'+scAbout(T)+'・予定'}）・初週末 ${fN(med(PEERS.map(p=>sumR(p,'gross',0,2)*1e4)))}円・最終 ${fN(med(PEERS.map(p=>p.final)))}円。${d>=2||has(1)?`この作品の見通しは、最終の中央値の ${f2((d>=2?finalFc(T,d).mid:preFc(T,d).mid)/med(PEERS.map(p=>p.final)))}倍。`:''}</div>`}),{any:[3,6]});
 I('outlook','o_supply','公開の規模と席',6,[],(T,d)=>{const up=unitPrice(T,Math.min(d,6)),cap=T.screens*4.2*150*7,adm=d>=6?sumR(T,'gross',0,6)*1e4/up:null,cs=has(2)&&d>=0,o=cs?cq(T,d):null,miss=cs?o.seat[1]+o.seat[2]:0,missM=cs?cqMed(x=>x.seat[1]+x.seat[2],d):0;
+  if(!scFixed(d))return {d:'初週7日間',h:`<div class="note boost"><b>まだ確定していません。</b>スクリーン数・上映回数・席の数は、上映スケジュールが出そろう公開3日前ごろに確定します。いまは予定の数字だけを出しています。</div><div class="kpis">${kpi('スクリーン数（予定）','約'+scAbout(T),'','配給の計画から')}${kpi('1日の上映回数','—','','公開3日前ごろに出ます')}${kpi('用意される席','—','','公開3日前ごろに出ます')}</div>`};
   return {d:'初週7日間',h:`<div class="kpis">${kpi('スクリーン数',T.screens,'')}${kpi('1日の上映回数',fN(T.screens*4.2),'回')}${kpi('用意される席',fN(cap),'席')}${kpi('席の埋まり具合',adm?f1(adm/cap*100):'—',adm?'%':'',adm?`平均単価 ${fN(up)}円で人数に換算`:'初週が終わると出ます')}</div>
   ${cs?`<div class="sub-h">観た人は、希望の回・席を取れたか</div>${bars(SEAT.map((l,i)=>({l,v:o.seat[i],cmp:cqMed(x=>x.seat[i],d),c:SEAT_C[i]})),{fmt:f1,u:'%',cmp:'類似作の中央値'})}
    <div class="note">別の回・別の映画館にした人は ${f1(miss)}%（類似作 ${f1(missM)}%）。${miss>missM+2?'<b>席が足りていない回があります。</b>上映回の追加や、大きいスクリーンへの移動を相談する材料になります。':'席の不足は、類似作と同じくらいかそれ以下です。'}</div>`:''}`}},{any:[3,6]});
-I('outlook','o_comp','公開週の競合',6,[],(T,d)=>{const r=R(T,60),c=[['この作品',T.screens,'#4e8780'],['銀河の果ての約束',Math.round(280+r()*140),'#5b6f9c'],['探偵たちの休日',Math.round(200+r()*120),'#a06a86'],['ワイルド・ハイウェイ',Math.round(180+r()*120),'#b08040'],['そのほか',Math.round(900+r()*300),'#c9ccd0']];
+I('outlook','o_comp','公開週の競合',6,[],(T,d)=>{const r=R(T,60),cs=comps(T);r();r();r();const c=[['この作品',T.screens,'#4e8780'],...cs.map(x=>[x.n,x.sc,x.c]),['そのほか',Math.round(900+r()*300),'#c9ccd0']];
+  if(!scFixed(d))return {d:'同じ週に上映される予定の作品',h:`<div class="note boost"><b>まだ確定していません。</b>各作品のスクリーン数は、上映スケジュールが出そろう公開3日前ごろに出ます。いまは、同じ週に上映される予定の作品名だけを出しています。</div><ul class="cmp-pre">${cs.map(x=>`<li><i class="cdot" style="background:${x.c}"></i>${x.n}<small>${wkTx(x.wk)}</small></li>`).join('')}</ul>`};
   return {d:'同じ週に上映される作品のスクリーン数',h:`${stack(c.map(x=>({l:x[0],v:x[1],c:x[2]})))}<div style="height:10px"></div>${bars(c.slice(0,4).map(x=>({l:x[0],v:x[1],c:x[2]})),{fmt:fN})}`}},{any:[3,6]});
-I('outlook','o_ovl','同時期の作品との客層の重なり',6,[4],(T,d)=>{const r=R(T,61);if(has(2)&&d>=0){const r2=R(T,451);return {d:'この作品を観た人が「迷った作品」に挙げた割合',h:bars(comps(T).map(c=>({l:c.n,v:4+c.dm*22*(.8+r2()*.4),c:c.c})).sort((a,b)=>b.v-a.v),{fmt:f1,u:'%'})+'<div class="note">迷った人が多い作品とは、同じ客を取り合っています。</div>'}}return {d:'この作品にClip!・Mark!した人が、同じ時期の作品にも付けている割合',h:bars(['銀河の果ての約束','探偵たちの休日','ワイルド・ハイウェイ'].map(l=>({l,v:5+r()*26})).sort((a,b)=>b.v-a.v),{fmt:f1,u:'%',c:'#a06a86'})+'<div class="note">重なりが大きい作品とは、同じ客を取り合います。</div>'}});
+I('outlook','o_ovl','同時期の作品との客層の重なり',6,[4],(T,d)=>{const r=R(T,61);if(has(2)&&d>=0){const r2=R(T,451);return {d:'この作品を観た人が「迷った作品」に挙げた割合',h:ovRows(nearby(T).map(c=>({l:c.n,wk:c.wk,v:4+c.dm*22*(.8+r2()*.4),c:c.c})).sort((a,b)=>b.v-a.v),'%')+'<div class="note">迷った人が多い作品とは、同じ客を取り合っています。公開時期は、この作品の公開週と比べたものです。</div>'}}return {d:'この作品にClip!・Mark!した人が、同じ時期の作品にも付けている割合',h:ovRows(nearby(T).map(c=>({l:c.n,wk:c.wk,v:(5+r()*26)*(c.wk===0?1:.6),c:'#a06a86'})).sort((a,b)=>b.v-a.v),'%')+'<div class="note">重なりが大きい作品とは、同じ客を取り合います。公開時期は、この作品の公開週と比べたものです。</div>'}});
 /* 見通しはどのくらい当たるか：上映が終わった類似作で、各時点の見立てと最終興収を比べる。作品1本ずつの結果は出さない */
 function fcTrack(){const P=PEER_DEF.concat(PEER_ADD).filter(p=>p.final>0),n=P.length;if(n<4)return null;
   const rk=[...P].sort((a,b)=>a.final-b.final),cls=p=>{const i=rk.indexOf(p)/(n-1);return i>=2/3?2:i<=1/3?0:1},ks=upKeys().filter(k=>!M[k].post&&!RATE.has(k));
@@ -2106,7 +2116,11 @@ const wkChange=(T,k,d)=>{if(RATE.has(k)){const a=at(T,k,d),b=at(T,k,d-7);return 
 const cumGross=(T,d)=>sumR(T,'gross',0,d)*1e4;
 const scoreSeries=(T,a,b,cut)=>{const v=[];for(let x=a;x<=b;x++)v.push(x>cut?null:scoreOf(T,x));return v};
 function comps(T){const r=R(T,60),n=REAL?TITLE_DEFS.filter(t=>t.k!==T.k&&t.dist!==T.dist).slice(0,3).map(t=>t.name):['銀河の果ての約束','探偵たちの休日','ワイルド・ハイウェイ'],sc=[Math.round(280+r()*140),Math.round(200+r()*120),Math.round(180+r()*120)],r2=R(T,62);
-  return n.map((x,i)=>({n:x,sc:sc[i],dm:0.35+r2()*0.5,c:CMPC[i]}))}
+  return n.map((x,i)=>({n:x,sc:sc[i],dm:0.35+r2()*0.5,c:CMPC[i],wk:[0,0,1][i]}))}
+/* 同じ時期の作品：公開週の競合3本に、前後の週の作品を足す（公開時期は「前後3週間の公開作品」と同じ） */
+const nearby=T=>comps(T).concat([{n:'夜明けのランナー',dm:.3,c:'#8a929a',wk:-1},{n:'小さな灯台',dm:.2,c:'#8a929a',wk:2}]);
+const wkTx=w=>w===0?'同じ週に公開':w<0?`${-w}週前に公開`:`${w}週後に公開`;
+function ovRows(L,u){const mx=Math.max(...L.map(x=>x.v),1e-9);return `<div class="ov">${L.map(x=>`<div class="ov-r"><div class="ov-n"><b>${x.l}</b><small>${wkTx(x.wk)}</small></div><span class="ov-b"><i style="width:${clamp(x.v/mx*100,0,100)}%;background:${x.c}"></i></span><span class="ov-v num">${f1(x.v)}${u}</span></div>`).join('')}</div>`}
 const fcBase=(T,d)=>preFc(T,Math.min(d,-1));
 const moneyOK=d=>d>=2||has(1);
 
@@ -2972,7 +2986,7 @@ function heroHTML(T,d){const th=thOf(T),rec=crList(T).filter(c=>c.d<=d).slice(-3
   return `<section class="hero"><div class="hero-bg">${svgW(1200,320,scene(th,1200,320,T.seed*41,{hz:.86,fs:.42,fx:.8}))}</div><div class="hero-in">
     <div class="hero-po">${poster(T)}</div>
     <div class="hero-tx"><span class="chip">${T.kind}・${T.genre}</span><h1>${T.name}</h1><p class="hero-copy">${th.copy}</p>
-      <div class="hero-meta"><span>公開日<b class="num">${o.getFullYear()}.${o.getMonth()+1}.${o.getDate()}</b></span><span>公開規模<b class="num">${T.screens}</b>スクリーン</span><span>いま<b>${relLbl(d)}</b></span></div>
+      <div class="hero-meta"><span>公開日<b class="num">${o.getFullYear()}.${o.getMonth()+1}.${o.getDate()}</b></span><span>公開規模<b class="num">${scFixed(d)?T.screens:"約"+scAbout(T)}</b>スクリーン${scFixed(d)?"":"（予定）"}</span><span>いま<b>${relLbl(d)}</b></span></div>
       ${has(6)?`<button class="btn ghost" data-page="creative">素材をすべて見る（${n}点）</button>`:''}</div>
     ${has(6)&&rec.length?`<div class="hero-strip"><em>最近出した素材</em>${rec.map(c=>`<button data-cr="${c.id}"><span class="cr-th k-${c.k}" style="background:${th.g[0]}">${crArt(T,c)}</span><small>${c.n}</small></button>`).join('')}</div>`:''}</div></section>`}
 function matArt(T,n){const i=n.length*7;return /ポスター|ビジュアル/.test(n)?poster(T,{fit:'slice'}):/SNS/.test(n)?sqImg(T,i,''):movThumb(T,i,'','')}
