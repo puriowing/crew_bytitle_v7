@@ -2131,9 +2131,11 @@ I('outlook','o_bench','ベンチマーク作品との興収の推移',12,[],(T,d
     <div class="tw"><table class="bm-t"><tr><th>週末</th><th class="r">この作品</th><th class="r">前週比</th><th class="r">ベンチマーク</th><th class="r">前週比</th></tr>${Array.from({length:nw},(_,i)=>{const on=i*7+2<=d;return `<tr><td>${i+1}週目</td><td class="r">${on?fN(wk(T,i))+'円':'—'}</td><td class="r">${on&&i?Math.round(wk(T,i)/wk(T,i-1)*100)+'%':'—'}</td><td class="r">${fN(wk(B,i))}円</td><td class="r">${i?Math.round(wk(B,i)/wk(B,i-1)*100)+'%':'—'}</td></tr>`}).join('')}</table></div>
     <div class="note">ベンチマークは、類似作のうち、初週末の興収と初週のスクリーン数がこの作品にいちばん近い作品です。近い順に3本まで選べます。点線は、選んでいないほかの2本。横の軸は公開日からの日数でそろえています。</div>`}},{when:'post',hide:d=>d<2,any:[3,6]});
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-bm],[data-bmv]');if(!t)return;if(t.dataset.bm)S.bm=t.dataset.bm;else S.bmv=t.dataset.bmv;const y=scrollY;render();scrollTo(0,y)});
-I('outlook','o_legs','週末ごとの動き',4,[],(T,d)=>{const w=[];for(let i=0;i*7+2<=d;i++)w.push(sumR(T,'gross',i*7,i*7+2)*1e4);
+/* 週末3日間に用意された席（見本：スクリーン数×1日の上映回数×1回の席数。週が進むと上映回数が減る） */
+const seatsWk=(T,i)=>Math.round(T.screens*4.2*150*3*[1,.96,.84,.7,.58,.48][Math.min(i,5)]/100)*100;
+I('outlook','o_legs','週末ごとの動き',6,[],(T,d)=>{const w=[];for(let i=0;i*7+2<=d;i++)w.push(sumR(T,'gross',i*7,i*7+2)*1e4);
   const a3=has(2)&&d>=0?`<div class="note" style="margin-top:8px">宣伝と内容が「ちがった」と感じた人 <b class="num">${f1(cqDiff(cq(T,d)))}%</b>（類似作の中央値 ${f1(cqMed(cqDiff,d))}%）。多いほど、2週目以降に落ちやすい傾向があります。</div>`:'';
-  return {d:'金・土・日の3日間',h:(w.length?`<table><tr><th>週末</th><th class="r">興収</th><th class="r">前週比</th></tr>${w.map((v,i)=>`<tr><td>${i+1}週目</td><td class="r">${fN(v)}円</td><td class="r">${i?Math.round(v/w[i-1]*100)+'%':'—'}</td></tr>`).join('')}</table>`:'<div class="empty">初週末の後から出ます。</div>')+a3}},{when:'post',any:[3,6]});
+  return {d:'金・土・日の3日間',h:(w.length?`<div class="tw"><table class="bm-t"><tr><th>週末</th><th class="r">興収</th><th class="r">前週比</th><th class="r">用意された席</th><th class="r">1席あたりの興収</th><th class="r">席の埋まり具合</th></tr>${w.map((v,i)=>{const st=seatsWk(T,i),up=unitPrice(T,Math.min(i*7+2,d));return `<tr><td>${i+1}週目</td><td class="r">${fN(v)}円</td><td class="r">${i?Math.round(v/w[i-1]*100)+'%':'—'}</td><td class="r">${fN(st)}席</td><td class="r"><b class="num">${fN(Math.round(v/st))}</b>円</td><td class="r">${f1(clamp(v/up/st*100,0,100))}%</td></tr>`}).join('')}</table></div><div class="note">1席あたりの興収＝週末3日間の興収÷用意された席の数。席の埋まり具合は、興収を平均単価で人数に直して、席の数で割ったものです。席が減っても1席あたりが保てていれば、上映回数を維持する材料になります。</div>`:'<div class="empty">初週末の後から出ます。</div>')+a3}},{when:'post',any:[3,6]});
 I('outlook','o_type','ヒットの型',6,[4],(T,d)=>{const w=womOf(T,d),cs=has(2)&&d>=0,df=cs?cqDiff(cq(T,d)):0,dfs=cs?PEERS.map(p=>cqDiff(cq(p,d))):[],dfM=cs?med(dfs):0;
   const lead=cs?`<div class="sub-h">先行指標：宣伝と内容が「ちがった」と感じた人</div>${bars([{l:'この作品',v:df,c:df>dfM+3?'#9c4f3e':'#4e8780'},{l:'類似作の中央値',v:dfM,c:'#b9bec4'},{l:'類似作で多かった4分の1',v:qt(dfs,.75),c:'#d9d4ca'}],{fmt:f1,u:'%'})}<div class="note">${df>dfM+3?'類似作より多く、口コミで失速するおそれがあります。2週目以降の落ち方に注意してください。':'類似作と同じか少なめです。期待のずれによる失速の心配は小さめです。'}「ちがった」＝「少しちがった」「かなりちがった」の合計（宣伝を見ていない人を除く）。</div>`:'';
   if(!w)return {d:'',h:(cs?'':'<div class="empty">公開2週目が終わると判定が出ます。</div>')+(cs?`<div class="empty" style="margin-bottom:10px">型の判定は、公開2週目が終わると出ます。</div>${lead}`:'')};const m=med(PEERS.map(p=>womOf(p,d).v)),ty=w.v>m*1.15?'口コミ型':w.v<m*0.85?'初動型':'標準型';
@@ -2825,7 +2827,7 @@ const SRC_USE={
   d_sum:[6,3],d_gloss:[],
   i_buzz:[3,5,6],i_search:[5,6],i_clip:[4,6],i_aware:[1,6],i_sat:[2,1],
   h_views:[3,6,4,1,'B'],h_moves:[3,6,5,4,1,2],h_goal:['B',1,2],h_all:[3,6,5,4,1,2],
-  o_two:['B',3,6,5,4,1],o_long:['B',3,4,2],o_bench:['B','S'],o_pos:[3,6,5,4],o_final:['B',4,2],o_legs:['B',2],o_similar:['B',1],o_supply:['S','B'],o_comp:['S'],o_check:['B',3,6,5,4],
+  o_two:['B',3,6,5,4,1],o_long:['B',3,4,2],o_bench:['B','S'],o_pos:[3,6,5,4],o_final:['B',4,2],o_legs:['B','S',2],o_similar:['B',1],o_supply:['S','B'],o_comp:['S'],o_check:['B',3,6,5,4],
   o_share:['B','S',1],o_winlose:[1,3,6,'S'],o_slate:['S'],o_cmpts:[3,6,5,4],o_mult:['B',4,2],o_how:[],
   o_simsat:[2,'B'],a_answer:[2,6],cr_top:[6],cr_wall:[6],cr_posts:[6],cr_next:[6],p_gap:[1,2],p_hit:[2,'B'],p_cal:['N',3,2,6],
   o_demand:[1,'S',2],o_sim:[1,'S',2],o_pressure:[1,'S'],o_upside:[1,6],o_curve:['B',1,2],o_demandix:[1,2,'S'],
