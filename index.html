@@ -448,6 +448,17 @@ button.sq:hover{background:#fbfaf7}
 .sw i::after{content:'';position:absolute;top:2px;left:2px;width:11px;height:11px;border-radius:50%;background:#fff;transition:left .15s}
 .sw[aria-checked=true] i{background:#7fbfae}.sw[aria-checked=true] i::after{left:13px}
 body.quiet .note:not(.boost):not(.cast),body.quiet .prov,body.quiet .srcs,body.quiet .card-h .d,body.quiet .cad,body.quiet .pg-q,body.quiet details.castg{display:none!important}
+.few-d{margin:0 0 14px}
+.few-d>summary{display:inline-flex;gap:8px;align-items:center;cursor:pointer;list-style:none;padding:4px 12px;border-radius:99px;background:#fbf3e6;font-size:12px;color:var(--ink2)}
+.few-d>summary::-webkit-details-marker{display:none}
+.few-d>summary::after{content:'▾';color:var(--sub);font-size:11px}
+.few-d[open]>summary{margin-bottom:6px}.few-d[open]>summary::after{content:'▴'}
+.few-d .few-note{margin:0}
+#mMore{display:inline-flex}
+.top #btnPeers,.top #btnRpt,.top #btnSearch,.top .internal{display:none}
+body.m-more .top #btnPeers,body.m-more .top #btnRpt,body.m-more .top #btnSearch{display:inline-flex}
+body.m-more .top .internal{display:flex}
+.top #swNote{margin-left:auto}
 details.castg{border:1px dashed #eec39a;background:#fffaf4;border-radius:14px;padding:10px 14px;margin:0 0 16px}
 details.castg>summary{cursor:pointer;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;font-size:12px;color:var(--sub)}
 details.castg>summary b{font-family:'Zen Maru Gothic',sans-serif;font-size:13.5px;color:#8a4b12}
@@ -1321,7 +1332,7 @@ const SIMILAR=['春を待つ手紙','あの日の約束','君と見た海','夜�
 PEERS.forEach((p,i)=>{p.ttl=i<12?SIMILAR[i]:PAST[i-12].name;p.own=i>=12;p.yr=2023+(i*2)%3});
 const PEER_DEF=[...PEERS],PEER_MIN=5,PEER_BAND_MIN=8,PEER_REF_MIN=5,FX_MIN=3;
 const peerFew=()=>PEERS.length<PEER_REF_MIN?2:PEERS.length<PEER_BAND_MIN?1:0,refTx=()=>peerFew()===2?'（参考値）':'';
-function fewNote(){const f=peerFew();if(!f)return '';return `<div class="few-note"><b>類似作が${PEERS.length}本です</b><span>${f===2?`${PEER_REF_MIN}本未満のため、類似作との比較はすべて参考値です（1本の入れ替えで大きく変わります）。`:''}${PEER_BAND_MIN}本未満のため、グラフの「類似作の幅」は出さず、中央値の線だけにしています。</span><button class="fx-re" data-peers>作品を選び直す</button></div>`}
+function fewNote(){const f=peerFew();if(!f)return '';return `<details class="few-d" ${S.fewOpen?'open':''}><summary><b>類似作 ${PEERS.length}本</b>${f===2?'比較は参考値です':'グラフの幅は出していません'}</summary><div class="few-note"><b>類似作が${PEERS.length}本です</b><span>${f===2?`${PEER_REF_MIN}本未満のため、類似作との比較はすべて参考値です（1本の入れ替えで大きく変わります）。`:''}${PEER_BAND_MIN}本未満のため、グラフの「類似作の幅」は出さず、中央値の線だけにしています。</span><button class="fx-re" data-peers>作品を選び直す</button></div></details>`}
 const PEER_ADD=[['白い自転車','公開が4年前',2022],['約束の丘','公開規模が条件より大きい',2024],['海辺の郵便局','ジャンルが少し違う',2025],['十七歳の地図帳','公開規模が条件より小さい',2024],['月曜日のパレード','ジャンルが少し違う',2023],['坂の上の写真館','公開が4年前',2022]].map((x,i)=>{const q=build({k:'x'+i,name:'',today:37,seed:300+i*17,power:.6+i*.13,q:.25+i*.11});q.full=true;q.ttl=x[0];q.why=x[1];q.yr=x[2];q.add=true;return q});
 const PEER_CAT=[['夏の終わりのオーケストラ','恋愛・青春',2024,260],['真夜中の観覧車','サスペンス',2023,310],['わたしたちの放課後戦争','青春',2025,180],['北極星のレシピ','ヒューマンドラマ',2024,220],['東京ロストナンバー','サスペンス',2022,350],['ちいさな魔法使いと冬の森','ファミリー',2024,330],['銀色のバトン','青春',2023,240],['さよならの練習','恋愛・青春',2025,290],['探偵は三度うなずく','ミステリー',2024,270],['ぼくの宇宙ステーション','ファミリー',2023,300],['春風タクシー','ヒューマンドラマ',2022,200],['最終列車は海へ','サスペンス',2025,255]].map((x,i)=>{const q=build({k:'c'+i,name:'',today:37,seed:500+i*19,power:.55+(i%5)*.2,q:.2+(i%4)*.2});q.full=true;q.ttl=x[0];q.why=x[1]+'・'+x[3]+'スクリーン';q.yr=x[2];q.add=true;return q}),PEER_POOL=[...PEER_ADD,...PEER_CAT];
 function peerRes(){const q=(S.peerQ||'').trim(),o=peerSel();if(!q)return '';const L=PEER_CAT.filter(p=>p.ttl.includes(q)&&!o.add.includes(p.k)).slice(0,8);
@@ -3398,6 +3409,7 @@ function render(){syncPeers();const T=cur(),d=S.day;
   if(PM&&!list.length){const g=$('#page .grid');if(g)g.outerHTML=planEmpty(T,d)}
   const pb=$('.pl-basis details');if(pb)pb.addEventListener('toggle',()=>{S.pbOpen=pb.open});
   const dt=$('details.deep');if(dt)dt.addEventListener('toggle',()=>{S.deepOpen[S.page]=dt.open});
+  const fwd=$('details.few-d');if(fwd)fwd.addEventListener('toggle',()=>{S.fewOpen=fwd.open});
   const cgd=$('details.castg');if(cgd)cgd.addEventListener('toggle',()=>{S.castOpen=cgd.open});
   bindTimeline($('#page'));tblLabels($('#page'));
   document.documentElement.style.setProperty('--toph',$('.top').offsetHeight+'px');
