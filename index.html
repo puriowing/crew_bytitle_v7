@@ -324,14 +324,22 @@ body.client .int-only{display:none}
 .dup b{display:block;color:var(--ink);margin:4px 0}
 details.rm{border-top:1px solid var(--rule);padding-top:6px}
 details.rm summary{cursor:pointer;font-size:12px;color:var(--sub)}
-.fm{display:grid;gap:14px;margin-top:14px}
-.fm label{display:grid;gap:5px;font-size:12.5px;font-weight:600;color:var(--ink2)}
-.fm input,.fm select{border:1px solid var(--rule2);border-radius:10px;padding:9px 11px;font-size:14px;background:#fff;font-weight:400;width:100%}
+.fm{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;margin-top:14px}
+.fm label{display:grid;grid-template-columns:minmax(0,1fr);min-width:0;gap:5px;font-size:12.5px;font-weight:600;color:var(--ink2)}
+.fm input,.fm select{border:1px solid var(--rule2);border-radius:10px;padding:9px 11px;font-size:14px;background:#fff;font-weight:400;width:100%;max-width:100%;min-width:0;box-sizing:border-box}
 .fm input:focus,.fm select:focus{outline:2px solid var(--accent-line);border-color:var(--accent)}
 .fm small{font-weight:400;color:var(--sub);font-size:11.5px}
 .fm input::placeholder{color:#c3c7cc;opacity:1;font-weight:400}
 .fm .req{font-style:normal;font-weight:500;font-size:11px;color:var(--badtx);margin-left:8px}
 .fm input.bad{border-color:var(--badtx);background:var(--badfill)}
+.fm-g{display:grid;grid-template-columns:minmax(0,1fr);gap:5px;font-size:12.5px;font-weight:600;color:var(--ink2)}
+.fm .opt{font-style:normal;font-weight:500;font-size:11px;color:var(--sub);margin-left:8px}
+.fm-ck{display:grid;gap:2px;max-height:200px;overflow-y:auto;border:1px solid var(--rule2);border-radius:10px;padding:6px 10px;background:#fff}
+.fm .fm-ck label{display:flex;grid-template-columns:none;gap:9px;align-items:flex-start;font-weight:400;font-size:13px;padding:5px 0;cursor:pointer}
+.fm .fm-ck input{width:16px;height:16px;flex:none;padding:0;margin:2px 0 0}
+#panel{box-sizing:border-box}
+@media(max-width:600px){#panel{width:100vw;border-left:0;transform:translateY(102%);overscroll-behavior:contain;padding-left:16px;padding-right:16px}
+ #panel::before{content:'';display:block;width:40px;height:4px;border-radius:99px;background:#d5d0c4;margin:-8px auto 10px}}
 .fm-e{color:var(--badtx);font-size:13px;min-height:1em}
 .fm-b{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .jl-card.ad{background:#fbfaf7;border-style:dashed}
@@ -2772,11 +2780,12 @@ const CR_MAP={
   '口コミ訴求の広告':[['mov','口コミ版 15秒',{dur:'0:15'}],['ban','口コミ訴求のバナー',{sz:'rect'}]],
   '入場者特典の告知':[['post','入場者特典 第2弾の告知画像',{band:'入場者特典 第2弾'}]]
 };
-/* 登録した素材：作品ごとに MATS_U[作品] に持ち、必ずどれかの施策に結びつける */
+/* 登録した素材：作品ごとに MATS_U[作品] に持つ。出す日（dd）は必ず、使う施策（eids）は任意でいくつでも */
 const LSM='crew_v7_mat_1';let MATS_U={};try{MATS_U=JSON.parse(localStorage.getItem(LSM)||'{}')||{}}catch(e){}
 const matSave=()=>{try{localStorage.setItem(LSM,JSON.stringify(MATS_U))}catch(e){}};
 function crList(T){const out=[];let n=0;T.ev.forEach(e=>(CR_MAP[e.ty]||[]).forEach((c,j)=>{out.push({id:e.id+'_'+j,e,k:c[0],n:c[1],o:c[2]||{},d:e.d,i:n++})}));
-  (MATS_U[T.k]||[]).forEach(m=>{const e=T.ev.find(x=>x.id===m.eid);if(e)out.push({id:m.id,e,k:m.k,n:m.n,o:{dur:'0:30',sz:'rect'},d:e.d,i:n++,img:m.img,user:true})});return out.sort((a,b)=>a.d-b.d||a.i-b.i)}
+  (MATS_U[T.k]||[]).forEach(m=>{const evs=(m.eids||(m.eid!=null?[m.eid]:[])).map(i=>T.ev.find(x=>x.id===i)).filter(Boolean).sort((a,b)=>a.d-b.d),dd=m.dd!=null?m.dd:evs[0]?evs[0].d:null;if(dd==null)return;
+    const e=evs[0]||{id:-1,none:true,ch:'OWNED',ty:'',label:'',d:dd,str:1,cost:0};out.push({id:m.id,e,evs,k:m.k,n:m.n,o:{dur:'0:30',sz:'rect'},d:dd,i:n++,img:m.img,user:true})});return out.sort((a,b)=>a.d-b.d||a.i-b.i)}
 function crArt(T,c){const o=c.o,cta=c.d<0?'前売券 発売中':'大ヒット上映中';
   if(c.img)return `<img src="${c.img}" alt="" style="width:100%;height:100%;object-fit:cover;display:block">`;
   return c.k==='vis'?poster(T,{teaser:o.tz}):c.k==='mov'?movThumb(T,c.i,c.n,o.dur):c.k==='still'?still(T,c.i):c.k==='photo'?stagePic(T,c.i):c.k==='ban'?banner(T,c.i,o.sz,cta):sqImg(T,c.i,o.band)}
@@ -2784,9 +2793,9 @@ function crStats(T,c,d){if(c.d>d)return null;const r=rng(T.seed*29+c.i*13),g=1-M
   if(c.k==='mov'){const v=(ad?260000:140000)*pw*(0.6+r()*0.8)*g,cr=22+r()*38;return {a:['再生',fN(v),'回'],b:['最後まで見た割合',f1(cr),'%'],eng:v*(0.03+cr/1500)}}
   if(c.k==='ban'){const v=900000*pw*(0.5+r())*g,ct=0.25+r()*0.9;return {a:['表示',fN(v),'回'],b:['クリック率',f2(ct),'%'],eng:v*ct/100*2.2}}
   const v=95000*pw*(0.5+r())*g*(c.k==='photo'?1.25:1),er=2.2+r()*5.5;return {a:['投稿の表示',fN(v),'回'],b:['反応率',f1(er),'%'],eng:v*er/100}}
-function crCard(T,c,d,rank,lite){const st=lite?null:crStats(T,c,d),th=thOf(T),pl=c.d>d,ef=lite&&!pl&&!isAd(c.e)&&c.e.d+2<=d?evEff(T,c.e,d):null;
+function crCard(T,c,d,rank,lite){const st=lite?null:crStats(T,c,d),th=thOf(T),pl=c.d>d,ef=lite&&!pl&&!c.e.none&&!isAd(c.e)&&c.e.d+2<=d?evEff(T,c.e,d):null;
   return `<button class="cr ${pl?'plan':''}" data-cr="${c.id}"><span class="cr-th k-${c.k}" style="background:${th.g[0]}">${crArt(T,c)}<i class="cr-k">${CR_K[c.k]}</i>${rank?`<i class="cr-rank num">${rank}</i>`:''}${pl?'<i class="cr-plan">公開予定</i>':''}</span>
-    <span class="cr-n">${c.n}${c.user?'<i class="jl-src m" style="margin-left:6px">登録</i>':''}</span><span class="cr-m"><span>${md(dateOf(T,c.d))}｜${relLbl(c.d)}</span>${st?`<span>${st.a[0]} <b>${st.a[1]}</b>${st.a[2]}</span><span>${st.b[0]} <b>${st.b[1]}</b>${st.b[2]}</span>`:''}${lite&&!pl?`<span class="cr-ev"><i class="cdot" style="background:${CH[c.e.ch].c}"></i>${ef!=null?`効き具合 <b>${ef}</b>｜`:isAd(c.e)?'広告｜':''}${esc(c.e.label)}</span>`:''}</span></button>`}
+    <span class="cr-n">${c.n}${c.user?'<i class="jl-src m" style="margin-left:6px">登録</i>':''}</span><span class="cr-m"><span>${md(dateOf(T,c.d))}｜${relLbl(c.d)}</span>${st?`<span>${st.a[0]} <b>${st.a[1]}</b>${st.a[2]}</span><span>${st.b[0]} <b>${st.b[1]}</b>${st.b[2]}</span>`:''}${lite&&!pl&&!c.e.none?`<span class="cr-ev"><i class="cdot" style="background:${CH[c.e.ch].c}"></i>${ef!=null?`効き具合 <b>${ef}</b>｜`:isAd(c.e)?'広告｜':''}${esc(c.e.label)}${c.evs&&c.evs.length>1?` ほか${c.evs.length-1}件`:''}</span>`:''}</span></button>`}
 const crTop=(T,d)=>crList(T).filter(c=>c.d<=d).map(c=>({c,s:crStats(T,c,d)})).sort((a,b)=>b.s.eng-a.s.eng);
 
 /* ---------- SNSの投稿（公式アカウント） ---------- */
@@ -2817,49 +2826,58 @@ PAGES.splice(1,0,{k:'creative',n:'素材',q:'どんな素材を出し、どれ�
 I('creative','cr_top','反応が大きかった素材',12,[6],(T,d)=>{const tp=crTop(T,d).slice(0,3);
   return {d:`${relLbl(d)}までに出した素材から`,h:tp.length?`<div class="cr-tops">${tp.map((x,i)=>crCard(T,x.c,d,i+1)).join('')}</div><div class="note">「反応」は、再生・クリック・いいね等を同じ物差しにそろえた数です。素材を押すと、くわしい数字と、その素材を出した施策が開きます。</div>`:'<div class="empty">まだ素材を出していません。</div>'}},{hide:d=>!crList(cur()).some(c=>c.d<=d)});
 I('creative','cr_wall','素材の一覧',12,[6],(T,d)=>{const all=crList(T),f=S.crf||'all',srt=S.crs||'new',nx=S.crw==='next',inT=c=>nx?c.d>d:c.d<=d,fk=(c,k)=>k==='all'||(k==='ph'?['still','photo'].includes(c.k):c.k===k);
-  let L=all.filter(c=>inT(c)&&fk(c,f));const efv=c=>!isAd(c.e)&&c.e.d+2<=d?(evEff(T,c.e,d)??-1):-2;if(!nx)L=srt==='eff'?L.sort((a,b)=>efv(b)-efv(a)):L.reverse();
+  let L=all.filter(c=>inT(c)&&fk(c,f));const efv=c=>!c.e.none&&!isAd(c.e)&&c.e.d+2<=d?(evEff(T,c.e,d)??-1):-2;const engS=srt==='eng'&&!nx,eg=c=>(crStats(T,c,d)||{eng:0}).eng;if(!nx)L=engS?L.sort((a,b)=>eg(b)-eg(a)):srt==='eff'?L.sort((a,b)=>efv(b)-efv(a)):L.reverse();
   const cnt=k=>all.filter(c=>inT(c)&&fk(c,k)).length,nD=all.filter(c=>c.d<=d).length,nN=all.length-nD;
   return {d:`出した素材 ${nD}点・これから出す素材 ${nN}点`,h:`<div class="cr-bar"><span class="seg big">${[['done','出した素材',nD],['next','これから出す素材',nN]].map(([k,n,c])=>`<button class="${(nx?'next':'done')===k?'on':''}" data-crw="${k}">${n}<small class="num">${c}</small></button>`).join('')}</span><span class="sp"></span><button class="btn pri" data-matadd="${nx?'next':''}">＋ 素材を登録</button></div>
-    <div class="cr-bar"><span class="seg">${CR_F.map(([k,n])=>`<button class="${f===k?'on':''}" data-crf="${k}">${n}<small class="num">${cnt(k)}</small></button>`).join('')}</span><span class="sp"></span>${nx?'':`<span class="seg">${[['new','新しい順'],['eff','施策の効き具合順']].map(([k,n])=>`<button class="${srt===k?'on':''}" data-crs="${k}">${n}</button>`).join('')}</span>`}</div>
-    ${L.length?`<div class="cr-grid">${L.map(c=>crCard(T,c,d,0,true)).join('')}</div>`:`<div class="empty">${nx?(f==='all'?'これから出す素材は、まだ登録されていません。':'この種類の、これから出す素材はありません。'):'この種類の素材は、まだありません。'}</div>`}
-    <div class="note">${nx?'出す日の近い順に並べています。これから出す素材は、世に出る前で自動では取れないため、登録が必要です。予定している施策に結びつけて登録します。':'各素材の下は、その素材を出した施策と、施策の効き具合（同じ種類の過去の施策の中での位置）。素材ごとの細かい数字は、素材を押すと開きます。'}</div>`}});
+    <div class="cr-bar"><span class="seg">${CR_F.map(([k,n])=>`<button class="${f===k?'on':''}" data-crf="${k}">${n}<small class="num">${cnt(k)}</small></button>`).join('')}</span><span class="sp"></span>${nx?'':`<span class="seg">${[['new','新しい順'],['eng','反応の大きい順'],['eff','施策の効き具合順']].map(([k,n])=>`<button class="${srt===k?'on':''}" data-crs="${k}">${n}</button>`).join('')}</span>`}</div>
+    ${L.length?`<div class="cr-grid">${L.map((c,i)=>engS?crCard(T,c,d,i<3?i+1:0):crCard(T,c,d,0,true)).join('')}</div>`:`<div class="empty">${nx?(f==='all'?'これから出す素材は、まだ登録されていません。':'この種類の、これから出す素材はありません。'):'この種類の素材は、まだありません。'}</div>`}
+    <div class="note">${nx?'出す日の近い順に並べています。これから出す素材は、世に出る前で自動では取れないため、登録が必要です。':engS?'媒体の数字で、反応の大きい順に並べています。「反応」は、再生・クリック・いいね等を同じ物差しにそろえた数です。素材を押すと、くわしい数字と、その素材を使った施策が開きます。':'各素材の下は、その素材を使った施策と、施策の効き具合（同じ種類の過去の施策の中での位置）。素材ごとの細かい数字は、素材を押すと開きます。'}</div>`}});
 I('creative','cr_posts','公式SNSの投稿',12,[6],(T,d)=>{const f=S.spf||'all',all=spFeed(T).filter(p=>p.d<=d),so=S.sps||'new',F=all.filter(p=>f==='all'||p.pf===f),L=so==='new'?F.slice(-12).reverse():F.filter(p=>p.d>d-(so==='eng7'?7:999)).sort((a,b)=>b.eng-a.eng).slice(0,12);
   return {d:{new:'新しい順・直近12件',eng7:'直近7日間・反応の大きい順',eng:'これまでの全投稿・反応の大きい順（上位12件）'}[so],h:`<div class="cr-bar"><span class="seg">${[['new','新しい順'],['eng7','反応の大きい順（直近7日）'],['eng','反応の大きい順（全期間）']].map(x=>`<button class="${so===x[0]?'on':''}" data-sps="${x[0]}">${x[1]}</button>`).join('')}</span></div><div class="cr-bar"><span class="seg">${['all','X','Instagram','TikTok','YouTube'].map(k=>`<button class="${f===k?'on':''}" data-spf="${k}">${k==='all'?'すべて':k}<small class="num">${k==='all'?all.length:all.filter(p=>p.pf===k).length}</small></button>`).join('')}</span></div>
     ${L.length?`<div class="sp-grid">${L.map(p=>spCard(T,p)).join('')}</div>`:'<div class="empty">この条件に合う投稿は、まだありません。</div>'}<div class="note">公式アカウントの投稿を、そのままの見た目で並べています。数字は投稿ごとの表示回数と反応です。</div>`}});
 I('creative','cr_next','これから出す素材',12,[6],(T,d)=>{const L=crList(T).filter(c=>c.d>d);
   return {d:'施策の予定にあわせて',h:`<div class="cr-bar"><span class="note" style="margin:0">これから出す素材は、世に出る前で自動では取れないため、登録が必要です。予定している施策に結びつけて登録します。</span><span class="sp"></span><button class="btn pri" data-matadd="next">＋ 素材を登録</button></div>
     ${L.length?`<div class="cr-grid">${L.map(c=>crCard(T,c,d)).join('')}</div>`:'<div class="empty">これから出す素材は、まだ登録されていません。</div>'}`}});
-function matForm(next){const T=cur(),d=S.day,ev=T.ev.slice().sort((x,y)=>x.d-y.d),pre=next?ev.find(e=>e.d>d):null;
+function matForm(next){const T=cur(),d=S.day,ev=T.ev.slice().sort((x,y)=>x.d-y.d),pre=next?ev.find(e=>e.d>d):null,iso=x=>{const t=dateOf(T,x);return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0')};
   $('#panel').innerHTML=`<button class="pn-x" aria-label="閉じる">×</button><h2>素材を登録</h2>
-   <p class="note">登録すると、素材の一覧に入ります。出したあとの数字は、結びつけた施策の日から自動で出ます。</p>
+   <p class="note">登録すると、素材の一覧に入ります。出したあとの数字は、出す日から自動で出ます。</p>
    <div class="fm"><label>素材の名前<em class="req">必ず入れてください</em><input id="mtN" placeholder="例）劇場用チラシ（表面）" maxlength="40"></label>
    <label>種類<select id="mtK">${Object.entries(CR_K).map(([k,n])=>`<option value="${k}">${n}</option>`).join('')}</select></label>
-   <label>結びつける施策<em class="req">必ず選んでください</em><small>この素材を出す（出した）施策を選びます。素材を出す日は、その施策の日になります。</small><select id="mtE">${ev.map(e=>`<option value="${e.id}" ${pre&&pre.id===e.id?'selected':''}>${md(dateOf(T,e.d))}${e.d>d?'（予定）':''}　${esc(e.label)}</option>`).join('')}</select></label>
+   <label>出す日<small>はじめて世に出す（出した）日です。</small><input id="mtD" type="date" value="${iso(pre?pre.d:d)}"></label>
+   <div class="fm-g"><span>使う施策<em class="opt">選ばなくてもかまいません・いくつでも選べます</em></span><small>選ぶと、その施策のくわしい画面にも、この素材が並びます。</small>
+    <div class="fm-ck">${ev.map(e=>`<label><input type="checkbox" value="${e.id}" ${pre&&pre.id===e.id?'checked':''}><span>${md(dateOf(T,e.d))}${e.d>d?'（予定）':''}　${esc(e.label)}</span></label>`).join('')||'<span class="note" style="margin:0">施策がまだありません。</span>'}</div></div>
    <label>画像（入れなくてもよい）<small>入れない場合は、仮の絵で並びます。映像は、代表の1コマを入れてください。</small><input id="mtF" type="file" accept="image/*"></label>
    <div class="fm-e" id="mtErr" role="alert"></div>
    <div class="fm-b"><button class="btn pri" data-matsave>登録する</button><button class="btn" data-evadd>先に施策を追加する</button></div></div>`;
   document.body.classList.add('pn');$('.pn-x').onclick=closePanel;$('#mtN').focus()}
-function matSubmit(){const T=cur(),nm=esc($('#mtN').value.trim()),err=$('#mtErr'),eid=+$('#mtE').value,f=$('#mtF').files[0];
+function matSubmit(){const T=cur(),nm=esc($('#mtN').value.trim()),err=$('#mtErr'),eids=[...document.querySelectorAll('#panel .fm-ck input:checked')].map(x=>+x.value).filter(i=>T.ev.some(e=>e.id===i)),dv=$('#mtD').value,f=$('#mtF').files[0];
   if(!nm){err.textContent='素材の名前を入れてください。';$('#mtN').focus();return}
-  if(!T.ev.some(e=>e.id===eid)){err.textContent='結びつける施策を選んでください。';return}
-  const done=img=>{const L=MATS_U[T.k]=MATS_U[T.k]||[],id='u'+(Math.max(0,...L.map(m=>+m.id.slice(1)))+1);L.push({id,eid,k:$('#mtK').value,n:nm,img});matSave();closePanel();S.page='creative';S.crf='all';S.crw=cur().ev.find(e=>e.id===eid).d>S.day?'next':'done';render();const el=document.querySelector('[data-cr="'+id+'"]');if(el)el.scrollIntoView({block:'center'})};
+  if(!dv){err.textContent='出す日を入れてください。';$('#mtD').focus();return}
+  const t0=dateOf(T,0);t0.setHours(0,0,0,0);const dd=clamp(Math.round((new Date(dv+'T00:00:00')-t0)/864e5),D0,D1);
+  const done=img=>{const L=MATS_U[T.k]=MATS_U[T.k]||[],id='u'+(Math.max(0,...L.map(m=>+m.id.slice(1)))+1);L.push({id,eids,dd,k:$('#mtK').value,n:nm,img});matSave();closePanel();S.page='creative';S.crf='all';S.crw=dd>S.day?'next':'done';render();const el=document.querySelector('[data-cr="'+id+'"]');if(el)el.scrollIntoView({block:'center'})};
   if(!f)return done(null);
   const rd=new FileReader();rd.onerror=()=>{err.textContent='画像を読み込めませんでした。'};rd.onload=()=>{const im=new Image();im.onerror=()=>{err.textContent='画像を読み込めませんでした。'};im.onload=()=>{const sc=Math.min(1,480/Math.max(im.width,im.height)),cv=document.createElement('canvas');cv.width=Math.round(im.width*sc);cv.height=Math.round(im.height*sc);cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);done(cv.toDataURL('image/jpeg',.72))};im.src=rd.result};rd.readAsDataURL(f)}
+/* スマホ：サブページは、いちばん上で下へ引くと閉じる */
+(function(){const p=$('#panel');let y0=null,dy=0;
+  p.addEventListener('touchstart',e=>{dy=0;y0=innerWidth<=600&&p.scrollTop<=0&&!e.target.closest('input,select,textarea,.tw,.fm-ck')?e.touches[0].clientY:null},{passive:true});
+  p.addEventListener('touchmove',e=>{if(y0==null)return;dy=e.touches[0].clientY-y0;if(dy<=0){p.style.transform='';p.style.transition='';if(dy<-6)y0=null;return}p.style.transition='none';p.style.transform='translateY('+dy+'px)'},{passive:true});
+  const end=()=>{const go=y0!=null&&dy>90;p.style.transition='';p.style.transform='';y0=null;dy=0;if(go)closePanel()};
+  p.addEventListener('touchend',end);p.addEventListener('touchcancel',end)})();
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-matadd],[data-matsave],[data-matrm],[data-evreset]');if(!t)return;const D=t.dataset;
   if(D.evreset!=null){MATS_U={};matSave();return}ev.stopPropagation();
   if(D.matadd!=null)matForm(D.matadd==='next');else if(D.matsave!=null)matSubmit();else{const T=cur();MATS_U[T.k]=(MATS_U[T.k]||[]).filter(m=>m.id!==D.matrm);matSave();closePanel();render()}},true);
 
 
-function crStrip(T,e){const L=crList(T).filter(c=>c.e.id===e.id);if(!L.length)return '';
+function crStrip(T,e){const L=crList(T).filter(c=>(c.evs||[c.e]).some(x=>x.id===e.id));if(!L.length)return '';
   return `<div class="cr-strip">${L.map(c=>`<button class="cr-s" data-cr="${c.id}" title="${c.n}"><span class="cr-th k-${c.k}" style="background:${thOf(T).g[0]}">${crArt(T,c)}</span><small>${c.n}</small></button>`).join('')}</div>`}
-function openCreative(cid){const T=cur(),d=S.day,c=crList(T).find(x=>x.id===cid);if(!c)return;const e=c.e,ch=CH[e.ch],st=crStats(T,c,d),eff=!isAd(e)&&e.d+2<=d?evEff(T,e,d):null;
+function openCreative(cid){const T=cur(),d=S.day,c=crList(T).find(x=>x.id===cid);if(!c)return;const e=c.e,ch=CH[e.ch],st=crStats(T,c,d),eff=!e.none&&!isAd(e)&&e.d+2<=d?evEff(T,e,d):null,useEv=c.evs||[e];
   const others=S.cmpSet.map(k=>TT[k]).filter(X=>X&&X.k!==T.k).map(X=>({X,c:crList(X).find(q=>q.n===c.n&&q.d<=evMax(X))})).filter(o=>o.c);
   $('#panel').innerHTML=`<button class="pn-x" aria-label="閉じる">×</button>
     <span class="chip neu">${CR_K[c.k]}</span> <span class="chip neu">${md(dateOf(T,c.d))}｜${relLbl(c.d)}</span><h2>${c.n}</h2>
     <div class="cr-big k-${c.k}" style="background:${thOf(T).g[0]}">${crArt(T,c)}</div>
     ${st?`<div class="kpis" style="margin:12px 0">${kpi(st.a[0],st.a[1],st.a[2])}${kpi(st.b[0],st.b[1],st.b[2])}${eff!=null?kpi('施策の効き具合',eff,'／100',`同じ種類の過去の施策の中で ${TIERS[tierOf(eff)]}`):''}</div>`:'<div class="empty" style="margin:12px 0">公開予定の素材です。出したあとに数字が入ります。</div>'}
-    ${c.user?`<div style="margin:0 0 10px"><button class="btn" data-matrm="${c.id}">この素材の登録を取り消す</button></div>`:''}<div class="sub-h">この素材を出した施策</div><button class="btn" data-ev="${e.id}"><i class="cdot" style="background:${ch.c}"></i>${esc(e.label)}（${ch.n}）</button>
-    ${has(2)&&d>=0&&e.d<=d?castLine(T,e,d):''}
+    ${c.user?`<div style="margin:0 0 10px"><button class="btn" data-matrm="${c.id}">この素材の登録を取り消す</button></div>`:''}<div class="sub-h">この素材を使った施策</div>${useEv.length?`<div class="fm-b" style="margin-top:0">${useEv.map(x=>`<button class="btn" data-ev="${x.id}"><i class="cdot" style="background:${CH[x.ch].c}"></i>${md(dateOf(T,x.d))}　${esc(x.label)}（${CH[x.ch].n}）</button>`).join('')}</div>`:'<div class="empty">施策には結びつけていません。</div>'}
+    ${has(2)&&d>=0&&!e.none&&e.d<=d?castLine(T,e,d):''}
     ${others.length?`<div class="sub-h">ほかの作品の、同じ素材</div><div class="cr-cmp">${others.map(o=>{const s2=crStats(o.X,o.c,evMax(o.X));return `<div><span class="cr-th k-${o.c.k}" style="background:${thOf(o.X).g[0]}">${crArt(o.X,o.c)}</span><b>${o.X.name}</b><small>${s2.a[0]} ${s2.a[1]}${s2.a[2]}｜${s2.b[0]} ${s2.b[1]}${s2.b[2]}</small></div>`}).join('')}</div>`:''}`;
   document.body.classList.add('pn');$('.pn-x').onclick=closePanel}
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-crf],[data-crs],[data-spf],[data-sps],[data-cr]');if(!t)return;ev.stopPropagation();const D=t.dataset;
@@ -3248,7 +3266,7 @@ SRC_USE.cr_recall=[1];
 /* 並び：記憶に残った素材 → 一覧 → これから出す素材 → くわしく（反応の大きかった素材・公式SNSの投稿） */
 (function(){const ids=['cr_recall','cr_wall','cr_next','cr_top','cr_posts'],its=ids.map(id=>ITEMS.splice(ITEMS.findIndex(x=>x.id===id),1)[0]),j=ITEMS.findIndex(x=>x.page==='creative');
   ITEMS.splice(j<0?ITEMS.length:j,0,...its);ITEMS.find(x=>x.id==='cr_top').deep=false;ITEMS.find(x=>x.id==='cr_next').hide=()=>true;ITEMS.find(x=>x.id==='cr_posts').deep=true;
-  const t=ITEMS.find(x=>x.id==='cr_top');t.t='反応が大きかった素材（媒体の数字）'})();
+  const t=ITEMS.find(x=>x.id==='cr_top');t.t='反応が大きかった素材（媒体の数字）';t.hide=()=>true;Object.keys(ALIAS).forEach(k=>{if(ALIAS[k]==='cr_top')ALIAS[k]='cr_wall'})})();
 /* 公式SNSの投稿は、素材ではなくメディア（公式SNS）の側に置く */
 (function(){const it=ITEMS.splice(ITEMS.findIndex(x=>x.id==='cr_posts'),1)[0];it.page='deliver';it.grp='sns';it.deep=false;ITEMS.find(x=>x.id==='d_posts').hide=()=>true;ITEMS.splice(ITEMS.findIndex(x=>x.id==='d_plat')+1,0,it)})();
 (function(){const p=PAGES.find(x=>x.k==='creative');if(p)p.q='どんな素材を出し、どれが観客の記憶と来場に残ったか'})();
