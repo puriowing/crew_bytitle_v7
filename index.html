@@ -1858,14 +1858,14 @@ function spkBox(T,d,k){k=k||'buzz';const sp=spkSel(T,d,k),m=M[k],rt=RATE.has(k);
   const v=at(T,k,sp),b=rt?at(T,k,sp-7):avgR(T,k,sp-7,sp-1),L=spkEvs(T,sp,k);
   return `<div class="spk-box"><div class="spk-h"><b>${md(dateOf(T,sp))}</b><span>${relLbl(sp)}</span><span>${m.n} <b class="num">${rt?f1(v):fN(v)}</b>${m.u}${b==null||(!rt&&!b)?'':rt?`（前の週から <b class="num">${v-b>=0?'+':''}${f1(v-b)}</b>pt）`:`（その前7日間の平均の <b class="num">${f1(v/b)}</b>倍）`}</span><button class="spk-x" data-spkx aria-label="閉じる">×</button></div>
     ${L.length?L.map(e=>{const o=isAd(e)?null:absUp(T,e,k,d),g=sp-e.d;return `<button class="spk-ev" data-spkev="${e.id}"><i class="cdot" style="background:${CH[e.ch].c}"></i><span><b>${esc(e.label)}</b><small>${(e.len||1)>1&&g>0?`${md(dateOf(T,e.d))}から${eEnd(e)>=sp?'（この日も実施中）':`${md(dateOf(T,eEnd(e)))}まで`}`:`${md(dateOf(T,e.d))}（${g===0?'この日':g+'日前'}）`}｜${CH[e.ch].n}${o&&o.add>0?(rt?`｜実施の前後で${m.n} +${f1(o.add)}pt`:`｜実施から3日間で${m.n} ＋${fN(o.add)}${m.u}`):''}</small></span><span class="go">くわしく ›</span></button>`}).join(''):`<div class="empty" style="margin:0">この日と、その前${spkWin(k)}日間に、施策はありません。施策以外のきっかけ（ニュースや、ほかの人の投稿など）の可能性があります。</div>`}
-    <div class="note">日付が近い施策を並べています。数字が増えた原因と決まったわけではありません。施策を押すと、「施策と反応」のページでくわしい内容が開きます。</div></div>`}
+    <div class="note">日付が近い施策を並べています。数字が増えた原因と決まったわけではありません。施策を押すと、くわしい内容が開きます。</div></div>`}
 function spkOver(T,d,k,b){const n=b-D0,sp=spkSel(T,d,k),pk=spkDays(T,d,k);
   return `${pk.map(x=>`<i class="spk-mk" style="left:${(x-D0)/n*100}%">▼</i>`).join('')}${sp!=null?`<i class="spk-cur" style="left:${(sp-D0)/n*100}%"></i>`:''}<div class="spk-hit" data-spk data-k="${k}" data-a="${D0}" data-b="${b}" data-d="${d}" data-pk="${pk.join(',')}" role="button" aria-label="グラフの日を選ぶ"></div>`}
 I('interest','i_buzz','話題の量',7,[3],(T,d)=>{const b=Math.max(d,0);
   return {d:'1日ごとの投稿数と、施策のタイミング',h:chart(T,[{n:'類似作の幅（真ん中の半分）',band:peerBand('buzz',D0,b),c:'#8a929a'},{n:'この作品',vals:slice(T,'buzz',D0,b,d),c:M.buzz.c}],{a:D0,b,u:'件',h:190,marks:evMarks(T),over:spkOver(T,d,'buzz',b)})+spkBox(T,d,'buzz')}},{hit:'buzz'});
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-spk],[data-spkx],[data-spkev]');if(!t)return;ev.stopPropagation();const D=t.dataset,keepY=()=>{const y=scrollY;render();scrollTo(0,y)};
   if(D.spkx!=null){S.spk=null;keepY();return}
-  if(D.spkev){const T=cur(),e=T.ev.find(x=>x.id===+D.spkev);if(!e)return;S.jv='log';S.page='acts';S.openEv=e.id;if(e.d>S.day)S.jlOpen.fut=true;else S.jlOpen.past=true;render();const el=document.getElementById('jl-'+e.id);if(el)el.scrollIntoView({block:'center'});else scrollTo(0,0);return}
+  if(D.spkev){if(cur().ev.some(x=>x.id===+D.spkev))openEvent(+D.spkev);return}
   const r=t.getBoundingClientRect(),a=+D.a,b=+D.b,pk=D.pk?D.pk.split(',').map(Number):[];let x=clamp(Math.round(a+(ev.clientX-r.left)/r.width*(b-a)),a,+D.d);
   const near=pk.filter(q=>Math.abs(q-x)<=2).sort((m,k)=>Math.abs(m-x)-Math.abs(k-x))[0];if(near!=null)x=near;S.spk={t:cur().k,d:x,k:D.k||'buzz'};keepY()},true);
 I('interest','i_sent','センチメントの推移',5,[3],(T,d)=>{const b=Math.max(d,0);return {d:'好意的な声と否定的な声の割合',h:chart(T,[{n:'好意的',vals:slice(T,'sent',D0,b,d),c:'#1f7a4d'},{n:'否定的',vals:slice(T,'neg',D0,b,d),c:'#a3413a'}],{a:D0,b,u:'%',h:190,max:100})}},{hit:'sent'});
