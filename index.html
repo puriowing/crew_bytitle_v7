@@ -245,7 +245,9 @@ body.pn #panel{transform:none}
 
 .jl-row{display:grid;grid-template-columns:78px minmax(0,1fr);gap:14px;align-items:stretch}
 .jl-row.now{margin:4px 0}.jl-row.now .jl-c{display:flex;align-items:center;gap:10px;min-height:30px}
-.jl-d b.jl-nowp{align-self:flex-end;font-size:11.5px;color:#fff;background:var(--accent);border-radius:999px;padding:1px 10px}
+.jl-d b.jl-nowp{align-self:flex-end;font-size:11.5px;color:#fff;background:var(--accent);border-radius:999px;padding:1px 10px;white-space:nowrap}
+.jv-n{display:inline-block;margin-left:5px;min-width:16px;padding:0 4px;border-radius:99px;background:#c9624f;color:#fff;font-style:normal;font-size:10.5px;line-height:16px;text-align:center}
+@media(max-width:600px){.jl-d b.jl-nowp{font-size:10.5px;padding:1px 6px}.jl-nowt{white-space:nowrap;font-size:11px}.jl-r.now .jl-sec.in,.jl-nowt~.jl-sec{padding-left:8px;padding-right:8px;font-size:11px;white-space:nowrap}.jv-tabs{overflow-x:auto;-webkit-overflow-scrolling:touch}.jv-tabs .seg{flex-wrap:nowrap}.jv-tabs .seg button{white-space:nowrap}}
 .jl-nl{flex:1;border-top:1px dashed var(--accent-line)}
 .jl-sec.in{width:auto;margin:0;padding:3px 12px;border-radius:999px;font-size:12px;background:none;flex-wrap:nowrap;white-space:nowrap}
 .jl-new{font-style:normal;font-size:10.5px;font-weight:700;color:#fff;background:#c2603f;border-radius:999px;padding:0 8px;white-space:nowrap}
@@ -1744,7 +1746,9 @@ function seqTable(T,d,sel){const JS=[],cols=[T,...sel],k=S.fk,wk=x=>Math.floor(x
   return `${fxSum(JS)}${PL?plSum():''}<div class="tw"><table class="fx sqt"><tr><th></th>${cols.map((X,i)=>`<th class="${i?'':'fx-me'}">${X.name}${i?'':'<span class="chip" style="margin-left:6px">この作品</span>'}</th>${i?'':(PL?'<th class="fx-pl">計画<small>宣伝設計の仮スケジュール</small></th>':'')+peerTh()}`).join('')}</tr>${h}</table></div>
    <div class="note">上から下へ、公開に向かって進みます。数字は、施策を実施した日からの3日間の${M[k].n}（合計）です。期間のある施策は開始からの3日間で、続いている週には「（続き）」と出ます。広告は、作品どうしでは比べないので、実施した時期だけを出します。点線の枠は、これから実施する施策。この作品の施策は、押すとくわしく開きます。この作品の施策に付く▲＝▼の印は、施策の前の「ふだん」から何倍に増えたかを、同じ種類の施策の類似作の中央値と比べたものです。類似作の列は、ページの上の「比べている類似作」と同じ作品をまとめたもので、その週に${Math.max(FX_MIN,Math.ceil(PEERS.length*.2))}本以上が実施した施策を、本数の多い順に出しています（数字は中央値）。</div>`}
 I('acts','a_log','施策の日誌',12,[],(T,d)=>{const ks=JL_KEYS.filter(k=>mAvail(k,d)),mk=magKeys();
-  const tabs=`<div class="ctl"><span class="seg big">${[['log','日誌'],['perf','成績の表'],['fx','施策ごとに比べる'],['seq','進め方を比べる']].map(x=>`<button data-jv="${x[0]}" class="${S.jv===x[0]?'on':''}">${x[1]}</button>`).join('')}</span></div>`;
+  if(S.jv==='rx'&&!has(3))S.jv='log';const rxN=has(3)?T.ev.filter(e=>e.d<=d).map(e=>rxOf(T,e,d)).filter(o=>o&&o.risk.lv!=='平常').length:0;
+  const tabs=`<div class="ctl jv-tabs"><span class="seg big">${[['log','日誌']].concat(has(3)?[['rx','反応と炎上リスク'+(rxN?`<i class="jv-n">${rxN}</i>`:'')]]:[],[['perf','成績の表'],['fx','施策ごとに比べる'],['seq','進め方を比べる']]).map(x=>`<button data-jv="${x[0]}" class="${S.jv===x[0]?'on':''}">${x[1]}</button>`).join('')}</span></div>`;
+  if(S.jv==='rx'){const o=ITEMS.find(x=>x.id==='a_rx').fn(T,d);return {d:'施策ごとの、投稿の反応と炎上リスク。'+o.d,h:tabs+o.h}}
   if(S.jv==='perf'){const o=ITEMS.find(x=>x.id==='a_perf').fn(T,d);return {d:'同じ施策を、反応・露出量・費用対効果の順に並べ替えて見ます',h:tabs+o.h}}
   if(S.jv!=='log'){const sel=S.cmpSet.map(ownGet).filter(X=>X&&X.k!==T.k),full=sel.length>=OWN_MAX;if(!fxKeys().includes(S.fk))S.fk=fxKeys()[0];
     return {d:S.jv==='fx'?'同じ種類の施策どうしを、時期に関係なく並べます':'公開までの週をそろえて、施策の組み立てを並べます',h:`${tabs}<div class="ctl"><span style="font-size:11.5px;color:var(--sub)">比べる相手</span><button class="lchip on" data-peers><i style="background:#8a929a"></i>類似作 ${PEERS.length}本の中央値${peerChanged()?'（選び直し済み）':''}｜選び直す</button>${sel.map(X=>`<button class="lchip on" data-cs="${X.k}" aria-label="${X.name}を外す"><i style="background:var(--accent)"></i>${X.name} ×</button>`).join('')}${ownSel(T,full)}</div><div class="ctl"><span style="font-size:11.5px;color:var(--sub)">比べる数字</span>${fxKeys().map(k=>`<button class="lchip ${S.fk===k?'on':''}" data-fk="${k}"><i style="background:${M[k].c}"></i>${M[k].n}</button>`).join('')}</div>${S.jv==='fx'?fxTable(T,d,sel):seqTable(T,d,sel)}`}}
@@ -2990,6 +2994,8 @@ I('home','h_risk','炎上リスクの見張り',12,[3],(T,d)=>{const L=T.ev.filt
     :`<div class="rk-ok"><span class="tone good">炎上の兆しはありません</span>直近2週間の施策で、否定的な投稿が目立って増えているものはありません。</div>`}});
 (function(){const i=ITEMS.findIndex(x=>x.id==='h_risk'),it=ITEMS.splice(i,1)[0],j=ITEMS.findIndex(x=>x.id==='h_todo');ITEMS.splice(j+1,0,it)})();
 SRC_USE.a_rx=[3];SRC_USE.h_risk=[3];
+/* 「施策ごとの反応と炎上リスク」は、施策の日誌の切り替えの1つとして出す */
+ITEMS.find(x=>x.id==='a_rx').hide=()=>true;Object.keys(ALIAS).forEach(k=>{if(ALIAS[k]==='a_rx')ALIAS[k]='a_log'});
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-rxs]');if(!t)return;ev.stopPropagation();S.rxs=t.dataset.rxs;render()},true);
 
 /* ================= 費用対効果（ほかの作品の同じ種類の施策／この作品のほかの施策と比べる） =================
