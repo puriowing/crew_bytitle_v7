@@ -465,9 +465,11 @@ body.quiet .note:not(.boost):not(.cast),body.quiet .prov,body.quiet .srcs,body.q
 .few-d[open]>summary{margin-bottom:6px}.few-d[open]>summary::after{content:'▴'}
 .few-d .few-note{margin:0}
 #mMore{display:inline-flex}
-.top #btnPeers,.top #btnRpt,.top #btnSearch,.top .internal{display:none}
-body.m-more .top #btnPeers,body.m-more .top #btnRpt,body.m-more .top #btnSearch{display:inline-flex}
-body.m-more .top .internal{display:flex}
+.top-in{position:relative}
+.more-box{display:none;position:absolute;right:24px;top:calc(100% + 6px);z-index:60;flex-direction:column;align-items:stretch;gap:10px;padding:12px;border-radius:14px;background:#21423d;border:1px solid rgba(255,255,255,.18);box-shadow:0 12px 30px rgba(10,25,22,.35);width:max-content;max-width:min(640px,calc(100vw - 48px))}
+body.m-more .more-box{display:flex}
+.more-btns{display:flex;gap:8px;flex-wrap:wrap}
+.more-box .internal{flex-wrap:wrap;border-radius:14px;gap:8px;padding:8px 10px}
 .top #swNote{margin-left:auto}
 .spk-hit{position:absolute;inset:0;cursor:pointer}
 .spk-mk{position:absolute;top:-3px;transform:translateX(-50%);font-size:9px;font-style:normal;line-height:1;color:#8a4b12;pointer-events:none}
@@ -575,9 +577,10 @@ details.deep>.grid{margin-top:16px}
   body.m-date .datebox{display:flex;width:100%;justify-content:space-between}
   body.m-date .datebox input[type=range]{flex:1;width:auto}
   body.m-more .top #btnSearch,body.m-more .top #btnRpt,body.m-more .top #btnPeers{display:inline-flex}
+  .more-box,body.m-more .more-box,.more-btns{display:contents}
   .top #btnRpt,.top #btnPeers,.top #swNote,.top #acctChip{display:none}
-  body.m-more .top #acctChip:not([hidden]){display:inline-flex}
-  body.m-more .top #swNote{display:inline-flex;padding:4px 6px}
+  body.m-more .top #acctChip:not([hidden]){display:inline-flex;order:3}
+  body.m-more .top #swNote{display:inline-flex;padding:4px 6px;order:3;margin-left:0}
   body.m-more .internal{display:flex;width:100%}
   .tabs{position:fixed;left:0;right:0;bottom:0;z-index:35;background:#fbfaf7;border-top:1px solid var(--rule);padding:0 4px env(safe-area-inset-bottom);gap:0;justify-content:space-around;overflow:visible}
   .tab{flex:1;justify-content:center;padding:11px 2px 10px;font-size:12.5px;border-bottom:0;border-top:3px solid transparent;margin-top:-1px}
@@ -1210,7 +1213,6 @@ body.plan-mode:not(.pg-check) .top .datebox{opacity:.4;pointer-events:none}body.
     <div class="brand">CREW<span>作品分析</span></div>
     <span id="selPo" class="sel-po"></span><select id="selTitle" class="sel" aria-label="作品"></select>
     <button id="acctChip" class="chip acct-chip" data-fw hidden title="見える範囲（配給会社ごとの仕切り）"></button>
-    <button id="btnPeers" class="btn" data-peers title="比べている類似作の説明と、選び直し"></button>
     <div class="datebox">
       <span id="phaseChip" class="chip"></span>
       <input id="day" type="range" aria-label="基準日">
@@ -1218,17 +1220,22 @@ body.plan-mode:not(.pg-check) .top .datebox{opacity:.4;pointer-events:none}body.
       <button id="btnToday" class="btn" style="padding:3px 10px">今日</button>
     </div>
     <button id="btnPlan" class="btn plan-btn" aria-pressed="false"></button>
-    <button id="btnRpt" class="btn">週の報告書</button>
-    <button id="btnSearch" class="btn">指標を検索<kbd>⌘K</kbd></button>
     <button id="swNote" class="sw" role="switch" aria-checked="true" title="小さな文字の説明と、使っているデータの表示を切り替えます"><i></i>説明</button>
     <button id="mDate" class="chip m-only" aria-expanded="false"></button>
     <button id="mMore" class="btn m-only" aria-label="その他の操作" aria-expanded="false">…</button>
     <div class="sp"></div>
+    <div class="more-box" id="moreBox">
+      <div class="more-btns">
+      <button id="btnPeers" class="btn" data-peers title="比べている類似作の説明と、選び直し"></button>
+      <button id="btnRpt" class="btn">週の報告書</button>
+      <button id="btnSearch" class="btn">指標を検索<kbd>⌘K</kbd></button>
+      </div>
     <div class="internal">
       <select id="selAcct" class="acct-sel" aria-label="見ているアカウント" hidden></select>
       <span class="int-l">社内表示｜データの範囲</span>
       <span class="seg" id="segPhase"><button data-p="1" title="観客アンケート（CAST）が始まる前">①CAST前</button><button data-p="2" title="CASTが始まり、この作品の回答が入る">②CAST開始後</button><button data-p="3" title="類似作の回答が貯まり、宣伝設計と検証が開く">③蓄積後</button></span><span class="seg" id="segKarte"><button title="鑑賞意向調査（KARTE）がある作品として表示">KARTEあり</button></span>
       <button id="btnClient" class="btn" style="padding:3px 10px"></button>
+    </div>
     </div>
   </div>
   <div class="mode-m" id="modeSwM"></div>
@@ -3593,6 +3600,7 @@ function appLoad(){try{const o=JSON.parse(localStorage.getItem(APPK)||'null');if
   if(!qs.get('phase')&&[1,2,3].includes(o.phase))S.phase=o.phase;if(!qs.get('karte')&&typeof o.karte==='boolean')S.karte=o.karte;S.quiet=!!o.quiet;if(!qs.get('view'))S.client=!!o.client;['jv','jw','fk','tlRange'].forEach(k=>{if(typeof o[k]==='string')S[k]=o[k]});
   if(Array.isArray(o.cmpSet))S.cmpSet=o.cmpSet.filter(k=>ownGet(k)).slice(0,OWN_MAX);if(typeof o.castOpen==='boolean')S.castOpen=o.castOpen;if(o.peerSel&&typeof o.peerSel==='object')S.peerSel=o.peerSel;if(o.jo==='desc')S.jo='desc'}catch(e){}}
 $('#mDate').onclick=()=>{const on=document.body.classList.toggle('m-date');document.body.classList.remove('m-more');$('#mDate').setAttribute('aria-expanded',on);$('#mMore').setAttribute('aria-expanded',false)};
+document.addEventListener('click',e=>{if(!document.body.classList.contains('m-more')||innerWidth<=900)return;if(!e.target.closest('#moreBox,#mMore')||e.target.closest('#btnPeers,#btnRpt,#btnSearch')){document.body.classList.remove('m-more');$('#mMore').setAttribute('aria-expanded',false)}},true);
 $('#mMore').onclick=()=>{const on=document.body.classList.toggle('m-more');document.body.classList.remove('m-date');$('#mMore').setAttribute('aria-expanded',on);$('#mDate').setAttribute('aria-expanded',false)};
 document.addEventListener('click',ev=>{if(ev.target.closest('[data-page]'))document.body.classList.remove('m-date','m-more')});
 /* ホーム画面への追加の案内（スマホ幅で、まだアプリとして開いていないときだけ。閉じたら出さない） */
