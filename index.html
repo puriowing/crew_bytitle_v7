@@ -487,6 +487,7 @@ body.m-more .more-box{display:flex}
 .spk-ev:hover{background:var(--accent-soft)}
 .acct-chip{cursor:pointer;font-family:inherit}.top .acct-chip{background:rgba(255,217,138,.18);border-color:rgba(255,217,138,.55);color:#ffe7b0}
 .acct-sel{border:1px solid var(--rule2);border-radius:999px;padding:3px 8px;font-size:11.5px;background:#fff;color:var(--ink2);max-width:150px}
+.fc-acc{margin-top:10px;padding:9px 12px;border-radius:10px;background:var(--neufill);font-size:13px;line-height:1.7}.fc-acc>b:first-child{display:inline-block;margin-right:10px;font-family:'Zen Maru Gothic',sans-serif}
 .fc-t th,.fc-t td{white-space:nowrap}.fc-t .r{text-align:right}
 .smp-chip{background:#fbf3e6;border-color:#eec39a;color:#8a4b12}
 .fw-t{width:100%;border-collapse:collapse;font-size:12.5px}.fw-t th{text-align:left;font-size:11px;color:var(--sub);padding:5px 8px;border-bottom:1px solid var(--rule2)}.fw-t td{padding:7px 8px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.6}.fw-t tr.fw-no td{color:var(--sub-weak)}
@@ -2090,7 +2091,7 @@ I('outlook','o_check','見通しはどのくらい当たるか',12,[],(T,d)=>{co
     <div style="min-width:0"><div class="sub-h" style="margin-top:0">公開後：最終興収の見通し</div>
     <div class="tw"><table class="fw-t fc-t"><tr><th>見通しを出した時点</th><th class="r">外れ幅の中央値</th><th class="r">±10%以内</th><th class="r">±20%以内</th><th>傾向</th></tr>${o.post.map(r=>`<tr><td>${r.l}</td><td class="r">±<b class="num">${f1(r.m)}</b>%</td><td class="r">${pc(r.w10)}</td><td class="r">${pc(r.w20)}</td><td>${Math.abs(r.bias)<2?'かたよりなし':r.bias>0?'やや高めに出る':'やや低めに出る'}</td></tr>`).join('')}</table></div>
     <div class="note">外れ幅＝その時点の見通しと、最終興収の差。週を追うほど小さくなります。</div></div></div>
-    <div class="note">作品1本ずつの結果は出しません。上映が終わった作品が増えるたびに更新します。</div>`}},{any:[3,6],deep:true});
+    <div class="note">作品1本ずつの結果は出しません。上映が終わった作品が増えるたびに更新します。</div>`}},{hide:()=>true});
 
 /* ================= くわしく見る（現行項目の引っ越し分） ================= */
 const DP={deep:true};
@@ -2271,7 +2272,8 @@ I('outlook','o_mult','公開後の伸び',6,[],(T,d)=>{const pm=med(PEERS.map(p=
 I('outlook','o_how','見通しの作り方',6,[],(T,d)=>{const li=has(1)?['公開前：認知率と観たい率から、劇場で観る人数を積み上げます','そこに平均単価を掛けて、興収にします','用意される席の数を超える分は、取りこぼしとして差し引きます','公開後：初週末の実績に、類似作の伸び方を当てはめます'].concat(has(2)?['満足度とすすめたい度で、当てはめる類似作を絞ります']:[])
   :has(4)?['公開前：話題の量・公式SNSの反応・Clip!などを、類似作の同じ時点と比べて位置を出します','公開前は金額を出しません','公開後：初週末の実績に、類似作の伸び方を当てはめます','Mark!の伸び方が近い類似作に絞って、幅を狭めます']
   :['公開前：話題の量と公式SNSの反応を、類似作の同じ時点と比べて位置を出します','公開前は金額を出しません','公開後：初週末の実績に、類似作の伸び方を当てはめます','週ごとの落ち方が近い類似作に絞って、幅を狭めます'];
-  return {d:'何を使って、どう出しているか',h:`<ul class="todo">${li.map((x,i)=>`<li><b>${i+1}</b>${x}</li>`).join('')}</ul><div class="note">幅は、類似作での外れ方から決めています。確実な数字ではありません。</div>`}},{any:[3,6],...DP});
+  const tr=fcTrack(),r5=v=>Math.round(v);
+  return {d:'何を使って、どう出しているか',h:`<ul class="todo">${li.map((x,i)=>`<li><b>${i+1}</b>${x}</li>`).join('')}</ul>${tr?`<div class="fc-acc"><b>どのくらい当たるか</b>初週末の後の見通しは、上映が終わった${tr.n}本で、最終興収との差が <b class="num">±${r5(tr.post[0].m)}%</b> 前後。2週目の週末を過ぎると <b class="num">±${r5(tr.post[1].m)}%</b> 前後まで縮まります。</div>`:''}<div class="note">幅は、類似作での外れ方から決めています。確実な数字ではありません。</div>`}},{any:[3,6],...DP});
 function simFc(T,d,sc){const f=fcBase(T,d),dem=f.viewers*.22,cap=sc*4.2*150*7*.85,adm=Math.min(dem,cap),up=unitPrice(T,-1);return {dem,cap,adm,open:adm*up,final:adm*up/.22,short:dem>cap}}
 I('outlook','o_demand','需要と席の過不足',6,[1],(T,d)=>{const s=simFc(T,d,T.screens);return {d:'初週7日間。観たい人の数と、用意される席',h:`${bars([{l:'観に来る見込みの人',v:s.dem,c:'#6a9b8a'},{l:'座れる席（上限85%）',v:s.cap,c:'#5b6f9c'}],{u:'人'})}
   <div class="kpis" style="margin-top:12px">${kpi('席の埋まり具合（見込み）',f1(s.adm/(s.cap/.85)*100),'%')}${kpi(s.short?'席が足りない分':'席の余裕',fN(Math.abs(s.cap-s.dem)),s.short?'人':'席')}${kpi('初週の興収（見込み）',fN(s.open),'円')}</div>
@@ -3099,6 +3101,8 @@ SRC_USE.a_rx=[3];SRC_USE.h_risk=[3];
 ITEMS.find(x=>x.id==='a_rx').hide=()=>true;Object.keys(ALIAS).forEach(k=>{if(ALIAS[k]==='a_rx')ALIAS[k]='a_log'});Object.keys(ALIAS).forEach(k=>{if(['i_search','i_buzz','a_tl','a_react'].includes(ALIAS[k]))ALIAS[k]='a_log'});
 /* 「施策と反応の推移」「話題と検索の動き」は、「グラフから探す」と同じ見方なのでまとめた */
 ['a_tl','a_react'].forEach(id=>{ITEMS.find(x=>x.id===id).hide=()=>true});
+/* 「見通しはどのくらい当たるか」はカードをやめ、「見通しの作り方」の1行に */
+Object.keys(ALIAS).forEach(k=>{if(ALIAS[k]==='o_check')ALIAS[k]='o_how'});
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-rxs]');if(!t)return;ev.stopPropagation();S.rxs=t.dataset.rxs;render()},true);
 
 /* ================= 費用対効果（ほかの作品の同じ種類の施策／この作品のほかの施策と比べる） =================
