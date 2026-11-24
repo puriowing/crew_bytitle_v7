@@ -492,6 +492,12 @@ body.m-more .more-box{display:flex}
 .ov-n{display:grid;gap:1px;min-width:0}.ov-n b{font-size:13px;line-height:1.4}.ov-n small{font-size:11.5px;color:var(--sub)}
 .ov-b{display:block;height:10px;border-radius:5px;background:#eee9df;overflow:hidden}.ov-b i{display:block;height:100%;border-radius:5px}.ov-v{text-align:right;font-weight:700;font-size:13px}
 .cmp-pre{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}.cmp-pre li{display:flex;align-items:center;gap:8px;font-size:13px;padding:7px 10px;border:1px solid var(--rule);border-radius:10px}.cmp-pre small{margin-left:auto;color:var(--sub);font-size:11.5px;white-space:nowrap}
+.pl2{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1.15fr) auto minmax(0,1fr);gap:8px;align-items:stretch;margin-bottom:12px}
+.pl2-b{border:1px solid var(--rule);border-radius:12px;padding:10px 12px;display:grid;gap:3px;align-content:start;background:#fcfbf9}
+.pl2-b small{font-size:11.5px;font-weight:700;color:var(--sub)}.pl2-b small i{font-style:normal;font-weight:500;font-size:10.5px;margin-left:6px;padding:0 7px;border-radius:99px;border:1px solid var(--rule2)}
+.pl2-b b{font-size:20px;line-height:1.3}.pl2-b em{font-style:normal;font-size:12px;margin-left:2px;font-weight:700}.pl2-b span{font-size:11.5px;color:var(--sub);line-height:1.6}
+.pl2-op{align-self:center;font-weight:700;font-size:17px;color:var(--sub)}
+@media(max-width:700px){.pl2{grid-template-columns:1fr}.pl2-op{justify-self:center;line-height:1}}
 .fc-t th,.fc-t td{white-space:nowrap}.fc-t .r{text-align:right}
 .smp-chip{background:#fbf3e6;border-color:#eec39a;color:#8a4b12}
 .fw-t{width:100%;border-collapse:collapse;font-size:12.5px}.fw-t th{text-align:left;font-size:11px;color:var(--sub);padding:5px 8px;border-bottom:1px solid var(--rule2)}.fw-t td{padding:7px 8px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.6}.fw-t tr.fw-no td{color:var(--sub-weak)}
@@ -2059,8 +2065,20 @@ function finalFc(T,d){const cum=sumR(T,'gross',0,d)*1e4;let ps=PEERS,basis='類�
     basis=has(2)?'口コミの伸び方と満足度が近い類似作':has(4)?'口コミの伸び方が近い類似作':'週ごとの落ち方が近い類似作'}
   else if(has(2)){const me=at(T,'sat',d);ps=[...PEERS].sort((a,b)=>Math.abs(at(a,'sat',d)-me)-Math.abs(at(b,'sat',d)-me)).slice(0,7);basis='満足度が近い類似作'}
   const mu=ps.map(p=>p.final/(sumR(p,'gross',0,d)*1e4)),mid=cum*med(mu),fl=has(2)?.06:has(4)?.09:.12;return {cum,lo:Math.max(cum,Math.min(cum*qt(mu,.25),mid*(1-fl))),mid,hi:Math.max(cum*qt(mu,.75),mid*(1+fl*1.3)),n:ps.length,basis}}
+/* 初動比率＝最終興収のうち、初週末3日間で稼いだ割合（%）。小さいほどロングラン。見通しは「初週末の興収」と「初動比率」の2本柱で組む */
+const opn3=p=>sumR(p,'gross',0,2)*1e4,fwr=p=>opn3(p)/p.final*100,fwrPeers=()=>PEERS.map(fwr);
+const fwrType=(r,m)=>r<m*0.87?'ロングラン型（類似作より小さい）':r>m*1.15?'初動型（類似作より大きい）':'標準型（類似作なみ）';
+function pillars(L){const b=x=>`<div class="pl2-b"><small>${x.k}${x.tag?`<i>${x.tag}</i>`:''}</small><b class="num">${x.v}<em>${x.u||''}</em></b><span>${x.s||''}</span></div>`;
+  return `<div class="pl2">${b(L[0])}<span class="pl2-op">÷</span>${b(L[1])}<span class="pl2-op">＝</span>${b(L[2])}</div><div class="note" style="margin:-4px 0 14px">初動比率＝最終興収のうち、初週末3日間で稼ぐ割合。小さいほど、長く伸びる作品です。見通しは、初週末の興収と初動比率の2つで組み立てます。</div>`}
+I('outlook','o_two','興収の見通しの組み立て',12,[],(T,d)=>{const rs=fwrPeers(),m=med(rs),ks=upKeys().filter(k=>!M[k].post),pos=mean(ks.map(k=>posOf(T,k,d))),money=has(1),f=money?preFc(T,d):null;
+  return {d:`${relLbl(d)}の時点`,h:pillars([
+    money?{k:'初週末の興収',tag:'見通し',v:fN(f.mid*m/100),u:'円前後',s:'公開から3日間'}:{k:'初週末の興収',tag:'見立て',v:'類似作の中で'+TIERS[tierOf(pos)],s:'話題や検索などの位置から。金額は初週末の後に出ます'},
+    {k:'初動比率',tag:'類似作の中央値',v:f1(m),u:'%',s:`類似作の真ん中の半分は ${f1(qt(rs,.25))}〜${f1(qt(rs,.75))}%。公開後、週末ごとの落ち方から、この作品の見通しを出します`},
+    money?{k:'最終興収',tag:'見通し',v:fN(f.mid),u:'円前後',s:'幅 '+fN(f.lo)+'円〜'+fN(f.hi)+'円'}:{k:'最終興収',v:'—',s:'初週末（公開3日目）の後から出ます'}])}},{when:'pre',any:[3,6]});
+(function(){const i=ITEMS.findIndex(x=>x.id==='o_two'),it=ITEMS.splice(i,1)[0],j=ITEMS.findIndex(x=>x.page==='outlook');ITEMS.splice(j<0?ITEMS.length:j,0,it)})();
 I('outlook','o_final','最終興収の見通し',8,[],(T,d)=>{if(d<2)return {d:`${relLbl(d)}の時点`,h:`<div class="kpis" style="margin-bottom:12px">${kpi('いまの累計興収',fN(sumR(T,'gross',0,d)*1e4),'円',relLbl(d)+'まで')}</div><div class="empty">金額の見通しは、初週末（公開3日目）の後から出します。</div>`};const f=finalFc(T,d);
-  return {d:`${relLbl(d)}の時点`,h:`<div class="kpis" style="margin-bottom:16px">${kpi('いまの累計興収',fN(f.cum),'円',relLbl(d)+'まで')}${kpi('最終興収の見通し',fN(f.mid),'円前後','幅 '+fN(f.lo)+'円〜'+fN(f.hi)+'円')}${kpi('見通しに対する進み具合',f1(f.cum/f.mid*100),'%','残り '+fN(Math.max(0,f.mid-f.cum))+'円')}</div>${rangeBar(f.lo,f.mid,f.hi,f.cum)}
+  const o3=opn3(T),rt=o3/f.mid*100,rm=med(fwrPeers());
+  return {d:`${relLbl(d)}の時点`,h:`${pillars([{k:'初週末の興収',tag:'実績',v:fN(o3),u:'円',s:'公開から3日間'},{k:'初動比率',tag:'見通し',v:f1(rt),u:'%',s:`類似作の中央値 ${f1(rm)}%｜${fwrType(rt,rm)}`},{k:'最終興収',tag:'見通し',v:fN(f.mid),u:'円前後',s:'幅 '+fN(f.lo)+'円〜'+fN(f.hi)+'円'}])}<div class="kpis" style="margin-bottom:16px">${kpi('いまの累計興収',fN(f.cum),'円',relLbl(d)+'まで')}${kpi('見通しに対する進み具合',f1(f.cum/f.mid*100),'%','残り '+fN(Math.max(0,f.mid-f.cum))+'円')}</div>${rangeBar(f.lo,f.mid,f.hi,f.cum)}
   <div class="note" style="margin-top:22px">幅は ${fN(f.lo)}円〜${fN(f.hi)}円（外れやすさを見込んで最低限の幅を取っています）。${f.basis}（${f.n}本）が、同じ時点からどれだけ伸びたかを当てはめています。${d>=9?`前の週の見通しとの差は ${finalFc(T,d).mid-finalFc(T,d-7).mid>=0?'+':''}${fN(finalFc(T,d).mid-finalFc(T,d-7).mid)}円。`:''}</div>
   <div class="sub-h">累計興収の動き</div>${(()=>{const c=[];let s=0;for(let x=0;x<=d;x++){s+=at(T,'gross',x)*1e4;c.push(s)}return chart(T,[{n:'累計',vals:c,c:'#4e8780',fill:true}],{a:0,b:Math.max(d,7),u:'円',h:130})})()}`}},{when:'post',any:[3,6]});
 I('outlook','o_legs','週末ごとの動き',4,[],(T,d)=>{const w=[];for(let i=0;i*7+2<=d;i++)w.push(sumR(T,'gross',i*7,i*7+2)*1e4);
@@ -2075,7 +2093,7 @@ I('outlook','o_type','ヒットの型',6,[4],(T,d)=>{const w=womOf(T,d),cs=has(2
 const peerSc=p=>p.screens||(p._sc=p._sc||Math.round(clamp(150+sumR(p,'gross',0,2)*1e4/1.6e6,120,420)/5)*5);
 /* スクリーン数・上映回数は、上映スケジュールが出そろう公開3日前ごろに確定する */
 const scFixed=d=>d>=-3,scAbout=T=>Math.round(T.screens/10)*10;
-I('outlook','o_similar','類似作の実績',6,[],(T,d)=>({d:'同じ系統・同じ規模の作品。この作品の予測ではありません',h:`<div class="tw"><table><tr><th>作品</th><th class="r">初週のスクリーン数</th><th class="r">初週末</th><th class="r">最終</th><th class="r">最終÷初週末</th></tr>${PEERS.slice(0,8).map((p,i)=>{const o=sumR(p,'gross',0,2)*1e4;return `<tr><td>${p.ttl}</td><td class="r num">${peerSc(p)}</td><td class="r">${fN(o)}円</td><td class="r">${fN(p.final)}円</td><td class="r">${f1(p.final/o)}倍</td></tr>`}).join('')}</table></div><div class="note">中央値は 初週のスクリーン数 ${Math.round(med(PEERS.map(peerSc)))}（この作品は ${scFixed(d)?T.screens:'約'+scAbout(T)+'・予定'}）・初週末 ${fN(med(PEERS.map(p=>sumR(p,'gross',0,2)*1e4)))}円・最終 ${fN(med(PEERS.map(p=>p.final)))}円。${d>=2||has(1)?`この作品の見通しは、最終の中央値の ${f2((d>=2?finalFc(T,d).mid:preFc(T,d).mid)/med(PEERS.map(p=>p.final)))}倍。`:''}</div>`}),{any:[3,6]});
+I('outlook','o_similar','類似作の実績',6,[],(T,d)=>({d:'同じ系統・同じ規模の作品。この作品の予測ではありません',h:`<div class="tw"><table><tr><th>作品</th><th class="r">初週のスクリーン数</th><th class="r">初週末</th><th class="r">最終</th><th class="r">初動比率</th></tr>${PEERS.slice(0,8).map((p,i)=>{const o=sumR(p,'gross',0,2)*1e4;return `<tr><td>${p.ttl}</td><td class="r num">${peerSc(p)}</td><td class="r">${fN(o)}円</td><td class="r">${fN(p.final)}円</td><td class="r">${f1(o/p.final*100)}%</td></tr>`}).join('')}</table></div><div class="note">初動比率＝最終のうち、初週末で稼いだ割合（小さいほど長く伸びた作品）。中央値は 初動比率 ${f1(med(fwrPeers()))}%・初週のスクリーン数 ${Math.round(med(PEERS.map(peerSc)))}（この作品は ${scFixed(d)?T.screens:'約'+scAbout(T)+'・予定'}）・初週末 ${fN(med(PEERS.map(p=>sumR(p,'gross',0,2)*1e4)))}円・最終 ${fN(med(PEERS.map(p=>p.final)))}円。${d>=2||has(1)?`この作品の見通しは、最終の中央値の ${f2((d>=2?finalFc(T,d).mid:preFc(T,d).mid)/med(PEERS.map(p=>p.final)))}倍。`:''}</div>`}),{any:[3,6]});
 I('outlook','o_supply','公開の規模と席',6,[],(T,d)=>{const up=unitPrice(T,Math.min(d,6)),cap=T.screens*4.2*150*7,adm=d>=6?sumR(T,'gross',0,6)*1e4/up:null,cs=has(2)&&d>=0,o=cs?cq(T,d):null,miss=cs?o.seat[1]+o.seat[2]:0,missM=cs?cqMed(x=>x.seat[1]+x.seat[2],d):0;
   if(!scFixed(d))return {d:'初週7日間',h:`<div class="note boost"><b>まだ確定していません。</b>スクリーン数・上映回数・席の数は、上映スケジュールが出そろう公開3日前ごろに確定します。いまは予定の数字だけを出しています。</div><div class="kpis">${kpi('スクリーン数（予定）','約'+scAbout(T),'','配給の計画から')}${kpi('1日の上映回数','—','','公開3日前ごろに出ます')}${kpi('用意される席','—','','公開3日前ごろに出ます')}</div>`};
   return {d:'初週7日間',h:`<div class="kpis">${kpi('スクリーン数',T.screens,'')}${kpi('1日の上映回数',fN(T.screens*4.2),'回')}${kpi('用意される席',fN(cap),'席')}${kpi('席の埋まり具合',adm?f1(adm/cap*100):'—',adm?'%':'',adm?`平均単価 ${fN(up)}円で人数に換算`:'初週が終わると出ます')}</div>
@@ -2280,12 +2298,12 @@ I('outlook','o_slate','前後3週間の公開作品',6,[],(T,d)=>{const r=R(T,10
 I('outlook','o_cmpts','自社のほかの作品との比較',12,[],(T,d)=>{const a=-56,b=Math.max(d,-28),ts=Object.values(TT).filter(X=>!X.past||X.k===T.k).slice(0,3);
   return {d:`${scoreName()}を、公開日からの日数でそろえて比較`,h:chart(T,ts.map((X,i)=>({n:X.name,vals:scoreSeries(X,a,b,Math.min(d,X.today)),c:X.k===T.k?'#4e8780':CMPC[i],w:X.k===T.k?2.6:1.6})),{a,b,u:'',h:170,max:100})+'<div class="note">横軸の日付はこの作品のものです。ほかの作品は、公開日を重ねて表示しています。</div>'}},{any:[3,6],...DP});
 I('outlook','o_cmpaud','自社のほかの作品との観客の比較',6,[2],(T,d)=>{const r=R(T,102);return {d:'鑑賞後のアンケートから',h:`<div class="tw"><table><tr><th>作品</th><th class="r">満足度</th><th class="r">すすめたい度</th><th>主な客層</th><th class="r">迷った・次に観たいに挙げた人</th></tr>${Object.values(TT).filter(X=>X.today>=0&&(!X.past||X.k===T.k)).map(X=>`<tr style="${X.k===T.k?'font-weight:700':''}"><td>${X.name}</td><td class="r">${f1(at(X,'sat',Math.min(d,X.today)))}%</td><td class="r">${f1(at(X,'nps',Math.min(d,X.today)))}pt</td><td>${X.genre==='ファミリー'?'30〜40代の親子':'20代の女性'}</td><td class="r">${X.k===T.k?'—':f1(3+r()*10)+'%'}</td></tr>`).join('')}</table></div><div class="note">右端は、この作品を観た人のうち、その作品を「迷った作品」か「このあと観たい作品」に挙げた人の割合です。</div>`}},{when:'post',...DP});
-I('outlook','o_mult','公開後の伸び',6,[],(T,d)=>{const pm=med(PEERS.map(p=>p.final/(sumR(p,'gross',0,2)*1e4)));const post=d>=2,o3=post?cumGross(T,2):null,m=post?finalFc(T,d).mid/o3:pm,adj=has(2)&&post?1+(at(T,'sat',d)-80)/120:null;
-  return {d:'最終興収は、初週末の何倍になるか',h:`<div class="kpis">${kpi('この作品の見込み',f1(m),'倍',post?'':'公開前は類似作の中央値')}${kpi('類似作の中央値',f1(pm),'倍')}${adj?kpi('満足度による補正',f2(adj),'倍','満足度が高いほど長く伸びる'):''}${post?kpi('初週末3日間',fN(o3),'円'):''}</div>
+I('outlook','o_mult','初動比率',6,[],(T,d)=>{const pm=med(PEERS.map(p=>p.final/(sumR(p,'gross',0,2)*1e4)));const post=d>=2,o3=post?cumGross(T,2):null,m=post?finalFc(T,d).mid/o3:pm,adj=has(2)&&post?1+(at(T,'sat',d)-80)/120:null;
+  return {d:'最終興収のうち、初週末3日間で稼ぐ割合。小さいほど長く伸びます',h:`<div class="kpis">${kpi('この作品の見込み',f1(100/m),'%',post?'':'公開前は類似作の中央値')}${kpi('類似作の中央値',f1(100/pm),'%')}${adj?kpi('満足度による補正',f2(adj),'倍','満足度が高いほど長く伸びる'):''}${post?kpi('初週末3日間',fN(o3),'円'):''}</div>
   <div class="note">${post?(m>pm*1.1?'類似作より長く伸びる見込みです。':m<pm*0.9?'類似作より早く落ちる見込みです。':'類似作と同じくらいの伸び方です。'):'公開後、実績が出るたびに更新します。'}</div>`}},{any:[3,6],hide:d=>d<0&&!has(1),...DP});
-I('outlook','o_how','見通しの作り方',6,[],(T,d)=>{const li=has(1)?['公開前：認知率と観たい率から、劇場で観る人数を積み上げます','そこに平均単価を掛けて、興収にします','用意される席の数を超える分は、取りこぼしとして差し引きます','公開後：初週末の実績に、類似作の伸び方を当てはめます'].concat(has(2)?['満足度とすすめたい度で、当てはめる類似作を絞ります']:[])
-  :has(4)?['公開前：話題の量・公式SNSの反応・Clip!などを、類似作の同じ時点と比べて位置を出します','公開前は金額を出しません','公開後：初週末の実績に、類似作の伸び方を当てはめます','Mark!の伸び方が近い類似作に絞って、幅を狭めます']
-  :['公開前：話題の量と公式SNSの反応を、類似作の同じ時点と比べて位置を出します','公開前は金額を出しません','公開後：初週末の実績に、類似作の伸び方を当てはめます','週ごとの落ち方が近い類似作に絞って、幅を狭めます'];
+I('outlook','o_how','見通しの作り方',6,[],(T,d)=>{const li=has(1)?['公開前：認知率と観たい率から、劇場で観る人数を積み上げます','そこに平均単価を掛けて、興収にします','用意される席の数を超える分は、取りこぼしとして差し引きます','公開後：初週末の興収（実績）を、初動比率の見通しで割って、最終興収を出します'].concat(has(2)?['満足度とすすめたい度で、当てはめる類似作を絞ります']:[])
+  :has(4)?['公開前：話題の量・公式SNSの反応・Clip!などを、類似作の同じ時点と比べて位置を出します','公開前は金額を出しません','公開後：初週末の興収（実績）を、初動比率の見通しで割って、最終興収を出します','Mark!の伸び方が近い類似作に絞って、幅を狭めます']
+  :['公開前：話題の量と公式SNSの反応を、類似作の同じ時点と比べて位置を出します','公開前は金額を出しません','公開後：初週末の興収（実績）を、初動比率の見通しで割って、最終興収を出します','週ごとの落ち方が近い類似作に絞って、幅を狭めます'];
   const tr=fcTrack(),r5=v=>Math.round(v);
   return {d:'何を使って、どう出しているか',h:`<ul class="todo">${li.map((x,i)=>`<li><b>${i+1}</b>${x}</li>`).join('')}</ul>${tr?`<div class="fc-acc"><b>どのくらい当たるか</b>初週末の後の見通しは、上映が終わった${tr.n}本で、最終興収との差が <b class="num">±${r5(tr.post[0].m)}%</b> 前後。2週目の週末を過ぎると <b class="num">±${r5(tr.post[1].m)}%</b> 前後まで縮まります。</div>`:''}<div class="note">幅は、類似作での外れ方から決めています。確実な数字ではありません。</div>`}},{any:[3,6],...DP});
 function simFc(T,d,sc){const f=fcBase(T,d),dem=f.viewers*.22,cap=sc*4.2*150*7*.85,adm=Math.min(dem,cap),up=unitPrice(T,-1);return {dem,cap,adm,open:adm*up,final:adm*up/.22,short:dem>cap}}
@@ -2385,7 +2403,7 @@ const gap6=D=>{const nw=sum6(D.now),sh=sum6(D.segs.map(s=>s.sh));return nw.map((
 I('plan','p_gap','いま観たいと言っている人との差',6,[1,2],(T,d)=>{const G=gap6(tgData(T)),df=G.map(s=>s.now-s.sh),lo=G.filter(s=>df[s.i]<=-1.5).sort((p,q)=>df[p.i]-df[q.i]),hi=G.filter(s=>df[s.i]>=1.5).sort((p,q)=>df[q.i]-df[p.i]);
   return {d:'週ごとの調査で「観たい」と答えた人の内訳と、類似作の観客の内訳',h:`<ul class="tg-pts"><li>類似作では来ていたのに、まだ少ない層：${lo.length?lo.slice(0,3).map(s=>`${s.n}（${pt(df[s.i])}）`).join('、'):'目立つ層はありません'}</li><li>類似作より多く集まっている層：${hi.length?hi.slice(0,3).map(s=>`${s.n}（${pt(df[s.i])}）`).join('、'):'目立つ層はありません'}</li></ul>${bars(G.map(s=>({l:s.n,v:s.now,cmp:s.sh,c:df[s.i]<=-1.5?'#c2603f':'#5b6f9c'})),{fmt:f1,u:'%',cmp:'類似作の観客に占める割合。赤い棒＝類似作より1.5pt以上少ない層'})}`}},{when:'pre'});
 I('plan','p_hit','よく伸びた類似作と、そうでない類似作の観客の違い',6,[2],(T,d)=>{const r=R(T,303),h=Math.ceil(PEERS.length/2),l=PEERS.length-h,rw=[['女性の割合',58,52],['30代以上の割合',61,49],['映画館で観るのが年4本以下の人',56,46],['家族・友人から聞いて知った人',22,13],['2人以上で観た人',71,62],['満足度',88,79]].map(x=>[x[0],x[1]*(.95+r()*.1),x[2]*(.95+r()*.1)]);
-  return {d:'最終興収÷初週末の倍率で、類似作を2つに分けた比較',h:`<div class="tw"><table><tr><th>観客の特徴</th><th class="r">よく伸びた${h}本</th><th class="r">そうでない${l}本</th><th class="r">差</th></tr>${rw.map(x=>`<tr><td>${x[0]}</td><td class="r num">${f1(x[1])}%</td><td class="r num">${f1(x[2])}%</td><td class="r num">${pt(x[1]-x[2])}</td></tr>`).join('')}</table></div>${simNote('本数が少ないため、傾向の参考です。差があっても、それが伸びた原因とは限りません。')}`}},{when:'pre'});
+  return {d:'初動比率（最終興収のうち、初週末で稼いだ割合）で、類似作を2つに分けた比較',h:`<div class="tw"><table><tr><th>観客の特徴</th><th class="r">よく伸びた${h}本</th><th class="r">そうでない${l}本</th><th class="r">差</th></tr>${rw.map(x=>`<tr><td>${x[0]}</td><td class="r num">${f1(x[1])}%</td><td class="r num">${f1(x[2])}%</td><td class="r num">${pt(x[1]-x[2])}</td></tr>`).join('')}</table></div>${simNote('本数が少ないため、傾向の参考です。差があっても、それが伸びた原因とは限りません。')}`}},{when:'pre'});
 I('plan','p_sec2','2　いつ強めるか',12,[2],()=>({d:'類似作の観客が決めた時期と、類似作が施策を行った時期から考える',h:''}),{when:'pre'});
 const DEC_WHEN=['公開1か月より前','公開2〜5週前ごろ','公開1〜2週前ごろ','公開の直前','公開した週'],decNow=d=>d<-35?0:d<-10?1:d<-3?2:d<0?3:4;
 const tgNames=(D,sel)=>D.segs.filter(s=>sel.includes(s.i)).map(s=>s.n).join('・');
@@ -2757,7 +2775,7 @@ const SRC_USE={
   d_sum:[6,3],d_gloss:[],
   i_buzz:[3,5,6],i_search:[5,6],i_clip:[4,6],i_aware:[1,6],i_sat:[2,1],
   h_views:[3,6,4,1,'B'],h_moves:[3,6,5,4,1,2],h_goal:['B',1,2],h_all:[3,6,5,4,1,2],
-  o_pos:[3,6,5,4],o_final:['B',4,2],o_legs:['B',2],o_similar:['B',1],o_supply:['S','B'],o_comp:['S'],o_check:['B',3,6,5,4],
+  o_two:['B',3,6,5,4,1],o_pos:[3,6,5,4],o_final:['B',4,2],o_legs:['B',2],o_similar:['B',1],o_supply:['S','B'],o_comp:['S'],o_check:['B',3,6,5,4],
   o_share:['B','S',1],o_winlose:[1,3,6,'S'],o_slate:['S'],o_cmpts:[3,6,5,4],o_mult:['B',4,2],o_how:[],
   o_simsat:[2,'B'],a_answer:[2,6],cr_top:[6],cr_wall:[6],cr_posts:[6],cr_next:[6],p_gap:[1,2],p_hit:[2,'B'],p_cal:['N',3,2,6],
   o_demand:[1,'S',2],o_sim:[1,'S',2],o_pressure:[1,'S'],o_upside:[1,6],o_curve:['B',1,2],o_demandix:[1,2,'S'],
