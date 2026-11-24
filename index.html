@@ -508,6 +508,8 @@ body.m-more .more-box{display:flex}
 .lr-b b{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:var(--accent2);box-shadow:0 0 0 2px #fff}
 .lr-x{display:grid;gap:1px;text-align:right}.lr-x b{font-size:14px}.lr-r .tone{justify-self:end;white-space:nowrap}
 @media(max-width:700px){.lr-ax{padding:0}.lr-r{grid-template-columns:minmax(0,1fr) auto;gap:6px 10px}.lr-b{grid-column:1/3;order:3}.lr-x{grid-column:1/3;order:4;text-align:left;grid-template-columns:auto 1fr;gap:8px;align-items:baseline}}
+.bm-t th,.bm-t td{white-space:nowrap}.bm-t td small{display:block;font-size:10.5px;color:var(--sub);font-weight:500}.bm-t tr.me td{font-weight:700}.bm-t .cdot{margin-right:6px}
+.lchip .bm-1{font-size:10px;font-weight:500;color:var(--sub);margin-left:2px}
 .fc-t th,.fc-t td{white-space:nowrap}.fc-t .r{text-align:right}
 .smp-chip{background:#fbf3e6;border-color:#eec39a;color:#8a4b12}
 .fw-t{width:100%;border-collapse:collapse;font-size:12.5px}.fw-t th{text-align:left;font-size:11px;color:var(--sub);padding:5px 8px;border-bottom:1px solid var(--rule2)}.fw-t td{padding:7px 8px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.6}.fw-t tr.fw-no td{color:var(--sub-weak)}
@@ -2110,6 +2112,25 @@ I('outlook','o_long','ロングランになりそうか',12,[],(T,d)=>{const o=l
     <div class="lr-ax"><span>初動で終わった類似作</span><span>ロングランだった類似作</span></div>
     <div class="lr">${o.rows.map(r=>`<div class="lr-r"><div class="lr-n"><b>${r.n}</b><small>${r.note}</small></div><div class="lr-b"><i class="f"></i><i class="l"></i><b style="left:${pos(r.sc)}%"></b></div><div class="lr-x"><b class="num">${r.fmt(r.v)}</b><small>初動 ${r.fmt(r.fr)}｜ロングラン ${r.fmt(r.lg)}</small></div>${tg(r.sc)}</div>`).join('')}</div>
     <div class="note">類似作を初動比率の小さい順に並べ、小さいほうの${o.n3}本を「ロングランだった作品」、大きいほうの${o.n3}本を「初動で終わった作品」として、同じ時点（${relLbl(d)}）の数字の中央値と比べています。丸い印がこの作品、2本の線が左＝初動、右＝ロングランの中央値です。日が進むと、数字は入れ替わります。</div>`}},{when:'post',hide:d=>d<2,any:[3,6]});
+/* ベンチマーク作品：初週末の興収と初週のスクリーン数がいちばん近い類似作。興収の推移を並べて比べる */
+function benchOf(T){const o=opn3(T),L=PEERS.filter(p=>p.final>0).map(p=>({p,g:Math.abs(Math.log(opn3(p)/o)),c:Math.abs(Math.log(peerSc(p)/T.screens))})).sort((a,b)=>(a.g+a.c)-(b.g+b.c)).slice(0,3);
+  return {L,b:(L.find(x=>x.p.k===S.bm)||L[0]||{}).p}}
+I('outlook','o_bench','ベンチマーク作品との興収の推移',12,[],(T,d)=>{const o=benchOf(T),B=o.b;if(!B)return {d:'',h:'<div class="empty">比べられる類似作がありません。</div>'};
+  const day=S.bmv==='day',cu=(p,x)=>sumR(p,'gross',0,x)*1e4,dv=(p,x)=>at(p,'gross',x)*1e4,f=day?dv:cu,xs=[];for(let x=0;x<=D1;x++)xs.push(x);
+  const cT=cu(T,d),cB=cu(B,d),est=cT/(cB/B.final),o3=opn3(T),pc=(a,b)=>(a/b*100-100>=0?'+':'')+f1(a/b*100-100)+'%',wk=(p,i)=>sumR(p,'gross',i*7,i*7+2)*1e4,nw=Math.floor((D1-2)/7)+1;
+  const oth=o.L.filter(x=>x.p!==B).map(x=>({n:x.p.ttl,vals:xs.map(x2=>f(x.p,x2)),c:'#b9bec4',w:1.3,dash:true}));
+  return {d:`${relLbl(d)}の時点`,h:`<div class="ctl"><span style="font-size:11.5px;color:var(--sub)">ベンチマーク（近い順）</span>${o.L.map((x,i)=>`<button class="lchip ${x.p===B?'on':''}" data-bm="${x.p.k}">${x.p.ttl}${i?'':'<small class="bm-1">いちばん近い</small>'}</button>`).join('')}</div>
+    <div class="tw"><table class="bm-t"><tr><th>作品</th><th class="r">初週のスクリーン数</th><th class="r">初週末の興収</th><th class="r">${relLbl(d)}までの累計</th><th class="r">最終興収</th><th class="r">初動比率</th></tr>
+      <tr class="me"><td><i class="cdot" style="background:#4e8780"></i>この作品</td><td class="r num">${T.screens}</td><td class="r">${fN(o3)}円</td><td class="r">${fN(cT)}円</td><td class="r">—</td><td class="r">—</td></tr>
+      <tr><td><i class="cdot" style="background:#a06a86"></i>${B.ttl}</td><td class="r num">${peerSc(B)}<small>${pc(T.screens,peerSc(B))}</small></td><td class="r">${fN(opn3(B))}円<small>${pc(o3,opn3(B))}</small></td><td class="r">${fN(cB)}円<small>${pc(cT,cB)}</small></td><td class="r">${fN(B.final)}円</td><td class="r">${f1(fwr(B))}%</td></tr></table></div>
+    <div class="note" style="margin:6px 0 12px">小さい字は、この作品がベンチマークより何%多いか・少ないか。</div>
+    <div class="note boost"><b>ベンチマークと同じ伸び方なら、最終興収は ${fN(est)}円前後。</b>いまの累計はベンチマークの同じ時点の <b class="num">${f1(cT/cB*100)}%</b> です。${d>=9?`直近の週末の前週比は、この作品 ${Math.round(wk(T,Math.floor((d-2)/7))/wk(T,Math.floor((d-2)/7)-1)*100)}%・ベンチマーク ${Math.round(wk(B,Math.floor((d-2)/7))/wk(B,Math.floor((d-2)/7)-1)*100)}%。`:'2週目の週末の落ち方が、最初の見比べどころです。'}</div>
+    <div class="ctl" style="margin-top:14px"><div class="seg"><button class="${day?'':'on'}" data-bmv="cum">累計</button><button class="${day?'on':''}" data-bmv="day">1日ごと</button></div></div>
+    ${chart(T,[...oth,{n:B.ttl+'（ベンチマーク）',vals:xs.map(x=>f(B,x)),c:'#a06a86'},{n:'この作品',vals:xs.map(x=>x<=d?f(T,x):null),c:'#4e8780',w:2.6}],{a:0,b:D1,u:'円',h:200})}
+    <div class="sub-h">週末ごとの興収と前週比</div>
+    <div class="tw"><table class="bm-t"><tr><th>週末</th><th class="r">この作品</th><th class="r">前週比</th><th class="r">ベンチマーク</th><th class="r">前週比</th></tr>${Array.from({length:nw},(_,i)=>{const on=i*7+2<=d;return `<tr><td>${i+1}週目</td><td class="r">${on?fN(wk(T,i))+'円':'—'}</td><td class="r">${on&&i?Math.round(wk(T,i)/wk(T,i-1)*100)+'%':'—'}</td><td class="r">${fN(wk(B,i))}円</td><td class="r">${i?Math.round(wk(B,i)/wk(B,i-1)*100)+'%':'—'}</td></tr>`}).join('')}</table></div>
+    <div class="note">ベンチマークは、類似作のうち、初週末の興収と初週のスクリーン数がこの作品にいちばん近い作品です。近い順に3本まで選べます。点線は、選んでいないほかの2本。横の軸は公開日からの日数でそろえています。</div>`}},{when:'post',hide:d=>d<2,any:[3,6]});
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-bm],[data-bmv]');if(!t)return;if(t.dataset.bm)S.bm=t.dataset.bm;else S.bmv=t.dataset.bmv;const y=scrollY;render();scrollTo(0,y)});
 I('outlook','o_legs','週末ごとの動き',4,[],(T,d)=>{const w=[];for(let i=0;i*7+2<=d;i++)w.push(sumR(T,'gross',i*7,i*7+2)*1e4);
   const a3=has(2)&&d>=0?`<div class="note" style="margin-top:8px">宣伝と内容が「ちがった」と感じた人 <b class="num">${f1(cqDiff(cq(T,d)))}%</b>（類似作の中央値 ${f1(cqMed(cqDiff,d))}%）。多いほど、2週目以降に落ちやすい傾向があります。</div>`:'';
   return {d:'金・土・日の3日間',h:(w.length?`<table><tr><th>週末</th><th class="r">興収</th><th class="r">前週比</th></tr>${w.map((v,i)=>`<tr><td>${i+1}週目</td><td class="r">${fN(v)}円</td><td class="r">${i?Math.round(v/w[i-1]*100)+'%':'—'}</td></tr>`).join('')}</table>`:'<div class="empty">初週末の後から出ます。</div>')+a3}},{when:'post',any:[3,6]});
@@ -2804,7 +2825,7 @@ const SRC_USE={
   d_sum:[6,3],d_gloss:[],
   i_buzz:[3,5,6],i_search:[5,6],i_clip:[4,6],i_aware:[1,6],i_sat:[2,1],
   h_views:[3,6,4,1,'B'],h_moves:[3,6,5,4,1,2],h_goal:['B',1,2],h_all:[3,6,5,4,1,2],
-  o_two:['B',3,6,5,4,1],o_long:['B',3,4,2],o_pos:[3,6,5,4],o_final:['B',4,2],o_legs:['B',2],o_similar:['B',1],o_supply:['S','B'],o_comp:['S'],o_check:['B',3,6,5,4],
+  o_two:['B',3,6,5,4,1],o_long:['B',3,4,2],o_bench:['B','S'],o_pos:[3,6,5,4],o_final:['B',4,2],o_legs:['B',2],o_similar:['B',1],o_supply:['S','B'],o_comp:['S'],o_check:['B',3,6,5,4],
   o_share:['B','S',1],o_winlose:[1,3,6,'S'],o_slate:['S'],o_cmpts:[3,6,5,4],o_mult:['B',4,2],o_how:[],
   o_simsat:[2,'B'],a_answer:[2,6],cr_top:[6],cr_wall:[6],cr_posts:[6],cr_next:[6],p_gap:[1,2],p_hit:[2,'B'],p_cal:['N',3,2,6],
   o_demand:[1,'S',2],o_sim:[1,'S',2],o_pressure:[1,'S'],o_upside:[1,6],o_curve:['B',1,2],o_demandix:[1,2,'S'],
