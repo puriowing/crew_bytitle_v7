@@ -511,6 +511,10 @@ body.m-more .more-box{display:flex}
 .card.c12 .note:not(.boost):not(.cast),.card.c12 .lr-v>span{max-width:760px}
 .bm-2{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:26px;align-items:start;margin-top:14px}.bm-2 .sub-h{margin-top:0}
 @media(max-width:900px){.bm-2{grid-template-columns:1fr;gap:6px}.bm-2 .sub-h{margin-top:14px}}
+.cumh{display:flex;flex-wrap:wrap;gap:14px 28px;align-items:flex-end;padding-bottom:16px;margin-bottom:16px;border-bottom:1px solid var(--rule)}
+.cumh-m{display:grid;gap:2px}.cumh-m small,.cumh-c small{font-size:11.5px;font-weight:700;color:var(--sub)}.cumh-m b{font-family:'Zen Maru Gothic',sans-serif;font-size:40px;line-height:1.1}.cumh-m em{font-style:normal;font-size:16px;margin-left:3px}
+.cumh-s{display:flex;flex-wrap:wrap;gap:10px 24px}.cumh-c{display:grid;gap:1px}.cumh-c b{font-size:17px}.cumh-c span{font-size:11.5px;color:var(--sub)}
+@media(max-width:700px){.cumh-m b{font-size:34px}}
 .bm-t th,.bm-t td{white-space:nowrap}.bm-t td small{display:block;font-size:10.5px;color:var(--sub);font-weight:500}.bm-t tr.me td{font-weight:700}.bm-t .cdot{margin-right:6px}
 .lchip .bm-1{font-size:10px;font-weight:500;color:var(--sub);margin-left:2px}
 .fc-t th,.fc-t td{white-space:nowrap}.fc-t .r{text-align:right}
@@ -2091,9 +2095,13 @@ I('outlook','o_two','興収の見通しの組み立て',12,[],(T,d)=>{const rs=f
     {k:'初動比率',tag:'類似作の中央値',v:f1(m),u:'%',s:`類似作の真ん中の半分は ${f1(qt(rs,.25))}〜${f1(qt(rs,.75))}%。公開後、週末ごとの落ち方から、この作品の見通しを出します`},
     money?{k:'最終興収',tag:'見通し',v:fN(f.mid),u:'円前後',s:'幅 '+fN(f.lo)+'円〜'+fN(f.hi)+'円'}:{k:'最終興収',v:'—',s:'初週末（公開3日目）の後から出ます'}])}},{when:'pre',any:[3,6]});
 (function(){const i=ITEMS.findIndex(x=>x.id==='o_two'),it=ITEMS.splice(i,1)[0],j=ITEMS.findIndex(x=>x.page==='outlook');ITEMS.splice(j<0?ITEMS.length:j,0,it)})();
-I('outlook','o_final','最終興収の見通し',8,[],(T,d)=>{if(d<2)return {d:`${relLbl(d)}の時点`,h:`<div class="kpis" style="margin-bottom:12px">${kpi('いまの累計興収',fN(sumR(T,'gross',0,d)*1e4),'円',relLbl(d)+'まで')}</div><div class="empty">金額の見通しは、初週末（公開3日目）の後から出します。</div>`};const f=finalFc(T,d);
+/* 公開後は、選んだ日までの累計興収を最初に見せる */
+function cumHead(T,d,f){const cum=sumR(T,'gross',0,d)*1e4,g=at(T,'gross',d)*1e4,pv=d>=7?at(T,'gross',d-7)*1e4:d>=1?at(T,'gross',d-1)*1e4:null,B=d>=2?benchOf(T).b:null,cB=B?sumR(B,'gross',0,d)*1e4:null,
+  c=(k,v,s2)=>`<div class="cumh-c"><small>${k}</small><b class="num">${v}</b>${s2?`<span>${s2}</span>`:''}</div>`;
+  return `<div class="cumh"><div class="cumh-m"><small>${relLbl(d)}までの累計興収</small><b class="num">${fN(cum)}<em>円</em></b></div><div class="cumh-s">${c('この日の興収',fN(g)+'円',pv?`${d>=7?'前の週の同じ曜日':'前日'}の ${Math.round(g/pv*100)}%`:'')}${f?c('見通しに対する進み具合',f1(cum/f.mid*100)+'%','残り '+fN(Math.max(0,f.mid-cum))+'円'):''}${B?c('ベンチマークの同じ時点',f1(cum/cB*100)+'%',`${B.ttl}は ${fN(cB)}円`):''}</div></div>`}
+I('outlook','o_final','累計興収と最終興収の見通し',12,[],(T,d)=>{if(d<2)return {d:`${relLbl(d)}の時点`,h:`${cumHead(T,d)}<div class="empty">金額の見通しは、初週末（公開3日目）の後から出します。</div>`};const f=finalFc(T,d);
   const o3=opn3(T),rt=o3/f.mid*100,rm=med(fwrPeers());
-  return {d:`${relLbl(d)}の時点`,h:`${pillars([{k:'初週末の興収',tag:'実績',v:fN(o3),u:'円',s:'公開から3日間'},{k:'初動比率',tag:'見通し',v:f1(rt),u:'%',s:`類似作の中央値 ${f1(rm)}%｜${fwrType(rt,rm)}`},{k:'最終興収',tag:'見通し',v:fN(f.mid),u:'円前後',s:'幅 '+fN(f.lo)+'円〜'+fN(f.hi)+'円'}])}<div class="kpis" style="margin-bottom:16px">${kpi('いまの累計興収',fN(f.cum),'円',relLbl(d)+'まで')}${kpi('見通しに対する進み具合',f1(f.cum/f.mid*100),'%','残り '+fN(Math.max(0,f.mid-f.cum))+'円')}</div>${rangeBar(f.lo,f.mid,f.hi,f.cum)}
+  return {d:`${relLbl(d)}の時点`,h:`${cumHead(T,d,f)}${pillars([{k:'初週末の興収',tag:'実績',v:fN(o3),u:'円',s:'公開から3日間'},{k:'初動比率',tag:'見通し',v:f1(rt),u:'%',s:`類似作の中央値 ${f1(rm)}%｜${fwrType(rt,rm)}`},{k:'最終興収',tag:'見通し',v:fN(f.mid),u:'円前後',s:'幅 '+fN(f.lo)+'円〜'+fN(f.hi)+'円'}])}${rangeBar(f.lo,f.mid,f.hi,f.cum)}
   <div class="note" style="margin-top:22px">幅は ${fN(f.lo)}円〜${fN(f.hi)}円（外れやすさを見込んで最低限の幅を取っています）。${f.basis}（${f.n}本）が、同じ時点からどれだけ伸びたかを当てはめています。${d>=9?`前の週の見通しとの差は ${finalFc(T,d).mid-finalFc(T,d-7).mid>=0?'+':''}${fN(finalFc(T,d).mid-finalFc(T,d-7).mid)}円。`:''}</div>
   <div class="sub-h">累計興収の動き</div>${(()=>{const c=[];let s=0;for(let x=0;x<=d;x++){s+=at(T,'gross',x)*1e4;c.push(s)}return chart(T,[{n:'累計',vals:c,c:'#4e8780',fill:true}],{a:0,b:Math.max(d,7),u:'円',h:130})})()}`}},{when:'post',any:[3,6]});
 /* ロングランになりそうか：初週末の興収が出た時点で、初動比率が小さかった類似作（ロングラン）と大きかった類似作（初動で終わった）の「同じ時点の数字」と比べる */
