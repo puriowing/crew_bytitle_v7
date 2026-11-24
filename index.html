@@ -2877,7 +2877,6 @@ function openCreative(cid){const T=cur(),d=S.day,c=crList(T).find(x=>x.id===cid)
     <div class="cr-big k-${c.k}" style="background:${thOf(T).g[0]}">${crArt(T,c)}</div>
     ${st?`<div class="kpis" style="margin:12px 0">${kpi(st.a[0],st.a[1],st.a[2])}${kpi(st.b[0],st.b[1],st.b[2])}${eff!=null?kpi('施策の効き具合',eff,'／100',`同じ種類の過去の施策の中で ${TIERS[tierOf(eff)]}`):''}</div>`:'<div class="empty" style="margin:12px 0">公開予定の素材です。出したあとに数字が入ります。</div>'}
     ${c.user?`<div style="margin:0 0 10px"><button class="btn" data-matrm="${c.id}">この素材の登録を取り消す</button></div>`:''}<div class="sub-h">この素材を使った施策</div>${useEv.length?`<div class="fm-b" style="margin-top:0">${useEv.map(x=>`<button class="btn" data-ev="${x.id}"><i class="cdot" style="background:${CH[x.ch].c}"></i>${md(dateOf(T,x.d))}　${esc(x.label)}（${CH[x.ch].n}）</button>`).join('')}</div>`:'<div class="empty">施策には結びつけていません。</div>'}
-    ${has(2)&&d>=0&&!e.none&&e.d<=d?castLine(T,e,d):''}
     ${others.length?`<div class="sub-h">ほかの作品の、同じ素材</div><div class="cr-cmp">${others.map(o=>{const s2=crStats(o.X,o.c,evMax(o.X));return `<div><span class="cr-th k-${o.c.k}" style="background:${thOf(o.X).g[0]}">${crArt(o.X,o.c)}</span><b>${o.X.name}</b><small>${s2.a[0]} ${s2.a[1]}${s2.a[2]}｜${s2.b[0]} ${s2.b[1]}${s2.b[2]}</small></div>`}).join('')}</div>`:''}`;
   document.body.classList.add('pn');$('.pn-x').onclick=closePanel}
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-crf],[data-crs],[data-spf],[data-sps],[data-cr]');if(!t)return;ev.stopPropagation();const D=t.dataset;
