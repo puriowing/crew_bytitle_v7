@@ -487,6 +487,7 @@ body.m-more .more-box{display:flex}
 .spk-ev:hover{background:var(--accent-soft)}
 .acct-chip{cursor:pointer;font-family:inherit}.top .acct-chip{background:rgba(255,217,138,.18);border-color:rgba(255,217,138,.55);color:#ffe7b0}
 .acct-sel{border:1px solid var(--rule2);border-radius:999px;padding:3px 8px;font-size:11.5px;background:#fff;color:var(--ink2);max-width:150px}
+.fc-t th,.fc-t td{white-space:nowrap}.fc-t .r{text-align:right}
 .smp-chip{background:#fbf3e6;border-color:#eec39a;color:#8a4b12}
 .fw-t{width:100%;border-collapse:collapse;font-size:12.5px}.fw-t th{text-align:left;font-size:11px;color:var(--sub);padding:5px 8px;border-bottom:1px solid var(--rule2)}.fw-t td{padding:7px 8px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.6}.fw-t tr.fw-no td{color:var(--sub-weak)}
 [hidden]{display:none!important}
@@ -2073,7 +2074,23 @@ I('outlook','o_supply','公開の規模と席',6,[],(T,d)=>{const up=unitPrice(T
 I('outlook','o_comp','公開週の競合',6,[],(T,d)=>{const r=R(T,60),c=[['この作品',T.screens,'#4e8780'],['銀河の果ての約束',Math.round(280+r()*140),'#5b6f9c'],['探偵たちの休日',Math.round(200+r()*120),'#a06a86'],['ワイルド・ハイウェイ',Math.round(180+r()*120),'#b08040'],['そのほか',Math.round(900+r()*300),'#c9ccd0']];
   return {d:'同じ週に上映される作品のスクリーン数',h:`${stack(c.map(x=>({l:x[0],v:x[1],c:x[2]})))}<div style="height:10px"></div>${bars(c.slice(0,4).map(x=>({l:x[0],v:x[1],c:x[2]})),{fmt:fN})}`}},{any:[3,6]});
 I('outlook','o_ovl','同時期の作品との客層の重なり',6,[4],(T,d)=>{const r=R(T,61);if(has(2)&&d>=0){const r2=R(T,451);return {d:'この作品を観た人が「迷った作品」に挙げた割合',h:bars(comps(T).map(c=>({l:c.n,v:4+c.dm*22*(.8+r2()*.4),c:c.c})).sort((a,b)=>b.v-a.v),{fmt:f1,u:'%'})+'<div class="note">迷った人が多い作品とは、同じ客を取り合っています。</div>'}}return {d:'この作品にClip!・Mark!した人が、同じ時期の作品にも付けている割合',h:bars(['銀河の果ての約束','探偵たちの休日','ワイルド・ハイウェイ'].map(l=>({l,v:5+r()*26})).sort((a,b)=>b.v-a.v),{fmt:f1,u:'%',c:'#a06a86'})+'<div class="note">重なりが大きい作品とは、同じ客を取り合います。</div>'}});
-I('outlook','o_check','見通しの答え合わせ',6,[],(T,d)=>({d:'過去に出した見通しと、実績の差',h:'<div class="empty">集計中です。上映が終わった作品が出そろうと、時点別（公開4週前・直前・初週末の後）の外れ幅を表示します。</div>'}),{any:[3,6]});
+/* 見通しはどのくらい当たるか：上映が終わった類似作で、各時点の見立てと最終興収を比べる。作品1本ずつの結果は出さない */
+function fcTrack(){const P=PEER_DEF.concat(PEER_ADD).filter(p=>p.final>0),n=P.length;if(n<4)return null;
+  const rk=[...P].sort((a,b)=>a.final-b.final),cls=p=>{const i=rk.indexOf(p)/(n-1);return i>=2/3?2:i<=1/3?0:1},ks=upKeys().filter(k=>!M[k].post&&!RATE.has(k));
+  const posIn=(p,k,x)=>{const v=avgR(p,k,x-6,x);if(v==null)return null;const vs=P.map(q=>avgR(q,k,x-6,x)).filter(w=>w!=null);return vs.filter(w=>w<v).length/Math.max(vs.length-1,1)*100};
+  const pre=[[-28,'公開4週前'],[-1,'公開直前']].map(([x,l])=>{let s=0,nr=0,op=0;P.forEach(p=>{const vs=ks.map(k=>posIn(p,k,x)).filter(v=>v!=null),v=vs.length?mean(vs):50,c=v>=62?2:v<=38?0:1,g=Math.abs(c-cls(p));if(g===0)s++;else if(g===1)nr++;else op++});return {l,s:s/n*100,nr:nr/n*100,op:op/n*100}});
+  const keep=(p,x)=>x>=9?sumR(p,'gross',7,9)/(sumR(p,'gross',0,2)||1):null;
+  const post=[[2,'初週末の後'],[9,'2週目の週末の後'],[16,'3週目の週末の後']].map(([x,l])=>{const er=P.map(p=>{let O=P.filter(q=>q!==p);const me=keep(p,x);if(me!=null)O=O.sort((a,b)=>Math.abs(keep(a,x)-me)-Math.abs(keep(b,x)-me)).slice(0,x>=16?5:7);const mu=O.map(q=>q.final/(sumR(q,'gross',0,x)*1e4)),mid=sumR(p,'gross',0,x)*1e4*med(mu);return (mid/p.final-1)*100}),ab=er.map(Math.abs);return {l,m:med(ab),w10:ab.filter(v=>v<=10).length/n*100,w20:ab.filter(v=>v<=20).length/n*100,bias:med(er)}});
+  return {n,pre,post}}
+I('outlook','o_check','見通しはどのくらい当たるか',12,[],(T,d)=>{const o=fcTrack();if(!o)return {d:'',h:'<div class="empty">上映が終わった作品が4本以上になると表示します。</div>'};
+  const pc=v=>`<b class="num">${Math.round(v)}</b>%`;
+  return {d:`上映が終わった作品 ${o.n}本での成績`,h:`<div class="two"><div style="min-width:0"><div class="sub-h" style="margin-top:0">公開前：位置の見立て</div>
+    <div class="tw"><table class="fw-t fc-t"><tr><th>見立てた時点</th><th class="r">当たり</th><th class="r">1段ちがい</th><th class="r">逆だった</th></tr>${o.pre.map(r=>`<tr><td>${r.l}</td><td class="r">${pc(r.s)}</td><td class="r">${pc(r.nr)}</td><td class="r">${pc(r.op)}</td></tr>`).join('')}</table></div>
+    <div class="note">公開前は金額を出さず、類似作の中での位置（上位・中位・下位）で見立てます。「当たり」は、最終興収の位置が見立てと同じ段だった割合。「逆だった」は、上位と見立てて下位、またはその逆です。</div></div>
+    <div style="min-width:0"><div class="sub-h" style="margin-top:0">公開後：最終興収の見通し</div>
+    <div class="tw"><table class="fw-t fc-t"><tr><th>見通しを出した時点</th><th class="r">外れ幅の中央値</th><th class="r">±10%以内</th><th class="r">±20%以内</th><th>傾向</th></tr>${o.post.map(r=>`<tr><td>${r.l}</td><td class="r">±<b class="num">${f1(r.m)}</b>%</td><td class="r">${pc(r.w10)}</td><td class="r">${pc(r.w20)}</td><td>${Math.abs(r.bias)<2?'かたよりなし':r.bias>0?'やや高めに出る':'やや低めに出る'}</td></tr>`).join('')}</table></div>
+    <div class="note">外れ幅＝その時点の見通しと、最終興収の差。週を追うほど小さくなります。</div></div></div>
+    <div class="note">作品1本ずつの結果は出しません。上映が終わった作品が増えるたびに更新します。</div>`}},{any:[3,6],deep:true});
 
 /* ================= くわしく見る（現行項目の引っ越し分） ================= */
 const DP={deep:true};
@@ -2724,7 +2741,7 @@ const SRC_USE={
   d_sum:[6,3],d_gloss:[],
   i_buzz:[3,5,6],i_search:[5,6],i_clip:[4,6],i_aware:[1,6],i_sat:[2,1],
   h_views:[3,6,4,1,'B'],h_moves:[3,6,5,4,1,2],h_goal:['B',1,2],h_all:[3,6,5,4,1,2],
-  o_pos:[3,6,5,4],o_final:['B',4,2],o_legs:['B',2],o_similar:['B',1],o_supply:['S','B'],o_comp:['S'],o_check:['B'],
+  o_pos:[3,6,5,4],o_final:['B',4,2],o_legs:['B',2],o_similar:['B',1],o_supply:['S','B'],o_comp:['S'],o_check:['B',3,6,5,4],
   o_share:['B','S',1],o_winlose:[1,3,6,'S'],o_slate:['S'],o_cmpts:[3,6,5,4],o_mult:['B',4,2],o_how:[],
   o_simsat:[2,'B'],a_answer:[2,6],cr_top:[6],cr_wall:[6],cr_posts:[6],cr_next:[6],p_gap:[1,2],p_hit:[2,'B'],p_cal:['N',3,2,6],
   o_demand:[1,'S',2],o_sim:[1,'S',2],o_pressure:[1,'S'],o_upside:[1,6],o_curve:['B',1,2],o_demandix:[1,2,'S'],
