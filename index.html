@@ -515,6 +515,7 @@ body.m-more .more-box{display:flex}
 .cumh-m{display:grid;gap:2px}.cumh-m small,.cumh-c small{font-size:11.5px;font-weight:700;color:var(--sub)}.cumh-m b{font-family:'Zen Maru Gothic',sans-serif;font-size:40px;line-height:1.1}.cumh-m em{font-style:normal;font-size:16px;margin-left:3px}
 .cumh-s{display:flex;flex-wrap:wrap;gap:10px 24px}.cumh-c{display:grid;gap:1px}.cumh-c b{font-size:17px}.cumh-c span{font-size:11.5px;color:var(--sub)}
 @media(max-width:700px){.cumh-m b{font-size:34px}}
+.g-hd{grid-column:1/-1;font-family:'Zen Maru Gothic',sans-serif;font-size:15px;font-weight:900;margin:10px 0 -4px;padding-left:10px;border-left:4px solid var(--accent2)}.grid>.g-hd:first-child{margin-top:0}
 .bm-t th,.bm-t td{white-space:nowrap}.bm-t td small{display:block;font-size:10.5px;color:var(--sub);font-weight:500}.bm-t tr.me td{font-weight:700}.bm-t .cdot{margin-right:6px}
 .lchip .bm-1{font-size:10px;font-weight:500;color:var(--sub);margin-left:2px}
 .fc-t th,.fc-t td{white-space:nowrap}.fc-t .r{text-align:right}
@@ -1436,18 +1437,18 @@ const RATE=new Set(['aware','intent','sent','neg','score','sat','nps']);
 /* 指標の定義。need＝必要なデータソース */
 const M={
   buzz:{n:'話題の量',u:'件',need:3,c:'#5b6f9c',pg:'interest'},
-  sent:{n:'センチメント',sub:'好意的な声の割合',u:'%',need:3,c:'#4a8f6d',pg:'interest'},
+  sent:{n:'センチメント',sub:'好意的な声の割合',u:'%',need:3,c:'#4a8f6d',pg:'repute'},
   oeng:{n:'公式SNSの反応',u:'件',need:6,c:'#3f7fa6',pg:'deliver'},
   oimp:{n:'公式SNSの表示回数',u:'回',need:6,c:'#3f7fa6',pg:'deliver'},
   aimp:{n:'広告の表示',u:'回',need:6,c:'#b08040',pg:'deliver'},
   search:{n:'検索',sub:'作品名で調べられた回数',u:'回',need:5,c:'#8a5cc4',pg:'interest'},
   clip:{n:'Clip!',sub:'観たい登録',u:'人',need:4,c:'#a06a86',pg:'interest'},
-  mark:{n:'Mark!',sub:'観た記録',u:'人',need:4,c:'#c2603f',post:true,pg:'interest'},
-  score:{n:'スコア',sub:'観た人の評価',u:'点',need:4,c:'#9c4f3e',post:true,pg:'interest'},
+  mark:{n:'Mark!',sub:'観た記録',u:'人',need:4,c:'#c2603f',post:true,pg:'repute'},
+  score:{n:'スコア',sub:'観た人の評価',u:'点',need:4,c:'#9c4f3e',post:true,pg:'repute'},
   aware:{n:'認知率',u:'%',need:1,c:'#1b3a5b',pg:'interest'},
   intent:{n:'観たい率',u:'%',need:1,c:'#6a9b8a',pg:'interest'},
-  sat:{n:'満足度',u:'%',need:2,c:'#2f6b52',post:true,pg:'interest'},
-  nps:{n:'すすめたい度（NPS）',u:'pt',need:2,c:'#55606b',post:true,pg:'interest'}
+  sat:{n:'満足度',u:'%',need:2,c:'#2f6b52',post:true,pg:'repute'},
+  nps:{n:'すすめたい度（NPS）',u:'pt',need:2,c:'#55606b',post:true,pg:'repute'}
 };
 const mAvail=(k,d)=>has(M[k].need)&&!(M[k].post&&d<0);
 /* 類似作の同じ時点と比べた位置（0〜100） */
@@ -2210,9 +2211,10 @@ I('home','h_views','ページごとの状況',12,[],(T,d)=>{const c=[];const tn=
   const done=T.ev.filter(e=>e.d+2<=d&&!isAd(e)).map(e=>({e,v:evEff(T,e,d)})).filter(x=>x.v!=null).sort((a,b)=>b.v-a.v)[0];
   c.push(['acts','施策と反応',done?`いちばん効いたのは「${done.e.label}」`:'反応の出た施策はまだありません',done?tn(done.v):'warn']);
   if(has(6)){const a=adPos(T,d);c.push(['deliver','メディア',a==null?'広告の出稿はまだありません':`広告のクリック率は類似作の中で${TIERS[tierOf(a)]}`,a==null?'warn':tn(a)])}
-  const b=has(3)?posOf(T,'buzz',d):50;c.push(['interest','関心と評判',has(1)?`認知率 ${f1(at(T,'aware',d))}%・観たい率 ${f1(at(T,'intent',d))}%`:`話題の量は類似作の中で${TIERS[tierOf(b)]}`,tn(has(1)?posOf(T,'intent',d):b)]);
+  const b=has(3)?posOf(T,'buzz',d):50;c.push(['interest','関心',has(1)?`認知率 ${f1(at(T,'aware',d))}%・観たい率 ${f1(at(T,'intent',d))}%`:`話題の量は類似作の中で${TIERS[tierOf(b)]}`,tn(has(1)?posOf(T,'intent',d):b)]);
   if(visiblePages(d).some(p=>p.k==='audience'))c.push(['audience','観客',d>=0&&has(4)?`観た人のスコアは ${f2(at(T,'score',d))}点`:'観たい人の年代と好みを確認できます',d>=0&&has(4)?tn((at(T,'score',d)-3.2)*90):'good']);
-  c.push(['outlook','見通し',d>=2?`最終興収は ${fN(finalFc(T,d).mid)}円前後`:has(1)&&d<0?`最終興収は ${fN(preFc(T,d).mid)}円前後`:'類似作の中での位置を確認できます','good']);
+  if(has(3)&&visiblePages(d).some(p=>p.k==='repute'))c.push(['repute','評判',`センチメントは ${f1(at(T,'sent',d))}%`,tn(posOf(T,'sent',d))]);
+  c.push(['outlook','興収と見通し',d>=2?`最終興収は ${fN(finalFc(T,d).mid)}円前後`:has(1)&&d<0?`最終興収は ${fN(preFc(T,d).mid)}円前後`:'類似作の中での位置を確認できます','good']);
   return {d:'押すとそのページへ',h:`<div class="nums">${c.map(x=>`<button class="ncard" data-page="${x[0]}"><div class="k"><i class="cdot" style="background:${{good:'#5fae86',warn:'#d9ad4f',bad:'#d98476'}[x[3]]}"></i>${x[1]}</div><div style="font-size:13px;margin-top:4px">${x[2]}</div></button>`).join('')}</div>`}},{any:[3,6],...DP});
 I('home','h_moves','伸びた指標・落ちた指標',6,[],(T,d)=>{const ks=Object.keys(M).filter(k=>mAvail(k,d-7)&&mAvail(k,d)).map(k=>({k,v:wkChange(T,k,d)})).filter(x=>x.v!=null).sort((a,b)=>b.v-a.v);
   const row=x=>`<tr><td>${M[x.k].n}</td><td class="r" style="color:${x.v>=0?'var(--goodtx)':'var(--badtx)'}">${x.v>=0?'+':''}${f1(x.v)}${RATE.has(x.k)?(M[x.k].u==='点'?'点':'pt'):'%'}</td></tr>`;
@@ -3034,7 +3036,7 @@ function matSubmit(){const T=cur(),nm=esc($('#mtN').value.trim()),err=$('#mtErr'
   if(!nm){err.textContent='素材の名前を入れてください。';$('#mtN').focus();return}
   if(!dv){err.textContent='出す日を入れてください。';$('#mtD').focus();return}
   const t0=dateOf(T,0);t0.setHours(0,0,0,0);const dd=clamp(Math.round((new Date(dv+'T00:00:00')-t0)/864e5),D0,D1);
-  const done=img=>{const L=MATS_U[T.k]=MATS_U[T.k]||[],id='u'+(Math.max(0,...L.map(m=>+m.id.slice(1)))+1);L.push({id,eids,dd,k:$('#mtK').value,n:nm,img});matSave();closePanel();S.page='creative';S.crf='all';S.crw=dd>S.day?'next':'done';render();const el=document.querySelector('[data-cr="'+id+'"]');if(el)el.scrollIntoView({block:'center'})};
+  const done=img=>{const L=MATS_U[T.k]=MATS_U[T.k]||[],id='u'+(Math.max(0,...L.map(m=>+m.id.slice(1)))+1);L.push({id,eids,dd,k:$('#mtK').value,n:nm,img});matSave();closePanel();S.page='deliver';S.mv='mat';S.crf='all';S.crw=dd>S.day?'next':'done';render();const el=document.querySelector('[data-cr="'+id+'"]');if(el)el.scrollIntoView({block:'center'})};
   if(!f)return done(null);
   const rd=new FileReader();rd.onerror=()=>{err.textContent='画像を読み込めませんでした。'};rd.onload=()=>{const im=new Image();im.onerror=()=>{err.textContent='画像を読み込めませんでした。'};im.onload=()=>{const sc=Math.min(1,480/Math.max(im.width,im.height)),cv=document.createElement('canvas');cv.width=Math.round(im.width*sc);cv.height=Math.round(im.height*sc);cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);done(cv.toDataURL('image/jpeg',.72))};im.src=rd.result};rd.readAsDataURL(f)}
 /* スマホ：サブページは、いちばん上で下へ引くと閉じる */
@@ -3391,8 +3393,8 @@ SRC_USE.m_admix=[6];
   ITEMS.splice(j,0,...mv);mv.forEach(it=>it.deep=false)})();
 /* 広告と公式SNSは混ぜずに、切り替えて片方ずつ見せる */
 (function(){const sns=['k_sns','d_owned','d_plat','d_posts'];ITEMS.forEach(it=>{if(it.page==='deliver')it.grp=sns.includes(it.id)?'sns':'ad'})})();
-const MV=[['sns','公式SNS','自分たちの発信と、その反応'],['ad','広告','お金を払って届けた量と、その成果']];
-function mvSw(){const c=MV.find(x=>x[0]===S.mv)||MV[0];return `<div class="ctl mv-sw"><span class="seg big" role="tablist" aria-label="広告と公式SNSの切り替え">${MV.map(x=>`<button role="tab" data-mv="${x[0]}" class="${c[0]===x[0]?'on':''}" aria-selected="${c[0]===x[0]}">${x[1]}</button>`).join('')}</span><span class="mv-q">${c[2]}</span></div>`}
+const MV=[['mat','素材','どんな素材を出し、どれが反応を取ったか'],['sns','公式SNS','自分たちの発信と、その反応'],['ad','広告','お金を払って届けた量と、その成果']];
+function mvSw(){const c=MV.find(x=>x[0]===S.mv)||MV[0];return `<div class="ctl mv-sw"><span class="seg big" role="tablist" aria-label="素材・公式SNS・広告の切り替え">${MV.map(x=>`<button role="tab" data-mv="${x[0]}" class="${c[0]===x[0]?'on':''}" aria-selected="${c[0]===x[0]}">${x[1]}</button>`).join('')}</span><span class="mv-q">${c[2]}</span></div>`}
 
 /* 宣伝設計は、ふだんのタブとは分けて、ヘッダーの入口から入る画面にする */
 const PLAN_SEC=[['p_sec1','誰に','1'],['p_sec2','いつ','2'],['p_sec3','どこで・何を','3'],['p_sec4','宣伝コンセプト','✓']];
@@ -3430,7 +3432,7 @@ document.addEventListener('click',ev=>{const t=ev.target.closest('[data-psec],[d
   S.psec=planSec(ps);render();const el=$('#it-'+ps);if(el){const y=el.getBoundingClientRect().top+scrollY-($('.top').offsetHeight+12);window.scrollTo(0,y)}},true);
 
 /* 並び：今どうか・何をしたか → 何を出し、どう届けたか → どう受け止められ、誰が来たか → どこまで伸びるか */
-const PG_ORDER=['home','acts','creative','deliver','interest','audience','check','outlook','plan'],PG_GSEP=['creative','interest','outlook'];
+const PG_ORDER=['home','acts','deliver','interest','repute','audience','check','outlook','plan'],PG_GSEP=['acts','interest','outlook'];
 PAGES.sort((a,b)=>PG_ORDER.indexOf(a.k)-PG_ORDER.indexOf(b.k));
 /* 宣伝設計｜効果測定 の切り替え（どちらにいるか常に見える） */
 function modeSw(PM,where){return `<div class="mode-sw ${where==='d'?'mode-d':''}" role="tablist" aria-label="画面の切り替え"><button role="tab" class="${PM?'on':''}" data-mode="plan" aria-selected="${PM}">${TAB_IC.plan}宣伝設計</button><button role="tab" class="${PM?'':'on'}" data-mode="run" aria-selected="${!PM}">${TAB_IC.acts}効果測定</button></div>`}
@@ -3466,7 +3468,8 @@ const IK=[
   {st:'評判はよいか',k:'sat',q:'観た人は満足しているか',hit:'i_sat'},
   {st:'口コミで広がっているか',k:'mark',q:'観た記録が伸び続けているか',hit:'i_mark',mode:'cum'},
   {st:'口コミで広がっているか',k:'nps',q:'人にすすめたい人が多いか',hit:'i_sat'}];
-I('interest','i_key','関心と評判：ここだけ確認',12,[],(T,d)=>{const rows=IK.filter(x=>mAvail(x.k,d)&&at(T,x.k,d)!=null);if(!rows.length)return {d:'',h:'<div class="empty">この段階で使えるデータがありません。</div>'};
+const ikPg=x=>{const it=ITEMS.find(i=>i.id===x.hit);return it&&it.page==='repute'?'repute':'interest'};
+const ikFn=pgk=>(T,d)=>{const rows=IK.filter(x=>ikPg(x)===pgk&&mAvail(x.k,d)&&at(T,x.k,d)!=null);if(!rows.length)return {d:'',h:'<div class="empty">この段階で使えるデータがありません。</div>'};
   const val=x=>RATE.has(x.k)?avgR(T,x.k,d-6,d):x.mode==='cum'?sumR(T,x.k,D0,d):sumR(T,x.k,d-6,d),fm=x=>{const v=val(x);return x.k==='score'?f2(v):RATE.has(x.k)?f1(v):fN(v)};
   const sub=x=>RATE.has(x.k)?'直近7日の平均':x.mode==='cum'?'これまでの累計':'直近7日の合計';
   const groups=[...new Set(rows.map(x=>x.st))],ps=rows.map(x=>posOf(T,x.k,d,x.mode)),weak=rows.map((x,i)=>({x,p:ps[i]})).sort((a,b)=>a.p-b.p)[0],strong=rows.map((x,i)=>({x,p:ps[i]})).sort((a,b)=>b.p-a.p)[0];
@@ -3475,9 +3478,11 @@ I('interest','i_key','関心と評判：ここだけ確認',12,[],(T,d)=>{const 
       <li class="${strong.p>=60?'good':''}"><b>いちばん上位：${strong.x.q}</b>${M[strong.x.k].n}は類似作の中で ${strong.p}（50が真ん中）。</li>
       <li class="${weak.p<40?'warn':''}"><b>いちばん下位：${weak.x.q}</b>${M[weak.x.k].n}は類似作の中で ${weak.p}。${weak.p<40?'ここを補う施策を考えます。':''}</li></ul>
     ${groups.map((g,gi)=>`<div class="ik-g"><div class="ik-gh"><span class="num">${gi+1}</span>${g}</div><div class="chk">${rows.map((x,i)=>({x,i})).filter(o=>o.x.st===g).map(({x,i})=>{const [tc,tl]=tone(ps[i]);
-      return `<button class="ck-r ik-r" data-go="interest" data-hit="${x.hit}"><span class="ik-p"><i style="left:${ps[i]}%"></i></span><div class="ck-q"><b>${x.q}</b><small>${M[x.k].n}｜${sub(x)}</small></div><span class="ik-s" title="直近4週の推移">${spark(slice(T,x.k,d-27,d,d),M[x.k].c)}</span><div class="ck-v"><b class="num">${fm(x)}</b><small>${M[x.k].u}</small></div><span class="tone ${tc}">${tl}</span></button>`}).join('')}</div></div>`).join('')}
-    <div class="note">左の小さな帯は、類似作の同じ時期の中での位置（左ほど下、右ほど上、真ん中の線が類似作の真ん中）。行を押すと、くわしいグラフに移ります。</div>`}},{any:[1,2,3,4,5]});
-SRC_USE.i_key=[3,5,1,4,2];
+      return `<button class="ck-r ik-r" data-go="${pgk}" data-hit="${x.hit}"><span class="ik-p"><i style="left:${ps[i]}%"></i></span><div class="ck-q"><b>${x.q}</b><small>${M[x.k].n}｜${sub(x)}</small></div><span class="ik-s" title="直近4週の推移">${spark(slice(T,x.k,d-27,d,d),M[x.k].c)}</span><div class="ck-v"><b class="num">${fm(x)}</b><small>${M[x.k].u}</small></div><span class="tone ${tc}">${tl}</span></button>`}).join('')}</div></div>`).join('')}
+    <div class="note">左の小さな帯は、類似作の同じ時期の中での位置（左ほど下、右ほど上、真ん中の線が類似作の真ん中）。行を押すと、くわしいグラフに移ります。</div>`}};
+I('interest','i_key','関心：ここだけ確認',12,[],ikFn('interest'),{any:[1,3,4,5]});
+I('repute','r_key','評判：ここだけ確認',12,[],ikFn('repute'),{any:[2,3,4]});
+SRC_USE.i_key=[3,5,1,4];SRC_USE.r_key=[3,4,2];
 (function(){const it=ITEMS.splice(ITEMS.findIndex(x=>x.id==='i_key'),1)[0],j=ITEMS.findIndex(x=>x.page==='interest');ITEMS.splice(j,0,it);
   const keep=['i_key','i_buzz','i_words','i_aware','i_sat'];ITEMS.forEach(x=>{if(x.page==='interest'&&!keep.includes(x.id))x.deep=true;if(['i_buzz','i_aware'].includes(x.id))x.w=12})})();
 
@@ -3488,7 +3493,7 @@ const PROV_NAME={1:'鑑賞意向調査（KARTE）',2:'鑑賞後アンケート�
 const PROV_EST=['a_perf','a_expo','a_roi','a_cum','d_demo','a_seg','a_rx','h_risk','k_ad'],PROV_IDX=['h_verdict','a_score','a_axes','a_decomp','h_views'];
 const karteN=(T,d)=>Math.round(1100+R(T,700+Math.floor(d/7))()*260);
 function provHTML(it,T,d){const use=(SRC_USE[it.id]||it.need).filter(k=>srcPhase(k)<=S.phase&&(typeof k!=='number'||has(k)));if(!use.length)return '';
-  const kind=it.page==='outlook'?['pv-f','予測']:PROV_IDX.includes(it.id)?['pv-i','指数（複数の数字をまとめた点数）']:PROV_EST.includes(it.id)?['pv-e','推定を含む']:['pv-m','実測'];
+  const kind=it.page==='outlook'&&/^o_/.test(it.id)&&!['o_supply','o_comp','o_slate'].includes(it.id)?['pv-f','予測']:PROV_IDX.includes(it.id)?['pv-i','指数（複数の数字をまとめた点数）']:PROV_EST.includes(it.id)?['pv-e','推定を含む']:['pv-m','実測'];
   const nm=use.map(k=>k===2&&d>=0?`${provName(k)}・回答 ${fN(castResp(T,d))}人`:k===1?`${provName(k)}・直近1週の回答 ${fN(karteN(T,d))}人`:provName(k)).join('／');
   return `<div class="prov"><span class="pv ${kind[0]}">${kind[1]}</span><span class="pv-s">${nm}</span><span class="pv-t">${d>T.today?'この先は見本の数字':md(dateOf(T,d))+' 6:00 更新'}</span></div>`}
 function scoreHow(T,d){const p=scoreParts(T,d),W=sumA(p.map(x=>x.w||1));
@@ -3569,7 +3574,7 @@ function cadChip(it,d){if(it.page==='plan'||it.sec||CAD_NONE.includes(it.id))ret
   const use=(SRC_USE[it.id]||it.need).filter(k=>srcPhase(k)<=S.phase&&(typeof k!=='number'||has(k)));if(!use.length&&SRC_USE[it.id])return '';
   const wk=use.includes(1),oth=use.some(k=>k!==1);
   if(wk&&!oth&&d>=0&&CAD_PRE.includes(it.id))return '<span class="cad">公開前の記録</span>';
-  return wk&&(!oth||CAD_W.includes(it.id)||d<0&&it.page==='audience')?'<span class="cad w">週1回</span>':wk&&CAD_MIX.includes(it.id)?'<span class="cad">毎日<i>一部は週1回</i></span>':'<span class="cad">毎日</span>'}
+  return wk&&(!oth||CAD_W.includes(it.id)||d<0&&(it.page==='audience'||/^u/.test(it.id)))?'<span class="cad w">週1回</span>':wk&&CAD_MIX.includes(it.id)?'<span class="cad">毎日<i>一部は週1回</i></span>':'<span class="cad">毎日</span>'}
 /* ===== 宣伝コンセプトと答え合わせを、同じ並び・同じ言葉でつなぐ ===== */
 const CK_SEC=['誰に','いつ','どこで・何を'],CK_LB={good:'<span class="tone good">狙いどおり</span>',warn:'<span class="tone warn">ずれあり</span>','':'<span class="chip neu">差は小さい</span>',wait:'<span class="chip neu">これから</span>',ref:'<span class="chip neu">別のページで確認</span>',none:'<span class="chip neu">—</span>'};
 function ckHead(id,T,d){const it=ITEMS.find(x=>x.id===id);if(!it||!avail(it,d))return null;const m=/<li class="([^"]*)"><b>([\s\S]*?)<\/b>/.exec(it.fn(T,d).h||'');return m?{c:m[1]||'',tx:m[2].replace(/^宣伝設計の[^：]*：/,'')}:null}
@@ -3599,6 +3604,24 @@ function ckStrip(T,d){if(!visiblePages(d).some(p=>p.k==='check'))return '';const
 (function(){const tag={p_gap:'1 誰に｜メインターゲット',u_left:'1 誰に｜メインターゲット',u_answer:'1 誰に｜メインターゲット',u_target:'1 誰に｜メインターゲット',u_kwpre:'1 誰に｜キーワード',u_kw:'1 誰に｜キーワード',u_area:'1 誰に｜地域',u_sellpre:'3 どこで・何を｜売り',u_sell:'3 どこで・何を｜売り'};
   ['c_map','p_gap','u_left','u_kwpre','u_sellpre','u_answer','u_target','u_kw','u_area','u_sell'].forEach(id=>{const it=ITEMS.splice(ITEMS.findIndex(x=>x.id===id),1)[0];if(tag[id])it.ck=tag[id];ITEMS.splice(ITEMS.findIndex(x=>x.page==='outlook'),0,it)})})();
 ITEMS.forEach(it=>{if(it.page==='plan'||it.page==='check'||it.id==='o_simsat')it.acc=true});
+/* ===== 配置の見直し（2026-11-25）：1ページ1つの問い。総合点＝今日／お金＝興収と見通し／量＝関心／中身＝評判／誰が＝観客／素材はメディアへ ===== */
+PAGES.push({k:'repute',n:'評判',q:'どう語られ、どう評価されているか'});
+(function(){const P=k=>PAGES.find(p=>p.k===k),g=id=>ITEMS.find(x=>x.id===id);
+  Object.assign(P('interest'),{n:'関心',q:'どれだけ知られ、観たいと思われているか'});Object.assign(P('outlook'),{n:'興収と見通し',q:'いくらで、どこまで伸びるか'});Object.assign(P('deliver'),{n:'素材とメディア',q:'何を出し、広告と公式SNSでどう届いたか'});
+  const ci=PAGES.findIndex(p=>p.k==='creative');if(ci>=0)PAGES.splice(ci,1);PAGES.sort((a,b)=>PG_ORDER.indexOf(a.k)-PG_ORDER.indexOf(b.k));
+  ITEMS.forEach(it=>{if(it.page==='creative'){it.page='deliver';it.grp='mat'}});
+  const L={
+    home:{top:['h_verdict','h_todo','h_risk','h_bo','h_nums'],deep:['#反応スコア','a_score','a_decomp','a_axes','o_cmpts','#全体を見渡す','h_views','h_moves','h_all']},
+    acts:{top:['a_today','a_log','a_answer','a_cum'],deep:['h_tl','a_bonus','a_seg','a_ch','a_plan','o_upside','a_week','a_flow','a_organic']},
+    interest:{top:['i_key','i_aware','h_funnel','ux_B'],deep:['i_pillars','i_notwant','u_pre2','i_clip','i_conv']},
+    repute:{top:['r_key','h_alert','i_sat','i_words','u_nps','u_wom'],deep:['#SNSで語られていること','i_sent','h_voice','#観た人の評価','i_score','i_mark','i_topics','i_updown','i_rwords','u_seg','#口コミの広がり','i_wom','u_repeat','#自社のほかの作品と比べる','o_cmpaud']},
+    outlook:{top:['o_two','o_pos','o_money','o_final','o_long','o_bench','o_legs','o_type','o_similar','h_goal','o_simsat','#公開の規模と競合','o_supply','o_comp','o_ovl','u_rival'],deep:['#興収をくわしく','o_mult','o_how','u_format','o_curve','#公開の規模と競合をくわしく','o_share','o_winlose','o_slate','o_demand','o_sim','o_demandix','o_pressure']}};
+  Object.entries(L).forEach(([pg,o])=>{const mv=[];[['top',false],['deep',true]].forEach(([k,dp])=>{let hd;o[k].forEach(id=>{if(id[0]==='#'){hd=id.slice(1);return}const i=ITEMS.findIndex(x=>x.id===id);if(i<0){console.warn('配置：項目なし',id);return}const it=ITEMS.splice(i,1)[0];it.page=pg;it.deep=dp;it.hd=hd;mv.push(it)})});
+    const j=ITEMS.findIndex(x=>x.page===pg);ITEMS.splice(j<0?ITEMS.length:j,0,...mv)});
+  const after=(id,ref,o)=>{const it=ITEMS.splice(ITEMS.findIndex(x=>x.id===id),1)[0];Object.assign(it,o);ITEMS.splice(ITEMS.findIndex(x=>x.id===ref)+1,0,it)};
+  after('h_posts','cr_posts',{page:'deliver',grp:'sns',deep:true});after('h_cast','u_items',{page:'audience',deep:true});
+  Object.entries({h_moves:12,u_heat:12,o_cmpaud:12,o_curve:12,i_sent:6}).forEach(([id,w])=>{g(id).w=w});
+})();
 function visiblePages(d){return PAGES.filter(p=>ITEMS.some(it=>it.page===p.k&&it.id!=='c_map'&&avail(it,d)))}
 function render(){acctFix();syncPeers();const T=cur(),d=S.day;
   if(S.page!=='plan'&&!visiblePages(d).some(p=>p.k===S.page))S.page='home';
@@ -3613,7 +3636,8 @@ function render(){acctFix();syncPeers();const T=cur(),d=S.day;
   $('#mDate').textContent=`${md(dateOf(T,d))}｜${relLbl(d)}`;appSave();
   const pg=PAGES.find(p=>p.k===S.page),psI=S.page==='plan'&&S.psec!=='all'?ITEMS.find(x=>x.id===curSec()):null,list=ITEMS.filter(it=>it.page===S.page&&avail(it,d)&&(!it.grp||S.mv==='all'||it.grp===S.mv)&&(!psI||(it!==psI&&it.id!=='p_basis'&&planSec(it.id)===psI.id))),dl=list.filter(it=>it.deep);
   const dd=S.page==='plan'?T.today:d,card=it=>{const o=it.fn(T,dd);return `<section class="card c${it.w}" id="it-${it.id}" data-need="${it.need.join(',')}"><div class="card-h">${it.ck?`<span class="ck-tag">${it.ck}</span>`:''}<h2>${it.t}</h2>${cadChip(it,dd)}<span class="d">${o.d||''}</span></div>${srcChips(it)}${o.h}${provHTML(it,T,dd)}</section>`};
-  $('#page').innerHTML=`${S.page==='home'?heroHTML(T,d):''}<div class="pg-head">${S.page==='home'?'':`<span class="pg-po">${poster(T,{fit:'slice'})}</span>`}<h1>${psI?psI.t:pg.n}</h1><span class="pg-q">${psI?psI.fn(T,d).d:pg.q}</span><span class="chip neu">${S.page==='plan'?T.name:`${T.name}｜${md(dateOf(T,d))}時点`}</span>${REAL?'<span class="chip smp-chip">作品名は実在・数字と施策はすべて見本</span>':''}<span class="srcs int-only" style="margin:0"><span class="sc-l">社内表示：各項目に、使っているデータを出しています</span><span class="sc">番号つき＝6分類</span><span class="sc c">共通のデータ</span><span class="sc l">点線＝後の段階で加わる</span></span></div>${fewNote()}${psI&&psI.id==='p_sec4'&&list.length?planBasis(T,d):''}${S.page==='plan'?'':castGuide(T,d)}${stageNote(T,d)}${S.page==='deliver'?mvSw():''}<div class="grid">${list.filter(it=>!it.deep).map(card).join('')}</div>${dl.length?`<details class="deep" ${S.deepOpen[S.page]?'open':''}><summary>くわしく見る<span>${dl.length}項目</span></summary><div class="grid">${dl.map(card).join('')}</div></details>`:''}${psI&&list.length?planStep():''}`;
+  const cardH=(it,i,a)=>(it.hd&&(!i||a[i-1].hd!==it.hd)?`<h3 class="g-hd">${it.hd}</h3>`:'')+card(it);
+  $('#page').innerHTML=`${S.page==='home'?heroHTML(T,d):''}<div class="pg-head">${S.page==='home'?'':`<span class="pg-po">${poster(T,{fit:'slice'})}</span>`}<h1>${psI?psI.t:pg.n}</h1><span class="pg-q">${psI?psI.fn(T,d).d:pg.q}</span><span class="chip neu">${S.page==='plan'?T.name:`${T.name}｜${md(dateOf(T,d))}時点`}</span>${REAL?'<span class="chip smp-chip">作品名は実在・数字と施策はすべて見本</span>':''}<span class="srcs int-only" style="margin:0"><span class="sc-l">社内表示：各項目に、使っているデータを出しています</span><span class="sc">番号つき＝6分類</span><span class="sc c">共通のデータ</span><span class="sc l">点線＝後の段階で加わる</span></span></div>${fewNote()}${psI&&psI.id==='p_sec4'&&list.length?planBasis(T,d):''}${S.page==='plan'?'':castGuide(T,d)}${stageNote(T,d)}${S.page==='deliver'?mvSw():''}<div class="grid">${list.filter(it=>!it.deep).map(cardH).join('')}</div>${dl.length?`<details class="deep" ${S.deepOpen[S.page]?'open':''}><summary>くわしく見る<span>${dl.length}項目</span></summary><div class="grid">${dl.map(cardH).join('')}</div></details>`:''}${psI&&list.length?planStep():''}`;
   if(PM&&!list.length){const g=$('#page .grid');if(g)g.outerHTML=planEmpty(T,d)}
   const pb=$('.pl-basis details');if(pb)pb.addEventListener('toggle',()=>{S.pbOpen=pb.open});
   const dt=$('details.deep');if(dt)dt.addEventListener('toggle',()=>{S.deepOpen[S.page]=dt.open});
@@ -3624,7 +3648,7 @@ function render(){acctFix();syncPeers();const T=cur(),d=S.day;
 }
 /* 話題の量・検索のグラフは「施策の記録」の「グラフから探す」にある */
 const HIT_GR=['buzz','search','i_buzz','i_search','a_tl','a_react'];
-function setPage(p,hit){if(HIT_GR.includes(hit)){S.jv='gr';hit='a_log'}closePanel();{const h0=hit&&ITEMS.find(x=>x.id===hit);if(h0&&h0.page!==p&&PAGES.some(x=>x.k===h0.page))p=h0.page}S.page=p;if(hit){const h=ITEMS.find(x=>x.id===hit||x.hit===hit&&x.page===p);if(h&&h.deep)S.deepOpen[p]=true;if(h&&h.grp)S.mv=h.grp;if(h&&p==='plan')S.psec=planSec(h.id)}render();window.scrollTo({top:0});
+function setPage(p,hit){if(HIT_GR.includes(hit)){S.jv='gr';hit='a_log'}closePanel();if(p==='creative'){p='deliver';S.mv='mat'}{const h0=hit&&ITEMS.find(x=>x.id===hit);if(h0&&h0.page!==p&&PAGES.some(x=>x.k===h0.page))p=h0.page}S.page=p;if(hit){const h=ITEMS.find(x=>x.id===hit||x.hit===hit&&x.page===p);if(h&&h.deep)S.deepOpen[p]=true;if(h&&h.grp)S.mv=h.grp;if(h&&p==='plan')S.psec=planSec(h.id)}render();window.scrollTo({top:0});
   if(hit){const it=ITEMS.find(x=>x.id===hit||x.hit===hit&&x.page===p),el=it&&$('#it-'+it.id);if(el){el.scrollIntoView({block:'center'});el.classList.add('hit');setTimeout(()=>el.classList.remove('hit'),1800)}}}
 function acctFix(){const ok=k=>k==='all'||DISTS.some(x=>x.k===k);if(DISTS.length<2||!ok(S.acct))S.acct='all';if(DISTS.length<2)return;const td=TT[S.title].dist;if(S.client&&S.acct==='all')S.acct=td;if(S.acct!=='all'&&td!==S.acct)S.acct=td;
   S.cmpSet=S.cmpSet.filter(k=>{const X=ownGet(k);return X&&X.dist===td})}
@@ -3713,11 +3737,12 @@ const TAB_IC={
   deliver:_ic('<path d="M3 11v2.5a1 1 0 0 0 1 1h2l5 4V5.5l-5 4H4a1 1 0 0 0-1 1z"/><path d="M15.5 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/>'),
   interest:_ic('<path d="M12 20.5s-7.5-4.6-9-9.3C2 7.8 4.2 4.5 7.5 4.5c2 0 3.5 1.2 4.5 2.7 1-1.5 2.5-2.7 4.5-2.7 3.3 0 5.5 3.3 4.5 6.7-1.5 4.7-9 9.3-9 9.3z"/>'),
   audience:_ic('<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17.5" cy="9" r="2.5"/><path d="M16.5 14.2c2.6.3 4.5 2.6 4.5 5.3"/>'),
+  repute:_ic('<path d="M4 5.5h16a1.5 1.5 0 0 1 1.5 1.5v8.5a1.5 1.5 0 0 1-1.5 1.5h-7l-4.5 3.5V17H4a1.5 1.5 0 0 1-1.5-1.5V7A1.5 1.5 0 0 1 4 5.5z"/><path d="M7.5 10h9M7.5 13h5.5"/>'),
   outlook:_ic('<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>')};
 /* 下段メニューの印：今日＝炎上リスク（注意以上）、施策＝実施から3日以内の施策 */
 function tabDot(T,d,k){try{if(k==='home'&&has(3)&&T.ev.some(e=>e.d<=d&&e.d>=d-14&&(rxOf(T,e,d)||{risk:{}}).risk.lv&&rxOf(T,e,d).risk.lv!=='平常'))return '<i class="tdot bad"></i>';
   if(k==='acts'&&T.ev.some(e=>e.d<=d&&e.d>=d-2))return '<i class="tdot"></i>'}catch(e){}return ''}
-const TAB_SHORT={creative:'素材',acts:'施策',plan:'設計',home:'今日',deliver:'メディア',interest:'関心',audience:'観客',check:'検証',outlook:'見通し'};
+const TAB_SHORT={acts:'施策',plan:'設計',home:'今日',deliver:'メディア',interest:'関心',repute:'評判',audience:'観客',check:'検証',outlook:'興収'};
 const APPK='crew_v7_app_1';
 /* 前回の作品・ページ・表示を覚えておき、次に開いたときに戻す（基準日は毎回「今日」に戻す） */
 function appSave(){try{localStorage.setItem(APPK,JSON.stringify({title:S.title,page:S.page,phase:S.phase,karte:S.karte,quiet:!!S.quiet,acct:S.acct,client:S.client,jv:S.jv,jo:S.jo,mv:S.mv,jw:S.jw,fk:S.fk,tlRange:S.tlRange,cmpSet:S.cmpSet,castOpen:S.castOpen,peerSel:S.peerSel}))}catch(e){}}
