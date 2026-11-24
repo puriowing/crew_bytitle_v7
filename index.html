@@ -483,6 +483,11 @@ body.m-more .top .internal{display:flex}
 .spk-ev small{color:var(--sub);font-size:11.5px;font-weight:400}
 .spk-ev .go{margin-left:auto;color:var(--accent2);font-size:12px;font-weight:700;white-space:nowrap}
 .spk-ev:hover{background:var(--accent-soft)}
+.acct-chip{cursor:pointer;font-family:inherit}.top .acct-chip{background:rgba(255,217,138,.18);border-color:rgba(255,217,138,.55);color:#ffe7b0}
+.acct-sel{border:1px solid var(--rule2);border-radius:999px;padding:3px 8px;font-size:11.5px;background:#fff;color:var(--ink2);max-width:150px}
+.smp-chip{background:#fbf3e6;border-color:#eec39a;color:#8a4b12}
+.fw-t{width:100%;border-collapse:collapse;font-size:12.5px}.fw-t th{text-align:left;font-size:11px;color:var(--sub);padding:5px 8px;border-bottom:1px solid var(--rule2)}.fw-t td{padding:7px 8px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.6}.fw-t tr.fw-no td{color:var(--sub-weak)}
+[hidden]{display:none!important}
 details.castg{border:1px dashed #eec39a;background:#fffaf4;border-radius:14px;padding:10px 14px;margin:0 0 16px}
 details.castg>summary{cursor:pointer;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;font-size:12px;color:var(--sub)}
 details.castg>summary b{font-family:'Zen Maru Gothic',sans-serif;font-size:13.5px;color:#8a4b12}
@@ -570,7 +575,8 @@ details.deep>.grid{margin-top:16px}
   body.m-date .datebox{display:flex;width:100%;justify-content:space-between}
   body.m-date .datebox input[type=range]{flex:1;width:auto}
   body.m-more .top #btnSearch,body.m-more .top #btnRpt,body.m-more .top #btnPeers{display:inline-flex}
-  .top #btnRpt,.top #btnPeers,.top #swNote{display:none}
+  .top #btnRpt,.top #btnPeers,.top #swNote,.top #acctChip{display:none}
+  body.m-more .top #acctChip:not([hidden]){display:inline-flex}
   body.m-more .top #swNote{display:inline-flex;padding:4px 6px}
   body.m-more .internal{display:flex;width:100%}
   .tabs{position:fixed;left:0;right:0;bottom:0;z-index:35;background:#fbfaf7;border-top:1px solid var(--rule);padding:0 4px env(safe-area-inset-bottom);gap:0;justify-content:space-around;overflow:visible}
@@ -1203,6 +1209,7 @@ body.plan-mode:not(.pg-check) .top .datebox{opacity:.4;pointer-events:none}body.
   <div class="top-in">
     <div class="brand">CREW<span>作品分析</span></div>
     <span id="selPo" class="sel-po"></span><select id="selTitle" class="sel" aria-label="作品"></select>
+    <button id="acctChip" class="chip acct-chip" data-fw hidden title="見える範囲（配給会社ごとの仕切り）"></button>
     <button id="btnPeers" class="btn" data-peers title="比べている類似作の説明と、選び直し"></button>
     <div class="datebox">
       <span id="phaseChip" class="chip"></span>
@@ -1218,6 +1225,7 @@ body.plan-mode:not(.pg-check) .top .datebox{opacity:.4;pointer-events:none}body.
     <button id="mMore" class="btn m-only" aria-label="その他の操作" aria-expanded="false">…</button>
     <div class="sp"></div>
     <div class="internal">
+      <select id="selAcct" class="acct-sel" aria-label="見ているアカウント" hidden></select>
       <span class="int-l">社内表示｜データの範囲</span>
       <span class="seg" id="segPhase"><button data-p="1" title="観客アンケート（CAST）が始まる前">①CAST前</button><button data-p="2" title="CASTが始まり、この作品の回答が入る">②CAST開始後</button><button data-p="3" title="類似作の回答が貯まり、宣伝設計と検証が開く">③蓄積後</button></span><span class="seg" id="segKarte"><button title="鑑賞意向調査（KARTE）がある作品として表示">KARTEあり</button></span>
       <button id="btnClient" class="btn" style="padding:3px 10px"></button>
@@ -1231,8 +1239,11 @@ body.plan-mode:not(.pg-check) .top .datebox{opacity:.4;pointer-events:none}body.
 <div id="scrim"></div>
 <aside id="panel" aria-label="くわしく"></aside>
 <div id="cmdk"><div class="ck"><input id="ckQ" placeholder="指標・項目の名前で探す"><div class="ck-l" id="ckL"></div></div></div>
+<script src="crew_titles_local.js"></script>
 <script>
 /* ================= 基本 ================= */
+/* REAL＝手元だけにある実在の作品名の一覧（crew_titles_local.js）。無ければ見本の作品のまま */
+const REAL=new URLSearchParams(location.search).get('names')==='sample'?null:(window.CREW_REAL||null);
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const TODAY=new Date(2026,10,15), D0=-84, D1=41, GMAX=140;
 /* データソース：1 KARTE／2 CAST／3 SNS計測／4 レビュー／5 検索／6 宣伝データ */
@@ -1291,7 +1302,7 @@ const MEDIA=[['YouTube',.36,560,.9,31],['X',.24,480,1.15,24],['Instagram',.22,62
 /* ================= 架空データの生成 ================= */
 function build(t){
   const r=rng(t.seed), q=t.q, pw=t.power, ix=d=>d-D0;
-  const open=new Date(TODAY); open.setDate(open.getDate()-t.today);
+  const open=t.open?new Date(t.open+'T00:00:00'):new Date(TODAY); if(!t.open)open.setDate(open.getDate()-t.today);
   const dow=d=>{const x=new Date(open);x.setDate(x.getDate()+d);return x.getDay()};
   const ev=EV_TPL.map((e,i)=>({id:i,d:clamp(e[0]+(e[0]===0?0:(t.shift||0)+(t.jit?Math.round((r()-.5)*t.jit):0)),D0,D1),ch:e[1],len:e[1]==='PAID_DIGITAL'?7:e[1]==='PAID_TV'?10:1,ty:EV_TYPES[i],src:e[1]==='PR'?'auto':'reg',art:e[1]==='PR'?(i*7+t.seed)%30+6:0,label:e[2],str:+(0.55+r()*0.95).toFixed(2),cost:Math.round(e[3]*(0.7+r()*0.6)*pw)})).filter(e=>!(t.skip||[]).includes(e.id));
   ev.forEach(e=>{const m={5:3,14:12}[e.id];if(m!=null&&ev.some(q=>q.id===m))e.boost=m});
@@ -1341,24 +1352,28 @@ const TITLE_DEFS=[
   {k:'t2',name:'ラストトレイン・ブルース',genre:'サスペンス',kind:'実写邦画',screens:285,today:9,seed:23,power:.85,q:.45},
   {k:'t3',name:'ぼくらの小さな大冒険',genre:'ファミリー',kind:'アニメ',screens:340,today:23,seed:37,power:1.2,q:.7,series:true}
 ];
-const TT={};TITLE_DEFS.forEach(t=>TT[t.k]=build(t));
+if(REAL){TITLE_DEFS.length=0;REAL.titles.forEach((x,i)=>TITLE_DEFS.push({k:'t'+(i+1),...x}))}else TITLE_DEFS.forEach(t=>t.dist='smp');
+/* 配給会社（アカウントの単位）。作品はどれか1社のもの。ほかの会社のアカウントからは開けない */
+const DISTS=REAL?REAL.dists:[{k:'smp',n:'見本の配給会社'}],distN=k=>(DISTS.find(x=>x.k===k)||{n:''}).n;
+const TT={};TITLE_DEFS.forEach(t=>{const T=TT[t.k]=build(t);T.dist=t.dist;T.art=t.art});
 const PEERS=(()=>{const r=rng(999),a=[];for(let i=0;i<14;i++)a.push(build({k:'p'+i,name:'',today:37,seed:100+i*13,power:0.5+r()*1.1,q:0.15+r()*0.8}));return a})();
 PEERS.forEach(p=>p.full=true);
-const PAST=[build({k:'a1',name:'去年の春、君と',genre:'恋愛・青春',kind:'実写邦画',screens:298,today:37,seed:51,power:.95,q:.6,shift:3,jit:12,skip:[7,13]}),build({k:'a2',name:'あの夏のホームルーム',genre:'青春',kind:'実写邦画',screens:330,today:37,seed:67,power:1.15,q:.35,shift:-2,jit:14,skip:[2,4,12]})];PAST.forEach(p=>{p.full=true;p.past=true;TT[p.k]=p});PAST[0].yr=2025;PAST[1].yr=2024;
+const PAST=[build({k:'a1',name:'去年の春、君と',genre:'恋愛・青春',kind:'実写邦画',screens:298,today:37,seed:51,power:.95,q:.6,shift:3,jit:12,skip:[7,13]}),build({k:'a2',name:'あの夏のホームルーム',genre:'青春',kind:'実写邦画',screens:330,today:37,seed:67,power:1.15,q:.35,shift:-2,jit:14,skip:[2,4,12]})];PAST.forEach(p=>{p.full=true;p.past=true;p.dist='smp';TT[p.k]=p});PAST[0].yr=2025;PAST[1].yr=2024;
+if(REAL)REAL.past2.forEach((x,i)=>Object.assign(PAST[i],{name:x.name,dist:x.dist,genre:x.genre,kind:x.kind,yr:x.yr}));
 /* 自社の過去作：施策の比較で、作品名で探して1本ずつ足せる */
-const OWN_CAT=[['きみと歩く坂道','恋愛・青春',2024,280],['金曜日のラジオ','ヒューマンドラマ',2023,210],['放課後のサイレン','サスペンス',2025,300],['海をわたる自転車','青春',2022,190],['となりの名探偵','ミステリー',2024,320],['星を数える夜','恋愛・青春',2023,265],['おかえり、こぐま','ファミリー',2025,335],['八月のスコアボード','青春',2022,245]].map((x,i)=>{const q=build({k:'o'+i,name:x[0],genre:x[1],kind:i===6?'アニメ':'実写邦画',screens:x[3],today:37,seed:700+i*23,power:.6+(i%4)*.22,q:.25+(i%5)*.15,shift:(i%5)-2,jit:10+i,skip:[(i*3)%14,(i*5+1)%14]});q.full=true;q.past=true;q.yr=x[2];return q});
+const OWN_CAT=(REAL?REAL.own.map(x=>[x.name,x.genre,x.yr,x.screens,x.dist,x.kind]):[['きみと歩く坂道','恋愛・青春',2024,280],['金曜日のラジオ','ヒューマンドラマ',2023,210],['放課後のサイレン','サスペンス',2025,300],['海をわたる自転車','青春',2022,190],['となりの名探偵','ミステリー',2024,320],['星を数える夜','恋愛・青春',2023,265],['おかえり、こぐま','ファミリー',2025,335],['八月のスコアボード','青春',2022,245]]).map((x,i)=>{const q=build({k:'o'+i,name:x[0],genre:x[1],kind:x[5]||(i===6?'アニメ':'実写邦画'),screens:x[3],today:37,seed:700+i*23,power:.6+(i%4)*.22,q:.25+(i%5)*.15,shift:(i%5)-2,jit:10+i,skip:[(i*3)%14,(i*5+1)%14]});q.full=true;q.past=true;q.yr=x[2];q.dist=x[4]||'smp';return q});
 const ownGet=k=>TT[k]||OWN_CAT.find(p=>p.k===k),OWN_MAX=3;
-function ownSel(T,full){const L=Object.values(TT).concat(OWN_CAT).filter(p=>p.k!==T.k&&!S.cmpSet.includes(p.k)),op=p=>`<option value="${p.k}">${p.name}${p.past?`（${p.yr?p.yr+'年・':''}${p.genre}）`:`（${p.genre}）`}</option>`;
+function ownSel(T,full){const L=Object.values(TT).concat(OWN_CAT).filter(p=>p.k!==T.k&&p.dist===T.dist&&!S.cmpSet.includes(p.k)),op=p=>`<option value="${p.k}">${p.name}${p.past?`（${p.yr?p.yr+'年・':''}${p.genre}）`:`（${p.genre}）`}</option>`;
   return `<select id="ownSel" class="own-q" ${full?'disabled':''} aria-label="自社の作品を足す"><option value="">${full?OWN_MAX+'本並べています（外すと選べます）':'＋ 自社の作品を足す（'+OWN_MAX+'本まで）'}</option><optgroup label="公開前・公開中">${L.filter(p=>!p.past).map(op).join('')}</optgroup><optgroup label="過去作">${L.filter(p=>p.past).sort((x,y)=>(y.yr||0)-(x.yr||0)).map(op).join('')}</optgroup></select>`}
 document.addEventListener('change',ev=>{if(ev.target.id!=='ownSel')return;const k=ev.target.value;if(!k||S.cmpSet.includes(k)||S.cmpSet.length>=OWN_MAX)return;S.cmpSet=S.cmpSet.concat(k);render()});
 
-const SIMILAR=['春を待つ手紙','あの日の約束','君と見た海','夜明けのランナー','ひだまりの食卓','最後の放課後','風の通り道','まちかどの奇跡','青のフォトグラフ','はじまりの歌','小さな灯台','雨上がりの二人','白い自転車','約束の丘'];
+const SIMILAR=REAL?REAL.similar:['春を待つ手紙','あの日の約束','君と見た海','夜明けのランナー','ひだまりの食卓','最後の放課後','風の通り道','まちかどの奇跡','青のフォトグラフ','はじまりの歌','小さな灯台','雨上がりの二人','白い自転車','約束の丘'];
 /* 類似作：はじめの14本（PEER_DEF）から外す・候補（PEER_ADD）から足す。PEERS の中身を作品ごとの選び方に合わせて入れ替える */
-PEERS.forEach((p,i)=>{p.ttl=i<12?SIMILAR[i]:PAST[i-12].name;p.own=i>=12;p.yr=2023+(i*2)%3});
+PEERS.forEach((p,i)=>{p.ttl=i<12?SIMILAR[i]:PAST[i-12].name;Object.defineProperty(p,'own',{get:()=>i>=12&&PAST[i-12].dist===cur().dist,configurable:true});p.yr=i>=12?PAST[i-12].yr:REAL?2025:2023+(i*2)%3});
 const PEER_DEF=[...PEERS],PEER_MIN=5,PEER_BAND_MIN=8,PEER_REF_MIN=5,FX_MIN=3;
 const peerFew=()=>PEERS.length<PEER_REF_MIN?2:PEERS.length<PEER_BAND_MIN?1:0,refTx=()=>peerFew()===2?'（参考値）':'';
 function fewNote(){const f=peerFew();if(!f)return '';return `<details class="few-d" ${S.fewOpen?'open':''}><summary><b>類似作 ${PEERS.length}本</b>${f===2?'比較は参考値です':'グラフの幅は出していません'}</summary><div class="few-note"><b>類似作が${PEERS.length}本です</b><span>${f===2?`${PEER_REF_MIN}本未満のため、類似作との比較はすべて参考値です（1本の入れ替えで大きく変わります）。`:''}${PEER_BAND_MIN}本未満のため、グラフの「類似作の幅」は出さず、中央値の線だけにしています。</span><button class="fx-re" data-peers>作品を選び直す</button></div></details>`}
-const PEER_ADD=[['白い自転車','公開が4年前',2022],['約束の丘','公開規模が条件より大きい',2024],['海辺の郵便局','ジャンルが少し違う',2025],['十七歳の地図帳','公開規模が条件より小さい',2024],['月曜日のパレード','ジャンルが少し違う',2023],['坂の上の写真館','公開が4年前',2022]].map((x,i)=>{const q=build({k:'x'+i,name:'',today:37,seed:300+i*17,power:.6+i*.13,q:.25+i*.11});q.full=true;q.ttl=x[0];q.why=x[1];q.yr=x[2];q.add=true;return q});
+const PEER_ADD=[['白い自転車','公開が4年前',2022],['約束の丘','公開規模が条件より大きい',2024],['海辺の郵便局','ジャンルが少し違う',2025],['十七歳の地図帳','公開規模が条件より小さい',2024],['月曜日のパレード','ジャンルが少し違う',2023],['坂の上の写真館','公開が4年前',2022]].map((x,i)=>{const q=build({k:'x'+i,name:'',today:37,seed:300+i*17,power:.6+i*.13,q:.25+i*.11});q.full=true;q.ttl=REAL&&REAL.add[i]||x[0];q.why=x[1];q.yr=x[2];q.add=true;return q});
 const PEER_CAT=[['夏の終わりのオーケストラ','恋愛・青春',2024,260],['真夜中の観覧車','サスペンス',2023,310],['わたしたちの放課後戦争','青春',2025,180],['北極星のレシピ','ヒューマンドラマ',2024,220],['東京ロストナンバー','サスペンス',2022,350],['ちいさな魔法使いと冬の森','ファミリー',2024,330],['銀色のバトン','青春',2023,240],['さよならの練習','恋愛・青春',2025,290],['探偵は三度うなずく','ミステリー',2024,270],['ぼくの宇宙ステーション','ファミリー',2023,300],['春風タクシー','ヒューマンドラマ',2022,200],['最終列車は海へ','サスペンス',2025,255]].map((x,i)=>{const q=build({k:'c'+i,name:'',today:37,seed:500+i*19,power:.55+(i%5)*.2,q:.2+(i%4)*.2});q.full=true;q.ttl=x[0];q.why=x[1]+'・'+x[3]+'スクリーン';q.yr=x[2];q.add=true;return q}),PEER_POOL=[...PEER_ADD,...PEER_CAT];
 function peerRes(){const q=(S.peerQ||'').trim(),o=peerSel();if(!q)return '';const L=PEER_CAT.filter(p=>p.ttl.includes(q)&&!o.add.includes(p.k)).slice(0,8);
   return L.length?L.map(p=>`<span class="pe-t alt">${p.ttl}<i>${p.yr}年｜${p.why}</i><button data-peera="${p.k}">＋追加</button></span>`).join(''):'<span class="note" style="margin:0">この名前の作品は見つかりません。データがまだない作品は、ここに出ません。</span>'}
@@ -1594,7 +1609,7 @@ const hasDay=(X,x)=>x>=D0&&x<=D1&&(X.full||x<=(X.k===S.title?Math.max(X.today,S.
 /* 反応の大きさ：件数系の指標を「類似作のふだんの1日＝100」にそろえて平均した、1日ごとの指数 */
 const _mg={};function mag(X,x){if(!hasDay(X,x))return null;const key=X.k+'|'+phKey()+'|'+x;return _mg[key]??(_mg[key]=mean(magKeys().map(k=>at(X,k,x)/magBase(k)))*100)}
 const jwVal=(X,x)=>S.jw==='mag'?mag(X,x):hasDay(X,x)?at(X,S.jw,x):null;
-const cmpList=T=>[['none','比べない'],['peer','類似作の中央値'],...PAST.map(p=>[p.k,p.name+'（自社の過去作）']),...Object.values(TT).filter(X=>X.k!==T.k).map(X=>[X.k,X.name])];
+const cmpList=T=>[['none','比べない'],['peer','類似作の中央値'],...PAST.filter(p=>p.dist===T.dist&&p.k!==T.k).map(p=>[p.k,p.name+'（自社の過去作）']),...Object.values(TT).filter(X=>X.k!==T.k&&X.dist===T.dist&&!X.past).map(X=>[X.k,X.name])];
 const cmpObj=()=>PAST.find(p=>p.k===S.cmp)||TT[S.cmp]||null;
 const upMag=(T,e,d)=>{if(e.d+2>d)return null;const m=(a,b)=>{const v=[];for(let x=a;x<=b;x++){const y=mag(T,x);if(y!=null)v.push(y)}return v.length?mean(v):null},b=m(e.d-7,e.d-1),a=m(e.d,e.d+2);return b?(a/b-1)*100:null};
 function journal(T,d){if(S.jw!=='mag'&&!mAvail(S.jw,d))S.jw='mag';S.cmp='none';
@@ -2059,7 +2074,7 @@ function heat(rows,cols,val){let mx=0;rows.forEach((_,i)=>cols.forEach((_,j)=>mx
 const wkChange=(T,k,d)=>{if(RATE.has(k)){const a=at(T,k,d),b=at(T,k,d-7);return a==null||b==null?null:a-b}const b=sumR(T,k,d-13,d-7);return b?(sumR(T,k,d-6,d)/b-1)*100:null};
 const cumGross=(T,d)=>sumR(T,'gross',0,d)*1e4;
 const scoreSeries=(T,a,b,cut)=>{const v=[];for(let x=a;x<=b;x++)v.push(x>cut?null:scoreOf(T,x));return v};
-function comps(T){const r=R(T,60),n=['銀河の果ての約束','探偵たちの休日','ワイルド・ハイウェイ'],sc=[Math.round(280+r()*140),Math.round(200+r()*120),Math.round(180+r()*120)],r2=R(T,62);
+function comps(T){const r=R(T,60),n=REAL?TITLE_DEFS.filter(t=>t.k!==T.k&&t.dist!==T.dist).slice(0,3).map(t=>t.name):['銀河の果ての約束','探偵たちの休日','ワイルド・ハイウェイ'],sc=[Math.round(280+r()*140),Math.round(200+r()*120),Math.round(180+r()*120)],r2=R(T,62);
   return n.map((x,i)=>({n:x,sc:sc[i],dm:0.35+r2()*0.5,c:CMPC[i]}))}
 const fcBase=(T,d)=>preFc(T,Math.min(d,-1));
 const moneyOK=d=>d>=2||has(1);
@@ -2277,7 +2292,7 @@ function tgAgg(D,idx){const ss=D.segs.filter(s=>idx.includes(s.i)),w=sumA(ss.map
 const tgSel=T=>{S.tg=S.tg||{};if(!S.tg[T.k])S.tg[T.k]=tgData(T).tags.many.slice();return S.tg[T.k]};
 const pt=v=>(v>=0?'+':'')+f1(v)+'pt',iMax=a=>a.indexOf(Math.max(...a));
 I('plan','p_sec1','1　誰に向けるか',12,[2],()=>({d:'類似作を実際に観た人から、狙う層を考える',h:''}),{when:'pre'});
-I('plan','p_basis','もとにしている類似作',12,[2],(T,d)=>{const D=tgData(T),own=PAST.filter(p=>p.k!==T.k);
+I('plan','p_basis','もとにしている類似作',12,[2],(T,d)=>{const D=tgData(T),own=PAST.filter(p=>p.k!==T.k&&p.dist===T.dist);
   return {d:SIMN(),h:`<div class="kpis" style="margin-bottom:12px">${kpi('類似作',PEERS.length,'本',`うち自社の過去作 ${own.length}本`)}${kpi('鑑賞後アンケートの回答',fN(D.N),'件','類似作の合計')}${kpi('選び方',T.genre,'',`${T.kind}・公開規模200〜400スクリーン・直近3年`)}</div>
    <div class="note" style="margin:0 0 10px">近い作品を実際に観た人の回答から、誰に向けて宣伝を組み立てるかを考えます。回答が${TG_MIN}件に満たない層は「参考」と表示します。</div>
    <div class="sub-h">もとにしている作品（${PEERS.length}本）<button class="fx-re" data-peers style="display:inline;margin:0 0 0 8px">作品を選び直す</button></div><div class="pe-ts">${PEERS.map(p=>`<span class="pe-t${p.own?' own':''}">${p.ttl}<i>${p.yr}年${p.own?'・自社':''}${p.add?'・追加':''}</i></span>`).join('')}</div>`}},{when:'pre'});
@@ -2727,7 +2742,7 @@ const ART_TH={
   a1:{m:'petals',g:['#e9a6a9','#f6ddd2','#a9cfd2'],tx:'#ffffff',ac:'#d9586f',fg:'#7a5262',pc:'#5a3e4a',copy:'春が来るたび、君を思い出す。',fig:'pair',dark:1,h:'kyonen_haru'},
   a2:{m:'sea',g:['#1b6aa3','#7cc3ea','#fff1c2'],tx:'#ffffff',ac:'#f2a33a',fg:'#e9cf98',pc:'#18405e',copy:'最後の夏休みが、はじまる。',fig:'pair',dark:1,h:'natsu_homeroom'}
 };
-const thOf=T=>ART_TH[T.k]||ART_TH.t1;
+const thOf=T=>{const th=ART_TH[T.art]||ART_TH[T.k]||ART_TH.t1;return REAL?{...th,copy:'',h:'official'}:th};
 let _aid=0;
 const FT=`font-family="'Zen Maru Gothic','Noto Sans JP',sans-serif"`;
 function person(x,y,s,c){return `<g fill="${c}"><circle cx="${x}" cy="${y-s*.86}" r="${s*.13}"/><path d="M${x-s*.17} ${y-s*.68}Q${x} ${y-s*.78} ${x+s*.17} ${y-s*.68}L${x+s*.13} ${y-s*.28}L${x+s*.1} ${y}L${x-s*.1} ${y}L${x-s*.13} ${y-s*.28}Z"/></g>`}
@@ -3454,10 +3469,11 @@ function ckStrip(T,d){if(!visiblePages(d).some(p=>p.k==='check'))return '';const
   ['c_map','p_gap','u_left','u_kwpre','u_sellpre','u_answer','u_target','u_kw','u_area','u_sell'].forEach(id=>{const it=ITEMS.splice(ITEMS.findIndex(x=>x.id===id),1)[0];if(tag[id])it.ck=tag[id];ITEMS.splice(ITEMS.findIndex(x=>x.page==='outlook'),0,it)})})();
 ITEMS.forEach(it=>{if(it.page==='plan'||it.page==='check'||it.id==='o_simsat')it.acc=true});
 function visiblePages(d){return PAGES.filter(p=>ITEMS.some(it=>it.page===p.k&&it.id!=='c_map'&&avail(it,d)))}
-function render(){syncPeers();const T=cur(),d=S.day;
+function render(){acctFix();syncPeers();const T=cur(),d=S.day;
   if(S.page!=='plan'&&!visiblePages(d).some(p=>p.k===S.page))S.page='home';
   const PM=S.page==='plan'||S.page==='check';document.body.classList.toggle('plan-mode',PM);document.body.classList.toggle('pg-check',S.page==='check');$('#btnPlan').innerHTML=PM?'← ダッシュボードに戻る':`${TAB_IC.plan}宣伝設計`;$('#btnPlan').setAttribute('aria-pressed',PM);
   $('#btnPeers').innerHTML=`比べる類似作 <b class="num">${PEERS.length}</b>本${refTx()}${peerChanged()?'<small>選び直し済み</small>':''}`;
+  $('#selTitle').innerHTML=titleOpts();{const ac=$('#acctChip'),sa=$('#selAcct'),multi=DISTS.length>1;ac.hidden=!multi;sa.hidden=!multi;if(multi){ac.textContent=S.acct==='all'?'ガイエ｜全社の作品':distN(S.acct)+' のアカウント';sa.innerHTML=[['all','ガイエ（全作品）']].concat(DISTS.map(x=>[x.k,x.n])).map(([k,n])=>`<option value="${k}">${n}</option>`).join('');sa.value=S.acct}}
   $('#selTitle').value=S.title;$('#selPo').innerHTML=poster(T,{fit:'slice'});$('#phaseChip').textContent=relLbl(d);$('#dateLbl').innerHTML=md(dateOf(T,d))+(d>T.today?'<em class="fut">この先は見本の数字</em>':'');
   const dy=$('#day');dy.min=-70;dy.max=D1;dy.value=d;
   document.body.classList.toggle('quiet',!!S.quiet);$('#swNote').setAttribute('aria-checked',!S.quiet);$$('#segPhase button').forEach(b=>b.classList.toggle('on',+b.dataset.p===S.phase));$('#segKarte button').classList.toggle('on',!!S.karte);
@@ -3466,7 +3482,7 @@ function render(){syncPeers();const T=cur(),d=S.day;
   $('#mDate').textContent=`${md(dateOf(T,d))}｜${relLbl(d)}`;appSave();
   const pg=PAGES.find(p=>p.k===S.page),psI=S.page==='plan'&&S.psec!=='all'?ITEMS.find(x=>x.id===curSec()):null,list=ITEMS.filter(it=>it.page===S.page&&avail(it,d)&&(!it.grp||S.mv==='all'||it.grp===S.mv)&&(!psI||(it!==psI&&it.id!=='p_basis'&&planSec(it.id)===psI.id))),dl=list.filter(it=>it.deep);
   const dd=S.page==='plan'?T.today:d,card=it=>{const o=it.fn(T,dd);return `<section class="card c${it.w}" id="it-${it.id}" data-need="${it.need.join(',')}"><div class="card-h">${it.ck?`<span class="ck-tag">${it.ck}</span>`:''}<h2>${it.t}</h2>${cadChip(it,dd)}<span class="d">${o.d||''}</span></div>${srcChips(it)}${o.h}${provHTML(it,T,dd)}</section>`};
-  $('#page').innerHTML=`${S.page==='home'?heroHTML(T,d):''}<div class="pg-head">${S.page==='home'?'':`<span class="pg-po">${poster(T,{fit:'slice'})}</span>`}<h1>${psI?psI.t:pg.n}</h1><span class="pg-q">${psI?psI.fn(T,d).d:pg.q}</span><span class="chip neu">${S.page==='plan'?T.name:`${T.name}｜${md(dateOf(T,d))}時点`}</span><span class="srcs int-only" style="margin:0"><span class="sc-l">社内表示：各項目に、使っているデータを出しています</span><span class="sc">番号つき＝6分類</span><span class="sc c">共通のデータ</span><span class="sc l">点線＝後の段階で加わる</span></span></div>${fewNote()}${psI&&psI.id==='p_sec4'&&list.length?planBasis(T,d):''}${S.page==='plan'?'':castGuide(T,d)}${stageNote(T,d)}${S.page==='deliver'?mvSw():''}<div class="grid">${list.filter(it=>!it.deep).map(card).join('')}</div>${dl.length?`<details class="deep" ${S.deepOpen[S.page]?'open':''}><summary>くわしく見る<span>${dl.length}項目</span></summary><div class="grid">${dl.map(card).join('')}</div></details>`:''}${psI&&list.length?planStep():''}`;
+  $('#page').innerHTML=`${S.page==='home'?heroHTML(T,d):''}<div class="pg-head">${S.page==='home'?'':`<span class="pg-po">${poster(T,{fit:'slice'})}</span>`}<h1>${psI?psI.t:pg.n}</h1><span class="pg-q">${psI?psI.fn(T,d).d:pg.q}</span><span class="chip neu">${S.page==='plan'?T.name:`${T.name}｜${md(dateOf(T,d))}時点`}</span>${REAL?'<span class="chip smp-chip">作品名は実在・数字と施策はすべて見本</span>':''}<span class="srcs int-only" style="margin:0"><span class="sc-l">社内表示：各項目に、使っているデータを出しています</span><span class="sc">番号つき＝6分類</span><span class="sc c">共通のデータ</span><span class="sc l">点線＝後の段階で加わる</span></span></div>${fewNote()}${psI&&psI.id==='p_sec4'&&list.length?planBasis(T,d):''}${S.page==='plan'?'':castGuide(T,d)}${stageNote(T,d)}${S.page==='deliver'?mvSw():''}<div class="grid">${list.filter(it=>!it.deep).map(card).join('')}</div>${dl.length?`<details class="deep" ${S.deepOpen[S.page]?'open':''}><summary>くわしく見る<span>${dl.length}項目</span></summary><div class="grid">${dl.map(card).join('')}</div></details>`:''}${psI&&list.length?planStep():''}`;
   if(PM&&!list.length){const g=$('#page .grid');if(g)g.outerHTML=planEmpty(T,d)}
   const pb=$('.pl-basis details');if(pb)pb.addEventListener('toggle',()=>{S.pbOpen=pb.open});
   const dt=$('details.deep');if(dt)dt.addEventListener('toggle',()=>{S.deepOpen[S.page]=dt.open});
@@ -3478,6 +3494,25 @@ function render(){syncPeers();const T=cur(),d=S.day;
 const HIT_ALT={search:'i_buzz',i_search:'i_buzz'};
 function setPage(p,hit){hit=HIT_ALT[hit]||hit;closePanel();{const h0=hit&&ITEMS.find(x=>x.id===hit);if(h0&&h0.page!==p&&PAGES.some(x=>x.k===h0.page))p=h0.page}S.page=p;if(hit){const h=ITEMS.find(x=>x.id===hit||x.hit===hit&&x.page===p);if(h&&h.deep)S.deepOpen[p]=true;if(h&&h.grp)S.mv=h.grp;if(h&&p==='plan')S.psec=planSec(h.id)}render();window.scrollTo({top:0});
   if(hit){const it=ITEMS.find(x=>x.id===hit||x.hit===hit&&x.page===p),el=it&&$('#it-'+it.id);if(el){el.scrollIntoView({block:'center'});el.classList.add('hit');setTimeout(()=>el.classList.remove('hit'),1800)}}}
+function acctFix(){const ok=k=>k==='all'||DISTS.some(x=>x.k===k);if(DISTS.length<2||!ok(S.acct))S.acct='all';if(DISTS.length<2)return;const td=TT[S.title].dist;if(S.client&&S.acct==='all')S.acct=td;if(S.acct!=='all'&&td!==S.acct)S.acct=td;
+  S.cmpSet=S.cmpSet.filter(k=>{const X=ownGet(k);return X&&X.dist===td})}
+function titleOpts(){const op=t=>`<option value="${t.k}">${t.name}</option>`,g=(l,a)=>a.length?`<optgroup label="${l}">${a.map(op).join('')}</optgroup>`:'';
+  if(DISTS.length>1&&S.acct==='all')return DISTS.map(x=>g(x.n,TITLE_DEFS.filter(t=>t.dist===x.k).concat(PAST.filter(t=>t.dist===x.k).map(t=>({k:t.k,name:t.name+'（過去作）'}))))).join('');
+  const v=t=>S.acct==='all'||t.dist===S.acct;return g('公開前・公開中',TITLE_DEFS.filter(v))+g('過去作',PAST.filter(v))}
+function setAcct(k){S.acct=k;if(k!=='all'&&TT[S.title].dist!==k){const t=TITLE_DEFS.find(t=>t.dist===k);if(t){S.title=t.k;S.day=TT[t.k].today;S.openEv=null}}closePanel();render()}
+/* 見える範囲（配給会社ごとの仕切り）の説明 */
+function openFw(){const all=S.acct==='all',me=all?null:S.acct,T=cur(),L=TITLE_DEFS.concat(PAST.map(p=>({k:p.k,name:p.name+'（過去作）',dist:p.dist}))),see=t=>all||t.dist===me,oth=L.filter(t=>!see(t)).length;
+  const rows=[['作品ごとの数字（施策・反応・観客・素材・見通し）','すべて見られます','見られません'],['宣伝設計と、その検証','自社の作品だけで使えます','見られません'],['類似作との比較','—','「類似作の中央値と幅」の計算にだけ入ります。1本ずつの数字は出ません'],['公開されている興収','見られます','見られます（公開されている数字のため）'],['自社の数字が、ほかの会社からどう見えるか','—','ほかの会社の画面でも、中央値と幅の一部としてだけ使われます。作品名つきの数字は出ません']];
+  $('#panel').innerHTML=`<button class="pn-x" aria-label="閉じる">×</button><span class="chip neu">${all?'運営（ガイエ）の表示':distN(me)+' のアカウント'}</span><h2>見える範囲</h2>
+    <p class="note">作品のデータは、配給会社ごとに仕切られています。自社の作品だけを開けます。</p>
+    ${S.client?'':`<div class="sub-h">アカウントを切り替えて確かめる</div><div class="fm-b" style="margin-top:0">${[['all','ガイエ（全作品）']].concat(DISTS.map(x=>[x.k,x.n])).map(([k,n])=>`<button class="btn ${S.acct===k?'pri':''}" data-fwacct="${k}">${n}</button>`).join('')}</div>`}
+    <div class="sub-h">${all?'運営（ガイエ）から開ける作品':'このアカウントから開ける作品'}</div>
+    <div class="tw"><table class="fw-t"><tr><th>作品</th><th>配給</th><th>開けるか</th></tr>${L.filter(t=>S.client?see(t):true).map(t=>`<tr class="${see(t)?'':'fw-no'}"><td>${t.name}</td><td>${distN(t.dist)}</td><td>${see(t)?'<span class="tone good">開ける</span>':'<span class="tone neu">開けない</span>'}</td></tr>`).join('')}${S.client&&oth?`<tr class="fw-no"><td colspan="2">ほかの配給会社の作品 ${oth}本（作品名は表示しません）</td><td><span class="tone neu">開けない</span></td></tr>`:''}</table></div>
+    <div class="sub-h">データの種類ごとの決まり</div>
+    <div class="tw"><table class="fw-t"><tr><th>データ</th><th>自社の作品</th><th>ほかの会社の作品</th></tr>${rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</table></div>
+    <div class="note">運営（ガイエ）は、全作品を見られます。配給会社の画面には、アカウントの切り替えは出ません。</div>`;
+  $('#panel').scrollTop=0;document.body.classList.add('pn');$('.pn-x').onclick=closePanel}
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-fw],[data-fwacct]');if(!t)return;ev.stopPropagation();if(t.dataset.fwacct){setAcct(t.dataset.fwacct);openFw()}else openFw()},true);
 function setTitle(k){S.openEv=null;S.title=k;S.day=TT[k].today;render()}
 
 document.addEventListener('click',ev=>{const t=ev.target.closest('[data-page],[data-go],[data-ev],[data-rg],[data-layer],[data-p],[data-ck],[data-sim],[data-jev],[data-jl],[data-jsec],[data-jm],[data-jw],[data-jv],[data-cs],[data-fk],[data-mv],[data-jo]');if(!t)return;
@@ -3508,7 +3543,7 @@ document.addEventListener('change',ev=>{const t=ev.target.closest('[data-cmp]');
 $('#day').oninput=e=>{S.day=+e.target.value;render()};
 $('#btnToday').onclick=()=>{S.day=cur().today;render()};
 $('#btnClient').onclick=()=>{S.client=!S.client;render()};
-$('#selTitle').innerHTML=`<optgroup label="公開前・公開中">${TITLE_DEFS.map(t=>`<option value="${t.k}">${t.name}</option>`).join('')}</optgroup><optgroup label="過去作">${PAST.map(t=>`<option value="${t.k}">${t.name}</option>`).join('')}</optgroup>`;
+$('#selAcct').onchange=e=>setAcct(e.target.value);
 $('#selTitle').onchange=e=>setTitle(e.target.value);
 
 /* 指標の検索 */
@@ -3527,7 +3562,7 @@ function aliasCheck(){const keep={...S},miss=[];S.phase=3;S.karte=true;S.mv='all
   Object.assign(S,keep);render();return {total:Object.keys(ALIAS).length,miss}}
 function selfCheck(){const keep={...S,deepOpen:{...S.deepOpen}},bad=[];let n=0;S.quiet=false;S.client=true;S.mv='all';S.psec='all';PAGES.forEach(p=>S.deepOpen[p.k]=true);
   const NGf=(ph,kt)=>new RegExp(['宣伝効果指数'].concat(kt?[]:['認知率','観たい率'],ph<2?['満足度','NPS']:[]).join('|'));
-  for(const [ph,kt] of [[1,0],[1,1],[2,0],[2,1],[3,0],[3,1]])for(const t of TITLE_DEFS){const NG={[ph]:NGf(ph,kt)};S.karte=!!kt;const T=TT[t.k];for(const d of [-60,-30,-12,-1,0,1,2,5,13,20,27].filter(x=>x<=T.today)){S.phase=ph;S.karte=!!kt;S.title=t.k;S.day=d;
+  for(const [ph,kt] of [[1,0],[1,1],[2,0],[2,1],[3,0],[3,1]])for(const t of TITLE_DEFS){const NG={[ph]:NGf(ph,kt)};S.karte=!!kt;const T=TT[t.k];for(const d of [-60,-30,-12,-1,0,1,2,5,13,20,27].filter(x=>x<=T.today)){S.phase=ph;S.karte=!!kt;S.title=t.k;S.acct=DISTS.length>1?t.dist:'all';S.day=d;
     for(const p of visiblePages(d)){S.page=p.k;try{render()}catch(e){bad.push([ph,t.k,d,p.k,'ERR '+e.message]);continue}n++;const tx=$('#page').innerText;
       if(/NaN|undefined|Infinity|null/.test(tx))bad.push([ph,t.k,d,p.k,(tx.match(/.{0,20}(NaN|undefined|Infinity|null).{0,10}/)||[''])[0]]);
       const m=tx.match(NG[ph]);if(m)bad.push([ph,t.k,d,p.k,'範囲外の語：'+m[0]]);
@@ -3553,8 +3588,8 @@ function tabDot(T,d,k){try{if(k==='home'&&has(3)&&T.ev.some(e=>e.d<=d&&e.d>=d-14
 const TAB_SHORT={creative:'素材',acts:'施策',plan:'設計',home:'今日',deliver:'メディア',interest:'関心',audience:'観客',check:'検証',outlook:'見通し'};
 const APPK='crew_v7_app_1';
 /* 前回の作品・ページ・表示を覚えておき、次に開いたときに戻す（基準日は毎回「今日」に戻す） */
-function appSave(){try{localStorage.setItem(APPK,JSON.stringify({title:S.title,page:S.page,phase:S.phase,karte:S.karte,quiet:!!S.quiet,client:S.client,jv:S.jv,jo:S.jo,mv:S.mv,jw:S.jw,fk:S.fk,tlRange:S.tlRange,cmpSet:S.cmpSet,castOpen:S.castOpen,peerSel:S.peerSel}))}catch(e){}}
-function appLoad(){try{const o=JSON.parse(localStorage.getItem(APPK)||'null');if(!o)return;if(TT[o.title])S.title=o.title;if(PAGES.some(p=>p.k===o.page))S.page=o.page;
+function appSave(){try{localStorage.setItem(APPK,JSON.stringify({title:S.title,page:S.page,phase:S.phase,karte:S.karte,quiet:!!S.quiet,acct:S.acct,client:S.client,jv:S.jv,jo:S.jo,mv:S.mv,jw:S.jw,fk:S.fk,tlRange:S.tlRange,cmpSet:S.cmpSet,castOpen:S.castOpen,peerSel:S.peerSel}))}catch(e){}}
+function appLoad(){try{const o=JSON.parse(localStorage.getItem(APPK)||'null');if(!o)return;if(TT[o.title])S.title=o.title;if(typeof o.acct==='string')S.acct=o.acct;if(PAGES.some(p=>p.k===o.page))S.page=o.page;
   if(!qs.get('phase')&&[1,2,3].includes(o.phase))S.phase=o.phase;if(!qs.get('karte')&&typeof o.karte==='boolean')S.karte=o.karte;S.quiet=!!o.quiet;if(!qs.get('view'))S.client=!!o.client;['jv','jw','fk','tlRange'].forEach(k=>{if(typeof o[k]==='string')S[k]=o[k]});
   if(Array.isArray(o.cmpSet))S.cmpSet=o.cmpSet.filter(k=>ownGet(k)).slice(0,OWN_MAX);if(typeof o.castOpen==='boolean')S.castOpen=o.castOpen;if(o.peerSel&&typeof o.peerSel==='object')S.peerSel=o.peerSel;if(o.jo==='desc')S.jo='desc'}catch(e){}}
 $('#mDate').onclick=()=>{const on=document.body.classList.toggle('m-date');document.body.classList.remove('m-more');$('#mDate').setAttribute('aria-expanded',on);$('#mMore').setAttribute('aria-expanded',false)};
