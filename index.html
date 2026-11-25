@@ -517,6 +517,7 @@ body.m-more .more-box{display:flex}
 .cumh-s{display:flex;flex-wrap:wrap;gap:10px 24px}.cumh-c{display:grid;gap:1px}.cumh-c b{font-size:17px}.cumh-c span{font-size:11.5px;color:var(--sub)}
 @media(max-width:700px){.cumh-m b{font-size:34px}}
 .g-hd{grid-column:1/-1;font-family:'Zen Maru Gothic',sans-serif;font-size:15px;font-weight:900;margin:10px 0 -4px;padding-left:10px;border-left:4px solid var(--accent2)}.grid>.g-hd:first-child{margin-top:0}
+.gr-cum{margin-top:16px}.gr-cum>summary span{font-size:11.5px;color:var(--sub)}.gr-cum>summary .cm-tg{margin-left:auto}
 .bm-t th,.bm-t td{white-space:nowrap}.bm-t td small{display:block;font-size:10.5px;color:var(--sub);font-weight:500}.bm-t tr.me td{font-weight:700}.bm-t .cdot{margin-right:6px}
 .lchip .bm-1{font-size:10px;font-weight:500;color:var(--sub);margin-left:2px}
 .fc-t th,.fc-t td{white-space:nowrap}.fc-t .r{text-align:right}
@@ -1920,15 +1921,20 @@ function spkBox(T,d,k,ks){k=k||'buzz';ks=ks||[k];const sp=spkSel(T,d,k);
   return `<div class="spk-box"><div class="spk-h"><b>${md(dateOf(T,sp))}</b><span>${relLbl(sp)}</span><button class="spk-x" data-spkx aria-label="閉じる">×</button></div><div class="spk-v">${ks.map(val).join('')}</div>
     ${L.length?L.map(e=>{const g=sp-e.d,u=ks.map(q=>up(e,q)).filter(Boolean);return `<button class="spk-ev" data-spkev="${e.id}"><i class="cdot" style="background:${CH[e.ch].c}"></i><span><b>${esc(e.label)}</b><small>${(e.len||1)>1&&g>0?`${md(dateOf(T,e.d))}から${eEnd(e)>=sp?'（この日も実施中）':`${md(dateOf(T,eEnd(e)))}まで`}`:`${md(dateOf(T,e.d))}（${g===0?'この日':g+'日前'}）`}｜${CH[e.ch].n}${u.length?`｜${RATE.has(k)?'実施の前後で':'実施から3日間で'} ${u.join('・')}`:''}</small></span><span class="go">くわしく ›</span></button>`}).join(''):`<div class="empty" style="margin:0">この日と、その前${spkWin(k)}日間に、施策はありません。施策以外のきっかけ（ニュースや、ほかの人の投稿など）の可能性があります。</div>`}
     <div class="note">日付が近い施策を並べています。数字が増えた原因と決まったわけではありません。施策を押すと、くわしい内容が開きます。</div></div>`}
-function spkOver(T,d,k,b){const n=b-D0,sp=spkSel(T,d,k),pk=spkDays(T,d,k);
+function spkOver(T,d,k,b,a=D0){const D0=a,n=b-a,sp0=spkSel(T,d,k),sp=sp0!=null&&sp0>=a?sp0:null,pk=spkDays(T,d,k).filter(x=>x>=a);
   return `${pk.map(x=>`<i class="spk-mk" style="left:${(x-D0)/n*100}%">▼</i>`).join('')}${sp!=null?`<i class="spk-cur" style="left:${(sp-D0)/n*100}%"></i>`:''}<div class="spk-hit" data-spk data-k="${k}" data-a="${D0}" data-b="${b}" data-d="${d}" data-pk="${pk.join(',')}" role="button" aria-label="グラフの日を選ぶ"></div>`}
 /* グラフから探す（施策の記録の切り替えの1つ）：選んだ数字を上下に並べる。日付をそろえ、選ぶ日と施策の表示は共通 */
 const GR_KEYS=['buzz','search','oeng','aimp','sent','clip','mark','aware','intent','sat'],GR_MAX=4;
 function grKeys(d){const av=GR_KEYS.filter(k=>mAvail(k,d));let on=(S.grk||['buzz','search']).filter(k=>av.includes(k));if(!on.length)on=av.slice(0,1);return {av,on}}
+const GR_RG=[['all','全期間'],['w8','直近8週'],['w2','直近2週']];
 I('interest','i_buzz','話題の量と検索',7,[3],(T,d)=>{const b=Math.max(d,0),G=grKeys(d),hh=G.on.length<=2?150:120,k0=G.on.find(k=>!RATE.has(k))||G.on[0],
-  row=k=>`<div class="sub-h spk-rh"><i style="background:${M[k].c}"></i>${M[k].n}${M[k].sub?`<small>${M[k].sub}</small>`:''}</div>`+chart(T,[{n:'類似作の幅（真ん中の半分）',band:peerBand(k,D0,b),c:'#8a929a'},{n:'この作品',vals:slice(T,k,D0,b,d),c:M[k].c}],{a:D0,b,u:M[k].u,h:hh,max:M[k].u==='%'?100:undefined,marks:evMarks(T),over:spkOver(T,d,k,b)});
-  return {d:'',h:`<div class="ctl"><span style="font-size:11.5px;color:var(--sub)">グラフに出す数字（${GR_MAX}つまで）</span>${G.av.map(k=>`<button class="lchip ${G.on.includes(k)?'on':''}" data-grk="${k}"><i style="background:${M[k].c}"></i>${M[k].n}</button>`).join('')}</div>`+G.on.map(row).join('')+spkBox(T,d,k0,G.on)}},{hide:()=>true});
-document.addEventListener('click',ev=>{const t=ev.target.closest('[data-spk],[data-spkx],[data-spkev],[data-grk]');if(!t)return;ev.stopPropagation();const D=t.dataset,keepY=()=>{const y=scrollY;render();scrollTo(0,y)};
+  cumOn=S.grc==='cum',rg=GR_RG.some(x=>x[0]===S.grr)?S.grr:'all',a=rg==='w2'?Math.max(D0,b-13):rg==='w8'?Math.max(D0,b-55):D0,
+  cumS=k=>{const v=[];let t=0;for(let x=D0;x<=b;x++){t+=at(T,k,x)||0;if(x>=a)v.push(x>d?null:t)}return v},
+  row=k=>{const cm=cumOn&&!RATE.has(k);return `<div class="sub-h spk-rh"><i style="background:${M[k].c}"></i>${M[k].n}${cm?'（累計）':''}${M[k].sub?`<small>${M[k].sub}</small>`:''}${cumOn&&!cm?'<small>率の数字は累計にできないので、その日の値です</small>':''}</div>`+chart(T,[{n:'類似作の幅（真ん中の半分）',band:peerBand(k,a,b,cm),c:'#8a929a'},{n:'この作品'+(cm?'（累計）':''),vals:cm?cumS(k):slice(T,k,a,b,d),c:M[k].c}],{a,b,u:M[k].u,h:hh,max:M[k].u==='%'?100:undefined,marks:evMarks(T),over:spkOver(T,d,k,b,a)})},
+  sg=(lb,key,cur,opts)=>`<span style="font-size:11.5px;color:var(--sub)">${lb}</span><span class="seg">${opts.map(x=>`<button data-${key}="${x[0]}" class="${cur===x[0]?'on':''}">${x[1]}</button>`).join('')}</span>`;
+  return {d:'',h:`<div class="ctl"><span style="font-size:11.5px;color:var(--sub)">グラフに出す数字（${GR_MAX}つまで）</span>${G.av.map(k=>`<button class="lchip ${G.on.includes(k)?'on':''}" data-grk="${k}"><i style="background:${M[k].c}"></i>${M[k].n}</button>`).join('')}</div><div class="ctl">${sg('出し方','grc',cumOn?'cum':'day',[['day','1日ごと'],['cum','累計']])}${sg('期間','grr',rg,GR_RG)}</div>`+G.on.map(row).join('')+(cumOn?'<div class="note" style="margin-top:6px">累計は、公開12週前からの合計です。</div>':'')+spkBox(T,d,k0,G.on)}},{hide:()=>true});
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-spk],[data-spkx],[data-spkev],[data-grk],[data-grc],[data-grr]');if(!t)return;ev.stopPropagation();const D=t.dataset,keepY=()=>{const y=scrollY;render();scrollTo(0,y)};
+  if(D.grc){S.grc=D.grc;keepY();return}if(D.grr){S.grr=D.grr;keepY();return}
   if(D.grk){const G=grKeys(S.day);let on=G.on.slice();if(on.includes(D.grk)){if(on.length>1)on=on.filter(k=>k!==D.grk)}else if(on.length<GR_MAX)on.push(D.grk);S.grk=GR_KEYS.filter(k=>on.includes(k));keepY();return}
   if(D.spkx!=null){S.spk=null;keepY();return}
   if(D.spkev){if(cur().ev.some(x=>x.id===+D.spkev))openEvent(+D.spkev);return}
@@ -3196,7 +3202,7 @@ I('home','h_risk','炎上リスクの見張り',12,[3],(T,d)=>{const L=T.ev.filt
 (function(){const i=ITEMS.findIndex(x=>x.id==='h_risk'),it=ITEMS.splice(i,1)[0],j=ITEMS.findIndex(x=>x.id==='h_todo');ITEMS.splice(j+1,0,it)})();
 SRC_USE.a_rx=[3];SRC_USE.h_risk=[3];
 /* 「施策ごとの反応と炎上リスク」は、施策の日誌の切り替えの1つとして出す */
-ITEMS.find(x=>x.id==='a_rx').hide=()=>true;Object.keys(ALIAS).forEach(k=>{if(ALIAS[k]==='a_rx')ALIAS[k]='a_log'});Object.keys(ALIAS).forEach(k=>{if(['i_search','i_buzz','a_tl','a_react'].includes(ALIAS[k]))ALIAS[k]='i_buzz';if(ALIAS[k]==='a_plan')ALIAS[k]='a_log'});
+ITEMS.find(x=>x.id==='a_rx').hide=()=>true;Object.keys(ALIAS).forEach(k=>{if(ALIAS[k]==='a_rx')ALIAS[k]='a_log'});Object.keys(ALIAS).forEach(k=>{if(['i_search','i_buzz','a_tl','a_react'].includes(ALIAS[k]))ALIAS[k]='i_buzz';if(ALIAS[k]==='a_plan')ALIAS[k]='a_log';if(['h_tl','a_organic','i_clip','a_cum'].includes(ALIAS[k]))ALIAS[k]='i_buzz'});
 /* 「施策と反応の推移」「話題と検索の動き」は、「グラフから探す」と同じ見方なのでまとめた */
 ['a_tl','a_react'].forEach(id=>{ITEMS.find(x=>x.id===id).hide=()=>true});
 /* 「見通しはどのくらい当たるか」はカードをやめ、「見通しの作り方」の1行に */
@@ -3462,7 +3468,7 @@ const IK=[
   {st:'知られているか',k:'buzz',q:'話題になっているか',hit:'i_buzz'},
   {st:'知られているか',k:'search',q:'作品名で調べられているか',hit:'i_buzz'},
   {st:'知られているか',k:'aware',q:'作品が知られているか',hit:'i_aware'},
-  {st:'観たいと思われているか',k:'clip',q:'観たい登録が積み上がっているか',hit:'i_clip',mode:'cum'},
+  {st:'観たいと思われているか',k:'clip',q:'観たい登録が積み上がっているか',hit:'clip',mode:'cum'},
   {st:'観たいと思われているか',k:'intent',q:'観たい人が増えているか',hit:'i_aware'},
   {st:'評判はよいか',k:'sent',q:'好意的な声が多いか',hit:'i_sent'},
   {st:'評判はよいか',k:'score',q:'観た人の評価は高いか',hit:'i_score'},
@@ -3614,18 +3620,18 @@ PAGES.push({k:'repute',n:'評判',q:'どう語られ、どう評価されてい�
   const L={
     home:{top:['h_verdict','h_todo','h_risk','h_bo','h_nums'],deep:['#反応スコア','a_score','a_decomp','a_axes','o_cmpts','#全体を見渡す','h_views','h_moves','h_all']},
     acts:{top:['a_today','a_log','a_answer'],deep:['a_bonus','a_seg','a_ch','o_upside','a_week','a_flow']},
-    interest:{top:['i_key','i_buzz','a_cum','i_aware','h_funnel','ux_B'],deep:['h_tl','a_organic','i_clip','i_conv','i_pillars','i_notwant','u_pre2']},
+    interest:{top:['i_key','i_buzz','a_cum','i_aware','h_funnel','ux_B'],deep:['i_conv','i_pillars','i_notwant','u_pre2']},
     repute:{top:['r_key','h_alert','i_sat','i_words','u_nps','u_wom'],deep:['#SNSで語られていること','i_sent','h_voice','#観た人の評価','i_score','i_mark','i_topics','i_updown','i_rwords','u_seg','#口コミの広がり','i_wom','u_repeat','#自社のほかの作品と比べる','o_cmpaud']},
     outlook:{top:['o_two','o_pos','o_money','o_final','o_long','o_bench','o_legs','o_type','o_similar','h_goal','o_simsat','#公開の規模と競合','o_supply','o_comp','o_ovl','u_rival'],deep:['#興収をくわしく','o_mult','o_how','u_format','o_curve','#公開の規模と競合をくわしく','o_share','o_winlose','o_slate','o_demand','o_sim','o_demandix','o_pressure']}};
   Object.entries(L).forEach(([pg,o])=>{const mv=[];[['top',false],['deep',true]].forEach(([k,dp])=>{let hd;o[k].forEach(id=>{if(id[0]==='#'){hd=id.slice(1);return}const i=ITEMS.findIndex(x=>x.id===id);if(i<0){console.warn('配置：項目なし',id);return}const it=ITEMS.splice(i,1)[0];it.page=pg;it.deep=dp;it.hd=hd;mv.push(it)})});
     const j=ITEMS.findIndex(x=>x.page===pg);ITEMS.splice(j<0?ITEMS.length:j,0,...mv)});
   /* 「これからの施策」は、施策の記録（時系列）の「これから」に一本化 */
-  {const i=ITEMS.findIndex(x=>x.id==='a_plan');if(i>=0)ITEMS.splice(i,1)}
+  ['a_plan','h_tl','a_organic','i_clip'].forEach(id=>{const i=ITEMS.findIndex(x=>x.id===id);if(i>=0)ITEMS.splice(i,1)});/* h_tl・i_clip は「数字の推移と施策」の期間・累計の切り替えに一本化 */
   const after=(id,ref,o)=>{const it=ITEMS.splice(ITEMS.findIndex(x=>x.id===id),1)[0];Object.assign(it,o);ITEMS.splice(ITEMS.findIndex(x=>x.id===ref)+1,0,it)};
   after('h_posts','cr_posts',{page:'deliver',grp:'sns',deep:true});after('h_cast','u_items',{page:'audience',deep:true});
   Object.entries({h_moves:12,u_heat:12,o_cmpaud:12,o_curve:12,i_sent:6,i_buzz:12}).forEach(([id,w])=>{g(id).w=w});
   /* 施策ページ＝施策ごとに見る／関心ページ＝数字の推移で見る。推移グラフは関心ページの1か所だけ */
-  {const it=g('i_buzz'),f=it.fn;delete it.hide;it.t='数字の推移と施策';it.fn=(T,d)=>{const o=f(T,d);return {d:'数字の山（▼）を押すと、その日に近い施策が出ます。',h:o.h}}}
+  {const it=g('i_buzz'),f=it.fn;delete it.hide;it.t='数字の推移と施策';const c=g('a_cum'),cf=c.fn;c.hide=d=>avail(it,d);it.fn=(T,d)=>{const o=f(T,d),q=c.any.some(has)?cf(T,d):null;return {d:'数字の山（▼）を押すと、その日に近い施策が出ます。',h:o.h+(q?`<details class="cm-fold gr-cum" ${cumOpen()?'open':''}><summary><b>累計の一覧</b><span>宣伝の量と反応の累計を、類似作の同じ時点と比べる</span><i class="cm-tg"></i></summary>${q.h}</details>`:'')}}}
 })();
 function visiblePages(d){return PAGES.filter(p=>ITEMS.some(it=>it.page===p.k&&it.id!=='c_map'&&avail(it,d)))}
 function render(){acctFix();syncPeers();const T=cur(),d=S.day;
@@ -3653,7 +3659,7 @@ function render(){acctFix();syncPeers();const T=cur(),d=S.day;
 }
 /* 話題の量・検索のグラフは「施策の記録」の「グラフから探す」にある */
 const HIT_GR=['buzz','search','i_buzz','i_search','a_tl','a_react'];
-function setPage(p,hit){if(HIT_GR.includes(hit))hit='i_buzz';closePanel();if(p==='creative'){p='deliver';S.mv='mat'}{const h0=hit&&ITEMS.find(x=>x.id===hit);if(h0&&h0.page!==p&&PAGES.some(x=>x.k===h0.page))p=h0.page}S.page=p;if(hit){const h=ITEMS.find(x=>x.id===hit||x.hit===hit&&x.page===p);if(h&&h.deep)S.deepOpen[p]=true;if(h&&h.grp)S.mv=h.grp;if(h&&p==='plan')S.psec=planSec(h.id)}render();window.scrollTo({top:0});
+function setPage(p,hit){if(hit==='clip'||hit==='i_clip'){const g0=(S.grk||['buzz','search']).filter(k=>k!=='clip');S.grk=g0.slice(0,GR_MAX-1).concat('clip');S.grc='cum';hit='i_buzz'}if(HIT_GR.includes(hit))hit='i_buzz';closePanel();if(p==='creative'){p='deliver';S.mv='mat'}{const h0=hit&&ITEMS.find(x=>x.id===hit);if(h0&&h0.page!==p&&PAGES.some(x=>x.k===h0.page))p=h0.page}S.page=p;if(hit){const h=ITEMS.find(x=>x.id===hit||x.hit===hit&&x.page===p);if(h&&h.deep)S.deepOpen[p]=true;if(h&&h.grp)S.mv=h.grp;if(h&&p==='plan')S.psec=planSec(h.id)}render();window.scrollTo({top:0});
   if(hit){const it=ITEMS.find(x=>x.id===hit||x.hit===hit&&x.page===p),el=it&&$('#it-'+it.id);if(el){el.scrollIntoView({block:'center'});el.classList.add('hit');setTimeout(()=>el.classList.remove('hit'),1800)}}}
 function acctFix(){const ok=k=>k==='all'||DISTS.some(x=>x.k===k);if(DISTS.length<2||!ok(S.acct))S.acct='all';if(DISTS.length<2)return;const td=TT[S.title].dist;if(S.client&&S.acct==='all')S.acct=td;if(S.acct!=='all'&&td!==S.acct)S.acct=td;
   S.cmpSet=S.cmpSet.filter(k=>{const X=ownGet(k);return X&&X.dist===td})}
