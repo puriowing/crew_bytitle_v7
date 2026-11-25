@@ -252,6 +252,7 @@ body.pn #panel{transform:none}
 .jl-sec.in{width:auto;margin:0;padding:3px 12px;border-radius:999px;font-size:12px;background:none;flex-wrap:nowrap;white-space:nowrap}
 .jl-new{font-style:normal;font-size:10.5px;font-weight:700;color:#fff;background:#c2603f;border-radius:999px;padding:0 8px;white-space:nowrap}
 .jl-newc{font-family:'Noto Sans JP',sans-serif;font-size:11.5px;color:#c2603f}
+@media(max-width:700px){.jl-row.now .jl-c{flex-wrap:wrap;gap:6px 10px}.jl-row.now .jl-nl{display:none}.jl-sec.in{white-space:normal;flex-wrap:wrap;text-align:left;border-radius:14px}}
 .pf-t td.pf-na{color:var(--sub-weak);font-size:11.5px;text-align:center}.pf-t th,.pf-t td{white-space:nowrap}.pf-t td:nth-child(2){white-space:normal;min-width:180px}
 .jl-row.gap .jl-c,.jl-row.now .jl-c{min-height:34px}
 .jl-chart{border:1px solid var(--rule);border-radius:14px;padding:14px 16px 10px;margin-bottom:14px;background:#fff}
@@ -1291,7 +1292,7 @@ const TODAY=new Date(2026,10,15), D0=-84, D1=41, GMAX=140;
 /* 段階：1＝CAST開始前／2＝CAST開始後（この作品の回答）／3＝類似作の回答が貯まった後（7）。KARTE（1）は段階と別に、ある作品だけ */
 const PHASE_SET={1:[3,4,5,6],2:[2,3,4,5,6],3:[2,3,4,5,6,7]};
 const qs=new URLSearchParams(location.search);
-const S={mv:'sns',castOpen:true,fk:'buzz',jv:'log',cmpSet:[],jw:'mag',cmp:'none',jlMode:'lanes',jlOpen:{fut:true,past:true},deepOpen:{},sim:null,phase:+qs.get('phase')||1,karte:qs.get('karte')==='1',title:'t1',day:0,page:'home',jl:{},openEv:null,tlRange:'all',layers:{},client:qs.get('view')==='client'};
+const S={mv:'sns',castOpen:true,fk:'buzz',jv:'log',cmpSet:[],jw:'mag',cmp:'none',jlMode:'lanes',jlOpen:{fut:false,past:true},deepOpen:{},sim:null,phase:+qs.get('phase')||1,karte:qs.get('karte')==='1',title:'t1',day:0,page:'home',jl:{},openEv:null,tlRange:'all',layers:{},client:qs.get('view')==='client'};
 const has=n=>n===1?!!S.karte:PHASE_SET[S.phase].includes(n),phKey=()=>S.phase+(S.karte?'k':'');
 function rng(seed){let a=seed>>>0;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -1684,7 +1685,7 @@ function journal(T,d){if(S.jw!=='mag'&&!mAvail(S.jw,d))S.jw='mag';S.cmp='none';
     const body='';
     if(ad){const tg=T.ev.find(q=>q.id===e.boost);return `<div class="jl-card ad ${op?'on':''}" id="jl-${e.id}"><button class="jl-h adh" data-jev="${e.id}" aria-expanded="${op}"><span class="jl-n"><i class="jl-tag" style="background:${c.c}">${c.n}</i>${e.label}${per}${e.cost?`<i class="jl-src p">費用 ${fN(e.cost*1e4)}円</i>`:''}</span><span class="jl-adr">${tg?`「${tg.label}」を後押し`:'単独の広告'}</span>${tg?'':adp(e)}</button>${body}</div>`}
     const ao=adsOnX(T,e),ex=ao.some(q=>q.boost===e.id);
-    return `<div class="jl-card ${op?'on':''}" id="jl-${e.id}"><button class="jl-h" data-jev="${e.id}" aria-expanded="${op}"><span class="jl-n">${no[e.id]?`<i class="jl-no" style="background:${c.c}">${no[e.id]}</i>`:''}<i class="jl-tag" style="background:${c.c}">${c.n}</i>${e.label}${newTag(e)}${srcTag(e)}${per}${ao.length?`<i class="jl-src b" title="${esc(ao.map(q=>q.label).join('、'))}">${ex?'広告で後押し':'広告の期間中'}</i>`:''}</span>${cells(e)}</button>${body}</div>`};
+    return `<div class="jl-card ${op?'on':''}" id="jl-${e.id}"><button class="jl-h" data-jev="${e.id}" aria-expanded="${op}"><span class="jl-n">${no[e.id]?`<i class="jl-no" style="background:${c.c}">${no[e.id]}</i>`:''}<i class="jl-tag" style="background:${c.c}">${c.n}</i>${e.label}${newTag(e)}${srcTag(e)}${per}${e.d>d&&e.cost?`<i class="jl-src p">予定の費用 ${fN(e.cost*1e4)}円</i>`:''}${ao.length?`<i class="jl-src b" title="${esc(ao.map(q=>q.label).join('、'))}">${ex?'広告で後押し':'広告の期間中'}</i>`:''}</span>${cells(e)}</button>${body}</div>`};
   const past=r=>{if(!C)return '';const ev=C.ev.filter(e=>e.d>=r.lo&&e.d<=r.hi&&hasDay(C,e.d));return ev.length?`<span class="jl-p">${C.name}はこの時期に「${ev.slice(0,2).map(e=>e.label).join('」「')}」${ev.length>2?'ほか':''}</span>`:''};
   const actv=(r,lim)=>T.ev.filter(e=>(e.len||1)>1&&e.d<r.lo&&Math.min(eEnd(e),lim)>=r.lo);
   const gapHead=(r,lim,none)=>{const n=r.hi-r.lo+1,ac=actv(r,lim);if(!ac.length)return `${none}${n}日間`;const full=ac.some(e=>Math.min(eEnd(e),lim)>=r.hi),nn=ac.map(e=>'「'+e.label+'」').join('');return full?`${nn}を実施中の${n}日間`:`${n}日間（はじめは${nn}を実施中）`};
@@ -1703,7 +1704,7 @@ function journal(T,d){if(S.jw!=='mag'&&!mAvail(S.jw,d))S.jw='mag';S.cmp='none';
   const hchart=`<div class="jl-chart"><div class="jl-ct"><span><i class="cdot" style="background:${col}"></i>${nm}${cum?'（累計）':''}</span><b class="num">${fm(gv(d))}<small>${un}</small></b>${pcmp&&pvals[d-a]!=null?`<span style="font-size:12px;color:var(--sub)">類似作の中央値 <b class="num" style="color:var(--ink)">${fm(pvals[d-a])}${un}</b></span>`:''}<span class="jl-cs">番号は下の施策と同じです。押すと、その施策が開きます。点線の丸は、これから実施する施策。下の色の帯は広告の期間です（押すと内容が開きます）</span></div>${chart(T,[{n:nm+(cum?'（累計）':''),vals,c:col,fill:true}].concat(pcmp?[{n:'類似作の中央値（公開日をそろえた同じ時期）',vals:pvals,c:'#6f7780',dash:true,w:1.6}]:[]),{a,b,u:isMag?'':un,h:200,max:vmx,min:vmn,over})}${cum?'<div class="note" style="margin-top:6px">累計は、公開12週前からの合計です。</div>':''}
     <div class="lg">${Object.values(CH).map(c=>`<span><i class="dot" style="background:${c.c}"></i>${c.n}</span>`).join('')}</div></div>`;
   const row=(cls,dt,body)=>`<div class="jl-row ${cls}"><div class="jl-d">${dt}</div><div class="jl-c">${body}</div></div>`;
-  const asc=S.jo!=='desc',nowA=row('now',`<b class="jl-nowp">${d===T.today?'今日':'基準日'}</b>`,`<span class="jl-nowt">${md(dateOf(T,d))}｜${relLbl(d)}</span><i class="jl-nl"></i>${frows.length?`<button class="jl-sec in" data-jsec="fut" aria-expanded="${oF}"><i>${oF?'－':'＋'}</i>これからの施策 ${nF}件${oF?'':nwT(nwF)}</button>`:''}`);
+  const asc=S.jo!=='desc',nowA=row('now',`<b class="jl-nowp">${d===T.today?'今日':'基準日'}</b>`,`<span class="jl-nowt">${md(dateOf(T,d))}｜${relLbl(d)}</span><i class="jl-nl"></i>${frows.length?`<button class="jl-sec in" data-jsec="fut" aria-expanded="${oF}"><i>${oF?'－':'＋'}</i>これからの施策 ${nF}件${oF||!nx?'':`<span>次は ${nx.d-d}日後「${nx.label}」</span>`}${oF?'':nwT(nwF)}</button>`:''}`);
   const body=asc?sec('past','これまで',oP,oP?'実施した施策。上が古い日':`実施 ${nP}件${nwT(nwP)}`)+(oP?rows.slice().reverse():[]).map(r=>r.ev?row('ev',`<b class="num">${md(dateOf(T,r.hi))}</b><span>${r.hi===0?'<em>公開日</em>':relLbl(r.hi)}</span>`,r.ev.map(card).join('')):row('gap',`<span>${md(dateOf(T,r.lo))}〜</span>`,`<span class="jl-g">${gapTx(r)}</span>`)).join('')+nowA+(oF?frows.slice().reverse():[]).map(r=>r.ev?row('plan ev',`<b class="num">${md(dateOf(T,r.hi))}</b><span>${r.hi-d}日後${r.hi===0?'｜<em>公開日</em>':''}</span>`,r.ev.map(card).join('')):row('plan gap',`<span>${md(dateOf(T,r.lo))}〜</span>`,`<span class="jl-g">${fgap(r)}</span>`)).join('')
     :(frows.length?sec('fut','これから',oF,oF?'予定している施策。数字は、同じ種類の過去の施策での3日間の目安':`予定 ${nF}件｜次は ${nx.d-d}日後「${nx.label}」${nwT(nwF)}`):'')+(oF?frows:[]).map(r=>r.ev?row('plan ev',`<b class="num">${md(dateOf(T,r.hi))}</b><span>${r.hi-d}日後${r.hi===0?'｜<em>公開日</em>':''}</span>`,r.ev.map(card).join('')):row('plan gap',`<span>${md(dateOf(T,r.lo))}〜</span>`,`<span class="jl-g">${fgap(r)}</span>`)).join('')+row('now',`<b class="jl-nowp">${d===T.today?'今日':'基準日'}</b>`,`<span class="jl-nowt">${md(dateOf(T,d))}｜${relLbl(d)}</span><i class="jl-nl"></i><button class="jl-sec in" data-jsec="past" aria-expanded="${oP}"><i>${oP?'－':'＋'}</i>これまでの施策 ${nP}件${oP?'':nwT(nwP)}</button>`)+(oP?rows:[]).map(r=>r.ev?row('ev',`<b class="num">${md(dateOf(T,r.hi))}</b><span>${r.hi===0?'<em>公開日</em>':relLbl(r.hi)}</span>`,r.ev.map(card).join('')):row('gap',`<span>${md(dateOf(T,r.lo))}〜</span>`,`<span class="jl-g">${gapTx(r)}</span>`)).join('');
   return `${hchart}<div class="jl" style="--nc:${ck.length}">
@@ -3195,7 +3196,7 @@ I('home','h_risk','炎上リスクの見張り',12,[3],(T,d)=>{const L=T.ev.filt
 (function(){const i=ITEMS.findIndex(x=>x.id==='h_risk'),it=ITEMS.splice(i,1)[0],j=ITEMS.findIndex(x=>x.id==='h_todo');ITEMS.splice(j+1,0,it)})();
 SRC_USE.a_rx=[3];SRC_USE.h_risk=[3];
 /* 「施策ごとの反応と炎上リスク」は、施策の日誌の切り替えの1つとして出す */
-ITEMS.find(x=>x.id==='a_rx').hide=()=>true;Object.keys(ALIAS).forEach(k=>{if(ALIAS[k]==='a_rx')ALIAS[k]='a_log'});Object.keys(ALIAS).forEach(k=>{if(['i_search','i_buzz','a_tl','a_react'].includes(ALIAS[k]))ALIAS[k]='i_buzz'});
+ITEMS.find(x=>x.id==='a_rx').hide=()=>true;Object.keys(ALIAS).forEach(k=>{if(ALIAS[k]==='a_rx')ALIAS[k]='a_log'});Object.keys(ALIAS).forEach(k=>{if(['i_search','i_buzz','a_tl','a_react'].includes(ALIAS[k]))ALIAS[k]='i_buzz';if(ALIAS[k]==='a_plan')ALIAS[k]='a_log'});
 /* 「施策と反応の推移」「話題と検索の動き」は、「グラフから探す」と同じ見方なのでまとめた */
 ['a_tl','a_react'].forEach(id=>{ITEMS.find(x=>x.id===id).hide=()=>true});
 /* 「見通しはどのくらい当たるか」はカードをやめ、「見通しの作り方」の1行に */
@@ -3612,12 +3613,14 @@ PAGES.push({k:'repute',n:'評判',q:'どう語られ、どう評価されてい�
   ITEMS.forEach(it=>{if(it.page==='creative'){it.page='deliver';it.grp='mat'}});
   const L={
     home:{top:['h_verdict','h_todo','h_risk','h_bo','h_nums'],deep:['#反応スコア','a_score','a_decomp','a_axes','o_cmpts','#全体を見渡す','h_views','h_moves','h_all']},
-    acts:{top:['a_today','a_log','a_answer'],deep:['a_bonus','a_seg','a_ch','a_plan','o_upside','a_week','a_flow']},
+    acts:{top:['a_today','a_log','a_answer'],deep:['a_bonus','a_seg','a_ch','o_upside','a_week','a_flow']},
     interest:{top:['i_key','i_buzz','a_cum','i_aware','h_funnel','ux_B'],deep:['h_tl','a_organic','i_clip','i_conv','i_pillars','i_notwant','u_pre2']},
     repute:{top:['r_key','h_alert','i_sat','i_words','u_nps','u_wom'],deep:['#SNSで語られていること','i_sent','h_voice','#観た人の評価','i_score','i_mark','i_topics','i_updown','i_rwords','u_seg','#口コミの広がり','i_wom','u_repeat','#自社のほかの作品と比べる','o_cmpaud']},
     outlook:{top:['o_two','o_pos','o_money','o_final','o_long','o_bench','o_legs','o_type','o_similar','h_goal','o_simsat','#公開の規模と競合','o_supply','o_comp','o_ovl','u_rival'],deep:['#興収をくわしく','o_mult','o_how','u_format','o_curve','#公開の規模と競合をくわしく','o_share','o_winlose','o_slate','o_demand','o_sim','o_demandix','o_pressure']}};
   Object.entries(L).forEach(([pg,o])=>{const mv=[];[['top',false],['deep',true]].forEach(([k,dp])=>{let hd;o[k].forEach(id=>{if(id[0]==='#'){hd=id.slice(1);return}const i=ITEMS.findIndex(x=>x.id===id);if(i<0){console.warn('配置：項目なし',id);return}const it=ITEMS.splice(i,1)[0];it.page=pg;it.deep=dp;it.hd=hd;mv.push(it)})});
     const j=ITEMS.findIndex(x=>x.page===pg);ITEMS.splice(j<0?ITEMS.length:j,0,...mv)});
+  /* 「これからの施策」は、施策の記録（時系列）の「これから」に一本化 */
+  {const i=ITEMS.findIndex(x=>x.id==='a_plan');if(i>=0)ITEMS.splice(i,1)}
   const after=(id,ref,o)=>{const it=ITEMS.splice(ITEMS.findIndex(x=>x.id===id),1)[0];Object.assign(it,o);ITEMS.splice(ITEMS.findIndex(x=>x.id===ref)+1,0,it)};
   after('h_posts','cr_posts',{page:'deliver',grp:'sns',deep:true});after('h_cast','u_items',{page:'audience',deep:true});
   Object.entries({h_moves:12,u_heat:12,o_cmpaud:12,o_curve:12,i_sent:6,i_buzz:12}).forEach(([id,w])=>{g(id).w=w});
@@ -3682,7 +3685,7 @@ document.addEventListener('click',ev=>{const t=ev.target.closest('[data-page],[d
   if(t.dataset.jw){S.jw=t.dataset.jw;render();return}
   if(t.dataset.jm){S.jlMode=t.dataset.jm;render();return}
   if(t.dataset.jsec){S.jlOpen[t.dataset.jsec]=!S.jlOpen[t.dataset.jsec];render();return}
-  if(t.dataset.jev!=null){const id=+t.dataset.jev;if(!cur().ev.some(x=>x.id===id))return;S.openEv=id;render();const el=$('#jl-'+id);if(el&&t.classList.contains('hd'))el.scrollIntoView({block:'center'});openEvent(id);return}
+  if(t.dataset.jev!=null){const id=+t.dataset.jev;if(!cur().ev.some(x=>x.id===id))return;{const e=cur().ev.find(x=>x.id===id);if(e.d>S.day)S.jlOpen.fut=true}S.openEv=id;render();const el=$('#jl-'+id);if(el&&t.classList.contains('hd'))el.scrollIntoView({block:'center'});openEvent(id);return}
   if(t.dataset.sim!=null){S.sim=+t.dataset.sim||null;render();return}
   if(t.dataset.page)setPage(t.dataset.page);
   else if(t.dataset.go)setPage(t.dataset.go,t.dataset.hit);
