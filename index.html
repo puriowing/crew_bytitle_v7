@@ -518,6 +518,13 @@ body.m-more .more-box{display:flex}
 @media(max-width:700px){.cumh-m b{font-size:34px}}
 .g-hd{grid-column:1/-1;font-family:'Zen Maru Gothic',sans-serif;font-size:15px;font-weight:900;margin:10px 0 -4px;padding-left:10px;border-left:4px solid var(--accent2)}.grid>.g-hd:first-child{margin-top:0}
 .gr-cum{margin-top:16px}.gr-cum>summary span{font-size:11.5px;color:var(--sub)}.gr-cum>summary .cm-tg{margin-left:auto}
+.sn-2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:28px;align-items:start}.sn-2 .sub-h{margin-top:0}.sn-2 .sub-h small{font-family:'Noto Sans JP',sans-serif;font-weight:400;font-size:11.5px;color:var(--sub);margin-left:8px}
+.sn-bar{display:flex;height:34px;border-radius:10px;overflow:hidden;margin-bottom:12px}.sn-bar i{font-style:normal;color:#fff;font:700 13px 'Nunito',sans-serif;display:grid;place-items:center;min-width:2px}
+.sn-r{display:grid;grid-template-columns:12px 1fr auto;gap:2px 8px;align-items:center;padding:8px 0;border-top:1px solid var(--rule)}.sn-r>i{width:10px;height:10px;border-radius:3px}.sn-r>span{font-size:13px;font-weight:700}.sn-r>b{font-size:22px}.sn-r>b small{font-size:12px;margin-left:1px}.sn-r>small{grid-column:2/-1;font-size:11.5px;color:var(--sub)}
+.vq{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:4px}
+.vq figure{margin:0;padding:14px 16px 12px;border-radius:14px;background:#fcfbf9;border:1px solid var(--rule);border-left:5px solid #b9bfc5;display:grid;gap:10px;align-content:space-between}.vq figure.p{border-left-color:#5fae86}.vq figure.n{border-left-color:#d98476}
+.vq blockquote{margin:0;font-family:'Zen Maru Gothic',sans-serif;font-weight:700;font-size:16px;line-height:1.6}.vq figcaption{font-size:11.5px;color:var(--sub);display:flex;gap:8px;align-items:center}.vq figcaption i{font-style:normal;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--neufill)}.vq .p figcaption i{background:#e3f1e9;color:#1f7a4d}.vq .n figcaption i{background:#f7e4e0;color:#a3413a}
+@media(max-width:900px){.sn-2{grid-template-columns:1fr;gap:16px}}
 .bm-t th,.bm-t td{white-space:nowrap}.bm-t td small{display:block;font-size:10.5px;color:var(--sub);font-weight:500}.bm-t tr.me td{font-weight:700}.bm-t .cdot{margin-right:6px}
 .lchip .bm-1{font-size:10px;font-weight:500;color:var(--sub);margin-left:2px}
 .fc-t th,.fc-t td{white-space:nowrap}.fc-t .r{text-align:right}
@@ -1940,10 +1947,22 @@ document.addEventListener('click',ev=>{const t=ev.target.closest('[data-spk],[da
   if(D.spkev){if(cur().ev.some(x=>x.id===+D.spkev))openEvent(+D.spkev);return}
   const r=t.getBoundingClientRect(),a=+D.a,b=+D.b,pk=D.pk?D.pk.split(',').map(Number):[];let x=clamp(Math.round(a+(ev.clientX-r.left)/r.width*(b-a)),a,+D.d);
   const near=pk.filter(q=>Math.abs(q-x)<=2).sort((m,k)=>Math.abs(m-x)-Math.abs(k-x))[0];if(near!=null)x=near;S.spk={t:cur().k,d:x,k:D.k||'buzz'};keepY()},true);
-I('interest','i_sent','センチメントの推移',5,[3],(T,d)=>{const b=Math.max(d,0);return {d:'好意的な声と否定的な声の割合',h:chart(T,[{n:'好意的',vals:slice(T,'sent',D0,b,d),c:'#1f7a4d'},{n:'否定的',vals:slice(T,'neg',D0,b,d),c:'#a3413a'}],{a:D0,b,u:'%',h:190,max:100})}},{hit:'sent'});
+I('interest','i_sent','センチメント',5,[3],(T,d)=>{const b=Math.max(d,0),av=(X,k,x=d)=>avgR(X,k,x-6,x),p=av(T,'sent'),n=av(T,'neg'),u=Math.max(0,100-p-n),pm=med(PEERS.map(X=>av(X,'sent'))),nm=med(PEERS.map(X=>av(X,'neg'))),p0=av(T,'sent',d-7),n0=av(T,'neg',d-7),cnt=sumR(T,'buzz',d-6,d),
+  df=(x,y)=>y==null||x==null?'—':(x-y>=0?'+':'')+f1(x-y)+'pt',seg=(c,v,l)=>`<i style="width:${v}%;background:${c}" title="${l} ${f1(v)}%">${v>=9?f1(v)+'%':''}</i>`,
+  r=(lb,c,v,m,v0)=>`<div class="sn-r"><i style="background:${c}"></i><span>${lb}</span><b class="num">${f1(v)}<small>%</small></b>${m==null?'':`<small>類似作の中央値 ${f1(m)}%（${df(v,m)}）｜前の週より ${df(v,v0)}</small>`}</div>`;
+  return {d:`${relLbl(d)}の時点｜好意的・否定的な声の割合`,h:`<div class="sn-2"><div><div class="sub-h">いまの割合<small>直近7日の平均</small></div><div class="sn-bar">${seg('#1f7a4d',p,'好意的')}${seg('#b9bfc5',u,'どちらでもない')}${seg('#a3413a',n,'否定的')}</div>${r('好意的','#1f7a4d',p,pm,p0)}${r('どちらでもない','#b9bfc5',u)}${r('否定的','#a3413a',n,nm,n0)}<div class="note">もとになった投稿は、直近7日で ${fN(cnt)}件です。${cnt<300?'件数が少ないので、割合は大きく動きやすい状態です。':''}</div></div>
+    <div><div class="sub-h">推移<small>灰色の帯は、類似作の好意的な声の幅</small></div>${chart(T,[{n:'類似作の好意的の幅（真ん中の半分）',band:peerBand('sent',D0,b),c:'#8a929a'},{n:'好意的',vals:slice(T,'sent',D0,b,d),c:'#1f7a4d'},{n:'否定的',vals:slice(T,'neg',D0,b,d),c:'#a3413a'}],{a:D0,b,u:'%',h:210,max:100,marks:evMarks(T)})}</div></div>`}},{hit:'sent'});
 const W_PRE=[['予告',18],['主題歌',14],['キャスト',13],['公開日',11],['原作',9],['泣ける',8],['楽しみ',8],['前売り',5],['舞台挨拶',5],['映像がきれい',4]];
 const W_POST=[['泣いた',22],['もう一回',12],['ラスト',11],['主題歌',10],['家族',9],['映画館で',8],['演技',8],['おすすめ',7],['長い',4],['思ってたのと違う',3]];
-I('interest','i_words','語られている言葉と声',12,[3],(T,d)=>({d:d<0?'公開前の期待':'公開後の感想',h:`<div class="two"><div><div class="sub-h">よく使われている言葉</div><div class="words">${(d<0?W_PRE:W_POST).map(w=>`<span>${w[0]}<b>${w[1]}%</b></span>`).join('')}</div></div><div><div class="sub-h">${d<0?'期待の声':'感想の声'}</div><div class="voice">${(d<0?V_PRE:V_POST).slice(0,4).map(x=>`<div class="${x[0]}">${x[1]}</div>`).join('')}</div></div></div>`}));
+const VQ_PRE=[['p','予告だけで泣きそう。公開日に観に行く'],['p','主題歌が流れた瞬間に鳥肌が立った'],['p','このキャストなら間違いない'],['n','予告で話を見せすぎている気がする'],['p','原作が好きなので楽しみにしている'],['u','公開日、仕事を休めるか調整中'],['p','ポスターの絵だけでもう好き'],['p','前売りを家族の分まで買った'],['u','原作を読んでから行くか迷う'],['n','原作の雰囲気と違って見えるのが心配'],['p','舞台挨拶の回が取れたら最高'],['u','上映時間はどのくらいだろう'],['p','久しぶりに映画館で観たいと思える作品'],['n','キャストの発表が遅くて盛り上がりにくい']].map(x=>[...x,'SNSの投稿']);
+const VQ_POST=[['p','後半はずっと泣いていた。もう一度観たい','SNSの投稿'],['p','友人にすすめられて来た。来てよかった','鑑賞後のアンケート'],['p','結末を知っていても涙が止まらない','レビュー'],['p','家族を誘ってまた行くつもり','SNSの投稿'],['n','中盤が少し長く感じた','SNSの投稿'],['p','映画館で観てよかったと思える音だった','SNSの投稿'],['n','演出が好みと合わなかった','レビュー'],['p','エンドロールで誰も席を立たなかった','SNSの投稿'],['p','子どもが最後まで集中して観ていた','鑑賞後のアンケート'],['n','予告の印象とは違う話だった','SNSの投稿'],['u','原作を読み返したくなった','レビュー'],['p','主題歌がかかる場面で一気に持っていかれた','SNSの投稿'],['u','感想を話したくて帰りにお茶をした','鑑賞後のアンケート'],['p','二回目のほうが泣けた','レビュー'],['n','席が前すぎて少し疲れた','鑑賞後のアンケート'],['p','親にもすすめた。来週いっしょに行く','SNSの投稿'],['u','パンフレットが売り切れていた','SNSの投稿'],['n','登場人物が多くて前半は追いにくい','レビュー']];
+const VQ_T={p:'好意的',u:'どちらでもない',n:'否定的'},VQ_N=8;
+I('interest','i_words','観客の声',12,[3],(T,d)=>{const src=x=>x[2]==='SNSの投稿'||x[2]==='レビュー'&&has(4)||x[2]==='鑑賞後のアンケート'&&has(2),all=(d<0?VQ_PRE:VQ_POST).filter(src),f=['p','u','n'].includes(S.vf)?S.vf:'all',list=f==='all'?all:all.filter(x=>x[0]===f),show=S.vmore?list:list.slice(0,VQ_N),ct=k=>all.filter(x=>x[0]===k).length;
+  return {d:`${d<0?'公開前の期待の声':'公開後の感想の声'}｜40字以内の抜き出し`,h:`<div class="ctl"><span class="seg">${[['all',`すべて ${all.length}`]].concat(['p','u','n'].map(k=>[k,`${VQ_T[k]} ${ct(k)}`])).map(x=>`<button data-vf="${x[0]}" class="${f===x[0]?'on':''}">${x[1]}</button>`).join('')}</span></div>
+    <div class="vq">${show.map(x=>`<figure class="${x[0]}"><blockquote>${x[1]}</blockquote><figcaption><i>${VQ_T[x[0]]}</i>${x[2]}</figcaption></figure>`).join('')||'<div class="empty">この種類の声はありません。</div>'}</div>
+    ${list.length>VQ_N?`<div style="text-align:center;margin-top:12px"><button class="btn" data-vmore>${S.vmore?'少なく表示する':`もっと見る（残り ${list.length-VQ_N}件）`}</button></div>`:''}
+    <div class="sub-h">よく使われている言葉</div><div class="words">${(d<0?W_PRE:W_POST).map(w=>`<span>${w[0]}<b>${w[1]}%</b></span>`).join('')}</div>`}});
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-vf],[data-vmore]');if(!t)return;const y=scrollY;if(t.dataset.vf)S.vf=t.dataset.vf;else S.vmore=!S.vmore;render();scrollTo(0,y)});
 I('interest','i_search','検索',6,[5],(T,d)=>{const b=Math.max(d,0);return {d:'作品名で調べられた回数',h:chart(T,[{n:'類似作の幅（真ん中の半分）',band:peerBand('search',D0,b),c:'#8a929a'},{n:'この作品',vals:slice(T,'search',D0,b,d),c:M.search.c}],{a:D0,b,u:'回',h:170,marks:evMarks(T),over:spkOver(T,d,'search',b)})+spkBox(T,d,'search')}},{hide:()=>true});
 I('interest','i_clip','Clip!（観たい登録）の積み上がり',6,[4],(T,d)=>{const b=Math.max(d,0),cum=[];let s=0;for(let x=D0;x<=b;x++){s+=at(T,'clip',x);cum.push(x>d?null:s)}const pos=posOf(T,'clip',d,'cum');
   return {d:`類似作の同じ時点と比べて ${TIERS[tierOf(pos)]}`,h:chart(T,[{n:'類似作の幅（真ん中の半分）',band:peerBand('clip',D0,b,true),c:'#8a929a'},{n:'この作品（累計）',vals:cum,c:M.clip.c}],{a:D0,b,u:'人',h:170,marks:evMarks(T)})}},{hit:'clip'});
@@ -2859,7 +2878,7 @@ function srcChips(it){const use=SRC_USE[it.id]||it.need;if(!use.length)return '<
   return `<div class="srcs int-only"><span class="sc-l">使っているデータ</span>${on.map(k=>`<span class="sc ${typeof k==='number'?'':'c'} ${k===2?'k2':''}">${typeof k==='number'?k+' ':''}${SRC_NAME[k]}</span>`).join('')}${later.map(k=>`<span class="sc l" title="Phase ${srcPhase(k)}で加わります">${k} ${SRC_NAME[k]}<i>Phase ${srcPhase(k)}から</i></span>`).join('')}</div>`}
 
 /* 社内表示：CAST（鑑賞後アンケート）が、公開前と公開後でどう使われるかの案内 */
-const CAST_PRE=['a_simtime','i_simroute','u_sim','o_simsat','p_map','p_pick','p_table','p_gap','p_hit','p_segtime','p_cal','p_segroute','p_area','p_charea','p_chkey','p_chsell','p_whyseg'],CAST_MIX=['h_nums','h_voice','o_final','o_mult','h_todo','i_conv','u_seg','u_overlap','u_next','o_supply','o_legs','o_type','o_ovl'];
+const CAST_PRE=['a_simtime','i_simroute','u_sim','o_simsat','p_map','p_pick','p_table','p_gap','p_hit','p_segtime','p_cal','p_segroute','p_area','p_charea','p_chkey','p_chsell','p_whyseg'],CAST_MIX=['h_nums','i_words','o_final','o_mult','h_todo','i_conv','u_seg','u_overlap','u_next','o_supply','o_legs','o_type','o_ovl'];
 const usesCast=it=>(SRC_USE[it.id]||it.need).includes(2);
 function castGuide(T,d){const sp=S.phase;S.phase=3;const post=ITEMS.filter(it=>(it.need.includes(2)||CAST_MIX.includes(it.id))&&!CAST_PRE.includes(it.id)&&avail(it,20)),pre=ITEMS.filter(it=>CAST_PRE.includes(it.id));S.phase=sp;
   const isPre=d<0,pg=k=>PAGES.find(x=>x.k===k).n,preDay=Math.min(T.today,-12)<0?Math.min(T.today,-1):-12;
@@ -3202,7 +3221,7 @@ I('home','h_risk','炎上リスクの見張り',12,[3],(T,d)=>{const L=T.ev.filt
 (function(){const i=ITEMS.findIndex(x=>x.id==='h_risk'),it=ITEMS.splice(i,1)[0],j=ITEMS.findIndex(x=>x.id==='h_todo');ITEMS.splice(j+1,0,it)})();
 SRC_USE.a_rx=[3];SRC_USE.h_risk=[3];
 /* 「施策ごとの反応と炎上リスク」は、施策の日誌の切り替えの1つとして出す */
-ITEMS.find(x=>x.id==='a_rx').hide=()=>true;Object.keys(ALIAS).forEach(k=>{if(ALIAS[k]==='a_rx')ALIAS[k]='a_log'});Object.keys(ALIAS).forEach(k=>{if(['i_search','i_buzz','a_tl','a_react'].includes(ALIAS[k]))ALIAS[k]='i_buzz';if(ALIAS[k]==='a_plan')ALIAS[k]='a_log';if(['h_tl','a_organic','i_clip','a_cum'].includes(ALIAS[k]))ALIAS[k]='i_buzz'});
+ITEMS.find(x=>x.id==='a_rx').hide=()=>true;Object.keys(ALIAS).forEach(k=>{if(ALIAS[k]==='a_rx')ALIAS[k]='a_log'});Object.keys(ALIAS).forEach(k=>{if(['i_search','i_buzz','a_tl','a_react'].includes(ALIAS[k]))ALIAS[k]='i_buzz';if(ALIAS[k]==='a_plan')ALIAS[k]='a_log';if(['h_tl','a_organic','i_clip','a_cum'].includes(ALIAS[k]))ALIAS[k]='i_buzz';if(ALIAS[k]==='h_voice')ALIAS[k]='i_words'});
 /* 「施策と反応の推移」「話題と検索の動き」は、「グラフから探す」と同じ見方なのでまとめた */
 ['a_tl','a_react'].forEach(id=>{ITEMS.find(x=>x.id===id).hide=()=>true});
 /* 「見通しはどのくらい当たるか」はカードをやめ、「見通しの作り方」の1行に */
@@ -3484,7 +3503,7 @@ const ikFn=pgk=>(T,d)=>{const rows=IK.filter(x=>ikPg(x)===pgk&&mAvail(x.k,d)&&at
   return {d:`類似作の同じ時期と比べて｜${relLbl(d)}`,h:`<ul class="todo" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-bottom:14px">
       <li class="${strong.p>=60?'good':''}"><b>いちばん上位：${strong.x.q}</b>${M[strong.x.k].n}は類似作の中で ${strong.p}（50が真ん中）。</li>
       <li class="${weak.p<40?'warn':''}"><b>いちばん下位：${weak.x.q}</b>${M[weak.x.k].n}は類似作の中で ${weak.p}。${weak.p<40?'ここを補う施策を考えます。':''}</li></ul>
-    ${groups.map((g,gi)=>`<div class="ik-g"><div class="ik-gh"><span class="num">${gi+1}</span>${g}</div><div class="chk">${rows.map((x,i)=>({x,i})).filter(o=>o.x.st===g).map(({x,i})=>{const [tc,tl]=tone(ps[i]);
+    ${groups.map((g,gi)=>`<div class="ik-g"><div class="ik-gh">${groups.length>1?`<span class="num">${gi+1}</span>`:''}${g}</div><div class="chk">${rows.map((x,i)=>({x,i})).filter(o=>o.x.st===g).map(({x,i})=>{const [tc,tl]=tone(ps[i]);
       return `<button class="ck-r ik-r" data-go="${pgk}" data-hit="${x.hit}"><span class="ik-p"><i style="left:${ps[i]}%"></i></span><div class="ck-q"><b>${x.q}</b><small>${M[x.k].n}｜${sub(x)}</small></div><span class="ik-s" title="直近4週の推移">${spark(slice(T,x.k,d-27,d,d),M[x.k].c)}</span><div class="ck-v"><b class="num">${fm(x)}</b><small>${M[x.k].u}</small></div><span class="tone ${tc}">${tl}</span></button>`}).join('')}</div></div>`).join('')}
     <div class="note">左の小さな帯は、類似作の同じ時期の中での位置（左ほど下、右ほど上、真ん中の線が類似作の真ん中）。行を押すと、くわしいグラフに移ります。</div>`}};
 I('interest','i_key','関心：ここだけ確認',12,[],ikFn('interest'),{any:[1,3,4,5]});
@@ -3621,15 +3640,15 @@ PAGES.push({k:'repute',n:'評判',q:'どう語られ、どう評価されてい�
     home:{top:['h_verdict','h_todo','h_risk','h_bo','h_nums'],deep:['#反応スコア','a_score','a_decomp','a_axes','o_cmpts','#全体を見渡す','h_views','h_moves','h_all']},
     acts:{top:['a_today','a_log','a_answer'],deep:['a_bonus','a_seg','a_ch','o_upside','a_week','a_flow']},
     interest:{top:['i_key','i_buzz','a_cum','i_aware','h_funnel','ux_B'],deep:['i_conv','i_pillars','i_notwant','u_pre2']},
-    repute:{top:['r_key','h_alert','i_sat','i_words','u_nps','u_wom'],deep:['#SNSで語られていること','i_sent','h_voice','#観た人の評価','i_score','i_mark','i_topics','i_updown','i_rwords','u_seg','#口コミの広がり','i_wom','u_repeat','#自社のほかの作品と比べる','o_cmpaud']},
+    repute:{top:['r_key','h_alert','i_sent','i_words','i_sat','u_nps','u_wom'],deep:['#観た人の評価','i_score','i_mark','i_topics','i_updown','i_rwords','u_seg','#口コミの広がり','i_wom','u_repeat','#自社のほかの作品と比べる','o_cmpaud']},
     outlook:{top:['o_two','o_pos','o_money','o_final','o_long','o_bench','o_legs','o_type','o_similar','h_goal','o_simsat','#公開の規模と競合','o_supply','o_comp','o_ovl','u_rival'],deep:['#興収をくわしく','o_mult','o_how','u_format','o_curve','#公開の規模と競合をくわしく','o_share','o_winlose','o_slate','o_demand','o_sim','o_demandix','o_pressure']}};
   Object.entries(L).forEach(([pg,o])=>{const mv=[];[['top',false],['deep',true]].forEach(([k,dp])=>{let hd;o[k].forEach(id=>{if(id[0]==='#'){hd=id.slice(1);return}const i=ITEMS.findIndex(x=>x.id===id);if(i<0){console.warn('配置：項目なし',id);return}const it=ITEMS.splice(i,1)[0];it.page=pg;it.deep=dp;it.hd=hd;mv.push(it)})});
     const j=ITEMS.findIndex(x=>x.page===pg);ITEMS.splice(j<0?ITEMS.length:j,0,...mv)});
   /* 「これからの施策」は、施策の記録（時系列）の「これから」に一本化 */
-  ['a_plan','h_tl','a_organic','i_clip'].forEach(id=>{const i=ITEMS.findIndex(x=>x.id===id);if(i>=0)ITEMS.splice(i,1)});/* h_tl・i_clip は「数字の推移と施策」の期間・累計の切り替えに一本化 */
+  ['a_plan','h_tl','a_organic','i_clip','h_voice'].forEach(id=>{const i=ITEMS.findIndex(x=>x.id===id);if(i>=0)ITEMS.splice(i,1)});/* h_tl・i_clip は「数字の推移と施策」の期間・累計の切り替えに一本化 */
   const after=(id,ref,o)=>{const it=ITEMS.splice(ITEMS.findIndex(x=>x.id===id),1)[0];Object.assign(it,o);ITEMS.splice(ITEMS.findIndex(x=>x.id===ref)+1,0,it)};
   after('h_posts','cr_posts',{page:'deliver',grp:'sns',deep:true});after('h_cast','u_items',{page:'audience',deep:true});
-  Object.entries({h_moves:12,u_heat:12,o_cmpaud:12,o_curve:12,i_sent:6,i_buzz:12}).forEach(([id,w])=>{g(id).w=w});
+  Object.entries({h_moves:12,u_heat:12,o_cmpaud:12,o_curve:12,i_sent:12,i_buzz:12}).forEach(([id,w])=>{g(id).w=w});
   /* 施策ページ＝施策ごとに見る／関心ページ＝数字の推移で見る。推移グラフは関心ページの1か所だけ */
   {const it=g('i_buzz'),f=it.fn;delete it.hide;it.t='数字の推移と施策';const c=g('a_cum'),cf=c.fn;c.hide=d=>avail(it,d);it.fn=(T,d)=>{const o=f(T,d),q=c.any.some(has)?cf(T,d):null;return {d:'数字の山（▼）を押すと、その日に近い施策が出ます。',h:o.h+(q?`<details class="cm-fold gr-cum" ${cumOpen()?'open':''}><summary><b>累計の一覧</b><span>宣伝の量と反応の累計を、類似作の同じ時点と比べる</span><i class="cm-tg"></i></summary>${q.h}</details>`:'')}}}
 })();
